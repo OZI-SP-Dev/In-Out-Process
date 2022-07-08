@@ -1,4 +1,4 @@
-import { HashRouter, Link } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import './App.css';
 import Roles from './Roles';
 import { AppHeader } from './components/AppHeader/AppHeader';
