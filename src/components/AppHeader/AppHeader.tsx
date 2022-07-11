@@ -9,7 +9,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
     const _items: ICommandBarItemProps[] = [
         {
             key: "title",
-            text: 'In-Out-Process'
+            text: process.env.REACT_APP_TEST_SYS === 'true' ? 'In-Out-Process TEST' : 'In-Out-Process'
         },
         {
           key: 'newItem',
@@ -18,13 +18,6 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
         }
         ];
 
-    /* const _farItems: ICommandBarItemProps[] = [
-        {
-            key: "loginID",
-            text: userContext.user?.Title
-        }
-        ];
-*/
     const _farItems: ICommandBarItemProps[] =[
             {
               onRenderMenuIcon: () => null,
@@ -34,8 +27,6 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
               iconOnly: true
             }
         ]          
-
-    
 
     return (
         <Sticky stickyPosition={StickyPositionType.Header}>
