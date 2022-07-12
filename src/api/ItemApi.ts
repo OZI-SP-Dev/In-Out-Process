@@ -1,8 +1,16 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
+import { IItemUpdateResult } from "@pnp/sp/items";
 
+  // create PnP JS response interface for Item
+  export interface IResponseItem {
+    Id: number;
+    Title: string;
+  }
+
+// create IItem item to work with it internally
 export interface IItem {
-    ID: number,
+    Id: number,
     Title: string
 }
 
@@ -14,17 +22,29 @@ export interface IItemApi {
      * @param ID The ID of the item to retrieve from SharePoint
      * @returns The IITem for the given ID
      */
-    getItemById(ID: number): Promise<IItem | undefined>,
+    getItemById(ID: number): Promise<IResponseItem | undefined>,
 
+     /**
+     * Update/persist the given Item
+     * 
+     * @param requirementsRequest The RequirementsRequest to be saved/updated
+     */
+    updateItem(IItem: IItem): Promise<IItemUpdateResult>,
 }
 
 export class ItemApi implements IItemApi {
 
-    rolesList = spWebContext.web.lists.getByTitle("Items");
+    itemList = spWebContext.web.lists.getByTitle("Items");
 
-    async getItemById(ID: number): Promise<IItem | undefined> {
+    async getItemById(ID: number): Promise<IResponseItem | undefined> {
         try {
-            return await this.rolesList.items.getById(ID)();
+            // use map to convert IResponseItem[] into our internal object IItem[]
+            const response: IResponseItem = await this.itemList.items.getById(ID)();
+            const items: IItem = {
+                Id: response.Id,
+                Title: response.Title
+                };
+            return items;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Item with ID ${ID}`);
             console.error(e);
@@ -38,6 +58,22 @@ export class ItemApi implements IItemApi {
         }
     }
 
+    async updateItem(Item: IItem): Promise<IItemUpdateResult> {
+        try {
+            return await this.itemList.items.getById(Item.Id).update(Item);
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch Item with ID ${Item.Id}`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch Item with ID ${Item.Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch Item with ID ${Item.Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to Item with ID ${Item.Id}`);
+            }
+        }
+    }
+
 }
 
 export class ItemApiDev implements IItemApi {
@@ -46,14 +82,19 @@ export class ItemApiDev implements IItemApi {
         return new Promise(r => setTimeout(r, 500));
     }
 
-    items = [
-        { "odata.type": "SP.Data.ItemsListItem", "odata.id": "f85358ff-ff57-43d9-b45f-29497afa61a9", "odata.etag": "\"1\"", "odata.editLink": "Web/Lists(guid'f31adb2a-f0f8-407e-a49c-58b2a95948ec')/Items(1)", "FileSystemObjectType": 0, "Id": 1, "ServerRedirectedEmbedUri": null, "ServerRedirectedEmbedUrl": "", "ID": 1, "ContentTypeId": "0x01005F6EBBB8C1815D4BB76AD7E764349CB800BCB84074E20FF642B5A2F39E9C2046BE", "Title": "I am Item 1 from Test Data", "Modified": "2022-07-08T18:46:58Z", "Created": "2022-07-08T18:46:58Z", "AuthorId": 117, "EditorId": 117, "OData__UIVersionString": "1.0", "Attachments": false, "GUID": "89a506f5-455a-4c01-a10f-ad7a009308cb", "ComplianceAssetId": null },
-        { "odata.type": "SP.Data.ItemsListItem", "odata.id": "f85358ff-ff57-43d9-b45f-29497afa61a9", "odata.etag": "\"1\"", "odata.editLink": "Web/Lists(guid'f31adb2a-f0f8-407e-a49c-58b2a95948ec')/Items(2)", "FileSystemObjectType": 0, "Id": 2, "ServerRedirectedEmbedUri": null, "ServerRedirectedEmbedUrl": "", "ID": 2, "ContentTypeId": "0x01005F6EBBB8C1815D4BB76AD7E764349CB800BCB84074E20FF642B5A2F39E9C2046BE", "Title": "I am Item 2 from Test Data", "Modified": "2022-07-08T18:46:58Z", "Created": "2022-07-08T18:46:58Z", "AuthorId": 117, "EditorId": 117, "OData__UIVersionString": "1.0", "Attachments": false, "GUID": "89a506f5-455a-4c01-a10f-ad7a009308cb", "ComplianceAssetId": null }
+    items:IResponseItem[] = [
+        { Id:1, "Title": "I am Item 1 from Test Data"},
+        { Id:2, "Title": "I am Item 2 from Test Data"}
     ]
 
-    async getItemById(ID: number): Promise<IItem | undefined> {
+    async getItemById(ID: number): Promise<IResponseItem | undefined> {
         await this.sleep();
         return this.items.find(r => r.Id === ID);
+    }
+
+    async updateItem(Item: IItem): Promise<IItemUpdateResult | any> {
+        await this.sleep();
+        return this.items[this.items.findIndex(r => r.Id === Item.Id)] = Item;
     }
 
 }
