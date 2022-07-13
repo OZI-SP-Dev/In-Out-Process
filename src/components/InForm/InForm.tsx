@@ -4,7 +4,7 @@ import { PeoplePicker } from '../PeoplePicker/PeoplePicker';
 import { useId, useBoolean } from '@fluentui/react-hooks';
 import { OFFICES } from '../../constants/Offices';
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from '../../constants/GradeRanks';
-import { EMPTYPES } from '../../constants/EmpTypes';
+import { emptype, EMPTYPES } from '../../constants/EmpTypes';
 
 interface IInForm {
   /** Required - Contains the Employee's Name */
@@ -14,7 +14,7 @@ interface IInForm {
    * 'mil' - for Military Employees
    * 'ctr' - for Contracted Employees
    */
-  empType: string,
+  empType: emptype,
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string,
   /** Required - If 'true' the employee is full-time teleworking, otherwise they report to base  */
@@ -22,13 +22,13 @@ interface IInForm {
   /** Required - The Employee's Office */
   office: string
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCiv?: boolean | undefined 
+  isNewCiv: boolean | undefined 
 }
 const cancelIcon: IIconProps = { iconName: 'Cancel' };
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   //TODO - Set up a type for InForm
-  let defaultInForm: IInForm = { empName: 'Doe, Jane A', empType: '', isRemote: true, gradeRank: '', office: '' };
+  let defaultInForm: IInForm = { empName: 'Doe, Jane A', empType: 'civ', isRemote: true, gradeRank: '', office: '', isNewCiv: false };
   const [formData, setFormData] = useState<IInForm>(defaultInForm)
   const [gradeRankOptions, setGradeRankOptions] = React.useState<IComboBoxOption[]>([]);
 
@@ -46,7 +46,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
             setGradeRankOptions([]);
             break;
         }
-        return { ...f, empType: option.key }
+        return { ...f, empType: option.key as emptype }
       });
   }, []);
 
