@@ -10,8 +10,8 @@ import { InForm } from './components/InForm/InForm';
 function App() {
   return (
     <div>
-    <AppHeader />
     <HashRouter>
+    <AppHeader />
     <Routes>
         <Route index element={<Home />}></Route>
         <Route path="roles" element={<Roles />}>

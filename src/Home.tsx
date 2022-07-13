@@ -1,12 +1,16 @@
 import { PrimaryButton, Separator, Stack } from "@fluentui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function createNewItem()
-  {
-    return true;
-  }
 
 function Home() {
+  let navigate = useNavigate();
+
+  function createNewItem()
+    {
+      navigate("new");
+      return true;
+    }
+
   return (
     <Stack>
       <Stack.Item align="center">
