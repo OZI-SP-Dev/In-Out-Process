@@ -1,100 +1,40 @@
-import { ChoiceGroup, ComboBox, DatePicker, FontWeights, getTheme, IChoiceGroupOption, IComboBox, IComboBoxOption, IconButton, IIconProps, IToggle, Label, mergeStyleSets, Modal, PrimaryButton, SelectableOptionMenuItemType, Stack, TextField, Toggle } from '@fluentui/react';
+import { ChoiceGroup, ComboBox, DatePicker, FontWeights, getTheme, IChoiceGroupOption, IComboBox, IComboBoxOption, IconButton, IIconProps, IToggle, Label, mergeStyleSets, Modal, PrimaryButton, Stack, TextField, Toggle } from '@fluentui/react';
 import React, { useState } from "react";
 import { PeoplePicker } from '../PeoplePicker/PeoplePicker';
 import { useId, useBoolean } from '@fluentui/react-hooks';
+import { OFFICES } from '../../constants/Offices';
+import { GS_GRADES, NH_GRADES, MIL_GRADES } from '../../constants/GradeRanks';
+import { EMPTYPES } from '../../constants/EmpTypes';
 
+interface IInForm {
+  /** Required - Contains the Employee's Name */
+  empName: string,
+  /** Required - Employee's Type valid values are:
+   * 'civ' - for Civilian Employees
+   * 'mil' - for Military Employees
+   * 'ctr' - for Contracted Employees
+   */
+  empType: string,
+  /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
+  gradeRank: string,
+  /** Required - If 'true' the employee is full-time teleworking, otherwise they report to base  */
+  isRemote: boolean | undefined
+  /** Required - The Employee's Office */
+  office: string
+  /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
+  isNewCiv?: boolean | undefined 
+}
 const cancelIcon: IIconProps = { iconName: 'Cancel' };
-
-const GS_GRADES: IComboBoxOption[] = [
-  { key: 'GS', text: 'GS', itemType: SelectableOptionMenuItemType.Header },
-  { key: 'GS-01', text: 'GS-01' },
-  { key: 'GS-02', text: 'GS-02' },
-  { key: 'GS-03', text: 'GS-03' },
-  { key: 'GS-04', text: 'GS-04' },
-  { key: 'GS-05', text: 'GS-05' },
-  { key: 'GS-06', text: 'GS-06' },
-  { key: 'GS-07', text: 'GS-07' },
-  { key: 'GS-08', text: 'GS-08' },
-  { key: 'GS-09', text: 'GS-09' },
-  { key: 'GS-10', text: 'GS-10' },
-  { key: 'GS-11', text: 'GS-11' },
-  { key: 'GS-12', text: 'GS-12' },
-  { key: 'GS-13', text: 'GS-13' },
-  { key: 'GS-14', text: 'GS-14' },
-  { key: 'GS-15', text: 'GS-15' },
-];
-
-const NH_GRADES: IComboBoxOption[] = [
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'NH', text: 'NH', itemType: SelectableOptionMenuItemType.Header },
-  { key: 'NH-02', text: 'NH-03' },
-  { key: 'NH-03', text: 'NH-04' },
-  { key: 'NH-04', text: 'NH-05' },
-  { key: 'NH-05', text: 'NH-06' },
-];
-
-const MIL_GRADES: IComboBoxOption[] = [
-  { key: 'Enlisted', text: 'Enlisted', itemType: SelectableOptionMenuItemType.Header },
-  { key: 'E-1', text: 'E-1' },
-  { key: 'E-2', text: 'E-2' },
-  { key: 'E-3', text: 'E-3' },
-  { key: 'E-4', text: 'E-4' },
-  { key: 'E-5', text: 'E-5' },
-  { key: 'E-6', text: 'E-6' },
-  { key: 'E-7', text: 'E-7' },
-  { key: 'E-8', text: 'E-8' },
-  { key: 'E-9', text: 'E-9' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'Officer', text: 'Officer', itemType: SelectableOptionMenuItemType.Header },
-  { key: 'O-1', text: 'O-1' },
-  { key: 'O-2', text: 'O-2' },
-  { key: 'O-3', text: 'O-3' },
-  { key: 'O-4', text: 'O-4' },
-  { key: 'O-5', text: 'O-5' },
-  { key: 'O-6', text: 'O-6' },
-  { key: 'O-7', text: 'O-7' },
-  { key: 'O-8', text: 'O-8' },
-  { key: 'O-9', text: 'O-9' },
-  { key: 'O-10', text: 'O-10' },
-];
-
-const OFFICES: IComboBoxOption[] = [
-  { key: 'XP-OZ', text: 'XP-OZ' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZA', text: 'OZA' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZI', text: 'OZI' },
-  { key: 'OZIC', text: 'OZIC' },
-  { key: 'OZIF', text: 'OZIF' },
-  { key: 'OZIP', text: 'OZIP' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZJ', text: 'OZJ' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZJ', text: 'OZJ', itemType: SelectableOptionMenuItemType.Header },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZO', text: 'OZO' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZT', text: 'OZT' },
-  { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-  { key: 'OZZ', text: 'OZZ' },
-];
-
-const EMPTYPES: IChoiceGroupOption[] = [
-  { key: 'civ', text: 'Civilian' },
-  { key: 'mil', text: 'Military' },
-  { key: 'ctr', text: 'Contractor' }
-];
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   //TODO - Set up a type for InForm
-  let defaultInForm: any = { empName: 'Doe, Jane A', isRemote: true };
-  const [formData, setFormData] = useState(defaultInForm)
-  const [gradeRankOptions, setGradeRankOptions] = React.useState<IComboBoxOption[]>([]);  
+  let defaultInForm: IInForm = { empName: 'Doe, Jane A', empType: '', isRemote: true, gradeRank: '', office: '' };
+  const [formData, setFormData] = useState<IInForm>(defaultInForm)
+  const [gradeRankOptions, setGradeRankOptions] = React.useState<IComboBoxOption[]>([]);
 
   const onEmpTypeChange = React.useCallback((ev: React.SyntheticEvent<HTMLElement> | undefined, option?: IChoiceGroupOption) => {
     if (option)
-      setFormData((f: any) => {
-        let availGradeRank = []
+      setFormData((f: IInForm) => {
         switch (option.key) {
           case "civ":
             setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
@@ -111,30 +51,32 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   }, []);
 
   const onLocalRemote = React.useCallback((ev: React.FormEvent<IToggle>, checked: boolean | undefined) => {
-    setFormData((f: any) => {
+    setFormData((f: IInForm) => {
       return { ...f, isRemote: checked }
     });
   }, []);
 
   const onNewCiv = React.useCallback((ev: React.FormEvent<IToggle>, checked: boolean | undefined) => {
-    setFormData((f: any) => {
+    setFormData((f: IInForm) => {
       return { ...f, isNewCiv: checked }
     });
   }, []);
 
   const onEmpNameChange = React.useCallback(
     (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-      setFormData((f: any) => {
-        return { ...f, empName: newValue }
-      });
+        const empNameVal = newValue?newValue : ''; 
+        setFormData((f: IInForm) => {
+          return { ...f, empName: empNameVal }
+        });
     },
     [],
   );
 
   const onGradeChange = React.useCallback(
     (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string): void => {
-      setFormData((f: any) => {
-        return { ...f, gradeRank: option?.key }
+      const gradeRankVal = option?.key ? option.key.toString() : '';
+      setFormData((f: IInForm) => {
+        return { ...f, gradeRank: gradeRankVal }
       });
     },
     [],
@@ -142,15 +84,15 @@ export const InForm: React.FunctionComponent<any> = (props) => {
 
   const onOfficeChange = React.useCallback(
     (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string): void => {
-      setFormData((f: any) => {
-        return { ...f, office: option?.key }
+      const officeVal = option?.key ? option.key.toString() : '';
+      setFormData((f: IInForm) => {
+        return { ...f, office: officeVal }
       });
     },
     [],
   );
 
   const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
-
 
   // Use useId() to ensure that the IDs are unique on the page.
   // (It's also okay to use plain strings and manually ensure uniqueness.)
@@ -162,46 +104,46 @@ export const InForm: React.FunctionComponent<any> = (props) => {
 
   return (
     <div>
-    <Stack>
-      <Stack.Item>
-        <TextField
-          label="Employee Name"
-          value={formData.empName}
-          onChange={onEmpNameChange}
-        />
-        <ChoiceGroup selectedKey={formData.empType} options={EMPTYPES} onChange={onEmpTypeChange} label="Employee Type" />
-        <ComboBox
-          selectedKey={formData.gradeRank}
-          label="Grade/Rank"
-          autoComplete="on"
-          options={gradeRankOptions}
-          onChange={onGradeChange}
-          dropdownWidth={100}
-          disabled={formData.empType === "ctr"}
-        />
-        <Toggle label="Local or Remote" onText="Remote" offText="Local" checked={formData.isRemote} onChange={onLocalRemote} />
-        <DatePicker
-          placeholder="Select estimated arrival date"
-          ariaLabel="Select an estimated arrival date"
-          label="Select estimated arrival date"
-        />
-        <ComboBox
-          selectedKey={formData.office}
-          label="Office"
-          autoComplete="on"
-          options={OFFICES}
-          onChange={onOfficeChange}
-          dropdownWidth={100}
-        />
-        <Label>Supervisor/Government Lead</Label>
-        <PeoplePicker
-        
-        />
-        {formData.empType === 'civ' ? <Toggle label="Is Employee a New to Air Force Civilian?" onText="Yes" offText="No" onChange={onNewCiv} /> : null}
-        <PrimaryButton text="Create In Processing Record" onClick={reviewRecord}></PrimaryButton>
-      </Stack.Item>
-    </Stack>
-        <Modal
+      <Stack>
+        <Stack.Item>
+          <TextField
+            label="Employee Name"
+            value={formData.empName}
+            onChange={onEmpNameChange}
+          />
+          <ChoiceGroup selectedKey={formData.empType} options={EMPTYPES} onChange={onEmpTypeChange} label="Employee Type" />
+          <ComboBox
+            selectedKey={formData.gradeRank}
+            label="Grade/Rank"
+            autoComplete="on"
+            options={gradeRankOptions}
+            onChange={onGradeChange}
+            dropdownWidth={100}
+            disabled={formData.empType === "ctr"}
+          />
+          <Toggle label="Local or Remote" onText="Remote" offText="Local" checked={formData.isRemote} onChange={onLocalRemote} />
+          <DatePicker
+            placeholder="Select estimated arrival date"
+            ariaLabel="Select an estimated arrival date"
+            label="Select estimated arrival date"
+          />
+          <ComboBox
+            selectedKey={formData.office}
+            label="Office"
+            autoComplete="on"
+            options={OFFICES}
+            onChange={onOfficeChange}
+            dropdownWidth={100}
+          />
+          <Label>Supervisor/Government Lead</Label>
+          <PeoplePicker
+
+          />
+          {formData.empType === 'civ' ? <Toggle label="Is Employee a New to Air Force Civilian?" onText="Yes" offText="No" onChange={onNewCiv} /> : null}
+          <PrimaryButton text="Create In Processing Record" onClick={reviewRecord}></PrimaryButton>
+        </Stack.Item>
+      </Stack>
+      <Modal
         titleAriaId={titleId}
         isOpen={isModalOpen}
         onDismiss={hideModal}
@@ -224,7 +166,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           </p>
         </div>
       </Modal>
-      </div>
+    </div>
   );
 }
 
