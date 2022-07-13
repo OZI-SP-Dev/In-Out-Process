@@ -117,4 +117,3 @@ function convertResultsToPromise(results: IPersonaProps[]): Promise<IPersonaProp
 function getTextFromItem(persona: IPersonaProps): string {
   return persona.text as string;
 }
-
