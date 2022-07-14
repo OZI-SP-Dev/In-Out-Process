@@ -8,7 +8,7 @@ import { initializeIcons } from '@fluentui/react/lib/Icons';
 
 // Initialize from a location we have access to, default location is blocked so using alternate
 //  see https://github.com/microsoft/fluentui/wiki/Using-icons
-initializeIcons("https://static2.sharepointonline.com/files/fabric/assets/icons/");
+initializeIcons();
 
 ReactDOM.render(
 <React.StrictMode>
