@@ -66,8 +66,6 @@ export const PeoplePicker: React.FunctionComponent<any> = (props) => {
   }
 
   return (
-    <div>
-      <div>
         <NormalPeoplePicker
           // eslint-disable-next-line react/jsx-no-bind
           onResolveSuggestions={onFilterChanged}
@@ -89,8 +87,6 @@ export const PeoplePicker: React.FunctionComponent<any> = (props) => {
           resolveDelay={300}
           disabled={false}
         />
-      </div>
-    </div>
   );
 };
 
