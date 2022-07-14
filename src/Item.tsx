@@ -1,4 +1,4 @@
-import { PrimaryButton } from "@fluentui/react";
+import { Button } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IItem, ItemApiConfig } from "./api/ItemApi";
@@ -39,7 +39,7 @@ function Item() {
     <p>Getting info for {itemNum}</p>
     <p>Response: {item.Title}</p>
 
-    <PrimaryButton text="Update" onClick={updateItem}></PrimaryButton>
+    <Button appearance="primary" onClick={updateItem}>Update</Button>
 
      </div>
   );

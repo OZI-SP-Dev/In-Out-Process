@@ -1,10 +1,11 @@
-import { ChoiceGroup, ComboBox, DatePicker, FontWeights, getTheme, IChoiceGroupOption, IComboBox, IComboBoxOption, IconButton, IIconProps, IToggle, Label, mergeStyleSets, Modal, PrimaryButton, Stack, TextField, Toggle } from '@fluentui/react';
-import React, { useState } from "react";
+import { ComboBox, DatePicker, FontWeights, getTheme, IComboBox, IComboBoxOption, IconButton, IIconProps, mergeStyleSets, Modal, Stack } from '@fluentui/react';
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import { PeoplePicker } from '../PeoplePicker/PeoplePicker';
-import { useId, useBoolean } from '@fluentui/react-hooks';
+import { useBoolean } from '@fluentui/react-hooks';
 import { OFFICES } from '../../constants/Offices';
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from '../../constants/GradeRanks';
 import { emptype, EMPTYPES } from '../../constants/EmpTypes';
+import { Button, Input, InputOnChangeData, Label, Radio, RadioGroup, RadioGroupOnChangeData, Switch, SwitchOnChangeData, useId } from '@fluentui/react-components';
 
 interface IInForm {
   /** Required - Contains the Employee's Name */
@@ -18,11 +19,11 @@ interface IInForm {
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string,
   /** Required - If 'true' the employee is full-time teleworking, otherwise they report to base  */
-  isRemote: boolean | undefined
+  isRemote: boolean,
   /** Required - The Employee's Office */
-  office: string
+  office: string,
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCiv: boolean | undefined 
+  isNewCiv: boolean,
 }
 const cancelIcon: IIconProps = { iconName: 'Cancel' };
 
@@ -32,42 +33,51 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   const [formData, setFormData] = useState<IInForm>(defaultInForm)
   const [gradeRankOptions, setGradeRankOptions] = React.useState<IComboBoxOption[]>([]);
 
-  const onEmpTypeChange = React.useCallback((ev: React.SyntheticEvent<HTMLElement> | undefined, option?: IChoiceGroupOption) => {
-    if (option)
-      setFormData((f: IInForm) => {
-        switch (option.key) {
-          case "civ":
-            setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
-            break;
-          case "mil":
-            setGradeRankOptions([...MIL_GRADES]);
-            break;
-          case "ctr":
-            setGradeRankOptions([]);
-            break;
-        }
-        return { ...f, empType: option.key as emptype }
-      });
-  }, []);
 
-  const onLocalRemote = React.useCallback((ev: React.FormEvent<IToggle>, checked: boolean | undefined) => {
+  const empNameId = useId('empName');
+  const localRemoteId = useId('localRemote');
+  const newCivId = useId('newCiv')
+  const empTypeId = useId('empType')
+  const gradeRankId = useId('gradeRank')
+  const officeId = useId('office')
+  const arrivalDateId = useId('arrivalDate')
+  const supervisorId = useId('supervisor')
+
+  const onEmpTypeChange = React.useCallback((ev: FormEvent<HTMLElement>, data: RadioGroupOnChangeData) => {
     setFormData((f: IInForm) => {
-      return { ...f, isRemote: checked }
+      switch (data.value) {
+        case "civ":
+          setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
+          break;
+        case "mil":
+          setGradeRankOptions([...MIL_GRADES]);
+          break;
+        case "ctr":
+          setGradeRankOptions([]);
+          break;
+      }
+      return { ...f, empType: data.value as emptype }
     });
   }, []);
 
-  const onNewCiv = React.useCallback((ev: React.FormEvent<IToggle>, checked: boolean | undefined) => {
+  const onLocalRemote = React.useCallback((ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
     setFormData((f: IInForm) => {
-      return { ...f, isNewCiv: checked }
+      return { ...f, isRemote: data.checked }
+    });
+  }, []);
+
+  const onNewCiv = React.useCallback((ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
+    setFormData((f: IInForm) => {
+      return { ...f, isNewCiv: data.checked }
     });
   }, []);
 
   const onEmpNameChange = React.useCallback(
-    (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        const empNameVal = newValue?newValue : ''; 
-        setFormData((f: IInForm) => {
-          return { ...f, empName: empNameVal }
-        });
+    (event: ChangeEvent<HTMLInputElement>, data?: InputOnChangeData) => {
+      const empNameVal = data?.value ? data.value : '';
+      setFormData((f: IInForm) => {
+        return { ...f, empName: empNameVal }
+      });
     },
     [],
   );
@@ -106,41 +116,51 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     <div>
       <Stack>
         <Stack.Item>
-          <TextField
-            label="Employee Name"
+          <Label htmlFor={empNameId}>Employee Name</Label>
+          <Input
+            id={empNameId}
             value={formData.empName}
             onChange={onEmpNameChange}
           />
-          <ChoiceGroup selectedKey={formData.empType} options={EMPTYPES} onChange={onEmpTypeChange} label="Employee Type" />
+          <Label htmlFor={empTypeId}>Employee Type</Label>
+          <RadioGroup value={formData.empType} onChange={onEmpTypeChange}>
+            {EMPTYPES.map((empType, i) => {
+              return (<Radio value={empType.value} label={empType.label} />)
+            })}
+          </RadioGroup>
+          <Label htmlFor={gradeRankId}>Grade/Rank</Label>
           <ComboBox
+            id={gradeRankId}
             selectedKey={formData.gradeRank}
-            label="Grade/Rank"
             autoComplete="on"
             options={gradeRankOptions}
             onChange={onGradeChange}
             dropdownWidth={100}
             disabled={formData.empType === "ctr"}
           />
-          <Toggle label="Local or Remote" onText="Remote" offText="Local" checked={formData.isRemote} onChange={onLocalRemote} />
+          <Label htmlFor={localRemoteId}>Local or Remote?</Label>
+          <Switch id={localRemoteId} label={formData.isRemote ? 'Remote' : 'Local'} checked={formData.isRemote} onChange={onLocalRemote} />
+          <Label htmlFor={arrivalDateId}>Select estimated arrival date</Label>
           <DatePicker
+            id={arrivalDateId}
             placeholder="Select estimated arrival date"
             ariaLabel="Select an estimated arrival date"
-            label="Select estimated arrival date"
           />
+          <Label htmlFor={officeId}>Office</Label>
           <ComboBox
+            id={officeId}
             selectedKey={formData.office}
-            label="Office"
             autoComplete="on"
             options={OFFICES}
             onChange={onOfficeChange}
             dropdownWidth={100}
           />
-          <Label>Supervisor/Government Lead</Label>
-          <PeoplePicker
-
+          <Label htmlFor={supervisorId}>Supervisor/Government Lead</Label>
+          <PeoplePicker id={supervisorId}
           />
-          {formData.empType === 'civ' ? <Toggle label="Is Employee a New to Air Force Civilian?" onText="Yes" offText="No" onChange={onNewCiv} /> : null}
-          <PrimaryButton text="Create In Processing Record" onClick={reviewRecord}></PrimaryButton>
+
+          {formData.empType === 'civ' ? <><Label htmlFor={newCivId}>Is Employee a New to Air Force Civilian?</Label><Switch id={newCivId} label={formData.isNewCiv ? 'Yes' : 'No'} onChange={onNewCiv} /></> : null}
+          <Button appearance="primary" onClick={reviewRecord}>Create In Processing Record</Button>
         </Stack.Item>
       </Stack>
       <Modal
