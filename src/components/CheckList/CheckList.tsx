@@ -1,14 +1,24 @@
 import { ICheckListItem } from "../../api/CheckListItemApi";
-import { DetailsList, IColumn } from "@fluentui/react";
-import { useState } from "react";
+import { IColumn } from "@fluentui/react";
+import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
+import React from "react";
 
 export interface ICheckList {
   CheckListItems: ICheckListItem[];
+  loading?: boolean;
 }
 
 export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
   // Define columns for details list
   const columns: IColumn[] = [
+    {
+      key: "column0",
+      name: "Item",
+      fieldName: "Id",
+      minWidth: 40,
+      maxWidth: 40,
+      isResizable: false,
+    },
     {
       key: "column1",
       name: "Description",
@@ -37,7 +47,11 @@ export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
 
   return (
     <div>
-      <DetailsList items={props.CheckListItems} columns={columns} />
+      <ShimmeredDetailsList
+        items={props.CheckListItems}
+        columns={columns}
+        enableShimmer={props.loading}
+      />
     </div>
   );
 };

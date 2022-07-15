@@ -4,7 +4,7 @@ import Roles from "./Roles";
 import { AppHeader } from "./components/AppHeader/AppHeader";
 import { Route, Routes } from "react-router-dom";
 import Home from "./Home";
-import Item from "./Item";
+import { Item } from "./Item";
 import { InForm } from "./components/InForm/InForm";
 import { CheckListTest } from "./components/CheckList/CheckListTest";
 
