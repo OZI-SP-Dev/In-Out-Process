@@ -7,7 +7,6 @@ export interface ICheckList {
 }
 
 export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
-
   // Define columns for details list
   const columns: IColumn[] = [
     {
@@ -27,7 +26,7 @@ export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
       isResizable: true,
     },
     {
-      key: "column2",
+      key: "column3",
       name: "Completed Date",
       fieldName: "CompletedDate",
       minWidth: 100,
