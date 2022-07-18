@@ -35,10 +35,7 @@ export const Item: React.FunctionComponent = (props) => {
       <p>Getting info for {itemNum}</p>
       <p>Response: {item.Title}</p>
 
-      <CheckList
-        CheckListItems={checklisItems || []}
-        loading={!checklisItems}
-      />
+      <CheckList CheckListItems={checklisItems} />
 
       <Button appearance="primary" onClick={updateItem}>
         Update
