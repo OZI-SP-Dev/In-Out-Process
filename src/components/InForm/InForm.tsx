@@ -113,7 +113,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   }
 
   return (
-    <div>
+    <>
       <Stack>
         <Stack.Item>
           <Label htmlFor={empNameId}>Employee Name</Label>
@@ -186,7 +186,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           </p>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 
@@ -195,8 +195,10 @@ const contentStyles = mergeStyleSets({
   container: {
     display: 'flex',
     flexFlow: 'column nowrap',
-    alignItems: 'stretch',
-  },
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+   },
   header: [
     theme.fonts.xxLarge,
     {
