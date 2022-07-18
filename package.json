@@ -6,6 +6,7 @@
   "dependencies": {
     "@fluentui/example-data": "^8.4.1",
     "@fluentui/react": "^8.78.1",
+    "@fluentui/react-components": "^9.0.1",
     "@pnp/core": "^3.4.1",
     "@pnp/sp": "^3.4.1",
     "@testing-library/jest-dom": "^5.16.2",

@@ -1,4 +1,4 @@
-import { PrimaryButton } from "@fluentui/react";
+import { Button } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ICheckListItem } from "./api/CheckListItemApi";
@@ -49,7 +49,9 @@ export const Item: React.FunctionComponent = (props) => {
 
       <CheckList CheckListItems={checklisItems} loading={loading} />
 
-      <PrimaryButton text="Update" onClick={updateItem}></PrimaryButton>
+      <Button appearance="primary" onClick={updateItem}>
+        Update
+      </Button>
     </div>
   );
 };

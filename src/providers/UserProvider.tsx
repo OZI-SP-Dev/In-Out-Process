@@ -1,4 +1,4 @@
-import React, { createContext, FunctionComponent, useEffect, useState } from "react";
+import { createContext, FunctionComponent, useEffect, useState } from "react";
 import { RoleType } from "../api/RolesApi";
 import { IPerson, UserApiConfig } from "../api/UserApi";
 

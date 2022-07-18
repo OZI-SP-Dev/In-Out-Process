@@ -1,4 +1,5 @@
-import { CommandBar, ICommandBarItemProps, IContextualMenuItem, PersonaCoin, PersonaSize, Sticky, StickyPositionType } from '@fluentui/react';
+import { CommandBar, ICommandBarItemProps, IContextualMenuItem, Sticky, StickyPositionType } from '@fluentui/react';
+import { Avatar } from '@fluentui/react-components';
 import React, { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from "../../providers/UserProvider";
@@ -35,7 +36,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
     const _farItems: ICommandBarItemProps[] =[
             {
               onRenderMenuIcon: () => null,
-              onRenderChildren: () => <PersonaCoin imageUrl= {userContext.user?.imageUrl} text={userContext.user?.Title} size={PersonaSize.size32} />,
+              onRenderChildren: () => <Avatar image={{src: userContext.user?.imageUrl}} name={userContext.user?.Title} size={32}  />,
               key: 'persona',
               name: userContext.user?.Title,
               iconOnly: true
