@@ -3,11 +3,11 @@ import "./App.css";
 import Roles from "./Roles";
 import { AppHeader } from "./components/AppHeader/AppHeader";
 import { Route, Routes } from "react-router-dom";
-import  Home from "./Home";
+import { Home } from "./Home";
 import { Item } from "./Item";
 import { InForm } from "./components/InForm/InForm";
 import { CheckListTest } from "./components/CheckList/CheckListTest";
-import { ThemeProvider } from "fluentui/react";
+import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 
 function App() {

@@ -8,7 +8,7 @@ import {
 } from "@fluentui/react-components";
 import { Link, useNavigate } from "react-router-dom";
 
-function Home() {
+export const Home: React.FunctionComponent = (props) => {
   let navigate = useNavigate();
 
   function createNewItem() {
@@ -68,6 +68,4 @@ function Home() {
       <Link to="item/2">Item 2</Link>
     </Stack>
   );
-}
-
-export default Home;
+};
