@@ -17,6 +17,7 @@ import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
 import { emptype, EMPTYPES } from "../../constants/EmpTypes";
+import { worklocation, WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
   Button,
   Input,
@@ -40,8 +41,8 @@ interface IInForm {
   empType: emptype;
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string;
-  /** Required - If 'true' the employee is full-time teleworking, otherwise they report to base  */
-  isRemote: boolean;
+  /** Required - Possible values are 'local' and 'remote'  */
+  workLocation: worklocation;
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
@@ -54,18 +55,25 @@ const useStyles = makeStyles({
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   const classes = useStyles();
+
+  // TODO:  These are hard coded defaults of CIV and REMOTE.  Need to allow them to be selected
+  //   If removing CIV as default, see note on setGradeRankOptions
   const defaultInForm: IInForm = {
-    empName: "Doe, Jane A",
+    empName: "",
     empType: "civ",
-    isRemote: true,
+    workLocation: "remote",
     gradeRank: "",
     office: "",
     isNewCiv: false,
   };
+
   const [formData, setFormData] = useState<IInForm>(defaultInForm);
+
+  // TODO: Becasue CIV is currently selected by default we need to preload CIV grades.
+  //  If we remove CIV as default, then need to not set Grade options (just set to empty array)
   const [gradeRankOptions, setGradeRankOptions] = React.useState<
     IComboBoxOption[]
-  >([]);
+  >([...GS_GRADES, ...NH_GRADES]);
 
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
@@ -87,12 +95,12 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     });
   };
 
-  const onLocalRemote = (
-    ev: ChangeEvent<HTMLElement>,
-    data: SwitchOnChangeData
+  const onWorkLocationChange = (
+    ev: FormEvent<HTMLElement>,
+    data: RadioGroupOnChangeData
   ) => {
     setFormData((f: IInForm) => {
-      return { ...f, isRemote: data.checked };
+      return { ...f, workLocation: data.value as worklocation };
     });
   };
 
@@ -159,7 +167,13 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           onChange={onEmpTypeChange}
         >
           {EMPTYPES.map((empType, i) => {
-            return <Radio value={empType.value} label={empType.label} />;
+            return (
+              <Radio
+                key={empType.value}
+                value={empType.value}
+                label={empType.label}
+              />
+            );
           })}
         </RadioGroup>
         <Label htmlFor="gradeRankId">Grade/Rank</Label>
@@ -172,13 +186,22 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           dropdownWidth={100}
           disabled={formData.empType === "ctr"}
         />
-        <Label htmlFor="localRemoteId">Local or Remote?</Label>
-        <Switch
-          id="localRemoteId"
-          label={formData.isRemote ? "Remote" : "Local"}
-          checked={formData.isRemote}
-          onChange={onLocalRemote}
-        />
+        <Label htmlFor="workLocationId">Local or Remote?</Label>
+        <RadioGroup
+          id="workLocationId"
+          value={formData.workLocation}
+          onChange={onWorkLocationChange}
+        >
+          {WORKLOCATIONS.map((workLocation, i) => {
+            return (
+              <Radio
+                key={workLocation.value}
+                value={workLocation.value}
+                label={workLocation.label}
+              />
+            );
+          })}
+        </RadioGroup>
         <Label htmlFor="arrivalDateId">Select estimated arrival date</Label>
         <DatePicker
           id="arrivalDateId"
