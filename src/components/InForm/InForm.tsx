@@ -47,6 +47,8 @@ interface IInForm {
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
   isNewCiv: boolean;
+  /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
+  prevOrg: string;
 }
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
@@ -65,6 +67,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     gradeRank: "",
     office: "",
     isNewCiv: false,
+    prevOrg: "",
   };
 
   const [formData, setFormData] = useState<IInForm>(defaultInForm);
@@ -91,6 +94,14 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           setGradeRankOptions([]);
           break;
       }
+      if (data.value !== "civ") {
+        setFormData((f: IInForm) => {
+          return { ...f, isNewCiv: false };
+        });
+        setFormData((f: IInForm) => {
+          return { ...f, prevOrg: "" };
+        });
+      }
       return { ...f, empType: data.value as emptype };
     });
   };
@@ -108,6 +119,12 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     setFormData((f: IInForm) => {
       return { ...f, isNewCiv: data.checked };
     });
+
+    if (!data.checked) {
+      setFormData((f: IInForm) => {
+        return { ...f, prevOrg: "" };
+      });
+    }
   };
 
   const onEmpNameChange = (
@@ -141,6 +158,16 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     const officeVal = option?.key ? option.key.toString() : "";
     setFormData((f: IInForm) => {
       return { ...f, office: officeVal };
+    });
+  };
+
+  const onPrevOrgChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    data?: InputOnChangeData
+  ) => {
+    const prevOrgVal = data?.value ? data.value : "";
+    setFormData((f: IInForm) => {
+      return { ...f, prevOrg: prevOrgVal };
     });
   };
 
@@ -229,6 +256,16 @@ export const InForm: React.FunctionComponent<any> = (props) => {
               label={formData.isNewCiv ? "Yes" : "No"}
               onChange={onNewCiv}
             />
+            {formData.isNewCiv === false && (
+              <>
+                <Label htmlFor="prevOrgId">Previous Organization</Label>
+                <Input
+                  id="prevOrgId"
+                  value={formData.prevOrg}
+                  onChange={onPrevOrgChange}
+                />
+              </>
+            )}
           </>
         )}
         <Button appearance="primary" onClick={reviewRecord}>
