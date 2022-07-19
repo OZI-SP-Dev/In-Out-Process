@@ -52,6 +52,13 @@ interface IInForm {
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
 }
+
+/** For new forms, allow the empType and workLocation to be blank strings to support controlled components */
+interface INewInForm extends Omit<IInForm, "empType" | "workLocation"> {
+  empType: emptype | "";
+  workLocation: worklocation | "";
+}
+
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
@@ -60,12 +67,10 @@ const useStyles = makeStyles({
 export const InForm: React.FunctionComponent<any> = (props) => {
   const classes = useStyles();
 
-  // TODO:  These are hard coded defaults of CIV and REMOTE.  Need to allow them to be selected
-  //   If removing CIV as default, see note on setGradeRankOptions
-  const defaultInForm: IInForm = {
+  const defaultInForm: INewInForm = {
     empName: "",
-    empType: "civ",
-    workLocation: "remote",
+    empType: "",
+    workLocation: "",
     gradeRank: "",
     office: "",
     isNewCiv: false,
@@ -73,19 +78,17 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     eta: new Date(),
   };
 
-  const [formData, setFormData] = useState<IInForm>(defaultInForm);
+  const [formData, setFormData] = useState<INewInForm>(defaultInForm);
 
-  // TODO: Becasue CIV is currently selected by default we need to preload CIV grades.
-  //  If we remove CIV as default, then need to not set Grade options (just set to empty array)
   const [gradeRankOptions, setGradeRankOptions] = React.useState<
     IComboBoxOption[]
-  >([...GS_GRADES, ...NH_GRADES]);
+  >([]);
 
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
   ) => {
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       switch (data.value) {
         case "civ":
           setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
@@ -98,10 +101,10 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           break;
       }
       if (data.value !== "civ") {
-        setFormData((f: IInForm) => {
+        setFormData((f: INewInForm) => {
           return { ...f, isNewCiv: false };
         });
-        setFormData((f: IInForm) => {
+        setFormData((f: INewInForm) => {
           return { ...f, prevOrg: "" };
         });
       }
@@ -113,26 +116,26 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
   ) => {
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, workLocation: data.value as worklocation };
     });
   };
 
   const onETADateChange = (date: Date | null | undefined) => {
     if (date) {
-      setFormData((f: IInForm) => {
+      setFormData((f: INewInForm) => {
         return { ...f, eta: date };
       });
     }
   };
 
   const onNewCiv = (ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, isNewCiv: data.checked };
     });
 
     if (!data.checked) {
-      setFormData((f: IInForm) => {
+      setFormData((f: INewInForm) => {
         return { ...f, prevOrg: "" };
       });
     }
@@ -143,7 +146,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     data?: InputOnChangeData
   ) => {
     const empNameVal = data?.value ? data.value : "";
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, empName: empNameVal };
     });
   };
@@ -155,7 +158,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     value?: string
   ): void => {
     const gradeRankVal = option?.key ? option.key.toString() : "";
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, gradeRank: gradeRankVal };
     });
   };
@@ -167,7 +170,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     value?: string
   ): void => {
     const officeVal = option?.key ? option.key.toString() : "";
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, office: officeVal };
     });
   };
@@ -177,7 +180,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     data?: InputOnChangeData
   ) => {
     const prevOrgVal = data?.value ? data.value : "";
-    setFormData((f: IInForm) => {
+    setFormData((f: INewInForm) => {
       return { ...f, prevOrg: prevOrgVal };
     });
   };
