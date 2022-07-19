@@ -49,6 +49,8 @@ interface IInForm {
   isNewCiv: boolean;
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
+  /** Required - The user's Estimated Arrival Date */
+  eta: Date;
 }
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
@@ -68,6 +70,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     office: "",
     isNewCiv: false,
     prevOrg: "",
+    eta: new Date(),
   };
 
   const [formData, setFormData] = useState<IInForm>(defaultInForm);
@@ -113,6 +116,14 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     setFormData((f: IInForm) => {
       return { ...f, workLocation: data.value as worklocation };
     });
+  };
+
+  const onETADateChange = (date: Date | null | undefined) => {
+    if (date) {
+      setFormData((f: IInForm) => {
+        return { ...f, eta: date };
+      });
+    }
   };
 
   const onNewCiv = (ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
@@ -234,6 +245,8 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           id="arrivalDateId"
           placeholder="Select estimated arrival date"
           ariaLabel="Select an estimated arrival date"
+          value={formData.eta}
+          onSelectDate={onETADateChange}
         />
         <Label htmlFor="officeId">Office</Label>
         <ComboBox
