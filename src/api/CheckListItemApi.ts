@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { DateTime } from "luxon";
@@ -12,10 +13,10 @@ export interface ICheckListItem {
 
 export interface ICheckListItemApi {
   /**
-   * Gets the items based on the checklist ID.
+   * Gets the items based on the checklist Id.
    *
-   * @param Id The ID of the item to retrieve from SharePoint
-   * @returns The IITem for the given ID
+   * @param Id The Id of the item to retrieve from SharePoint
+   * @returns The ICheckListItem for the given Id
    */
   getItemsById(Id: number): Promise<ICheckListItem[] | undefined>;
 }
@@ -90,3 +91,28 @@ export class CheckListItemApiConfig {
     return this.checklistApi;
   }
 }
+
+/**
+ * Gets the checklist items based on the checklist Id.
+ *
+ * @param Id The Id of the parent request to retrieve from SharePoint
+ */
+export const useChecklistItems = (Id: number) => {
+  // Initialize as null (have not fetched yet)
+  // Then update to empty set or data once data retrieved
+  const [checklisItems, setChecklistItems] = useState<ICheckListItem[] | null>(
+    null
+  );
+
+  useEffect(() => {
+    const fetchChecklistItems = async () => {
+      const checklistItemApi = CheckListItemApiConfig.getApi();
+      const items = await checklistItemApi.getItemsById(Id);
+      setChecklistItems(items || []);
+    };
+
+    fetchChecklistItems();
+  }, [Id]);
+
+  return checklisItems;
+};

@@ -4,8 +4,7 @@ import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import React from "react";
 
 export interface ICheckList {
-  CheckListItems: ICheckListItem[];
-  loading?: boolean;
+  CheckListItems: ICheckListItem[] | null;
 }
 
 export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
@@ -48,9 +47,9 @@ export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
   return (
     <div>
       <ShimmeredDetailsList
-        items={props.CheckListItems}
+        items={props.CheckListItems || []}
         columns={columns}
-        enableShimmer={props.loading}
+        enableShimmer={!props.CheckListItems}
       />
     </div>
   );

@@ -1,18 +1,15 @@
 import { Button } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ICheckListItem } from "./api/CheckListItemApi";
 import { IItem, ItemApiConfig } from "./api/ItemApi";
 import { CheckList } from "./components/CheckList/CheckList";
-import { CheckListItemApiConfig } from "./api/CheckListItemApi";
+import { useChecklistItems } from "./api/CheckListItemApi";
 
 export const Item: React.FunctionComponent = (props) => {
   const { itemNum } = useParams();
   const itemApi = ItemApiConfig.getApi();
-  const checklistItemApi = CheckListItemApiConfig.getApi();
   const [item, setItem] = useState<IItem>({ Id: 0, Title: "" });
-  const [checklisItems, setChecklistItems] = useState<ICheckListItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const checklisItems = useChecklistItems(Number(itemNum));
 
   async function updateItem() {
     let updatedItem = { ...item, Title: "TEST" };
@@ -21,23 +18,14 @@ export const Item: React.FunctionComponent = (props) => {
   }
 
   useEffect(() => {
-    async function loadItem() {
-      let res = await itemApi.getItemById(Number(itemNum));
+    const loadItem = async () => {
+      const res = await itemApi.getItemById(Number(itemNum));
       if (res) {
         setItem(res);
       }
-    }
-
-    async function fetchChecklistItems() {
-      let items = await checklistItemApi.getItemsById(Number(itemNum));
-      if (items) {
-        setChecklistItems(items);
-        setLoading(false);
-      }
-    }
+    };
 
     loadItem();
-    fetchChecklistItems();
   }, [itemNum]);
 
   return (
@@ -47,7 +35,7 @@ export const Item: React.FunctionComponent = (props) => {
       <p>Getting info for {itemNum}</p>
       <p>Response: {item.Title}</p>
 
-      <CheckList CheckListItems={checklisItems} loading={loading} />
+      <CheckList CheckListItems={checklisItems} />
 
       <Button appearance="primary" onClick={updateItem}>
         Update
