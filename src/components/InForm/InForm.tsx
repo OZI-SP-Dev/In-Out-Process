@@ -9,8 +9,8 @@ import {
   IIconProps,
   mergeStyleSets,
   Modal,
-  Stack,
 } from "@fluentui/react";
+import { makeStyles } from "@fluentui/react-components";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
@@ -48,8 +48,12 @@ interface IInForm {
   isNewCiv: boolean;
 }
 const cancelIcon: IIconProps = { iconName: "Cancel" };
+const useStyles = makeStyles({
+  formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
+});
 
 export const InForm: React.FunctionComponent<any> = (props) => {
+  const classes = useStyles();
   const defaultInForm: IInForm = {
     empName: "Doe, Jane A",
     empType: "civ",
@@ -141,80 +145,78 @@ export const InForm: React.FunctionComponent<any> = (props) => {
 
   return (
     <>
-      <Stack>
-        <Stack.Item>
-          <Label htmlFor="empNameId">Employee Name</Label>
-          <Input
-            id="empNameId"
-            value={formData.empName}
-            onChange={onEmpNameChange}
-          />
-          <Label htmlFor="empTypeId">Employee Type</Label>
-          <RadioGroup
-            id="empTypeId"
-            value={formData.empType}
-            onChange={onEmpTypeChange}
-          >
-            {EMPTYPES.map((empType, i) => {
-              return <Radio value={empType.value} label={empType.label} />;
-            })}
-          </RadioGroup>
-          <Label htmlFor="gradeRankId">Grade/Rank</Label>
-          <ComboBox
-            id="gradeRankId"
-            selectedKey={formData.gradeRank}
-            autoComplete="on"
-            options={gradeRankOptions}
-            onChange={onGradeChange}
-            dropdownWidth={100}
-            disabled={formData.empType === "ctr"}
-          />
-          <Label htmlFor="localRemoteId">Local or Remote?</Label>
-          <Switch
-            id="localRemoteId"
-            label={formData.isRemote ? "Remote" : "Local"}
-            checked={formData.isRemote}
-            onChange={onLocalRemote}
-          />
-          <Label htmlFor="arrivalDateId">Select estimated arrival date</Label>
-          <DatePicker
-            id="arrivalDateId"
-            placeholder="Select estimated arrival date"
-            ariaLabel="Select an estimated arrival date"
-          />
-          <Label htmlFor="officeId">Office</Label>
-          <ComboBox
-            id="officeId"
-            selectedKey={formData.office}
-            autoComplete="on"
-            options={OFFICES}
-            onChange={onOfficeChange}
-            dropdownWidth={100}
-          />
-          <Label htmlFor="supervisorId">Supervisor/Government Lead</Label>
-          <PeoplePicker id="supervisorId" />
-          {formData.empType === "civ" && (
-            <>
-              <Label htmlFor="newCivId">
-                Is Employee a New to Air Force Civilian?
-              </Label>
-              <Switch
-                id="newCivId"
-                label={formData.isNewCiv ? "Yes" : "No"}
-                onChange={onNewCiv}
-              />
-            </>
-          )}
-          <Button appearance="primary" onClick={reviewRecord}>
-            Create In Processing Record
-          </Button>
-        </Stack.Item>
-      </Stack>
+      <form id="inForm" className={classes.formContainer}>
+        <Label htmlFor="empNameId">Employee Name</Label>
+        <Input
+          id="empNameId"
+          value={formData.empName}
+          onChange={onEmpNameChange}
+        />
+        <Label htmlFor="empTypeId">Employee Type</Label>
+        <RadioGroup
+          id="empTypeId"
+          value={formData.empType}
+          onChange={onEmpTypeChange}
+        >
+          {EMPTYPES.map((empType, i) => {
+            return <Radio value={empType.value} label={empType.label} />;
+          })}
+        </RadioGroup>
+        <Label htmlFor="gradeRankId">Grade/Rank</Label>
+        <ComboBox
+          id="gradeRankId"
+          selectedKey={formData.gradeRank}
+          autoComplete="on"
+          options={gradeRankOptions}
+          onChange={onGradeChange}
+          dropdownWidth={100}
+          disabled={formData.empType === "ctr"}
+        />
+        <Label htmlFor="localRemoteId">Local or Remote?</Label>
+        <Switch
+          id="localRemoteId"
+          label={formData.isRemote ? "Remote" : "Local"}
+          checked={formData.isRemote}
+          onChange={onLocalRemote}
+        />
+        <Label htmlFor="arrivalDateId">Select estimated arrival date</Label>
+        <DatePicker
+          id="arrivalDateId"
+          placeholder="Select estimated arrival date"
+          ariaLabel="Select an estimated arrival date"
+        />
+        <Label htmlFor="officeId">Office</Label>
+        <ComboBox
+          id="officeId"
+          selectedKey={formData.office}
+          autoComplete="on"
+          options={OFFICES}
+          onChange={onOfficeChange}
+          dropdownWidth={100}
+        />
+        <Label htmlFor="supervisorId">Supervisor/Government Lead</Label>
+        <PeoplePicker id="supervisorId" />
+        {formData.empType === "civ" && (
+          <>
+            <Label htmlFor="newCivId">
+              Is Employee a New to Air Force Civilian?
+            </Label>
+            <Switch
+              id="newCivId"
+              label={formData.isNewCiv ? "Yes" : "No"}
+              onChange={onNewCiv}
+            />
+          </>
+        )}
+        <Button appearance="primary" onClick={reviewRecord}>
+          Create In Processing Record
+        </Button>
+      </form>
       <Modal
         titleAriaId="titleId"
         isOpen={isModalOpen}
+        isBlocking={true}
         onDismiss={hideModal}
-        isModeless={true}
         containerClassName={contentStyles.container}
       >
         <div className={contentStyles.header}>
