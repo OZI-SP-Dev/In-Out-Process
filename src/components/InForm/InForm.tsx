@@ -53,10 +53,11 @@ interface IInForm {
   eta: Date;
 }
 
-/** For new forms, allow the empType and workLocation to be blank strings to support controlled components */
-interface INewInForm extends Omit<IInForm, "empType" | "workLocation"> {
+/** For new forms, allow certain fields to be blank or undefined to support controlled components */
+interface INewInForm extends Omit<IInForm, "empType" | "workLocation" | "eta"> {
   empType: emptype | "";
   workLocation: worklocation | "";
+  eta: Date | undefined;
 }
 
 const cancelIcon: IIconProps = { iconName: "Cancel" };
@@ -75,7 +76,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     office: "",
     isNewCiv: false,
     prevOrg: "",
-    eta: new Date(),
+    eta: undefined,
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
