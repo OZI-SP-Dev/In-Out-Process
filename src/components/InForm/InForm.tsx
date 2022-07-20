@@ -11,7 +11,7 @@ import {
   Modal,
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
@@ -29,6 +29,7 @@ import {
   Switch,
   SwitchOnChangeData,
 } from "@fluentui/react-components";
+import { UserContext } from "../../providers/UserProvider";
 
 interface IInForm {
   /** Required - Contains the Employee's Name */
@@ -67,7 +68,7 @@ const useStyles = makeStyles({
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   const classes = useStyles();
-
+  const userContext = useContext(UserContext);
   const defaultInForm: INewInForm = {
     empName: "",
     empType: "",
@@ -262,7 +263,10 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           dropdownWidth={100}
         />
         <Label htmlFor="supervisorId">Supervisor/Government Lead</Label>
-        <PeoplePicker id="supervisorId" />
+        <PeoplePicker
+          id="supervisorId"
+          defaultValue={[{ ...userContext.user }]}
+        />
         {formData.empType === "civ" && (
           <>
             <Label htmlFor="newCivId">

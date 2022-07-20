@@ -39,6 +39,14 @@ export const PeoplePicker: React.FunctionComponent<any> = (props) => {
   >([]);
   const [peopleList] = React.useState<IPersonaProps[]>(people);
 
+  React.useEffect(() => {
+    let personas: SPPersona[] = [];
+    if (props.defaultValue) {
+      personas = [...props.defaultValue];
+    }
+    setCurrentSelectedItems(personas);
+  }, [props.defaultValue]);
+
   const picker = React.useRef(null);
 
   const onFilterChanged = async (
