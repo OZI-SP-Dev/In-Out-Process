@@ -262,10 +262,11 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           onChange={onOfficeChange}
           dropdownWidth={100}
         />
-        <Label htmlFor="supervisorId">Supervisor/Government Lead</Label>
+        <Label>Supervisor/Government Lead</Label>
         <PeoplePicker
-          id="supervisorId"
+          ariaLabel="Supervisor/Government Lead"
           defaultValue={[{ ...userContext.user }]}
+          updatePeople={(items: any[] | void): void => {}}
         />
         {formData.empType === "civ" && (
           <>

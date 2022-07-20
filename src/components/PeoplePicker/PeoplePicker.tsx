@@ -26,14 +26,20 @@ export interface SPPersona extends IPersonaProps {
 }
 
 interface IPeoplePickerProps {
+  /** Required - The text used to label this people picker for screenreaders */
+  ariaLabel: string;
+  /** Optional - The people to pre-populate the People Picker with */
   defaultValue?: SPPersona[];
   readOnly?: boolean;
   required?: boolean;
+  /** Optional - Limit the People Picker to only allow selection of specific number -- Defaults to 1 */
   itemLimit?: number;
   updatePeople: (p: SPPersona[]) => void;
 }
 
-export const PeoplePicker: React.FunctionComponent<any> = (props) => {
+export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
+  props
+) => {
   const [currentSelectedItems, setCurrentSelectedItems] = React.useState<
     IPersonaProps[]
   >([]);
@@ -158,21 +164,18 @@ export const PeoplePicker: React.FunctionComponent<any> = (props) => {
       pickerSuggestionsProps={suggestionProps}
       className={"ms-PeoplePicker"}
       key={"controlled"}
-      selectionAriaLabel={"Selected contacts"}
+      selectionAriaLabel={"Selected users"}
       removeButtonAriaLabel={"Remove"}
       selectedItems={currentSelectedItems}
       // eslint-disable-next-line react/jsx-no-bind
       onChange={onItemsChange}
       inputProps={{
-        onBlur: (ev: React.FocusEvent<HTMLInputElement>) =>
-          console.log("onBlur called"),
-        onFocus: (ev: React.FocusEvent<HTMLInputElement>) =>
-          console.log("onFocus called"),
-        "aria-label": "Contacts",
+        "aria-label": props.ariaLabel,
       }}
       componentRef={picker}
       resolveDelay={300}
       disabled={false}
+      itemLimit={props.itemLimit ? props.itemLimit : 1}
     />
   );
 };
