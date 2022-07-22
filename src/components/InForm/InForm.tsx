@@ -11,8 +11,8 @@ import {
   Modal,
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
+import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
+import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
@@ -29,6 +29,7 @@ import {
   Switch,
   SwitchOnChangeData,
 } from "@fluentui/react-components";
+import { UserContext } from "../../providers/UserProvider";
 
 interface IInForm {
   /** Required - Contains the Employee's Name */
@@ -51,13 +52,16 @@ interface IInForm {
   prevOrg: string;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
+  supGovLead: SPPersona[];
 }
 
 /** For new forms, allow certain fields to be blank or undefined to support controlled components */
-interface INewInForm extends Omit<IInForm, "empType" | "workLocation" | "eta"> {
+interface INewInForm
+  extends Omit<IInForm, "empType" | "workLocation" | "eta" | "supGovLead"> {
   empType: emptype | "";
   workLocation: worklocation | "";
   eta: Date | undefined;
+  supGovLead: SPPersona[] | undefined;
 }
 
 const cancelIcon: IIconProps = { iconName: "Cancel" };
@@ -67,7 +71,8 @@ const useStyles = makeStyles({
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   const classes = useStyles();
-
+  const userContext = useContext(UserContext);
+  const [user, setUser] = useState<SPPersona[]>();
   const defaultInForm: INewInForm = {
     empName: "",
     empType: "",
@@ -77,6 +82,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     isNewCiv: false,
     prevOrg: "",
     eta: undefined,
+    supGovLead: undefined,
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
@@ -152,6 +158,14 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     });
   };
 
+  const onSupvGovLeadChange = (items: SPPersona[]) => {
+    if (items) {
+      setFormData((f: INewInForm) => {
+        return { ...f, supGovLead: items };
+      });
+    }
+  };
+
   const onGradeChange = (
     event: React.FormEvent<IComboBox>,
     option?: IComboBoxOption,
@@ -192,6 +206,13 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   function reviewRecord() {
     showModal();
   }
+
+  React.useEffect(() => {
+    let persona: SPPersona[] = [];
+    persona = [{ ...userContext.user }];
+
+    setUser(persona);
+  }, [userContext.user]);
 
   return (
     <>
@@ -261,8 +282,12 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           onChange={onOfficeChange}
           dropdownWidth={100}
         />
-        <Label htmlFor="supervisorId">Supervisor/Government Lead</Label>
-        <PeoplePicker id="supervisorId" />
+        <Label>Supervisor/Government Lead</Label>
+        <PeoplePicker
+          ariaLabel="Supervisor/Government Lead"
+          defaultValue={user}
+          updatePeople={onSupvGovLeadChange}
+        />
         {formData.empType === "civ" && (
           <>
             <Label htmlFor="newCivId">
