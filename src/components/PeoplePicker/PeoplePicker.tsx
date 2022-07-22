@@ -1,12 +1,15 @@
 import React from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import {
+  IBasePicker,
   IBasePickerSuggestionsProps,
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
 import { people } from "@fluentui/example-data";
 import { spWebContext } from "../../providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
+
+// TODO: Add a way to show as input needed/corrected
 
 const suggestionProps: IBasePickerSuggestionsProps = {
   suggestionsHeaderText: "Suggested People",
@@ -53,7 +56,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
     setCurrentSelectedItems(personas);
   }, [props.defaultValue]);
 
-  const picker = React.useRef(null);
+  const picker = React.useRef<IBasePicker<IPersonaProps>>(null);
 
   const onFilterChanged = async (
     filterText: string,
@@ -153,12 +156,12 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
   const onItemsChange = (items: IPersonaProps[] | undefined): void => {
     if (items) {
       setCurrentSelectedItems(items);
+      props.updatePeople(items);
     }
   };
 
   return (
     <NormalPeoplePicker
-      // eslint-disable-next-line react/jsx-no-bind
       onResolveSuggestions={onFilterChanged}
       getTextFromItem={getTextFromItem}
       pickerSuggestionsProps={suggestionProps}
@@ -167,15 +170,17 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
       selectionAriaLabel={"Selected users"}
       removeButtonAriaLabel={"Remove"}
       selectedItems={currentSelectedItems}
-      // eslint-disable-next-line react/jsx-no-bind
       onChange={onItemsChange}
       inputProps={{
         "aria-label": props.ariaLabel,
       }}
       componentRef={picker}
       resolveDelay={300}
-      disabled={false}
+      disabled={props.readOnly}
       itemLimit={props.itemLimit ? props.itemLimit : 1}
+      // TODO: Look into adding suggestions based on cache
+      //onEmptyResolveSuggestions={getEmptyResolveSuggestions}
+      //onRemoveSuggestion={removeSuggestion}
     />
   );
 };
