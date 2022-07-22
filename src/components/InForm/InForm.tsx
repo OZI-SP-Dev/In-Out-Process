@@ -10,7 +10,6 @@ import {
   mergeStyleSets,
   Modal,
 } from "@fluentui/react";
-import { makeStyles } from "@fluentui/react-components";
 import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
@@ -19,6 +18,7 @@ import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
 import { emptype, EMPTYPES } from "../../constants/EmpTypes";
 import { worklocation, WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
+  makeStyles,
   Button,
   Input,
   InputOnChangeData,
@@ -28,52 +28,33 @@ import {
   RadioGroupOnChangeData,
   Switch,
   SwitchOnChangeData,
+  Text,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
-
-interface IInForm {
-  /** Required - Contains the Employee's Name */
-  empName: string;
-  /** Required - Employee's Type valid values are:
-   * 'civ' - for Civilian Employees
-   * 'mil' - for Military Employees
-   * 'ctr' - for Contracted Employees
-   */
-  empType: emptype;
-  /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
-  gradeRank: string;
-  /** Required - Possible values are 'local' and 'remote'  */
-  workLocation: worklocation;
-  /** Required - The Employee's Office */
-  office: string;
-  /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCiv: boolean;
-  /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
-  prevOrg: string;
-  /** Required - The user's Estimated Arrival Date */
-  eta: Date;
-  supGovLead: SPPersona[];
-}
-
-/** For new forms, allow certain fields to be blank or undefined to support controlled components */
-interface INewInForm
-  extends Omit<IInForm, "empType" | "workLocation" | "eta" | "supGovLead"> {
-  empType: emptype | "";
-  workLocation: worklocation | "";
-  eta: Date | undefined;
-  supGovLead: SPPersona[] | undefined;
-}
+import { INewInForm, RequestApiConfig } from "../../api/RequestApi";
 
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
+  compactContainer: {
+    display: "grid",
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
+    gridAutoRows: "minmax(100px, auto)",
+  },
+  floatRight: {
+    float: "right",
+  },
 });
 
 export const InForm: React.FunctionComponent<any> = (props) => {
   const classes = useStyles();
+  const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
   const [user, setUser] = useState<SPPersona[]>();
   const defaultInForm: INewInForm = {
+    Id: -1,
     empName: "",
     empType: "",
     workLocation: "",
@@ -91,6 +72,21 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     IComboBoxOption[]
   >([]);
 
+  const displayEmpType = (): string => {
+    let displayValue = "";
+    switch (formData.empType) {
+      case "civ":
+        displayValue = "Civilian - " + (formData.isNewCiv ? "New" : "Existing");
+        break;
+      case "mil":
+        displayValue = "Militray";
+        break;
+      case "ctr":
+        displayValue = "Contractor";
+        break;
+    }
+    return displayValue;
+  };
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
@@ -203,8 +199,15 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] =
     useBoolean(false);
 
+  const [isEditModalOpen, { setTrue: showEditModal, setFalse: hideEditModal }] =
+    useBoolean(false);
+
   function reviewRecord() {
     showModal();
+  }
+
+  function editRecord() {
+    showEditModal();
   }
 
   React.useEffect(() => {
@@ -214,7 +217,110 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     setUser(persona);
   }, [userContext.user]);
 
-  return (
+  React.useEffect(() => {
+    const loadRequest = async () => {
+      const res = await requestApi.getItemById(props.ReqId);
+      if (res) {
+        setFormData(res);
+      }
+    };
+
+    loadRequest();
+  }, [props.ReqId, requestApi]);
+
+  const editModal = (
+    <Modal
+      titleAriaId="titleId"
+      isOpen={isEditModalOpen}
+      isBlocking={true}
+      onDismiss={hideEditModal}
+      containerClassName={contentStyles.container}
+    >
+      <div className={contentStyles.header}>
+        <span id="titleId">Edit Request</span>
+        <IconButton
+          styles={iconButtonStyles}
+          iconProps={cancelIcon}
+          ariaLabel="Close popup modal"
+          onClick={hideEditModal}
+        />
+      </div>
+      {/* TODO -- Ability to Edit a Request in Modal*/}
+      <div className={contentStyles.body}>
+        <p>This is a place holder for ability to edit the Request.</p>
+      </div>
+    </Modal>
+  );
+  const compactView = (
+    <>
+      <div id="inForm" className={classes.compactContainer}>
+        <div>
+          <Label weight="semibold" htmlFor="empNameId">
+            Employee Name:
+          </Label>
+          <br />
+          <Text id="empNameId">{formData.empName}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="empTypeId">
+            Employee Type
+          </Label>
+          <br />
+          <Text id="empTypeId">{displayEmpType}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="gradeRankId">
+            Grade/Rank
+          </Label>
+          <br />
+          <Text id="gradeRankId">{formData.gradeRank}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="workLocationId">
+            Local or Remote?
+          </Label>
+          <br />
+          <Text id="workLocationId">{formData.workLocation}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="arrivalDateId">
+            Select estimated arrival date
+          </Label>
+          <br />
+          <Text id="arrivalDateId">{formData.eta?.toString()}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="officeId">
+            Office
+          </Label>
+          <br />
+          <Text id="officeId">{formData.office}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="supGovLeadId">
+            Supervisor/Government Lead
+          </Label>
+          <br />
+          <Text id="supGovLeadId">{formData.supGovLead}</Text>
+        </div>
+        {formData.empType === "civ" && formData.isNewCiv === false && (
+          <div>
+            <Label weight="semibold" htmlFor="prevOrgId">
+              Previous Organization
+            </Label>
+            <br />
+            <Text>{formData.prevOrg}</Text>
+          </div>
+        )}
+      </div>
+      <Button appearance="primary" className="floatRight" onClick={editRecord}>
+        Edit
+      </Button>
+      {editModal}
+    </>
+  );
+
+  const formView = (
     <>
       <form id="inForm" className={classes.formContainer}>
         <Label htmlFor="empNameId">Employee Name</Label>
@@ -340,6 +446,8 @@ export const InForm: React.FunctionComponent<any> = (props) => {
       </Modal>
     </>
   );
+
+  return <>{props.compactView ? compactView : formView}</>;
 };
 
 const theme = getTheme();
