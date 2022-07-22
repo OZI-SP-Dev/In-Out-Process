@@ -120,11 +120,6 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
         filteredPersonas = removeDuplicates(filteredPersonas, currentPersonas);
       }
 
-      // Build in a delay if in the dev environment
-      if (process.env.NODE_ENV === "development") {
-        filteredPersonas = await filterPromise(filteredPersonas);
-      }
-
       if (currentPersonas) {
         filteredPersonas = removeDuplicates(filteredPersonas, currentPersonas);
       }
