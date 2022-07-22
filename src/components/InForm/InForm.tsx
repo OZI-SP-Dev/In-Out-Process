@@ -30,7 +30,6 @@ import {
   SwitchOnChangeData,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
-import { IPerson } from "../../api/UserApi";
 
 interface IInForm {
   /** Required - Contains the Employee's Name */
