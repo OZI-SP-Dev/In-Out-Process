@@ -41,7 +41,7 @@ const useStyles = makeStyles({
     paddingLeft: "1em",
     paddingRight: "1em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
-    gridAutoRows: "minmax(100px, auto)",
+    gridAutoRows: "minmax(50px, auto)",
   },
   floatRight: {
     float: "right",
