@@ -284,10 +284,10 @@ export const InForm: React.FunctionComponent<any> = (props) => {
         </div>
         <div>
           <Label weight="semibold" htmlFor="arrivalDateId">
-            Select estimated arrival date
+            Select estimated on-boarding date
           </Label>
           <br />
-          <Text id="arrivalDateId">{formData.eta?.toString()}</Text>
+          <Text id="arrivalDateId">{formData.eta?.toLocaleDateString()}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="officeId">
@@ -371,11 +371,11 @@ export const InForm: React.FunctionComponent<any> = (props) => {
             );
           })}
         </RadioGroup>
-        <Label htmlFor="arrivalDateId">Select estimated arrival date</Label>
+        <Label htmlFor="arrivalDateId">Select estimated on-boarding date</Label>
         <DatePicker
           id="arrivalDateId"
-          placeholder="Select estimated arrival date"
-          ariaLabel="Select an estimated arrival date"
+          placeholder="Select estimated on-boarding date"
+          ariaLabel="Select an estimated on-boarding date"
           value={formData.eta}
           onSelectDate={onETADateChange}
         />
@@ -397,7 +397,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
         {formData.empType === "civ" && (
           <>
             <Label htmlFor="newCivId">
-              Is Employee a New to Air Force Civilian?
+              Is Employee a New Air Force Civilian?
             </Label>
             <Switch
               id="newCivId"
