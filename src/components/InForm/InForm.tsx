@@ -26,8 +26,6 @@ import {
   Radio,
   RadioGroup,
   RadioGroupOnChangeData,
-  Switch,
-  SwitchOnChangeData,
   Text,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
