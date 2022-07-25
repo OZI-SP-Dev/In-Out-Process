@@ -60,7 +60,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     workLocation: "",
     gradeRank: "",
     office: "",
-    isNewCiv: false,
+    isNewCiv: "",
     prevOrg: "",
     eta: undefined,
     supGovLead: undefined,
@@ -76,7 +76,8 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     let displayValue = "";
     switch (formData.empType) {
       case "civ":
-        displayValue = "Civilian - " + (formData.isNewCiv ? "New" : "Existing");
+        displayValue =
+          "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
         break;
       case "mil":
         displayValue = "Militray";
@@ -105,7 +106,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
       }
       if (data.value !== "civ") {
         setFormData((f: INewInForm) => {
-          return { ...f, isNewCiv: false };
+          return { ...f, isNewCiv: "no" };
         });
         setFormData((f: INewInForm) => {
           return { ...f, prevOrg: "" };
@@ -132,12 +133,16 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     }
   };
 
-  const onNewCiv = (ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
-    setFormData((f: INewInForm) => {
-      return { ...f, isNewCiv: data.checked };
-    });
+  const onNewCiv = (
+    ev: FormEvent<HTMLElement>,
+    data: RadioGroupOnChangeData
+  ) => {
+    if (data.value === "yes" || data.value === "no")
+      setFormData((f: INewInForm) => {
+        return { ...f, isNewCiv: data.value as "yes" | "no" };
+      });
 
-    if (!data.checked) {
+    if (!(data.value === "true")) {
       setFormData((f: INewInForm) => {
         return { ...f, prevOrg: "" };
       });
@@ -303,7 +308,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
           <br />
           <Text id="supGovLeadId">{formData.supGovLead}</Text>
         </div>
-        {formData.empType === "civ" && formData.isNewCiv === false && (
+        {formData.empType === "civ" && formData.isNewCiv === "no" && (
           <div>
             <Label weight="semibold" htmlFor="prevOrgId">
               Previous Organization
@@ -399,12 +404,15 @@ export const InForm: React.FunctionComponent<any> = (props) => {
             <Label htmlFor="newCivId">
               Is Employee a New Air Force Civilian?
             </Label>
-            <Switch
+            <RadioGroup
               id="newCivId"
-              label={formData.isNewCiv ? "Yes" : "No"}
+              value={formData.isNewCiv}
               onChange={onNewCiv}
-            />
-            {formData.isNewCiv === false && (
+            >
+              <Radio key={"yes"} value={"yes"} label="Yes" />
+              <Radio key={"no"} value={"no"} label="No" />
+            </RadioGroup>
+            {formData.isNewCiv === "no" && (
               <>
                 <Label htmlFor="prevOrgId">Previous Organization</Label>
                 <Input

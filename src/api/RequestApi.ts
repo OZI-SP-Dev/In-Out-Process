@@ -28,7 +28,8 @@ export type IInForm = {
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCiv: boolean;
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  isNewCiv: "yes" | "no";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - The user's Estimated Arrival Date */
@@ -40,12 +41,13 @@ export type IInForm = {
 /** For new forms, allow certain fields to be blank or undefined to support controlled components */
 export type INewInForm = Omit<
   IInForm,
-  "empType" | "workLocation" | "eta" | "supGovLead"
+  "empType" | "workLocation" | "eta" | "supGovLead" | "isNewCiv"
 > & {
   empType: emptype | "";
   workLocation: worklocation | "";
   eta: Date | undefined;
   supGovLead: SPPersona[] | undefined;
+  isNewCiv: "yes" | "no" | "";
 };
 
 export interface IInFormApi {
@@ -150,7 +152,7 @@ export class RequestApiDev implements IInFormApi {
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
-      isNewCiv: true,
+      isNewCiv: "yes",
       prevOrg: "",
       eta: new Date(),
       supGovLead: [] as SPPersona[],
@@ -162,7 +164,7 @@ export class RequestApiDev implements IInFormApi {
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",
-      isNewCiv: false,
+      isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
       eta: new Date(),
       supGovLead: [] as SPPersona[],
