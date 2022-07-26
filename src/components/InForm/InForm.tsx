@@ -11,7 +11,14 @@ import {
   Modal,
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
-import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
@@ -69,7 +76,7 @@ const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
 });
 
-export const InForm: React.FunctionComponent<any> = (props) => {
+export const InForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const userContext = useContext(UserContext);
   const [user, setUser] = useState<SPPersona[]>();
@@ -87,9 +94,9 @@ export const InForm: React.FunctionComponent<any> = (props) => {
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
 
-  const [gradeRankOptions, setGradeRankOptions] = React.useState<
-    IComboBoxOption[]
-  >([]);
+  const [gradeRankOptions, setGradeRankOptions] = useState<IComboBoxOption[]>(
+    []
+  );
 
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
@@ -167,7 +174,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   };
 
   const onGradeChange = (
-    event: React.FormEvent<IComboBox>,
+    event: FormEvent<IComboBox>,
     option?: IComboBoxOption,
     index?: number,
     value?: string
@@ -179,7 +186,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   };
 
   const onOfficeChange = (
-    event: React.FormEvent<IComboBox>,
+    event: FormEvent<IComboBox>,
     option?: IComboBoxOption,
     index?: number,
     value?: string
@@ -207,7 +214,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     showModal();
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     let persona: SPPersona[] = [];
     persona = [{ ...userContext.user }];
 

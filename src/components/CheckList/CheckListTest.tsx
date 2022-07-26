@@ -1,7 +1,8 @@
 import { CheckList } from "./CheckList";
 import { ICheckListItem } from "../../api/CheckListItemApi";
+import { FunctionComponent } from "react";
 
-export const CheckListTest: React.FunctionComponent = (props) => {
+export const CheckListTest: FunctionComponent = (props) => {
   const items: ICheckListItem[] = [
     {
       Id: 1,
