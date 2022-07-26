@@ -38,9 +38,17 @@ import {
 import { UserContext } from "../../providers/UserProvider";
 import { INewInForm, RequestApiConfig } from "../../api/RequestApi";
 
+/**
+ * Enum for holding the possible views of the In Request form view
+ * @readonly
+ * @enum {number}
+ */
 export enum INFORMVIEWS {
+  //* Compact view for use within other components, to view details of the In Processing Request */
   COMPACT,
+  //* Full page view for entering a new In Processing request */
   NEW,
+  //* Popup/Inline view for editing details of an exisiting In Processing Request */
   EDIT,
 }
 
