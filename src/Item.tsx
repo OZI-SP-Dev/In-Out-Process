@@ -1,11 +1,11 @@
 import { Button } from "@fluentui/react-components";
-import { useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IItem, ItemApiConfig } from "./api/ItemApi";
 import { CheckList } from "./components/CheckList/CheckList";
 import { useChecklistItems } from "./api/CheckListItemApi";
 
-export const Item: React.FunctionComponent = (props) => {
+export const Item: FunctionComponent = (props) => {
   const { itemNum } = useParams();
   const itemApi = ItemApiConfig.getApi();
   const [item, setItem] = useState<IItem>({ Id: 0, Title: "" });

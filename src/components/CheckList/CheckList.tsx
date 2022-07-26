@@ -1,13 +1,13 @@
 import { ICheckListItem } from "../../api/CheckListItemApi";
 import { IColumn } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
-import React from "react";
+import { FunctionComponent } from "react";
 
 export interface ICheckList {
   CheckListItems: ICheckListItem[] | null;
 }
 
-export const CheckList: React.FunctionComponent<ICheckList> = (props) => {
+export const CheckList: FunctionComponent<ICheckList> = (props) => {
   // Define columns for details list
   const columns: IColumn[] = [
     {
