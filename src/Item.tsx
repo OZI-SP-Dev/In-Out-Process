@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { CheckList } from "./components/CheckList/CheckList";
 import { useChecklistItems } from "./api/CheckListItemApi";
-import { InForm } from "./components/InForm/InForm";
+import { InForm, INFORMVIEWS } from "./components/InForm/InForm";
 
 export const Item: React.FunctionComponent = (props) => {
   const { itemNum } = useParams();
@@ -10,7 +10,7 @@ export const Item: React.FunctionComponent = (props) => {
   return (
     <div>
       <h1>Welcome to the Item Page</h1>
-      <InForm ReqId={Number(itemNum)} compactView />
+      <InForm ReqId={Number(itemNum)} view={INFORMVIEWS.COMPACT} />
       <CheckList CheckListItems={checklisItems} />
     </div>
   );

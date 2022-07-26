@@ -31,6 +31,12 @@ import {
 import { UserContext } from "../../providers/UserProvider";
 import { INewInForm, RequestApiConfig } from "../../api/RequestApi";
 
+export enum INFORMVIEWS {
+  COMPACT,
+  NEW,
+  EDIT,
+}
+
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
@@ -453,7 +459,17 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     </>
   );
 
-  return <>{props.compactView ? compactView : formView}</>;
+  const selectedView = (() => {
+    switch (props.view) {
+      case INFORMVIEWS.COMPACT:
+        return compactView;
+      case INFORMVIEWS.NEW:
+      default:
+        return formView;
+    }
+  })();
+
+  return <>{selectedView}</>;
 };
 
 const theme = getTheme();
