@@ -6,11 +6,16 @@ import {
   StickyPositionType,
 } from "@fluentui/react";
 import { Avatar } from "@fluentui/react-components";
-import { useContext, MouseEvent, KeyboardEvent } from "react";
+import {
+  useContext,
+  MouseEvent,
+  KeyboardEvent,
+  FunctionComponent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../providers/UserProvider";
 
-export const AppHeader: React.FunctionComponent<any> = (props) => {
+export const AppHeader: FunctionComponent<any> = (props) => {
   const userContext = useContext(UserContext);
   let navigate = useNavigate();
 
