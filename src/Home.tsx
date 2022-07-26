@@ -6,9 +6,10 @@ import {
   AccordionPanel,
   Button,
 } from "@fluentui/react-components";
+import { FunctionComponent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export const Home: React.FunctionComponent = (props) => {
+export const Home: FunctionComponent = (props) => {
   let navigate = useNavigate();
 
   function createNewItem() {

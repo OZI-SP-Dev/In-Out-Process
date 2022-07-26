@@ -1,9 +1,10 @@
+import { FunctionComponent } from "react";
 import { useParams } from "react-router-dom";
 import { CheckList } from "./components/CheckList/CheckList";
 import { useChecklistItems } from "./api/CheckListItemApi";
 import { InForm, INFORMVIEWS } from "./components/InForm/InForm";
 
-export const Item: React.FunctionComponent = (props) => {
+export const Item: FunctionComponent = (props) => {
   const { itemNum } = useParams();
   const checklisItems = useChecklistItems(Number(itemNum));
 

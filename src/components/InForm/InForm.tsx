@@ -10,7 +10,14 @@ import {
   mergeStyleSets,
   Modal,
 } from "@fluentui/react";
-import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
@@ -52,7 +59,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const InForm: React.FunctionComponent<any> = (props) => {
+export const InForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
@@ -72,9 +79,9 @@ export const InForm: React.FunctionComponent<any> = (props) => {
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
 
-  const [gradeRankOptions, setGradeRankOptions] = React.useState<
-    IComboBoxOption[]
-  >([]);
+  const [gradeRankOptions, setGradeRankOptions] = useState<IComboBoxOption[]>(
+    []
+  );
 
   const displayEmpType = (): string => {
     let displayValue = "";
@@ -172,7 +179,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   };
 
   const onGradeChange = (
-    event: React.FormEvent<IComboBox>,
+    event: FormEvent<IComboBox>,
     option?: IComboBoxOption,
     index?: number,
     value?: string
@@ -184,7 +191,7 @@ export const InForm: React.FunctionComponent<any> = (props) => {
   };
 
   const onOfficeChange = (
-    event: React.FormEvent<IComboBox>,
+    event: FormEvent<IComboBox>,
     option?: IComboBoxOption,
     index?: number,
     value?: string
@@ -219,14 +226,14 @@ export const InForm: React.FunctionComponent<any> = (props) => {
     showEditModal();
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     let persona: SPPersona[] = [];
     persona = [{ ...userContext.user }];
 
     setUser(persona);
   }, [userContext.user]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadRequest = async () => {
       const res = await requestApi.getItemById(props.ReqId);
       if (res) {

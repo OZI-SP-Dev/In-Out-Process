@@ -1,4 +1,4 @@
-import React from "react";
+import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import {
   IBasePicker,
@@ -40,15 +40,13 @@ interface IPeoplePickerProps {
   updatePeople: (p: SPPersona[]) => void;
 }
 
-export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
-  props
-) => {
-  const [currentSelectedItems, setCurrentSelectedItems] = React.useState<
+export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
+  const [currentSelectedItems, setCurrentSelectedItems] = useState<
     IPersonaProps[]
   >([]);
-  const [peopleList] = React.useState<IPersonaProps[]>(people);
+  const [peopleList] = useState<IPersonaProps[]>(people);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let personas: SPPersona[] = [];
     if (props.defaultValue) {
       personas = [...props.defaultValue];
@@ -56,7 +54,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (
     setCurrentSelectedItems(personas);
   }, [props.defaultValue]);
 
-  const picker = React.useRef<IBasePicker<IPersonaProps>>(null);
+  const picker = useRef<IBasePicker<IPersonaProps>>(null);
 
   const onFilterChanged = async (
     filterText: string,
