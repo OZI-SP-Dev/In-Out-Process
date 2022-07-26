@@ -71,7 +71,7 @@ export const InForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
-  const [user, setUser] = useState<SPPersona[]>();
+
   const defaultInForm: INewInForm = {
     Id: -1,
     empName: "",
@@ -82,7 +82,7 @@ export const InForm: FunctionComponent<any> = (props) => {
     isNewCiv: "",
     prevOrg: "",
     eta: undefined,
-    supGovLead: undefined,
+    supGovLead: [{ ...userContext.user }],
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
@@ -238,7 +238,7 @@ export const InForm: FunctionComponent<any> = (props) => {
     let persona: SPPersona[] = [];
     persona = [{ ...userContext.user }];
 
-    setUser(persona);
+    setFormData({ ...formData, supGovLead: persona });
   }, [userContext.user]);
 
   useEffect(() => {
@@ -252,6 +252,9 @@ export const InForm: FunctionComponent<any> = (props) => {
     loadRequest();
   }, [props.ReqId, requestApi]);
 
+  if (userContext.loadingUser) {
+    return <>Loading...</>;
+  }
   const editModal = (
     <Modal
       titleAriaId="titleId"
@@ -415,7 +418,7 @@ export const InForm: FunctionComponent<any> = (props) => {
         <Label>Supervisor/Government Lead</Label>
         <PeoplePicker
           ariaLabel="Supervisor/Government Lead"
-          defaultValue={user}
+          defaultValue={formData.supGovLead}
           updatePeople={onSupvGovLeadChange}
         />
         {formData.empType === "civ" && (
