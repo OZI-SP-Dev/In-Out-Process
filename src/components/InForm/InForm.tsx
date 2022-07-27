@@ -235,7 +235,7 @@ export const InForm: FunctionComponent<any> = (props) => {
   }
 
   useEffect(() => {
-    // Only set the supGovLead to
+    // Only set the supGovLead if this is a New request
     if (props.view === INFORMVIEWS.NEW) {
       let persona: SPPersona[] = [];
       persona = [{ ...userContext.user }];
