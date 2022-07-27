@@ -82,7 +82,7 @@ export const InForm: FunctionComponent<any> = (props) => {
     isNewCiv: "",
     prevOrg: "",
     eta: undefined,
-    supGovLead: [{ ...userContext.user }],
+    supGovLead: { ...userContext.user },
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
@@ -237,8 +237,8 @@ export const InForm: FunctionComponent<any> = (props) => {
   useEffect(() => {
     // Only set the supGovLead if this is a New request
     if (props.view === INFORMVIEWS.NEW) {
-      let persona: SPPersona[] = [];
-      persona = [{ ...userContext.user }];
+      let persona: SPPersona = {};
+      persona = { ...userContext.user };
 
       setFormData((f: INewInForm) => {
         return { ...f, supGovLead: persona };
@@ -333,7 +333,7 @@ export const InForm: FunctionComponent<any> = (props) => {
             Supervisor/Government Lead
           </Label>
           <br />
-          <Text id="supGovLeadId">{formData.supGovLead}</Text>
+          <Text id="supGovLeadId">{formData.supGovLead?.text}</Text>
         </div>
         {formData.empType === "civ" && formData.isNewCiv === "no" && (
           <div>

@@ -35,7 +35,7 @@ export type IInForm = {
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
-  supGovLead: SPPersona[];
+  supGovLead: SPPersona;
 };
 
 /** For new forms, allow certain fields to be blank or undefined to support controlled components */
@@ -46,7 +46,7 @@ export type INewInForm = Omit<
   empType: emptype | "";
   workLocation: worklocation | "";
   eta: Date | undefined;
-  supGovLead: SPPersona[] | undefined;
+  supGovLead: SPPersona | undefined;
   isNewCiv: "yes" | "no" | "";
 };
 
@@ -155,7 +155,7 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "yes",
       prevOrg: "",
       eta: new Date(),
-      supGovLead: [] as SPPersona[],
+      supGovLead: {} as SPPersona,
     },
     {
       Id: 2,
@@ -167,7 +167,7 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
       eta: new Date(),
-      supGovLead: [] as SPPersona[],
+      supGovLead: {} as SPPersona,
     },
   ];
 
