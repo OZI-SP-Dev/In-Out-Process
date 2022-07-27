@@ -235,11 +235,16 @@ export const InForm: FunctionComponent<any> = (props) => {
   }
 
   useEffect(() => {
-    let persona: SPPersona[] = [];
-    persona = [{ ...userContext.user }];
+    // Only set the supGovLead to
+    if (props.view === INFORMVIEWS.NEW) {
+      let persona: SPPersona[] = [];
+      persona = [{ ...userContext.user }];
 
-    setFormData({ ...formData, supGovLead: persona });
-  }, [userContext.user]);
+      setFormData((f: INewInForm) => {
+        return { ...f, supGovLead: persona };
+      });
+    }
+  }, [userContext.user, props.view]);
 
   useEffect(() => {
     const loadRequest = async () => {
