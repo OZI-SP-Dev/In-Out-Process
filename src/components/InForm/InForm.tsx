@@ -82,7 +82,7 @@ export const InForm: FunctionComponent<any> = (props) => {
     isNewCiv: "",
     prevOrg: "",
     eta: undefined,
-    supGovLead: { ...userContext.user },
+    supGovLead: undefined,
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
