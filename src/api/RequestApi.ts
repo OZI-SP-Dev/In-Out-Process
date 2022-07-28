@@ -155,7 +155,11 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "yes",
       prevOrg: "",
       eta: new Date(),
-      supGovLead: {} as SPPersona,
+      supGovLead: {
+        text: "Default User",
+        imageUrl:
+          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+      } as SPPersona,
     },
     {
       Id: 2,
@@ -167,7 +171,11 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
       eta: new Date(),
-      supGovLead: {} as SPPersona,
+      supGovLead: {
+        text: "Default User",
+        imageUrl:
+          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+      } as SPPersona,
     },
   ];
 
