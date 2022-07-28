@@ -99,7 +99,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.MIL:
-        displayValue = "Militray";
+        displayValue = "Military";
         break;
       case EMPTYPES.CTR:
         displayValue = "Contractor";
