@@ -1,14 +1,9 @@
 import {
   ComboBox,
   DatePicker,
-  FontWeights,
-  getTheme,
   IComboBox,
   IComboBoxOption,
-  IconButton,
-  IIconProps,
-  mergeStyleSets,
-  Modal,
+  Panel,
 } from "@fluentui/react";
 import {
   ChangeEvent,
@@ -22,7 +17,7 @@ import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
-import { emptype, EMPTYPES } from "../../constants/EmpTypes";
+import { emptype, empTypeOpts, EMPTYPES } from "../../constants/EmpTypes";
 import { worklocation, WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
   makeStyles,
@@ -34,9 +29,11 @@ import {
   RadioGroup,
   RadioGroupOnChangeData,
   Text,
+  webLightTheme,
+  FluentProvider,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
-import { INewInForm, RequestApiConfig } from "../../api/RequestApi";
+import { IInForm, INewInForm, RequestApiConfig } from "../../api/RequestApi";
 
 /**
  * Enum for holding the possible views of the In Request form view
@@ -52,7 +49,7 @@ export enum INFORMVIEWS {
   EDIT,
 }
 
-const cancelIcon: IIconProps = { iconName: "Cancel" };
+/* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
   compactContainer: {
@@ -67,6 +64,7 @@ const useStyles = makeStyles({
   },
 });
 
+/* TODO - Break into subcomponents for different views */
 export const InForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const requestApi = RequestApiConfig.getApi();
@@ -82,10 +80,25 @@ export const InForm: FunctionComponent<any> = (props) => {
     isNewCiv: "",
     prevOrg: "",
     eta: undefined,
-    supGovLead: [{ ...userContext.user }],
+    supGovLead: undefined,
   };
 
-  const [formData, setFormData] = useState<INewInForm>(defaultInForm);
+  const [formData, setFormData] = useState<INewInForm | IInForm>(defaultInForm);
+  const [saveCancelEvent, setSaveCancelEvent] = useState<string>("");
+
+  /* Boolean state for determining whether or not the Edit Panel is shown */
+  const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
+    useBoolean(false);
+
+  /* Function to handle the save or cancel */
+  const onEditSaveCancel = (formEdits: IInForm | undefined): void => {
+    // If they chose to save the Edits, then update the formData
+    if (formEdits) {
+      setFormData({ ...formEdits });
+    }
+    hideEditPanel();
+    setSaveCancelEvent("");
+  };
 
   const [gradeRankOptions, setGradeRankOptions] = useState<IComboBoxOption[]>(
     []
@@ -94,36 +107,35 @@ export const InForm: FunctionComponent<any> = (props) => {
   const displayEmpType = (): string => {
     let displayValue = "";
     switch (formData.empType) {
-      case "civ":
+      case EMPTYPES.CIV:
         displayValue =
           "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
         break;
-      case "mil":
-        displayValue = "Militray";
+      case EMPTYPES.MIL:
+        displayValue = "Military";
         break;
-      case "ctr":
+      case EMPTYPES.CTR:
         displayValue = "Contractor";
         break;
     }
     return displayValue;
   };
-  const onEmpTypeChange = (
-    ev: FormEvent<HTMLElement>,
-    data: RadioGroupOnChangeData
-  ) => {
-    setFormData((f: INewInForm) => {
-      switch (data.value) {
-        case "civ":
+
+  const updateGradeRankOpt = (empType: emptype) => {
+    if (empType) {
+      switch (empType) {
+        case EMPTYPES.CIV:
           setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
           break;
-        case "mil":
+        case EMPTYPES.MIL:
           setGradeRankOptions([...MIL_GRADES]);
           break;
-        case "ctr":
+        case EMPTYPES.CTR:
           setGradeRankOptions([]);
           break;
       }
-      if (data.value !== "civ") {
+
+      if (empType !== EMPTYPES.CIV) {
         setFormData((f: INewInForm) => {
           return { ...f, isNewCiv: "no" };
         });
@@ -131,8 +143,19 @@ export const InForm: FunctionComponent<any> = (props) => {
           return { ...f, prevOrg: "" };
         });
       }
-      return { ...f, empType: data.value as emptype };
-    });
+
+      setFormData((f: INewInForm) => {
+        return { ...f, empType: empType as emptype };
+      });
+    }
+  };
+
+  const onEmpTypeChange = (
+    ev: FormEvent<HTMLElement>,
+    data: RadioGroupOnChangeData
+  ) => {
+    let empType: emptype = data.value as emptype;
+    updateGradeRankOpt(empType);
   };
 
   const onWorkLocationChange = (
@@ -180,8 +203,9 @@ export const InForm: FunctionComponent<any> = (props) => {
 
   const onSupvGovLeadChange = (items: SPPersona[]) => {
     if (items) {
+      // If People Picker returns items then set to the first since we only have 1 supGovLead
       setFormData((f: INewInForm) => {
-        return { ...f, supGovLead: items };
+        return { ...f, supGovLead: items[0] };
       });
     }
   };
@@ -220,25 +244,38 @@ export const InForm: FunctionComponent<any> = (props) => {
     });
   };
 
-  const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] =
-    useBoolean(false);
-
-  const [isEditModalOpen, { setTrue: showEditModal, setFalse: hideEditModal }] =
-    useBoolean(false);
-
-  function reviewRecord() {
-    showModal();
-  }
+  const onRenderFooterContent = () => (
+    <FluentProvider theme={webLightTheme}>
+      <div>
+        <Button
+          appearance="primary"
+          onClick={() => {
+            setSaveCancelEvent("save");
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          appearance="secondary"
+          onClick={() => {
+            setSaveCancelEvent("cancel");
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </FluentProvider>
+  );
 
   function editRecord() {
-    showEditModal();
+    showEditPanel();
   }
 
   useEffect(() => {
     // Only set the supGovLead if this is a New request
     if (props.view === INFORMVIEWS.NEW) {
-      let persona: SPPersona[] = [];
-      persona = [{ ...userContext.user }];
+      let persona: SPPersona = {};
+      persona = { ...userContext.user };
 
       setFormData((f: INewInForm) => {
         return { ...f, supGovLead: persona };
@@ -246,43 +283,70 @@ export const InForm: FunctionComponent<any> = (props) => {
     }
   }, [userContext.user, props.view]);
 
+  /* If the parent component updates prop to indicate a save or cancel event, then peform appropriate actions,
+      and call the passed in parents function.  If we are successfully saving then pass the formData back to the
+      parent's callback function, otherwise, don't pass it back so that it leaves the panel open for action */
+  useEffect(() => {
+    if (props.saveCancelEvent === "save") {
+      /* TODO - Evaluate if the user has valid data to update the record with, and update the record.  If it isn't valid
+        then call the parent's callback passing no return value so that it leaves panel open */
+      if (true /*Is Data Valid? */) {
+        props.onEditSaveCancel(formData);
+      } else {
+        /* Data not valid, so tell parent not to close panel  */
+        //props.onEditSaveCancel();
+      }
+    } else if (props.saveCancelEvent === "cancel") {
+      props.onEditSaveCancel();
+    }
+  }, [props.saveCancelEvent, formData, props]);
+
+  /* The data based on the ReqId prop that is passed in */
   useEffect(() => {
     const loadRequest = async () => {
       const res = await requestApi.getItemById(props.ReqId);
       if (res) {
         setFormData(res);
+
+        //Update the available grade options dropdown based on the incoming record
+        updateGradeRankOpt(res?.empType);
       }
     };
 
     loadRequest();
   }, [props.ReqId, requestApi]);
 
+  /* Temporarily show a Loading screen if we don't have the current user info yet. */
   if (userContext.loadingUser) {
     return <>Loading...</>;
   }
-  const editModal = (
-    <Modal
-      titleAriaId="titleId"
-      isOpen={isEditModalOpen}
+
+  const editPanel = (
+    <Panel
+      isOpen={isEditPanelOpen}
       isBlocking={true}
-      onDismiss={hideEditModal}
-      containerClassName={contentStyles.container}
+      onDismiss={hideEditPanel}
+      headerText="Edit Request"
+      isFooterAtBottom={true}
+      onRenderFooterContent={onRenderFooterContent}
     >
-      <div className={contentStyles.header}>
-        <span id="titleId">Edit Request</span>
-        <IconButton
-          styles={iconButtonStyles}
-          iconProps={cancelIcon}
-          ariaLabel="Close popup modal"
-          onClick={hideEditModal}
+      <FluentProvider theme={webLightTheme}>
+        {/* TODO - Determine if this
+        compoent should retrieve the form data again from the source, or pass it
+        what is currently on the currently loaded form. For now it is reading in
+        the form data again from the source */}
+        {/* Recursively embed the component inside */}
+        <InForm
+          ReqId={props.ReqId}
+          view={INFORMVIEWS.EDIT}
+          onEditSaveCancel={onEditSaveCancel}
+          saveCancelEvent={saveCancelEvent}
         />
-      </div>
-      {/* TODO -- Ability to Edit a Request in Modal*/}
-      <div className={contentStyles.body}>
-        <p>This is a place holder for ability to edit the Request.</p>
-      </div>
-    </Modal>
+      </FluentProvider>
+    </Panel>
   );
+
+  /* This view renders a compact view of the items as simple Text elements (not fields) */
   const compactView = (
     <>
       <div id="inForm" className={classes.compactContainer}>
@@ -333,9 +397,9 @@ export const InForm: FunctionComponent<any> = (props) => {
             Supervisor/Government Lead
           </Label>
           <br />
-          <Text id="supGovLeadId">{formData.supGovLead}</Text>
+          <Text id="supGovLeadId">{formData.supGovLead?.text}</Text>
         </div>
-        {formData.empType === "civ" && formData.isNewCiv === "no" && (
+        {formData.empType === EMPTYPES.CIV && formData.isNewCiv === "no" && (
           <div>
             <Label weight="semibold" htmlFor="prevOrgId">
               Previous Organization
@@ -348,10 +412,11 @@ export const InForm: FunctionComponent<any> = (props) => {
       <Button appearance="primary" className="floatRight" onClick={editRecord}>
         Edit
       </Button>
-      {editModal}
+      {editPanel}
     </>
   );
 
+  /* This view serves up the form fields as editable.  It is utilied by both NEW and EDIT forms */
   const formView = (
     <>
       <form id="inForm" className={classes.formContainer}>
@@ -366,8 +431,9 @@ export const InForm: FunctionComponent<any> = (props) => {
           id="empTypeId"
           value={formData.empType}
           onChange={onEmpTypeChange}
+          layout="horizontal"
         >
-          {EMPTYPES.map((empType, i) => {
+          {empTypeOpts.map((empType, i) => {
             return (
               <Radio
                 key={empType.value}
@@ -385,13 +451,14 @@ export const InForm: FunctionComponent<any> = (props) => {
           options={gradeRankOptions}
           onChange={onGradeChange}
           dropdownWidth={100}
-          disabled={formData.empType === "ctr"}
+          disabled={formData.empType === EMPTYPES.CTR}
         />
         <Label htmlFor="workLocationId">Local or Remote?</Label>
         <RadioGroup
           id="workLocationId"
           value={formData.workLocation}
           onChange={onWorkLocationChange}
+          layout="horizontal"
         >
           {WORKLOCATIONS.map((workLocation, i) => {
             return (
@@ -426,7 +493,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           defaultValue={formData.supGovLead}
           updatePeople={onSupvGovLeadChange}
         />
-        {formData.empType === "civ" && (
+        {formData.empType === EMPTYPES.CIV && (
           <>
             <Label htmlFor="newCivId">
               Is Employee a New Air Force Civilian?
@@ -451,34 +518,19 @@ export const InForm: FunctionComponent<any> = (props) => {
             )}
           </>
         )}
-        <Button appearance="primary" onClick={reviewRecord}>
-          Create In Processing Record
-        </Button>
+        {/*-- Button to show if it is a New Form */}
+        {/* TODO: Implement Saving In Processing Request */}
+        {props.view === INFORMVIEWS.NEW && (
+          <Button
+            appearance="primary"
+            onClick={() => {
+              alert("Feature coming");
+            }}
+          >
+            Create In Processing Record
+          </Button>
+        )}
       </form>
-      <Modal
-        titleAriaId="titleId"
-        isOpen={isModalOpen}
-        isBlocking={true}
-        onDismiss={hideModal}
-        containerClassName={contentStyles.container}
-      >
-        <div className={contentStyles.header}>
-          <span id="titleId">Review Information</span>
-          <IconButton
-            styles={iconButtonStyles}
-            iconProps={cancelIcon}
-            ariaLabel="Close popup modal"
-            onClick={hideModal}
-          />
-        </div>
-
-        <div className={contentStyles.body}>
-          <p>
-            Please review the below information: If corect continue processing,
-            if something needs adjusted, cancel and make changes.
-          </p>
-        </div>
-      </Modal>
     </>
   );
 
@@ -487,55 +539,11 @@ export const InForm: FunctionComponent<any> = (props) => {
       case INFORMVIEWS.COMPACT:
         return compactView;
       case INFORMVIEWS.NEW:
+      case INFORMVIEWS.EDIT:
       default:
         return formView;
     }
   })();
 
   return <>{selectedView}</>;
-};
-
-const theme = getTheme();
-const contentStyles = mergeStyleSets({
-  container: {
-    display: "flex",
-    flexFlow: "column nowrap",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-  },
-  header: [
-    theme.fonts.xxLarge,
-    {
-      flex: "1 1 auto",
-      borderTop: `4px solid ${theme.palette.themePrimary}`,
-      color: theme.palette.neutralPrimary,
-      display: "flex",
-      alignItems: "center",
-      fontWeight: FontWeights.semibold,
-      padding: "12px 12px 14px 24px",
-    },
-  ],
-  body: {
-    flex: "4 4 auto",
-    padding: "0 24px 24px 24px",
-    overflowY: "hidden",
-    selectors: {
-      p: { margin: "14px 0" },
-      "p:first-child": { marginTop: 0 },
-      "p:last-child": { marginBottom: 0 },
-    },
-  },
-});
-
-const iconButtonStyles = {
-  root: {
-    color: theme.palette.neutralPrimary,
-    marginLeft: "auto",
-    marginTop: "4px",
-    marginRight: "2px",
-  },
-  rootHovered: {
-    color: theme.palette.neutralDark,
-  },
 };

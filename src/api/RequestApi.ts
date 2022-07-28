@@ -1,7 +1,7 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IItemUpdateResult } from "@pnp/sp/items";
-import { emptype } from "../constants/EmpTypes";
+import { emptype, EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
@@ -35,7 +35,7 @@ export type IInForm = {
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
-  supGovLead: SPPersona[];
+  supGovLead: SPPersona;
 };
 
 /** For new forms, allow certain fields to be blank or undefined to support controlled components */
@@ -46,7 +46,7 @@ export type INewInForm = Omit<
   empType: emptype | "";
   workLocation: worklocation | "";
   eta: Date | undefined;
-  supGovLead: SPPersona[] | undefined;
+  supGovLead: SPPersona | undefined;
   isNewCiv: "yes" | "no" | "";
 };
 
@@ -148,26 +148,34 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 1,
       empName: "Doe, John D",
-      empType: "civ",
+      empType: EMPTYPES.CIV,
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
       isNewCiv: "yes",
       prevOrg: "",
       eta: new Date(),
-      supGovLead: [] as SPPersona[],
+      supGovLead: {
+        text: "Default User",
+        imageUrl:
+          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+      } as SPPersona,
     },
     {
       Id: 2,
       empName: "Doe, Jane D",
-      empType: "civ",
+      empType: EMPTYPES.CIV,
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",
       isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
       eta: new Date(),
-      supGovLead: [] as SPPersona[],
+      supGovLead: {
+        text: "Default User",
+        imageUrl:
+          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+      } as SPPersona,
     },
   ];
 

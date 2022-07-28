@@ -32,7 +32,7 @@ interface IPeoplePickerProps {
   /** Required - The text used to label this people picker for screenreaders */
   ariaLabel: string;
   /** Optional - The people to pre-populate the People Picker with */
-  defaultValue?: SPPersona[];
+  defaultValue?: SPPersona[] | SPPersona;
   readOnly?: boolean;
   required?: boolean;
   /** Optional - Limit the People Picker to only allow selection of specific number -- Defaults to 1 */
@@ -48,8 +48,10 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
 
   useEffect(() => {
     let personas: SPPersona[] = [];
-    if (props.defaultValue) {
+    if (Array.isArray(props.defaultValue)) {
       personas = [...props.defaultValue];
+    } else if (props.defaultValue) {
+      personas = [{ ...props.defaultValue }];
     }
     setCurrentSelectedItems(personas);
   }, [props.defaultValue]);

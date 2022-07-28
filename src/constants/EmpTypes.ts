@@ -1,9 +1,16 @@
+/** Define ENUM for Employee Types */
+export enum EMPTYPES {
+  CTR = "ctr",
+  MIL = "mil",
+  CIV = "civ",
+}
+
 /** EmpType should only be 'civ', 'ctr', or 'mil' */
-export type emptype = "civ" | "ctr" | "mil";
+export type emptype = EMPTYPES.CIV | EMPTYPES.CTR | EMPTYPES.MIL;
 
 /** Constant used for Choice Groups  */
-export const EMPTYPES = [
-  { value: 'civ', label: 'Civilian' },
-  { value: 'mil', label: 'Military' },
-  { value: 'ctr', label: 'Contractor' }
+export const empTypeOpts = [
+  { value: EMPTYPES.CIV, label: "Civilian" },
+  { value: EMPTYPES.MIL, label: "Military" },
+  { value: EMPTYPES.CTR, label: "Contractor" },
 ];
