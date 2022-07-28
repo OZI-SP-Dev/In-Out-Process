@@ -107,32 +107,42 @@ export const InForm: FunctionComponent<any> = (props) => {
     }
     return displayValue;
   };
+
+  const updateGradeRankOpt = (empType: emptype) => {
+    if (empType) {
+      switch (empType) {
+        case EMPTYPES.CIV:
+          setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
+          break;
+        case EMPTYPES.MIL:
+          setGradeRankOptions([...MIL_GRADES]);
+          break;
+        case EMPTYPES.CTR:
+          setGradeRankOptions([]);
+          break;
+      }
+
+      if (empType !== EMPTYPES.CIV) {
+        setFormData((f: INewInForm) => {
+          return { ...f, isNewCiv: "no" };
+        });
+        setFormData((f: INewInForm) => {
+          return { ...f, prevOrg: "" };
+        });
+      }
+
+      setFormData((f: INewInForm) => {
+        return { ...f, empType: empType as emptype };
+      });
+    }
+  };
+
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
   ) => {
-    switch (data.value) {
-      case "civ":
-        setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
-        break;
-      case "mil":
-        setGradeRankOptions([...MIL_GRADES]);
-        break;
-      case "ctr":
-        setGradeRankOptions([]);
-        break;
-    }
-    if (data.value !== EMPTYPES.CIV) {
-      setFormData((f: INewInForm) => {
-        return { ...f, isNewCiv: "no" };
-      });
-      setFormData((f: INewInForm) => {
-        return { ...f, prevOrg: "" };
-      });
-    }
-    setFormData((f: INewInForm) => {
-      return { ...f, empType: data.value as emptype };
-    });
+    let empType: emptype = data.value as emptype;
+    updateGradeRankOpt(empType);
   };
 
   const onWorkLocationChange = (
@@ -246,11 +256,15 @@ export const InForm: FunctionComponent<any> = (props) => {
     }
   }, [userContext.user, props.view]);
 
+  /* Update the data based on the ReqId prop that is passed in */
   useEffect(() => {
     const loadRequest = async () => {
       const res = await requestApi.getItemById(props.ReqId);
       if (res) {
         setFormData(res);
+
+        //Update the available grade options dropdown based on the incoming record
+        updateGradeRankOpt(res?.empType);
       }
     };
 
@@ -283,6 +297,8 @@ export const InForm: FunctionComponent<any> = (props) => {
       </div>
     </Modal>
   );
+
+  /* This view renders a compact view of the items as simple Text elements (not fields) */
   const compactView = (
     <>
       <div id="inForm" className={classes.compactContainer}>
