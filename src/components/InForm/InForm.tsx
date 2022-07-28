@@ -22,7 +22,7 @@ import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { useBoolean } from "@fluentui/react-hooks";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
-import { emptype, EMPTYPES } from "../../constants/EmpTypes";
+import { emptype, empTypeOpts, EMPTYPES } from "../../constants/EmpTypes";
 import { worklocation, WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
   makeStyles,
@@ -94,14 +94,14 @@ export const InForm: FunctionComponent<any> = (props) => {
   const displayEmpType = (): string => {
     let displayValue = "";
     switch (formData.empType) {
-      case "civ":
+      case EMPTYPES.CIV:
         displayValue =
           "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
         break;
-      case "mil":
+      case EMPTYPES.MIL:
         displayValue = "Militray";
         break;
-      case "ctr":
+      case EMPTYPES.CTR:
         displayValue = "Contractor";
         break;
     }
@@ -111,26 +111,26 @@ export const InForm: FunctionComponent<any> = (props) => {
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
   ) => {
+    switch (data.value) {
+      case "civ":
+        setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
+        break;
+      case "mil":
+        setGradeRankOptions([...MIL_GRADES]);
+        break;
+      case "ctr":
+        setGradeRankOptions([]);
+        break;
+    }
+    if (data.value !== EMPTYPES.CIV) {
+      setFormData((f: INewInForm) => {
+        return { ...f, isNewCiv: "no" };
+      });
+      setFormData((f: INewInForm) => {
+        return { ...f, prevOrg: "" };
+      });
+    }
     setFormData((f: INewInForm) => {
-      switch (data.value) {
-        case "civ":
-          setGradeRankOptions([...GS_GRADES, ...NH_GRADES]);
-          break;
-        case "mil":
-          setGradeRankOptions([...MIL_GRADES]);
-          break;
-        case "ctr":
-          setGradeRankOptions([]);
-          break;
-      }
-      if (data.value !== "civ") {
-        setFormData((f: INewInForm) => {
-          return { ...f, isNewCiv: "no" };
-        });
-        setFormData((f: INewInForm) => {
-          return { ...f, prevOrg: "" };
-        });
-      }
       return { ...f, empType: data.value as emptype };
     });
   };
@@ -335,7 +335,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           <br />
           <Text id="supGovLeadId">{formData.supGovLead?.text}</Text>
         </div>
-        {formData.empType === "civ" && formData.isNewCiv === "no" && (
+        {formData.empType === EMPTYPES.CIV && formData.isNewCiv === "no" && (
           <div>
             <Label weight="semibold" htmlFor="prevOrgId">
               Previous Organization
@@ -367,7 +367,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           value={formData.empType}
           onChange={onEmpTypeChange}
         >
-          {EMPTYPES.map((empType, i) => {
+          {empTypeOpts.map((empType, i) => {
             return (
               <Radio
                 key={empType.value}
@@ -385,7 +385,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           options={gradeRankOptions}
           onChange={onGradeChange}
           dropdownWidth={100}
-          disabled={formData.empType === "ctr"}
+          disabled={formData.empType === EMPTYPES.CTR}
         />
         <Label htmlFor="workLocationId">Local or Remote?</Label>
         <RadioGroup
@@ -426,7 +426,7 @@ export const InForm: FunctionComponent<any> = (props) => {
           defaultValue={formData.supGovLead}
           updatePeople={onSupvGovLeadChange}
         />
-        {formData.empType === "civ" && (
+        {formData.empType === EMPTYPES.CIV && (
           <>
             <Label htmlFor="newCivId">
               Is Employee a New Air Force Civilian?

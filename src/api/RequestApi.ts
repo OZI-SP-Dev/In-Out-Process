@@ -1,7 +1,7 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IItemUpdateResult } from "@pnp/sp/items";
-import { emptype } from "../constants/EmpTypes";
+import { emptype, EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
@@ -148,7 +148,7 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 1,
       empName: "Doe, John D",
-      empType: "civ",
+      empType: EMPTYPES.CIV,
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
@@ -164,7 +164,7 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 2,
       empName: "Doe, Jane D",
-      empType: "civ",
+      empType: EMPTYPES.CIV,
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",
