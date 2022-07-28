@@ -10,7 +10,6 @@ import {
   mergeStyleSets,
   Modal,
 } from "@fluentui/react";
-import { makeStyles } from "@fluentui/react-components";
 import {
   ChangeEvent,
   FormEvent,
@@ -26,6 +25,7 @@ import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
 import { emptype, EMPTYPES } from "../../constants/EmpTypes";
 import { worklocation, WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
+  makeStyles,
   Button,
   Input,
   InputOnChangeData,
@@ -33,63 +33,56 @@ import {
   Radio,
   RadioGroup,
   RadioGroupOnChangeData,
-  Switch,
-  SwitchOnChangeData,
+  Text,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
+import { INewInForm, RequestApiConfig } from "../../api/RequestApi";
 
-interface IInForm {
-  /** Required - Contains the Employee's Name */
-  empName: string;
-  /** Required - Employee's Type valid values are:
-   * 'civ' - for Civilian Employees
-   * 'mil' - for Military Employees
-   * 'ctr' - for Contracted Employees
-   */
-  empType: emptype;
-  /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
-  gradeRank: string;
-  /** Required - Possible values are 'local' and 'remote'  */
-  workLocation: worklocation;
-  /** Required - The Employee's Office */
-  office: string;
-  /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCiv: boolean;
-  /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
-  prevOrg: string;
-  /** Required - The user's Estimated Arrival Date */
-  eta: Date;
-  supGovLead: SPPersona[];
-}
-
-/** For new forms, allow certain fields to be blank or undefined to support controlled components */
-interface INewInForm
-  extends Omit<IInForm, "empType" | "workLocation" | "eta" | "supGovLead"> {
-  empType: emptype | "";
-  workLocation: worklocation | "";
-  eta: Date | undefined;
-  supGovLead: SPPersona[] | undefined;
+/**
+ * Enum for holding the possible views of the In Request form view
+ * @readonly
+ * @enum {number}
+ */
+export enum INFORMVIEWS {
+  //* Compact view for use within other components, to view details of the In Processing Request */
+  COMPACT,
+  //* Full page view for entering a new In Processing request */
+  NEW,
+  //* Popup/Inline view for editing details of an exisiting In Processing Request */
+  EDIT,
 }
 
 const cancelIcon: IIconProps = { iconName: "Cancel" };
 const useStyles = makeStyles({
   formContainer: { display: "grid", paddingLeft: "1em", paddingRight: "1em" },
+  compactContainer: {
+    display: "grid",
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
+    gridAutoRows: "minmax(50px, auto)",
+  },
+  floatRight: {
+    float: "right",
+  },
 });
 
 export const InForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
+  const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
-  const [user, setUser] = useState<SPPersona[]>();
+
   const defaultInForm: INewInForm = {
+    Id: -1,
     empName: "",
     empType: "",
     workLocation: "",
     gradeRank: "",
     office: "",
-    isNewCiv: false,
+    isNewCiv: "",
     prevOrg: "",
     eta: undefined,
-    supGovLead: undefined,
+    supGovLead: [{ ...userContext.user }],
   };
 
   const [formData, setFormData] = useState<INewInForm>(defaultInForm);
@@ -98,6 +91,22 @@ export const InForm: FunctionComponent<any> = (props) => {
     []
   );
 
+  const displayEmpType = (): string => {
+    let displayValue = "";
+    switch (formData.empType) {
+      case "civ":
+        displayValue =
+          "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
+        break;
+      case "mil":
+        displayValue = "Militray";
+        break;
+      case "ctr":
+        displayValue = "Contractor";
+        break;
+    }
+    return displayValue;
+  };
   const onEmpTypeChange = (
     ev: FormEvent<HTMLElement>,
     data: RadioGroupOnChangeData
@@ -116,7 +125,7 @@ export const InForm: FunctionComponent<any> = (props) => {
       }
       if (data.value !== "civ") {
         setFormData((f: INewInForm) => {
-          return { ...f, isNewCiv: false };
+          return { ...f, isNewCiv: "no" };
         });
         setFormData((f: INewInForm) => {
           return { ...f, prevOrg: "" };
@@ -143,12 +152,16 @@ export const InForm: FunctionComponent<any> = (props) => {
     }
   };
 
-  const onNewCiv = (ev: ChangeEvent<HTMLElement>, data: SwitchOnChangeData) => {
-    setFormData((f: INewInForm) => {
-      return { ...f, isNewCiv: data.checked };
-    });
+  const onNewCiv = (
+    ev: FormEvent<HTMLElement>,
+    data: RadioGroupOnChangeData
+  ) => {
+    if (data.value === "yes" || data.value === "no")
+      setFormData((f: INewInForm) => {
+        return { ...f, isNewCiv: data.value as "yes" | "no" };
+      });
 
-    if (!data.checked) {
+    if (!(data.value === "true")) {
       setFormData((f: INewInForm) => {
         return { ...f, prevOrg: "" };
       });
@@ -210,18 +223,136 @@ export const InForm: FunctionComponent<any> = (props) => {
   const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] =
     useBoolean(false);
 
+  const [isEditModalOpen, { setTrue: showEditModal, setFalse: hideEditModal }] =
+    useBoolean(false);
+
   function reviewRecord() {
     showModal();
   }
 
+  function editRecord() {
+    showEditModal();
+  }
+
   useEffect(() => {
-    let persona: SPPersona[] = [];
-    persona = [{ ...userContext.user }];
+    // Only set the supGovLead if this is a New request
+    if (props.view === INFORMVIEWS.NEW) {
+      let persona: SPPersona[] = [];
+      persona = [{ ...userContext.user }];
 
-    setUser(persona);
-  }, [userContext.user]);
+      setFormData((f: INewInForm) => {
+        return { ...f, supGovLead: persona };
+      });
+    }
+  }, [userContext.user, props.view]);
 
-  return (
+  useEffect(() => {
+    const loadRequest = async () => {
+      const res = await requestApi.getItemById(props.ReqId);
+      if (res) {
+        setFormData(res);
+      }
+    };
+
+    loadRequest();
+  }, [props.ReqId, requestApi]);
+
+  if (userContext.loadingUser) {
+    return <>Loading...</>;
+  }
+  const editModal = (
+    <Modal
+      titleAriaId="titleId"
+      isOpen={isEditModalOpen}
+      isBlocking={true}
+      onDismiss={hideEditModal}
+      containerClassName={contentStyles.container}
+    >
+      <div className={contentStyles.header}>
+        <span id="titleId">Edit Request</span>
+        <IconButton
+          styles={iconButtonStyles}
+          iconProps={cancelIcon}
+          ariaLabel="Close popup modal"
+          onClick={hideEditModal}
+        />
+      </div>
+      {/* TODO -- Ability to Edit a Request in Modal*/}
+      <div className={contentStyles.body}>
+        <p>This is a place holder for ability to edit the Request.</p>
+      </div>
+    </Modal>
+  );
+  const compactView = (
+    <>
+      <div id="inForm" className={classes.compactContainer}>
+        <div>
+          <Label weight="semibold" htmlFor="empNameId">
+            Employee Name:
+          </Label>
+          <br />
+          <Text id="empNameId">{formData.empName}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="empTypeId">
+            Employee Type
+          </Label>
+          <br />
+          <Text id="empTypeId">{displayEmpType}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="gradeRankId">
+            Grade/Rank
+          </Label>
+          <br />
+          <Text id="gradeRankId">{formData.gradeRank}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="workLocationId">
+            Local or Remote?
+          </Label>
+          <br />
+          <Text id="workLocationId">{formData.workLocation}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="arrivalDateId">
+            Select estimated on-boarding date
+          </Label>
+          <br />
+          <Text id="arrivalDateId">{formData.eta?.toLocaleDateString()}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="officeId">
+            Office
+          </Label>
+          <br />
+          <Text id="officeId">{formData.office}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="supGovLeadId">
+            Supervisor/Government Lead
+          </Label>
+          <br />
+          <Text id="supGovLeadId">{formData.supGovLead}</Text>
+        </div>
+        {formData.empType === "civ" && formData.isNewCiv === "no" && (
+          <div>
+            <Label weight="semibold" htmlFor="prevOrgId">
+              Previous Organization
+            </Label>
+            <br />
+            <Text>{formData.prevOrg}</Text>
+          </div>
+        )}
+      </div>
+      <Button appearance="primary" className="floatRight" onClick={editRecord}>
+        Edit
+      </Button>
+      {editModal}
+    </>
+  );
+
+  const formView = (
     <>
       <form id="inForm" className={classes.formContainer}>
         <Label htmlFor="empNameId">Employee Name</Label>
@@ -272,11 +403,11 @@ export const InForm: FunctionComponent<any> = (props) => {
             );
           })}
         </RadioGroup>
-        <Label htmlFor="arrivalDateId">Select estimated arrival date</Label>
+        <Label htmlFor="arrivalDateId">Select estimated on-boarding date</Label>
         <DatePicker
           id="arrivalDateId"
-          placeholder="Select estimated arrival date"
-          ariaLabel="Select an estimated arrival date"
+          placeholder="Select estimated on-boarding date"
+          ariaLabel="Select an estimated on-boarding date"
           value={formData.eta}
           onSelectDate={onETADateChange}
         />
@@ -292,20 +423,23 @@ export const InForm: FunctionComponent<any> = (props) => {
         <Label>Supervisor/Government Lead</Label>
         <PeoplePicker
           ariaLabel="Supervisor/Government Lead"
-          defaultValue={user}
+          defaultValue={formData.supGovLead}
           updatePeople={onSupvGovLeadChange}
         />
         {formData.empType === "civ" && (
           <>
             <Label htmlFor="newCivId">
-              Is Employee a New to Air Force Civilian?
+              Is Employee a New Air Force Civilian?
             </Label>
-            <Switch
+            <RadioGroup
               id="newCivId"
-              label={formData.isNewCiv ? "Yes" : "No"}
+              value={formData.isNewCiv}
               onChange={onNewCiv}
-            />
-            {formData.isNewCiv === false && (
+            >
+              <Radio key={"yes"} value={"yes"} label="Yes" />
+              <Radio key={"no"} value={"no"} label="No" />
+            </RadioGroup>
+            {formData.isNewCiv === "no" && (
               <>
                 <Label htmlFor="prevOrgId">Previous Organization</Label>
                 <Input
@@ -347,6 +481,18 @@ export const InForm: FunctionComponent<any> = (props) => {
       </Modal>
     </>
   );
+
+  const selectedView = (() => {
+    switch (props.view) {
+      case INFORMVIEWS.COMPACT:
+        return compactView;
+      case INFORMVIEWS.NEW:
+      default:
+        return formView;
+    }
+  })();
+
+  return <>{selectedView}</>;
 };
 
 const theme = getTheme();
