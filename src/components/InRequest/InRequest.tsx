@@ -65,7 +65,7 @@ const useStyles = makeStyles({
 });
 
 /* TODO - Break into subcomponents for different views */
-export const InForm: FunctionComponent<any> = (props) => {
+export const InRequest: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
@@ -336,7 +336,7 @@ export const InForm: FunctionComponent<any> = (props) => {
         what is currently on the currently loaded form. For now it is reading in
         the form data again from the source */}
         {/* Recursively embed the component inside */}
-        <InForm
+        <InRequest
           ReqId={props.ReqId}
           view={INFORMVIEWS.EDIT}
           onEditSaveCancel={onEditSaveCancel}
