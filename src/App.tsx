@@ -5,7 +5,7 @@ import { AppHeader } from "./components/AppHeader/AppHeader";
 import { Route, Routes } from "react-router-dom";
 import { Home } from "./Home";
 import { Item } from "./Item";
-import { InForm, INFORMVIEWS } from "./components/InForm/InForm";
+import { InRequest, INFORMVIEWS } from "./components/InRequest/InRequest";
 import { CheckListTest } from "./components/CheckList/CheckListTest";
 import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
@@ -20,7 +20,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="roles" element={<Roles />} />
             <Route path="item/:itemNum" element={<Item />} />
-            <Route path="new" element={<InForm view={INFORMVIEWS.NEW} />} />
+            <Route path="new" element={<InRequest view={INFORMVIEWS.NEW} />} />
             <Route path="checklist" element={<CheckListTest />} />
           </Routes>
         </HashRouter>
