@@ -30,6 +30,7 @@ import {
 import { UserContext } from "../../providers/UserProvider";
 import { IInForm, INewInForm, RequestApiConfig } from "../../api/RequestApi";
 import { InRequestViewCompact } from "./InRequestViewCompact";
+import { InRequestEditPanel } from "./InRequestEditPanel";
 
 /**
  * Enum for holding the possible views of the In Request form view
@@ -251,10 +252,16 @@ export const InRequest: FunctionComponent<any> = (props) => {
     return <>Loading...</>;
   }
 
+  /* Callback function to be provided to the EditPanel component for action on Save/Cancel*/
+  const onEditSaveCancel = (formEdits: IInForm | undefined): void => {
+    // If the form was edited, then update the formData with this new data, otherwise no action needed
+    if (formEdits) setFormData(formEdits);
+  };
+
   /* This view serves up the form fields as editable.  It is utilied by both NEW and EDIT forms */
   const formView = (
     <>
-      <form id="inForm" className={classes.formContainer}>
+      <form id="inReqForm" className={classes.formContainer}>
         <Label htmlFor="empNameId">Employee Name</Label>
         <Input
           id="empNameId"
@@ -372,7 +379,15 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const selectedView = (() => {
     switch (props.view) {
       case INFORMVIEWS.COMPACT:
-        return <InRequestViewCompact formData={formData as IInForm} />;
+        return (
+          <>
+            <InRequestViewCompact formData={formData as IInForm} />{" "}
+            <InRequestEditPanel
+              formData={formData}
+              onEditSaveCancel={onEditSaveCancel}
+            />
+          </>
+        );
       case INFORMVIEWS.NEW:
       case INFORMVIEWS.EDIT:
       default:

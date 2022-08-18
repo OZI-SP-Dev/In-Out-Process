@@ -1,7 +1,6 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent } from "react";
 import { EMPTYPES } from "../../constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
-import { InRequestEditPanel } from "./InRequestEditPanel";
 import { IInForm } from "../../api/RequestApi";
 
 /* FluentUI Styling */
@@ -23,12 +22,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
   props
 ) => {
   const classes = useStyles();
-  const [formData, setFormData] = useState<IInForm>(props.formData);
-
-  // Watch for when the data is loaded in the parent, and pass down to this component
-  useEffect(() => {
-    setFormData(props.formData);
-  }, [props.formData]);
+  const formData: IInForm = props.formData;
 
   // Function used to display the Employee Type in a shortened format.
   // If it is a Civilian add New/Existing after depending on the selection
@@ -47,12 +41,6 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
         break;
     }
     return displayValue;
-  };
-
-  /* Callback function to be provided to the EditPanel component for action on Save/Cancel*/
-  const onEditSaveCancel = (formEdits: IInForm | undefined): void => {
-    // If the form was edited, then update the formData with this new data, otherwise no action needed
-    if (formEdits) setFormData(formEdits);
   };
 
   return (
@@ -117,10 +105,6 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </div>
         )}
       </div>
-      <InRequestEditPanel
-        formData={formData}
-        onEditSaveCancel={onEditSaveCancel}
-      />
     </>
   );
 };
