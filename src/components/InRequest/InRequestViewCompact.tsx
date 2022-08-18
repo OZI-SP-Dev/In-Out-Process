@@ -57,55 +57,55 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
 
   return (
     <>
-      <div id="inForm" className={classes.compactContainer}>
+      <div id="inReqCompact" className={classes.compactContainer}>
         <div>
           <Label weight="semibold" htmlFor="empNameId">
             Employee Name:
           </Label>
           <br />
-          <Text id="empNameId">{formData.empName}</Text>
+          <Text id="empNameCCVId">{formData.empName}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="empTypeId">
             Employee Type
           </Label>
           <br />
-          <Text id="empTypeId">{displayEmpType}</Text>
+          <Text id="empTypeCVId">{displayEmpType}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="gradeRankId">
             Grade/Rank
           </Label>
           <br />
-          <Text id="gradeRankId">{formData.gradeRank}</Text>
+          <Text id="gradeRankCVId">{formData.gradeRank}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="workLocationId">
             Local or Remote?
           </Label>
           <br />
-          <Text id="workLocationId">{formData.workLocation}</Text>
+          <Text id="workLocationCVId">{formData.workLocation}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="arrivalDateId">
             Select estimated on-boarding date
           </Label>
           <br />
-          <Text id="arrivalDateId">{formData.eta?.toLocaleDateString()}</Text>
+          <Text id="arrivalDateCVId">{formData.eta?.toLocaleDateString()}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="officeId">
             Office
           </Label>
           <br />
-          <Text id="officeId">{formData.office}</Text>
+          <Text id="officeCVId">{formData.office}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="supGovLeadId">
             Supervisor/Government Lead
           </Label>
           <br />
-          <Text id="supGovLeadId">{formData.supGovLead?.text}</Text>
+          <Text id="supGovLeadCVId">{formData.supGovLead?.text}</Text>
         </div>
         {formData.empType === EMPTYPES.CIV && formData.isNewCiv === "no" && (
           <div>
