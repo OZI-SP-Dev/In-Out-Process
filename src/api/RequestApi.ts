@@ -35,6 +35,12 @@ export type IInForm = {
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
   // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
   isNewToBaseAndCenter: "yes" | "no";
+  /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  hasExistingCAC: "yes" | "no";
+  /** Required - Will only be defined for Ctr, for others it will be undefined*/
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
@@ -75,6 +81,8 @@ export class RequestApi implements IInFormApi {
         isNewCiv: response.isNewCiv,
         prevOrg: response.prevOrg,
         isNewToBaseAndCenter: response.isNewToBaseAndCenter,
+        hasExistingCAC: response.hasExistingCAC,
+        CACExpiration: response.CACExpiration,
         eta: response.eta,
         supGovLead: response.supGovLead,
       };
@@ -147,6 +155,8 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "yes",
       prevOrg: "",
       isNewToBaseAndCenter: "yes",
+      hasExistingCAC: "no",
+      CACExpiration: new Date(),
       eta: new Date(),
       supGovLead: {
         text: "Default User",
@@ -164,6 +174,8 @@ export class RequestApiDev implements IInFormApi {
       isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
       isNewToBaseAndCenter: "no",
+      hasExistingCAC: "no",
+      CACExpiration: undefined,
       eta: new Date(),
       supGovLead: {
         text: "Default User",

@@ -81,6 +81,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const empType = watch("empType");
   // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
   const isNewCiv = watch("isNewCiv");
+  // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
+  const hasExistingCAC = watch("hasExistingCAC");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -165,6 +167,16 @@ export const InRequest: FunctionComponent<any> = (props) => {
     if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
       // If Employee is not a Civ/Mil then we should set isNewToBaseAndCenter to false
       dataCopy.isNewToBaseAndCenter = "no";
+    }
+    if (empType !== EMPTYPES.CTR) {
+      // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
+      dataCopy.hasExistingCAC = "no";
+      dataCopy.CACExpiration = undefined;
+    } else {
+      if ((dataCopy.hasExistingCAC = "no")) {
+        // If the CTR doesn't have an Existing CAC, set the CACExpiration to undefined
+        dataCopy.CACExpiration = undefined;
+      }
     }
     setFormData(dataCopy);
     hideEditPanel();
@@ -459,6 +471,63 @@ export const InRequest: FunctionComponent<any> = (props) => {
               <Text id="isNewToBaseAndCenterErr" className={classes.errorText}>
                 {errors.isNewToBaseAndCenter.message}
               </Text>
+            )}
+          </>
+        )}
+
+        {empType === EMPTYPES.CTR && (
+          <>
+            <Label htmlFor="hasExistingCACId">
+              Does the Support Contractor have an Existing CAC?
+            </Label>
+            <Controller
+              name="hasExistingCAC"
+              control={control}
+              rules={{
+                required: "Selection is required",
+              }}
+              render={({ field }) => (
+                <RadioGroup
+                  {...field}
+                  aria-describedby="hasExistingCACErr"
+                  id="hasExistingCACId"
+                >
+                  <Radio key={"yes"} value={"yes"} label="Yes" />
+                  <Radio key={"no"} value={"no"} label="No" />
+                </RadioGroup>
+              )}
+            />
+            {errors.hasExistingCAC && (
+              <Text id="hasExistingCACErr" className={classes.errorText}>
+                {errors.hasExistingCAC.message}
+              </Text>
+            )}
+            {hasExistingCAC === "yes" && (
+              <>
+                <Label htmlFor="CACExpirationId">CAC Expiration</Label>
+                <Controller
+                  name="CACExpiration"
+                  control={control}
+                  rules={{
+                    required: "CAC Expiration is required",
+                  }}
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      id="arrivalDateId"
+                      placeholder="Select CAC expiration date"
+                      ariaLabel="Select CAC expiration date"
+                      aria-describedby="etaErr"
+                      onSelectDate={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.CACExpiration && (
+                  <Text id="CACExpirationErr" className={classes.errorText}>
+                    {errors.CACExpiration.message}
+                  </Text>
+                )}
+              </>
             )}
           </>
         )}
