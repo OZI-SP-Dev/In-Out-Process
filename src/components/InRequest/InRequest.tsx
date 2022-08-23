@@ -19,7 +19,6 @@ import {
   Label,
   Radio,
   RadioGroup,
-  shorthands,
   tokens,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
@@ -90,6 +89,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     watch,
     resetField,
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       empName: formData.empName,
@@ -159,6 +159,10 @@ export const InRequest: FunctionComponent<any> = (props) => {
     if (props.view === INFORMVIEWS.NEW) {
       let persona: SPPersona = {};
       persona = { ...userContext.user };
+      // TODO - Set this to use setValue instead, and move it from being a useEffect
+      //  to just being after the if statement for determing current user
+      //  Set value only causes rerender under specific conditions, where resetField re-rerenders
+      //  more frequently.  setValue isn't working for SPPersona due to TS issues in v7 of RHF
       resetField("supGovLead", { defaultValue: persona });
     }
   }, [userContext.user, props.view, resetField]);
@@ -179,8 +183,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   /* If they change employee type, clear out the selected grade */
   useEffect(() => {
-    resetField("gradeRank", { defaultValue: "" });
-  }, [empType, resetField]);
+    setValue("gradeRank", "");
+  }, [empType, setValue]);
 
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
   if (userContext.loadingUser) {
