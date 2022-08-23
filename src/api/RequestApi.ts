@@ -32,6 +32,9 @@ export type IInForm = {
   isNewCiv: "yes" | "no";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
+  /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  isNewToBaseAndCenter: "yes" | "no";
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
@@ -71,6 +74,7 @@ export class RequestApi implements IInFormApi {
         office: response.office,
         isNewCiv: response.isNewCiv,
         prevOrg: response.prevOrg,
+        isNewToBaseAndCenter: response.isNewToBaseAndCenter,
         eta: response.eta,
         supGovLead: response.supGovLead,
       };
@@ -142,6 +146,7 @@ export class RequestApiDev implements IInFormApi {
       office: "OZIC",
       isNewCiv: "yes",
       prevOrg: "",
+      isNewToBaseAndCenter: "yes",
       eta: new Date(),
       supGovLead: {
         text: "Default User",
@@ -158,6 +163,7 @@ export class RequestApiDev implements IInFormApi {
       office: "OZIC",
       isNewCiv: "no",
       prevOrg: "AFLCMC/WA",
+      isNewToBaseAndCenter: "no",
       eta: new Date(),
       supGovLead: {
         text: "Default User",

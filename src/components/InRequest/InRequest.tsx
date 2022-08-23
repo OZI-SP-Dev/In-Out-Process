@@ -157,6 +157,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
           dataCopy.prevOrg = "";
         }
       }
+      if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
+        // If it is not a Civ/Mil then set isNewToBaseAndCenter to be false
+        dataCopy.isNewToBaseAndCenter = "no";
+      }
+    }
+    if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
+      // If Employee is not a Civ/Mil then we should set isNewToBaseAndCenter to false
+      dataCopy.isNewToBaseAndCenter = "no";
     }
     setFormData(dataCopy);
     hideEditPanel();
@@ -425,6 +433,36 @@ export const InRequest: FunctionComponent<any> = (props) => {
             )}
           </>
         )}
+        {(empType === EMPTYPES.CIV || empType === EMPTYPES.MIL) && (
+          <>
+            <Label htmlFor="newToBaseAndCenterId">
+              Is Employee new to WPAFB and AFLCMC?
+            </Label>
+            <Controller
+              name="isNewToBaseAndCenter"
+              control={control}
+              rules={{
+                required: "Selection is required",
+              }}
+              render={({ field }) => (
+                <RadioGroup
+                  {...field}
+                  aria-describedby="isNewToBaseAndCenterErr"
+                  id="newToBaseAndCenterId"
+                >
+                  <Radio key={"yes"} value={"yes"} label="Yes" />
+                  <Radio key={"no"} value={"no"} label="No" />
+                </RadioGroup>
+              )}
+            />
+            {errors.isNewToBaseAndCenter && (
+              <Text id="isNewToBaseAndCenterErr" className={classes.errorText}>
+                {errors.isNewToBaseAndCenter.message}
+              </Text>
+            )}
+          </>
+        )}
+
         {/*-- Button to show if it is a New Form */}
         {/* TODO: Implement Saving In Processing Request */}
         {props.view === INFORMVIEWS.NEW && (
