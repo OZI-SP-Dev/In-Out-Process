@@ -43,6 +43,8 @@ export type IInForm = {
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
+  /** Required - The Expected Completion Date - Default to 28 days from eta*/
+  completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: SPPersona;
 };
@@ -84,6 +86,7 @@ export class RequestApi implements IInFormApi {
         hasExistingCAC: response.hasExistingCAC,
         CACExpiration: response.CACExpiration,
         eta: response.eta,
+        completionDate: response.completionDate,
         supGovLead: response.supGovLead,
       };
       return items;
@@ -158,6 +161,7 @@ export class RequestApiDev implements IInFormApi {
       hasExistingCAC: "no",
       CACExpiration: new Date(),
       eta: new Date(),
+      completionDate: new Date(),
       supGovLead: {
         text: "Default User",
         imageUrl:
@@ -177,6 +181,7 @@ export class RequestApiDev implements IInFormApi {
       hasExistingCAC: "no",
       CACExpiration: undefined,
       eta: new Date(),
+      completionDate: new Date(),
       supGovLead: {
         text: "Default User",
         imageUrl:

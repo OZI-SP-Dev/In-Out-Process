@@ -83,6 +83,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const isNewCivMil = watch("isNewCivMil");
   // Set up a RHF watch to drive change to hasExistingCAC depending on the value selcected
   const hasExistingCAC = watch("hasExistingCAC");
+  // Set up a RHF watch to monitor eta, and set the min date for completionDate to eta + 28
+  const eta = watch("eta");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -96,6 +98,15 @@ export const InRequest: FunctionComponent<any> = (props) => {
         return [];
     }
   }, [empType]);
+
+  const minCompletionDate: Date = useMemo(() => {
+    // Set the minimumn completion date to be 14 days from the estimated arrival
+    if (eta) {
+      let newMinDate = new Date(eta);
+      newMinDate.setDate(newMinDate.getDate() + 14);
+      return newMinDate;
+    } else return new Date();
+  }, [eta]);
 
   useEffect(() => {
     // Only set the supGovLead if this is a New request
@@ -319,7 +330,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
               placeholder="Select estimated on-boarding date"
               ariaLabel="Select an estimated on-boarding date"
               aria-describedby="etaErr"
-              onSelectDate={onChange}
+              onSelectDate={(newDate) => {
+                if (newDate) {
+                  let newCompletionDate = new Date(newDate);
+                  newCompletionDate.setDate(newCompletionDate.getDate() + 28);
+                  setValue("completionDate", newCompletionDate);
+                }
+                onChange(newDate);
+              }}
               value={value}
             />
           )}
@@ -327,6 +345,30 @@ export const InRequest: FunctionComponent<any> = (props) => {
         {errors.eta && (
           <Text id="etaErr" className={classes.errorText}>
             {errors.eta.message}
+          </Text>
+        )}
+        <Label htmlFor="arrivalDateId">Select estimated on-boarding date</Label>
+        <Controller
+          name="completionDate"
+          control={control}
+          rules={{
+            required: "Completion Date is required.",
+          }}
+          render={({ field: { value, onChange } }) => (
+            <DatePicker
+              id="completionDateId"
+              placeholder="Select target completion date"
+              ariaLabel="Select target completion date"
+              aria-describedby="completionDateErr"
+              onSelectDate={onChange}
+              minDate={minCompletionDate}
+              value={value}
+            />
+          )}
+        />
+        {errors.completionDate && (
+          <Text id="completionDateErr" className={classes.errorText}>
+            {errors.completionDate.message}
           </Text>
         )}
         <Label htmlFor="officeId">Office</Label>
