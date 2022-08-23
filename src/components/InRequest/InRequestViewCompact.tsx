@@ -31,10 +31,11 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     switch (formData.empType) {
       case EMPTYPES.CIV:
         displayValue =
-          "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
+          "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.MIL:
-        displayValue = "Military";
+        displayValue =
+          "Military" + +(formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.CTR:
         displayValue = "Contractor";
@@ -95,7 +96,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           <br />
           <Text id="supGovLeadCVId">{formData.supGovLead?.text}</Text>
         </div>
-        {formData.empType === EMPTYPES.CIV && formData.isNewCiv === "no" && (
+        {formData.empType === EMPTYPES.CIV && formData.isNewCivMil === "no" && (
           <div>
             <Label weight="semibold" htmlFor="prevOrgId">
               Previous Organization

@@ -29,7 +29,7 @@ export type IInForm = {
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
   // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewCiv: "yes" | "no";
+  isNewCivMil: "yes" | "no";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
@@ -78,7 +78,7 @@ export class RequestApi implements IInFormApi {
         gradeRank: response.gradeRank,
         workLocation: response.workLocation,
         office: response.office,
-        isNewCiv: response.isNewCiv,
+        isNewCivMil: response.isNewCivMil,
         prevOrg: response.prevOrg,
         isNewToBaseAndCenter: response.isNewToBaseAndCenter,
         hasExistingCAC: response.hasExistingCAC,
@@ -152,7 +152,7 @@ export class RequestApiDev implements IInFormApi {
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
-      isNewCiv: "yes",
+      isNewCivMil: "yes",
       prevOrg: "",
       isNewToBaseAndCenter: "yes",
       hasExistingCAC: "no",
@@ -171,7 +171,7 @@ export class RequestApiDev implements IInFormApi {
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",
-      isNewCiv: "no",
+      isNewCivMil: "no",
       prevOrg: "AFLCMC/WA",
       isNewToBaseAndCenter: "no",
       hasExistingCAC: "no",

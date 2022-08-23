@@ -79,9 +79,9 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   // Set up a RHF watch to drive change to empType depeding on the value selected
   const empType = watch("empType");
-  // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
-  const isNewCiv = watch("isNewCiv");
-  // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
+  // Set up a RHF watch to drive change to isNewCivMil depending on the value selcected
+  const isNewCivMil = watch("isNewCivMil");
+  // Set up a RHF watch to drive change to hasExistingCAC depending on the value selcected
   const hasExistingCAC = watch("hasExistingCAC");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
@@ -149,24 +149,17 @@ export const InRequest: FunctionComponent<any> = (props) => {
     /* Validation has passed, so update the request */
     let dataCopy = { ...data };
     if (dataCopy.empType) {
-      // If it isn't a civilian, ensure values depending on Civ only are set correctly
-      if (empType !== EMPTYPES.CIV) {
-        data.isNewCiv = "no";
+      // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
+      if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
+        data.isNewCivMil = "no";
         dataCopy.prevOrg = "";
+        dataCopy.isNewToBaseAndCenter = "no";
       } else {
-        // If it is a new Civilian then ensure prevOrg is set to ""
-        if (dataCopy.isNewCiv === "yes") {
+        // If it is a new Civ/Mil then ensure prevOrg is set to ""
+        if (dataCopy.isNewCivMil === "yes") {
           dataCopy.prevOrg = "";
         }
       }
-      if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
-        // If it is not a Civ/Mil then set isNewToBaseAndCenter to be false
-        dataCopy.isNewToBaseAndCenter = "no";
-      }
-    }
-    if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
-      // If Employee is not a Civ/Mil then we should set isNewToBaseAndCenter to false
-      dataCopy.isNewToBaseAndCenter = "no";
     }
     if (empType !== EMPTYPES.CTR) {
       // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
@@ -392,13 +385,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
             {errors.supGovLead.message}
           </Text>
         )}
-        {empType === EMPTYPES.CIV && (
+        {(empType === EMPTYPES.CIV || empType === EMPTYPES.MIL) && (
           <>
             <Label htmlFor="newCivId">
-              Is Employee a New Air Force Civilian?
+              Is Employee a New Air Force{" "}
+              {empType === EMPTYPES.CIV ? "Civilian" : "Military"}?
             </Label>
             <Controller
-              name="isNewCiv"
+              name="isNewCivMil"
               control={control}
               rules={{
                 required: "Selection is required",
@@ -406,7 +400,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
               render={({ field }) => (
                 <RadioGroup
                   {...field}
-                  aria-describedby="isNewCivErr"
+                  aria-describedby="isNewCivMilErr"
                   id="newCivId"
                 >
                   <Radio key={"yes"} value={"yes"} label="Yes" />
@@ -414,12 +408,12 @@ export const InRequest: FunctionComponent<any> = (props) => {
                 </RadioGroup>
               )}
             />
-            {errors.isNewCiv && (
-              <Text id="isNewCivErr" className={classes.errorText}>
-                {errors.isNewCiv.message}
+            {errors.isNewCivMil && (
+              <Text id="isNewCivMilErr" className={classes.errorText}>
+                {errors.isNewCivMil.message}
               </Text>
             )}
-            {isNewCiv === "no" && (
+            {isNewCivMil === "no" && (
               <>
                 <Label htmlFor="prevOrgId">Previous Organization</Label>
                 <Controller
