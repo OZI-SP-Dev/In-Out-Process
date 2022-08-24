@@ -105,13 +105,21 @@ export const useChecklistItems = (Id: number) => {
   );
 
   useEffect(() => {
+    let ignore = false;
     const fetchChecklistItems = async () => {
       const checklistItemApi = CheckListItemApiConfig.getApi();
       const items = await checklistItemApi.getItemsById(Id);
-      setChecklistItems(items || []);
+      if (!ignore) {
+        setChecklistItems(items || []);
+      }
     };
 
     fetchChecklistItems();
+
+    /* Cleanup function to avoid stale data - https://beta.reactjs.org/learn/you-might-not-need-an-effect#fetching-data */
+    return () => {
+      ignore = true;
+    };
   }, [Id]);
 
   return checklisItems;

@@ -168,17 +168,22 @@ export const InRequest: FunctionComponent<any> = (props) => {
   }, [userContext.user, props.view, resetField]);
 
   /* Get the data based on the ReqId prop that is passed in */
+  /* TODO - Move this into the RequestAPI so all data handling is there to avoid stale data in future use cases */
   useEffect(() => {
+    let ignore = false;
     const loadRequest = async () => {
       const res = await requestApi.getItemById(props.ReqId);
-      if (res) {
+      if (!ignore && res) {
         setFormData(res);
         // Populate the React-Hook-Form with the data
         reset(res);
       }
     };
-
     loadRequest();
+    /* Cleanup function to avoid stale data - https://beta.reactjs.org/learn/you-might-not-need-an-effect#fetching-data */
+    return () => {
+      ignore = true;
+    };
   }, [props.ReqId, requestApi, reset]);
 
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
