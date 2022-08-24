@@ -162,7 +162,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
   }, [props.ReqId, requestApi, reset]);
 
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
-  if (userContext.loadingUser) {
+  if (!userContext.user) {
     return <>Loading...</>;
   }
 

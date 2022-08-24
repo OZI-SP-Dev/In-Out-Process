@@ -14,28 +14,22 @@ export const UserContext = createContext<Partial<IUserContext>>({
 });
 
 export const UserProvider: FunctionComponent = ({ children }) => {
-  const [user, setUser] = useState<IUserContext>({
-    user: undefined,
-    roles: [],
-    loadingUser: true,
-  });
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<IPerson>();
+  const [roles, setRoles] = useState<RoleType[]>([]);
 
   const userApi = UserApiConfig.getApi();
 
-  // Fix to address setStates inside of an asyncronous call.
-  // Reduce to 1 setState to ensure loading isn't set as true before the user/roles are populated
   const fetchUser = async () => {
-    let user = undefined;
-    let userRoles: RoleType[] = [];
-    const userVal = await userApi.getCurrentUser();
-    if (userVal) {
-      user = { ...userVal };
-      let userRolesVal = await userApi.getCurrentUsersRoles();
-      if (userRolesVal) {
-        userRoles = { ...userRolesVal };
+    const user = await userApi.getCurrentUser();
+    if (user) {
+      setUser(user);
+      let userRoles = await userApi.getCurrentUsersRoles();
+      if (userRoles) {
+        setRoles(userRoles);
       }
     }
-    setUser({ user: user, roles: userRoles, loadingUser: false });
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -43,9 +37,9 @@ export const UserProvider: FunctionComponent = ({ children }) => {
   }, []);
 
   const userContext: IUserContext = {
-    user: user.user,
-    roles: user.roles,
-    loadingUser: user.loadingUser,
+    user,
+    roles,
+    loadingUser: loading,
   };
 
   return (
