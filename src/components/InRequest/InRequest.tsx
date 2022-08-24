@@ -78,7 +78,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
-    useBoolean(props.isEditPanelOpen);
+    useBoolean(false);
 
   // TODO -- Look to see if when v8 of react-hook-form released if you can simplify supGovLead
   //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
