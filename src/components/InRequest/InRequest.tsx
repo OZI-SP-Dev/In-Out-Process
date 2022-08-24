@@ -22,7 +22,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
-import { IInForm, INewInForm, RequestApiConfig } from "../../api/RequestApi";
+import { IInForm, RequestApiConfig } from "../../api/RequestApi";
 import { InRequestViewCompact } from "./InRequestViewCompact";
 import { InRequestEditPanel } from "./InRequestEditPanel";
 import { useForm, Controller } from "react-hook-form";
@@ -59,29 +59,12 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
 
-  const defaultInForm: INewInForm = {
-    Id: -1,
-    empName: "",
-    empType: "",
-    workLocation: "",
-    gradeRank: "",
-    office: "",
-    isNewCiv: "",
-    prevOrg: "",
-    eta: undefined,
-    supGovLead: undefined,
-  };
-
-  const [formData, setFormData] = useState<INewInForm | IInForm>(
-    props.formData ? props.formData : defaultInForm
-  );
+  const [formData, setFormData] = useState<IInForm | undefined>(undefined);
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
     useBoolean(false);
 
-  // TODO -- Look to see if when v8 of react-hook-form released if you can simplify supGovLead
-  //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
   const {
     control,
     handleSubmit,
@@ -90,26 +73,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     resetField,
     reset,
     setValue,
-  } = useForm({
-    defaultValues: {
-      empName: formData.empName,
-      empType: formData.empType,
-      gradeRank: formData.gradeRank,
-      office: formData.office,
-      workLocation: formData.workLocation,
-      prevOrg: formData.prevOrg,
-      eta: formData.eta,
-      isNewCiv: formData.isNewCiv,
-      supGovLead: {
-        text: formData.supGovLead?.text,
-        secondaryText: formData.supGovLead?.secondaryText,
-        imageInitials: formData.supGovLead?.imageInitials,
-        Email: formData.supGovLead?.Email,
-        imageUrl: formData.supGovLead?.imageUrl,
-      },
-      //supGovLead: formData.supGovLead,
-    },
-  });
+  } = useForm();
 
   // Set up a RHF watch to drive change to empType depeding on the value selected
   const empType = watch("empType");
@@ -162,7 +126,11 @@ export const InRequest: FunctionComponent<any> = (props) => {
   }, [props.ReqId, requestApi, reset]);
 
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
-  if (!userContext.user) {
+  if (props.view === INFORMVIEWS.NEW && !userContext.user) {
+    return <>Loading...</>;
+  }
+
+  if (props.view === INFORMVIEWS.COMPACT && !formData) {
     return <>Loading...</>;
   }
 
