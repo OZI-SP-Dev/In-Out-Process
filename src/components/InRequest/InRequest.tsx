@@ -111,31 +111,6 @@ export const InRequest: FunctionComponent<any> = (props) => {
     },
   });
 
-  const createNewRequest = (data: any) => {
-    /* Validation has passed, so create the new Request */
-    /* TODO - Save the New Request */
-    alert("Feature coming");
-  };
-
-  const updateRequest = (data: any) => {
-    /* Validation has passed, so update the request */
-    let dataCopy = { ...data };
-    if (dataCopy.empType) {
-      // If it isn't a civilian, ensure values depending on Civ only are set correctly
-      if (empType !== EMPTYPES.CIV) {
-        data.isNewCiv = "no";
-        dataCopy.prevOrg = "";
-      } else {
-        // If it is a new Civilian then ensure prevOrg is set to ""
-        if (dataCopy.isNewCiv === "yes") {
-          dataCopy.prevOrg = "";
-        }
-      }
-    }
-    setFormData(dataCopy);
-    hideEditPanel();
-  };
-
   // Set up a RHF watch to drive change to empType depeding on the value selected
   const empType = watch("empType");
   // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
@@ -189,8 +164,33 @@ export const InRequest: FunctionComponent<any> = (props) => {
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
   if (userContext.loadingUser) {
     return <>Loading...</>;
-  } else {
   }
+
+  const createNewRequest = (data: any) => {
+    /* Validation has passed, so create the new Request */
+    /* TODO - Save the New Request */
+    alert("Feature coming");
+    console.log(JSON.stringify(data));
+  };
+
+  const updateRequest = (data: any) => {
+    /* Validation has passed, so update the request */
+    let dataCopy = { ...data };
+    if (dataCopy.empType) {
+      // If it isn't a civilian, ensure values depending on Civ only are set correctly
+      if (empType !== EMPTYPES.CIV) {
+        data.isNewCiv = "no";
+        dataCopy.prevOrg = "";
+      } else {
+        // If it is a new Civilian then ensure prevOrg is set to ""
+        if (dataCopy.isNewCiv === "yes") {
+          dataCopy.prevOrg = "";
+        }
+      }
+    }
+    setFormData(dataCopy);
+    hideEditPanel();
+  };
 
   /* Callback function to be provided to the EditPanel component for action on Save */
   const onEditSave = () => {
