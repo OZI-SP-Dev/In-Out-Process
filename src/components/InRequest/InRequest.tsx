@@ -192,16 +192,17 @@ export const InRequest: FunctionComponent<any> = (props) => {
   } else {
   }
 
-  /* Callback function to be provided to the EditPanel component for action on Save/Cancel*/
-  const onEditSaveCancel = (action: "save" | "cancel"): void => {
-    if (action === "save") {
-      // If the save button was clicked, then run validation
-      handleSubmit(updateRequest)();
-    } else if (action === "cancel") {
-      // If the user cancels, set the form back to what was passed in orginally
-      reset();
-      hideEditPanel();
-    }
+  /* Callback function to be provided to the EditPanel component for action on Save */
+  const onEditSave = () => {
+    // If the save button was clicked, then run validation
+    handleSubmit(updateRequest)();
+  };
+
+  /* Callback function to be provided to the EditPanel component for action on Save */
+  const onEditCancel = () => {
+    // If the user cancels, set the form back to what was passed in orginally
+    reset();
+    hideEditPanel();
   };
 
   /* This view serves up the form fields as editable.  It is utilied by both NEW and EDIT forms */
@@ -478,7 +479,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
               Edit
             </Button>
             <InRequestEditPanel
-              onEditSaveCancel={onEditSaveCancel}
+              onEditSave={onEditSave}
+              onEditCancel={onEditCancel}
               isEditPanelOpen={isEditPanelOpen}
             >
               {formView}

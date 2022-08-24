@@ -11,20 +11,10 @@ export const InRequestEditPanel: FunctionComponent<any> = (props) => {
   const onRenderFooterContent = () => (
     <FluentProvider theme={webLightTheme}>
       <div>
-        <Button
-          appearance="primary"
-          onClick={() => {
-            props.onEditSaveCancel("save");
-          }}
-        >
+        <Button appearance="primary" onClick={props.onEditSave}>
           Save
         </Button>
-        <Button
-          appearance="secondary"
-          onClick={() => {
-            props.onEditSaveCancel("cancel");
-          }}
-        >
+        <Button appearance="secondary" onClick={props.onEditCancel}>
           Cancel
         </Button>
       </div>
@@ -36,9 +26,7 @@ export const InRequestEditPanel: FunctionComponent<any> = (props) => {
       <Panel
         isOpen={props.isEditPanelOpen}
         isBlocking={true}
-        onDismiss={() => {
-          props.onEditSaveCancel("cancel");
-        }}
+        onDismiss={props.onEditCancel}
         headerText="Edit Request"
         isFooterAtBottom={true}
         onRenderFooterContent={onRenderFooterContent}
