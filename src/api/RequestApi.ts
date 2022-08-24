@@ -38,18 +38,6 @@ export type IInForm = {
   supGovLead: SPPersona;
 };
 
-/** For new forms, allow certain fields to be blank or undefined to support controlled components */
-export type INewInForm = Omit<
-  IInForm,
-  "empType" | "workLocation" | "eta" | "supGovLead" | "isNewCiv"
-> & {
-  empType: emptype | "";
-  workLocation: worklocation | "";
-  eta: Date | undefined;
-  supGovLead: SPPersona | undefined;
-  isNewCiv: "yes" | "no" | "";
-};
-
 export interface IInFormApi {
   /**
    * Gets the request based on ID.
