@@ -181,11 +181,6 @@ export const InRequest: FunctionComponent<any> = (props) => {
     loadRequest();
   }, [props.ReqId, requestApi, reset]);
 
-  /* If they change employee type, clear out the selected grade */
-  useEffect(() => {
-    setValue("gradeRank", "");
-  }, [empType, setValue]);
-
   /* Temporarily show a Loading screen if we don't have the current user info yet. */
   if (userContext.loadingUser) {
     return <>Loading...</>;
@@ -232,10 +227,16 @@ export const InRequest: FunctionComponent<any> = (props) => {
           rules={{
             required: "Employee Type is required",
           }}
-          render={({ field }) => (
+          render={({ field: { onBlur, onChange, value } }) => (
             <RadioGroup
-              {...field}
               id="empTypeId"
+              onBlur={onBlur}
+              value={value}
+              onChange={(e, option) => {
+                /* If they change employee type, clear out the selected grade */
+                setValue("gradeRank", "");
+                onChange(e, option);
+              }}
               aria-describedby="empTypeErr"
               layout="horizontal"
             >
