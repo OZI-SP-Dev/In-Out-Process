@@ -25,7 +25,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { IInForm, RequestApiConfig } from "../../api/RequestApi";
 import { InRequestViewCompact } from "./InRequestViewCompact";
 import { InRequestEditPanel } from "./InRequestEditPanel";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useBoolean } from "@fluentui/react-hooks";
 
 /**
@@ -65,6 +65,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
     useBoolean(false);
 
+  // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInForm
+  //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
   const {
     control,
     handleSubmit,
@@ -73,7 +75,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     resetField,
     reset,
     setValue,
-  } = useForm();
+  } = useForm<any>();
 
   // Set up a RHF watch to drive change to empType depeding on the value selected
   const empType = watch("empType");
@@ -134,14 +136,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
     return <>Loading...</>;
   }
 
-  const createNewRequest = (data: any) => {
+  const createNewRequest: SubmitHandler<IInForm> = (data) => {
     /* Validation has passed, so create the new Request */
     /* TODO - Save the New Request */
     alert("Feature coming");
     console.log(JSON.stringify(data));
   };
 
-  const updateRequest = (data: any) => {
+  const updateRequest: SubmitHandler<IInForm> = (data) => {
     /* Validation has passed, so update the request */
     let dataCopy = { ...data };
     if (dataCopy.empType) {
