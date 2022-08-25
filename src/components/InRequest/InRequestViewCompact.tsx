@@ -35,7 +35,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
         break;
       case EMPTYPES.Military:
         displayValue =
-          "Military" + +(formData.isNewCivMil === "yes" ? "New" : "Existing");
+          "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.Contractor:
         displayValue = "Contractor";
