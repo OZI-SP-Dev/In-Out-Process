@@ -1,7 +1,7 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IItemUpdateResult } from "@pnp/sp/items";
-import { emptype, EMPTYPES } from "../constants/EmpTypes";
+import { EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
@@ -16,11 +16,11 @@ export type IInForm = {
   /** Required - Contains the Employee's Name */
   empName: string;
   /** Required - Employee's Type valid values are:
-   * 'civ' - for Civilian Employees
-   * 'mil' - for Military Employees
-   * 'ctr' - for Contracted Employees
+   * 'Civilian' - for Civilian Employees
+   * 'Contractor' - for Contracted Employees
+   * 'Military' - for Military Employees
    */
-  empType: emptype;
+  empType: EMPTYPES;
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string;
   /** Required - Possible values are 'local' and 'remote'  */
@@ -151,7 +151,7 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 1,
       empName: "Doe, John D",
-      empType: EMPTYPES.CIV,
+      empType: EMPTYPES.Civilian,
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
@@ -171,7 +171,7 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 2,
       empName: "Doe, Jane D",
-      empType: EMPTYPES.CIV,
+      empType: EMPTYPES.Civilian,
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",

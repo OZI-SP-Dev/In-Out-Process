@@ -9,7 +9,7 @@ import {
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
-import { empTypeOpts, EMPTYPES } from "../../constants/EmpTypes";
+import { EMPTYPES } from "../../constants/EmpTypes";
 import { WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
   makeStyles,
@@ -88,11 +88,11 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
-      case EMPTYPES.CIV:
+      case EMPTYPES.Civilian:
         return [...GS_GRADES, ...NH_GRADES];
-      case EMPTYPES.MIL:
+      case EMPTYPES.Military:
         return [...MIL_GRADES];
-      case EMPTYPES.CTR:
+      case EMPTYPES.Contractor:
         return [];
       default:
         return [];
@@ -161,7 +161,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     let dataCopy = { ...data };
     if (dataCopy.empType) {
       // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
-      if (empType !== EMPTYPES.CIV && empType !== EMPTYPES.MIL) {
+      if (empType !== EMPTYPES.Civilian && empType !== EMPTYPES.Military) {
         data.isNewCivMil = "no";
         dataCopy.prevOrg = "";
         dataCopy.isNewToBaseAndCenter = "no";
@@ -172,7 +172,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
         }
       }
     }
-    if (empType !== EMPTYPES.CTR) {
+    if (empType !== EMPTYPES.Contractor) {
       // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
       dataCopy.hasExistingCAC = "no";
       dataCopy.CACExpiration = undefined;
@@ -239,14 +239,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
               aria-describedby="empTypeErr"
               layout="horizontal"
             >
-              {empTypeOpts.map((empType, i) => {
-                return (
-                  <Radio
-                    key={empType.value}
-                    value={empType.value}
-                    label={empType.label}
-                  />
-                );
+              {Object.values(EMPTYPES).map((key) => {
+                return <Radio key={key} value={key} label={key} />;
               })}
             </RadioGroup>
           )}
@@ -261,7 +255,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
           name="gradeRank"
           control={control}
           rules={{
-            required: empType !== EMPTYPES.CTR ? "Grade/Rank is required" : "",
+            required:
+              empType !== EMPTYPES.Contractor ? "Grade/Rank is required" : "",
           }}
           render={({ field: { onBlur, onChange, value } }) => (
             <ComboBox
@@ -277,7 +272,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
               onBlur={onBlur}
               options={gradeRankOptions}
               dropdownWidth={100}
-              disabled={empType === EMPTYPES.CTR}
+              disabled={empType === EMPTYPES.Contractor}
             />
           )}
         />
@@ -427,11 +422,11 @@ export const InRequest: FunctionComponent<any> = (props) => {
             {errors.supGovLead.message}
           </Text>
         )}
-        {(empType === EMPTYPES.CIV || empType === EMPTYPES.MIL) && (
+        {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
           <>
             <Label htmlFor="newCivId">
               Is Employee a New Air Force{" "}
-              {empType === EMPTYPES.CIV ? "Civilian" : "Military"}?
+              {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
             </Label>
             <Controller
               name="isNewCivMil"
@@ -481,7 +476,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
             )}
           </>
         )}
-        {(empType === EMPTYPES.CIV || empType === EMPTYPES.MIL) && (
+        {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
           <>
             <Label htmlFor="newToBaseAndCenterId">
               Is Employee new to WPAFB and AFLCMC?
@@ -511,7 +506,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
           </>
         )}
 
-        {empType === EMPTYPES.CTR && (
+        {empType === EMPTYPES.Contractor && (
           <>
             <Label htmlFor="hasExistingCACId">
               Does the Support Contractor have an Existing CAC?
