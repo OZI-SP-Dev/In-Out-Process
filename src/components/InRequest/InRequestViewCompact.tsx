@@ -12,6 +12,7 @@ const useStyles = makeStyles({
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
     gridAutoRows: "minmax(50px, auto)",
   },
+  capitalize: { textTransform: "capitalize" },
 });
 
 export interface IInRequestViewCompact {
@@ -29,14 +30,15 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
   const displayEmpType = (): string => {
     let displayValue = "";
     switch (formData.empType) {
-      case EMPTYPES.CIV:
+      case EMPTYPES.Civilian:
         displayValue =
-          "Civilian - " + (formData.isNewCiv === "yes" ? "New" : "Existing");
+          "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
-      case EMPTYPES.MIL:
-        displayValue = "Military";
+      case EMPTYPES.Military:
+        displayValue =
+          "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
-      case EMPTYPES.CTR:
+      case EMPTYPES.Contractor:
         displayValue = "Contractor";
         break;
     }
@@ -47,61 +49,102 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     <>
       <div id="inReqCompact" className={classes.compactContainer}>
         <div>
-          <Label weight="semibold" htmlFor="empNameId">
+          <Label weight="semibold" htmlFor="empNameCVId">
             Employee Name:
           </Label>
           <br />
-          <Text id="empNameCCVId">{formData.empName}</Text>
+          <Text id="empNameCVId">{formData.empName}</Text>
         </div>
         <div>
-          <Label weight="semibold" htmlFor="empTypeId">
+          <Label weight="semibold" htmlFor="empTypeCVId">
             Employee Type
           </Label>
           <br />
           <Text id="empTypeCVId">{displayEmpType}</Text>
         </div>
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="gradeRankCVId">
+              Grade/Rank
+            </Label>
+            <br />
+            <Text id="gradeRankCVId">{formData.gradeRank}</Text>
+          </div>
+        )}
+        {formData.empType === EMPTYPES.Contractor && (
+          <div>
+            <Label weight="semibold" htmlFor="cacExpirationCVId">
+              CAC Expiration
+            </Label>
+            <br />
+            <Text id="cacExpirationCVId" className={classes.capitalize}>
+              {formData.hasExistingCAC === "yes"
+                ? formData.CACExpiration?.toLocaleDateString()
+                : "No CAC"}
+            </Text>
+          </div>
+        )}
         <div>
-          <Label weight="semibold" htmlFor="gradeRankId">
-            Grade/Rank
-          </Label>
-          <br />
-          <Text id="gradeRankCVId">{formData.gradeRank}</Text>
-        </div>
-        <div>
-          <Label weight="semibold" htmlFor="workLocationId">
+          <Label weight="semibold" htmlFor="workLocationCVId">
             Local or Remote?
           </Label>
           <br />
-          <Text id="workLocationCVId">{formData.workLocation}</Text>
+          <Text id="workLocationCVId" className={classes.capitalize}>
+            {formData.workLocation}
+          </Text>
         </div>
         <div>
-          <Label weight="semibold" htmlFor="arrivalDateId">
-            Select estimated on-boarding date
+          <Label weight="semibold" htmlFor="arrivalDateCVId">
+            Estimated on-boarding date
           </Label>
           <br />
           <Text id="arrivalDateCVId">{formData.eta?.toLocaleDateString()}</Text>
         </div>
         <div>
-          <Label weight="semibold" htmlFor="officeId">
+          <Label weight="semibold" htmlFor="completionDateCVId">
+            Target completion date
+          </Label>
+          <br />
+          <Text id="completionDateCVId">
+            {formData.completionDate?.toLocaleDateString()}
+          </Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="officeCVId">
             Office
           </Label>
           <br />
           <Text id="officeCVId">{formData.office}</Text>
         </div>
         <div>
-          <Label weight="semibold" htmlFor="supGovLeadId">
+          <Label weight="semibold" htmlFor="supGovLeadCVId">
             Supervisor/Government Lead
           </Label>
           <br />
           <Text id="supGovLeadCVId">{formData.supGovLead?.text}</Text>
         </div>
-        {formData.empType === EMPTYPES.CIV && formData.isNewCiv === "no" && (
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) &&
+          formData.isNewCivMil === "no" && (
+            <div>
+              <Label weight="semibold" htmlFor="prevOrgCVId">
+                Previous Organization
+              </Label>
+              <br />
+              <Text id="prevOrgCVId">{formData.prevOrg}</Text>
+            </div>
+          )}
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
           <div>
-            <Label weight="semibold" htmlFor="prevOrgId">
-              Previous Organization
+            <Label weight="semibold" htmlFor="newToBaseAndCenterCVId">
+              Is New to WPAFB and AFLCMC?
             </Label>
             <br />
-            <Text>{formData.prevOrg}</Text>
+            <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
+              {formData.isNewToBaseAndCenter}
+            </Text>
           </div>
         )}
       </div>

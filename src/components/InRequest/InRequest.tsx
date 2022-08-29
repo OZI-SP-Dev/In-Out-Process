@@ -9,7 +9,7 @@ import {
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import { OFFICES } from "../../constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
-import { empTypeOpts, EMPTYPES } from "../../constants/EmpTypes";
+import { EMPTYPES } from "../../constants/EmpTypes";
 import { WORKLOCATIONS } from "../../constants/WorkLocations";
 import {
   makeStyles,
@@ -79,21 +79,34 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   // Set up a RHF watch to drive change to empType depeding on the value selected
   const empType = watch("empType");
-  // Set up a RHF watch to drive change to isNewCiv depending on the value selcected
-  const isNewCiv = watch("isNewCiv");
+  // Set up a RHF watch to drive change to isNewCivMil depending on the value selcected
+  const isNewCivMil = watch("isNewCivMil");
+  // Set up a RHF watch to drive change to hasExistingCAC depending on the value selcected
+  const hasExistingCAC = watch("hasExistingCAC");
+  // Set up a RHF watch to monitor eta, and set the min date for completionDate to eta + 28
+  const eta = watch("eta");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
-      case EMPTYPES.CIV:
+      case EMPTYPES.Civilian:
         return [...GS_GRADES, ...NH_GRADES];
-      case EMPTYPES.MIL:
+      case EMPTYPES.Military:
         return [...MIL_GRADES];
-      case EMPTYPES.CTR:
+      case EMPTYPES.Contractor:
         return [];
       default:
         return [];
     }
   }, [empType]);
+
+  const minCompletionDate: Date = useMemo(() => {
+    // Set the minimumn completion date to be 14 days from the estimated arrival
+    if (eta) {
+      let newMinDate = new Date(eta);
+      newMinDate.setDate(newMinDate.getDate() + 14);
+      return newMinDate;
+    } else return new Date();
+  }, [eta]);
 
   useEffect(() => {
     // Only set the supGovLead if this is a New request
@@ -146,22 +159,34 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const updateRequest: SubmitHandler<IInForm> = (data) => {
     /* Validation has passed, so update the request */
     let dataCopy = { ...data };
-    if (dataCopy.empType) {
-      // If it isn't a civilian, ensure values depending on Civ only are set correctly
-      if (empType !== EMPTYPES.CIV) {
-        data.isNewCiv = "no";
+    // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
+    if (
+      dataCopy.empType !== EMPTYPES.Civilian &&
+      dataCopy.empType !== EMPTYPES.Military
+    ) {
+      dataCopy.isNewCivMil = "no";
+      dataCopy.prevOrg = "";
+      dataCopy.isNewToBaseAndCenter = "no";
+    } else {
+      // If it is a new Civ/Mil then ensure prevOrg is set to ""
+      if (dataCopy.isNewCivMil === "yes") {
         dataCopy.prevOrg = "";
-      } else {
-        // If it is a new Civilian then ensure prevOrg is set to ""
-        if (dataCopy.isNewCiv === "yes") {
-          dataCopy.prevOrg = "";
-        }
+      }
+    }
+
+    if (dataCopy.empType !== EMPTYPES.Contractor) {
+      // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
+      dataCopy.hasExistingCAC = "no";
+      dataCopy.CACExpiration = undefined;
+    } else {
+      if (dataCopy.hasExistingCAC === "no") {
+        // If the CTR doesn't have an Existing CAC, set the CACExpiration to undefined
+        dataCopy.CACExpiration = undefined;
       }
     }
     setFormData(dataCopy);
     hideEditPanel();
   };
-
   /* Callback function to be provided to the EditPanel component for action on Save */
   const onEditSave = () => {
     // If the save button was clicked, then run validation
@@ -215,14 +240,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
               aria-describedby="empTypeErr"
               layout="horizontal"
             >
-              {empTypeOpts.map((empType, i) => {
-                return (
-                  <Radio
-                    key={empType.value}
-                    value={empType.value}
-                    label={empType.label}
-                  />
-                );
+              {Object.values(EMPTYPES).map((key) => {
+                return <Radio key={key} value={key} label={key} />;
               })}
             </RadioGroup>
           )}
@@ -237,7 +256,8 @@ export const InRequest: FunctionComponent<any> = (props) => {
           name="gradeRank"
           control={control}
           rules={{
-            required: empType !== EMPTYPES.CTR ? "Grade/Rank is required" : "",
+            required:
+              empType !== EMPTYPES.Contractor ? "Grade/Rank is required" : "",
           }}
           render={({ field: { onBlur, onChange, value } }) => (
             <ComboBox
@@ -253,7 +273,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
               onBlur={onBlur}
               options={gradeRankOptions}
               dropdownWidth={100}
-              disabled={empType === EMPTYPES.CTR}
+              disabled={empType === EMPTYPES.Contractor}
             />
           )}
         />
@@ -306,7 +326,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
               placeholder="Select estimated on-boarding date"
               ariaLabel="Select an estimated on-boarding date"
               aria-describedby="etaErr"
-              onSelectDate={onChange}
+              onSelectDate={(newDate) => {
+                if (newDate) {
+                  let newCompletionDate = new Date(newDate);
+                  newCompletionDate.setDate(newCompletionDate.getDate() + 28);
+                  setValue("completionDate", newCompletionDate);
+                }
+                onChange(newDate);
+              }}
               value={value}
             />
           )}
@@ -314,6 +341,30 @@ export const InRequest: FunctionComponent<any> = (props) => {
         {errors.eta && (
           <Text id="etaErr" className={classes.errorText}>
             {errors.eta.message}
+          </Text>
+        )}
+        <Label htmlFor="completionDateId">Select target completion date</Label>
+        <Controller
+          name="completionDate"
+          control={control}
+          rules={{
+            required: "Completion Date is required.",
+          }}
+          render={({ field: { value, onChange } }) => (
+            <DatePicker
+              id="completionDateId"
+              placeholder="Select target completion date"
+              ariaLabel="Select target completion date"
+              aria-describedby="completionDateErr"
+              onSelectDate={onChange}
+              minDate={minCompletionDate}
+              value={value}
+            />
+          )}
+        />
+        {errors.completionDate && (
+          <Text id="completionDateErr" className={classes.errorText}>
+            {errors.completionDate.message}
           </Text>
         )}
         <Label htmlFor="officeId">Office</Label>
@@ -372,13 +423,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
             {errors.supGovLead.message}
           </Text>
         )}
-        {empType === EMPTYPES.CIV && (
+        {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
           <>
             <Label htmlFor="newCivId">
-              Is Employee a New Air Force Civilian?
+              Is Employee a New Air Force{" "}
+              {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
             </Label>
             <Controller
-              name="isNewCiv"
+              name="isNewCivMil"
               control={control}
               rules={{
                 required: "Selection is required",
@@ -386,7 +438,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
               render={({ field }) => (
                 <RadioGroup
                   {...field}
-                  aria-describedby="isNewCivErr"
+                  aria-describedby="isNewCivMilErr"
                   id="newCivId"
                 >
                   <Radio key={"yes"} value={"yes"} label="Yes" />
@@ -394,12 +446,12 @@ export const InRequest: FunctionComponent<any> = (props) => {
                 </RadioGroup>
               )}
             />
-            {errors.isNewCiv && (
-              <Text id="isNewCivErr" className={classes.errorText}>
-                {errors.isNewCiv.message}
+            {errors.isNewCivMil && (
+              <Text id="isNewCivMilErr" className={classes.errorText}>
+                {errors.isNewCivMil.message}
               </Text>
             )}
-            {isNewCiv === "no" && (
+            {isNewCivMil === "no" && (
               <>
                 <Label htmlFor="prevOrgId">Previous Organization</Label>
                 <Controller
@@ -425,6 +477,93 @@ export const InRequest: FunctionComponent<any> = (props) => {
             )}
           </>
         )}
+        {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
+          <>
+            <Label htmlFor="newToBaseAndCenterId">
+              Is Employee new to WPAFB and AFLCMC?
+            </Label>
+            <Controller
+              name="isNewToBaseAndCenter"
+              control={control}
+              rules={{
+                required: "Selection is required",
+              }}
+              render={({ field }) => (
+                <RadioGroup
+                  {...field}
+                  aria-describedby="isNewToBaseAndCenterErr"
+                  id="newToBaseAndCenterId"
+                >
+                  <Radio key={"yes"} value={"yes"} label="Yes" />
+                  <Radio key={"no"} value={"no"} label="No" />
+                </RadioGroup>
+              )}
+            />
+            {errors.isNewToBaseAndCenter && (
+              <Text id="isNewToBaseAndCenterErr" className={classes.errorText}>
+                {errors.isNewToBaseAndCenter.message}
+              </Text>
+            )}
+          </>
+        )}
+
+        {empType === EMPTYPES.Contractor && (
+          <>
+            <Label htmlFor="hasExistingCACId">
+              Does the Support Contractor have an Existing CAC?
+            </Label>
+            <Controller
+              name="hasExistingCAC"
+              control={control}
+              rules={{
+                required: "Selection is required",
+              }}
+              render={({ field }) => (
+                <RadioGroup
+                  {...field}
+                  aria-describedby="hasExistingCACErr"
+                  id="hasExistingCACId"
+                >
+                  <Radio key={"yes"} value={"yes"} label="Yes" />
+                  <Radio key={"no"} value={"no"} label="No" />
+                </RadioGroup>
+              )}
+            />
+            {errors.hasExistingCAC && (
+              <Text id="hasExistingCACErr" className={classes.errorText}>
+                {errors.hasExistingCAC.message}
+              </Text>
+            )}
+            {hasExistingCAC === "yes" && (
+              <>
+                <Label htmlFor="CACExpirationId">CAC Expiration</Label>
+                <Controller
+                  name="CACExpiration"
+                  control={control}
+                  rules={{
+                    required: "CAC Expiration is required",
+                  }}
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      id="arrivalDateId"
+                      placeholder="Select CAC expiration date"
+                      ariaLabel="Select CAC expiration date"
+                      aria-describedby="etaErr"
+                      onSelectDate={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.CACExpiration && (
+                  <Text id="CACExpirationErr" className={classes.errorText}>
+                    {errors.CACExpiration.message}
+                  </Text>
+                )}
+              </>
+            )}
+          </>
+        )}
+
         {/*-- Button to show if it is a New Form */}
         {/* TODO: Implement Saving In Processing Request */}
         {props.view === INFORMVIEWS.NEW && (

@@ -1,7 +1,7 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IItemUpdateResult } from "@pnp/sp/items";
-import { emptype, EMPTYPES } from "../constants/EmpTypes";
+import { EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
@@ -16,11 +16,11 @@ export type IInForm = {
   /** Required - Contains the Employee's Name */
   empName: string;
   /** Required - Employee's Type valid values are:
-   * 'civ' - for Civilian Employees
-   * 'mil' - for Military Employees
-   * 'ctr' - for Contracted Employees
+   * 'Civilian' - for Civilian Employees
+   * 'Contractor' - for Contracted Employees
+   * 'Military' - for Military Employees
    */
-  empType: emptype;
+  empType: EMPTYPES;
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string;
   /** Required - Possible values are 'local' and 'remote'  */
@@ -29,11 +29,22 @@ export type IInForm = {
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
   // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewCiv: "yes" | "no";
+  isNewCivMil: "yes" | "no";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
+  /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  isNewToBaseAndCenter: "yes" | "no";
+  /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  hasExistingCAC: "yes" | "no";
+  /** Required - Will only be defined for Ctr, for others it will be undefined*/
+  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
+  CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
+  /** Required - The Expected Completion Date - Default to 28 days from eta*/
+  completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: SPPersona;
 };
@@ -69,9 +80,13 @@ export class RequestApi implements IInFormApi {
         gradeRank: response.gradeRank,
         workLocation: response.workLocation,
         office: response.office,
-        isNewCiv: response.isNewCiv,
+        isNewCivMil: response.isNewCivMil,
         prevOrg: response.prevOrg,
+        isNewToBaseAndCenter: response.isNewToBaseAndCenter,
+        hasExistingCAC: response.hasExistingCAC,
+        CACExpiration: response.CACExpiration,
         eta: response.eta,
+        completionDate: response.completionDate,
         supGovLead: response.supGovLead,
       };
       return items;
@@ -136,13 +151,17 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 1,
       empName: "Doe, John D",
-      empType: EMPTYPES.CIV,
+      empType: EMPTYPES.Civilian,
       gradeRank: "GS-11",
       workLocation: "remote",
       office: "OZIC",
-      isNewCiv: "yes",
+      isNewCivMil: "yes",
       prevOrg: "",
+      isNewToBaseAndCenter: "yes",
+      hasExistingCAC: "no",
+      CACExpiration: new Date(),
       eta: new Date(),
+      completionDate: new Date(),
       supGovLead: {
         text: "Default User",
         imageUrl:
@@ -152,13 +171,17 @@ export class RequestApiDev implements IInFormApi {
     {
       Id: 2,
       empName: "Doe, Jane D",
-      empType: EMPTYPES.CIV,
+      empType: EMPTYPES.Civilian,
       gradeRank: "GS-13",
       workLocation: "local",
       office: "OZIC",
-      isNewCiv: "no",
+      isNewCivMil: "no",
       prevOrg: "AFLCMC/WA",
+      isNewToBaseAndCenter: "no",
+      hasExistingCAC: "no",
+      CACExpiration: undefined,
       eta: new Date(),
+      completionDate: new Date(),
       supGovLead: {
         text: "Default User",
         imageUrl:
