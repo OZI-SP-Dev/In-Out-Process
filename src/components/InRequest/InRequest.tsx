@@ -159,25 +159,27 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const updateRequest: SubmitHandler<IInForm> = (data) => {
     /* Validation has passed, so update the request */
     let dataCopy = { ...data };
-    if (dataCopy.empType) {
-      // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
-      if (empType !== EMPTYPES.Civilian && empType !== EMPTYPES.Military) {
-        data.isNewCivMil = "no";
+    // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
+    if (
+      dataCopy.empType !== EMPTYPES.Civilian &&
+      dataCopy.empType !== EMPTYPES.Military
+    ) {
+      dataCopy.isNewCivMil = "no";
+      dataCopy.prevOrg = "";
+      dataCopy.isNewToBaseAndCenter = "no";
+    } else {
+      // If it is a new Civ/Mil then ensure prevOrg is set to ""
+      if (dataCopy.isNewCivMil === "yes") {
         dataCopy.prevOrg = "";
-        dataCopy.isNewToBaseAndCenter = "no";
-      } else {
-        // If it is a new Civ/Mil then ensure prevOrg is set to ""
-        if (dataCopy.isNewCivMil === "yes") {
-          dataCopy.prevOrg = "";
-        }
       }
     }
-    if (empType !== EMPTYPES.Contractor) {
+
+    if (dataCopy.empType !== EMPTYPES.Contractor) {
       // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
       dataCopy.hasExistingCAC = "no";
       dataCopy.CACExpiration = undefined;
     } else {
-      if ((dataCopy.hasExistingCAC = "no")) {
+      if (dataCopy.hasExistingCAC === "no") {
         // If the CTR doesn't have an Existing CAC, set the CACExpiration to undefined
         dataCopy.CACExpiration = undefined;
       }
@@ -185,7 +187,6 @@ export const InRequest: FunctionComponent<any> = (props) => {
     setFormData(dataCopy);
     hideEditPanel();
   };
-
   /* Callback function to be provided to the EditPanel component for action on Save */
   const onEditSave = () => {
     // If the save button was clicked, then run validation
