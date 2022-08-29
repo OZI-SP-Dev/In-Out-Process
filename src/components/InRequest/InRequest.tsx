@@ -342,7 +342,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
             {errors.eta.message}
           </Text>
         )}
-        <Label htmlFor="arrivalDateId">Select estimated on-boarding date</Label>
+        <Label htmlFor="completionDateId">Select target completion date</Label>
         <Controller
           name="completionDate"
           control={control}
