@@ -10,7 +10,7 @@ import "@pnp/sp/profiles";
 //var _sp: SPFI;
 declare var _spPageContextInfo: any;
 
-const webUrl =
+export const webUrl =
   process.env.NODE_ENV === "development"
     ? "http ://localhost:3000"
     : _spPageContextInfo.webAbsoluteUrl;
