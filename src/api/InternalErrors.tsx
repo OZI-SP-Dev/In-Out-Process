@@ -1,33 +1,58 @@
-
 export class InternalError implements Error {
-    name: string = "InternalError";
-    message: string;
-    stack?: string | undefined;
+  name: string = "InternalError";
+  message: string;
+  stack?: string | undefined;
 
-    constructor(e?: Error, message?: string) {
-        if (e) {
-            this.message = message ? message : e.message;
-            this.stack = e.stack;
-        } else if (message) {
-            this.message = message;
-        } else {
-            this.message = "An unknown error occurred internally!";
-        }
+  constructor(e?: Error, message?: string) {
+    if (e) {
+      this.message = message ? message : e.message;
+      this.stack = e.stack;
+    } else if (message) {
+      this.message = message;
+    } else {
+      this.message = "An unknown error occurred internally!";
     }
+  }
 }
 
 export class ApiError extends InternalError {
-    name: string = "ApiError";
+  name: string = "ApiError";
 
-    constructor(e?: Error, message?: string) {
-        super(e, message ? message : e ? e.message : "An unknown error occurred while communicating with SharePoint!");
-    }
+  constructor(e?: Error, message?: string) {
+    super(
+      e,
+      message
+        ? message
+        : e
+        ? e.message
+        : "An unknown error occurred while communicating with SharePoint!"
+    );
+  }
+}
+
+export class EmailError extends InternalError {
+  name: string = "EmailError";
+
+  constructor(e?: Error, message?: string) {
+    super(
+      e,
+      "Error occurred while trying to send Email Notification.  Please ensure those whom need to be informed of the request are." +
+        (message
+          ? message
+          : e
+          ? e.message
+          : "An unknown error occurred while communicating with SharePoint!")
+    );
+  }
 }
 
 export class NotAuthorizedError extends InternalError {
-    name: string = "NotAuthorizedError";
+  name: string = "NotAuthorizedError";
 
-    constructor(e?: Error, message?: string) {
-        super(e, message ? message : e ? e.message : "You are not authorized to do this!");
-    }
+  constructor(e?: Error, message?: string) {
+    super(
+      e,
+      message ? message : e ? e.message : "You are not authorized to do this!"
+    );
+  }
 }
