@@ -27,6 +27,7 @@ import { InRequestViewCompact } from "./InRequestViewCompact";
 import { InRequestEditPanel } from "./InRequestEditPanel";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useBoolean } from "@fluentui/react-hooks";
+import { useEmail } from "../../hooks/useEmail";
 
 /**
  * Enum for holding the possible views of the In Request form view
@@ -58,6 +59,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const classes = useStyles();
   const requestApi = RequestApiConfig.getApi();
   const userContext = useContext(UserContext);
+  const email = useEmail();
 
   const [formData, setFormData] = useState<IInForm | undefined>(undefined);
 
@@ -149,10 +151,11 @@ export const InRequest: FunctionComponent<any> = (props) => {
     return <>Loading...</>;
   }
 
-  const createNewRequest: SubmitHandler<IInForm> = (data) => {
+  const createNewRequest: SubmitHandler<IInForm> = async (data) => {
     /* Validation has passed, so create the new Request */
+    await email.sendInRequestSubmitEmail(data);
     /* TODO - Save the New Request */
-    alert("Feature coming");
+    alert("Notification Staged -- Create feature coming");
     console.log(JSON.stringify(data));
   };
 
