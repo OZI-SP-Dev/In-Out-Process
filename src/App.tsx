@@ -9,6 +9,8 @@ import { InRequest, INFORMVIEWS } from "./components/InRequest/InRequest";
 import { CheckListTest } from "./components/CheckList/CheckListTest";
 import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { ErrorProvider } from "./providers/ErrorProvider";
+import { ErrorNotification } from "./components/ErrorNotification/ErrorNotification";
 
 function App() {
   return (
@@ -16,13 +18,19 @@ function App() {
       <ThemeProvider>
         <HashRouter>
           <AppHeader />
-          <Routes>
-            <Route index element={<Home />} />
-            <Route path="roles" element={<Roles />} />
-            <Route path="item/:itemNum" element={<Item />} />
-            <Route path="new" element={<InRequest view={INFORMVIEWS.NEW} />} />
-            <Route path="checklist" element={<CheckListTest />} />
-          </Routes>
+          <ErrorProvider>
+            <ErrorNotification />
+            <Routes>
+              <Route index element={<Home />} />
+              <Route path="roles" element={<Roles />} />
+              <Route path="item/:itemNum" element={<Item />} />
+              <Route
+                path="new"
+                element={<InRequest view={INFORMVIEWS.NEW} />}
+              />
+              <Route path="checklist" element={<CheckListTest />} />
+            </Routes>
+          </ErrorProvider>
         </HashRouter>
       </ThemeProvider>
     </FluentProvider>
