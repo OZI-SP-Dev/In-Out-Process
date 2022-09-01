@@ -1,9 +1,54 @@
-import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
+
+import { spWebContext } from "../providers/SPWebContext";
+import { useQuery } from "@tanstack/react-query";
+
+export interface IRequest {
+  Id: number;
+  empName: string;
+  eta: string | null;
+  completionDate: string | null;
+}
+
+const getMyRequests = (userId: number | undefined) => {
+  if (process.env.NODE_ENV === "development") {
+    const date = new Date().toISOString();
+    return Promise.resolve([
+      {
+        Id: 1,
+        empName: "Doe, John D",
+        eta: date,
+        completionDate: date,
+      },
+      {
+        Id: 2,
+        empName: "Doe, Jane D",
+        eta: date,
+        completionDate: date,
+      },
+    ] as IRequest[]);
+  } else if (userId === undefined) {
+    console.log("No user specified");
+    return Promise.reject([] as IRequest[]);
+  } else {
+    return spWebContext.web.lists
+      .getByTitle("requests")
+      .items.filter(
+        `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+      )();
+  }
+};
+
+export const useMyRequests = (userId: number | undefined) => {
+  return useQuery({
+    queryKey: ["myRequests"],
+    queryFn: () => getMyRequests(userId),
+  });
+};
 
 // create PnP JS response interface for the InForm
 // This extends the IInForm -- currently identical, but may need to vary when pulling in SPData
