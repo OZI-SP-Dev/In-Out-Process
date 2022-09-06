@@ -7,7 +7,7 @@ import {
   Button,
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MyRequests } from "components/MyRequests/MyRequests";
 
 export const Home: FunctionComponent = (props) => {
@@ -66,10 +66,6 @@ export const Home: FunctionComponent = (props) => {
       </Button>
 
       <MyRequests />
-
-      <Link to="item/1">Item 1</Link>
-      <br />
-      <Link to="item/2">Item 2</Link>
     </Stack>
   );
 };

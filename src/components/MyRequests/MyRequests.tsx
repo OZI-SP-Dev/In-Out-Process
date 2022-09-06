@@ -1,61 +1,42 @@
-import { IColumn } from "@fluentui/react";
-import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
 import { useMyRequests } from "api/RequestApi";
+import { Link } from "react-router-dom";
 
 export const MyRequests = () => {
   const { user } = useContext(UserContext);
-  const { data, isLoading, isError } = useMyRequests(user?.Id);
+  const { data, isLoading } = useMyRequests(user?.Id);
 
   if (user?.Id === undefined) {
-    return <>Loading current user</>;
+    return <>Loading current user...</>;
   }
 
-  // Define columns for details list
-  const columns: IColumn[] = [
-    {
-      key: "myRequestsId",
-      name: "Item",
-      fieldName: "Id",
-      minWidth: 40,
-      maxWidth: 40,
-      isResizable: false,
-    },
-    {
-      key: "myRequestsEmpName",
-      name: "Employee Name",
-      fieldName: "empName",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-    },
-    {
-      key: "myRequestsTargetOnBoard",
-      name: "Estimated On-boarding",
-      fieldName: "eta",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-    },
-    {
-      key: "myRequestsStatus",
-      name: "Status",
-      fieldName: "completionDate",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-    },
-  ];
+  if (isLoading) {
+    return <>Loading Data...</>;
+  }
 
-  console.log(data);
   return (
-    <div>
-      <ShimmeredDetailsList
-        items={data || []}
-        columns={columns}
-        enableShimmer={isLoading || isError}
-      />
-    </div>
+    <table>
+      <thead>
+        <th>Item</th>
+        <th>Employee Name</th>
+        <th>Estimated On-Boarding</th>
+        <th>Status</th>
+      </thead>
+      <tbody>
+        {data?.map((item) => {
+          return (
+            <tr key={item.Id}>
+              <td>{item.Id}</td>
+              <td>
+                <Link to={"item/" + item.Id}>{item.empName}</Link>
+              </td>
+              <td>{new Date(item.eta).toLocaleDateString()}</td>
+              <td>{new Date(item.eta).toLocaleDateString()}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 };
