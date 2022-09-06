@@ -1,15 +1,8 @@
-import { useContext } from "react";
-import { UserContext } from "providers/UserProvider";
 import { useMyRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
 
 export const MyRequests = () => {
-  const { user } = useContext(UserContext);
-  const { data, isLoading } = useMyRequests(user?.Id);
-
-  if (user?.Id === undefined) {
-    return <>Loading current user...</>;
-  }
+  const { data, isLoading } = useMyRequests();
 
   if (isLoading) {
     return <>Loading Data...</>;

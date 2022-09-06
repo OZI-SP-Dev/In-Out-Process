@@ -7,11 +7,13 @@ import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 import { spWebContext } from "../providers/SPWebContext";
 import { useQuery } from "@tanstack/react-query";
 
-const getMyRequests = async (userId: number | undefined) => {
+declare var _spPageContextInfo: any;
+
+const getMyRequests = async () => {
+  const userId = _spPageContextInfo.userId;
   if (process.env.NODE_ENV === "development") {
     return Promise.resolve(testItems);
   } else if (userId === undefined) {
-    console.log("No user specified");
     return Promise.reject([] as IInForm[]);
   } else {
     const response = await spWebContext.web.lists
@@ -30,10 +32,10 @@ const getMyRequests = async (userId: number | undefined) => {
   }
 };
 
-export const useMyRequests = (userId: number | undefined) => {
+export const useMyRequests = () => {
   return useQuery({
     queryKey: ["myRequests"],
-    queryFn: () => getMyRequests(userId),
+    queryFn: () => getMyRequests(),
   });
 };
 
