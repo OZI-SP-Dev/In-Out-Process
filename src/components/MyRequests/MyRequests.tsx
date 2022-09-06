@@ -18,10 +18,12 @@ export const MyRequests = () => {
   return (
     <table>
       <thead>
-        <th>Item</th>
-        <th>Employee Name</th>
-        <th>Estimated On-Boarding</th>
-        <th>Status</th>
+        <tr>
+          <th>Item</th>
+          <th>Employee Name</th>
+          <th>Estimated On-Boarding</th>
+          <th>Status</th>
+        </tr>
       </thead>
       <tbody>
         {data?.map((item) => {
@@ -31,8 +33,9 @@ export const MyRequests = () => {
               <td>
                 <Link to={"item/" + item.Id}>{item.empName}</Link>
               </td>
-              <td>{new Date(item.eta).toLocaleDateString()}</td>
-              <td>{new Date(item.eta).toLocaleDateString()}</td>
+              <td>{item.eta.toLocaleDateString()}</td>
+              {/*TODO: Change to show some sort of status field once established */}
+              <td>{item.eta.toLocaleDateString()}</td>
             </tr>
           );
         })}

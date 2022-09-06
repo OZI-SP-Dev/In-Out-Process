@@ -2,11 +2,11 @@ import { spfi, SPBrowser } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
 import "@pnp/sp/items/list";
+import "@pnp/sp/site-users/web";
+import "@pnp/sp/profiles";
 
-// Possible future imports
+// Possible future import
 //import "@pnp/sp/batching";
-//import "@pnp/sp/site-users/web";
-//import "@pnp/sp/profiles";
 
 declare var _spPageContextInfo: any;
 

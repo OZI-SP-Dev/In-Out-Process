@@ -7,39 +7,26 @@ import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 import { spWebContext } from "../providers/SPWebContext";
 import { useQuery } from "@tanstack/react-query";
 
-export interface IRequest {
-  Id: number;
-  empName: string;
-  eta: string | null;
-  completionDate: string | null;
-}
-
-const getMyRequests = (userId: number | undefined) => {
+const getMyRequests = async (userId: number | undefined) => {
   if (process.env.NODE_ENV === "development") {
-    const date = new Date().toISOString();
-    return Promise.resolve([
-      {
-        Id: 1,
-        empName: "Doe, John D",
-        eta: date,
-        completionDate: date,
-      },
-      {
-        Id: 2,
-        empName: "Doe, Jane D",
-        eta: date,
-        completionDate: date,
-      },
-    ] as IRequest[]);
+    return Promise.resolve(testItems);
   } else if (userId === undefined) {
     console.log("No user specified");
-    return Promise.reject([] as IRequest[]);
+    return Promise.reject([] as IInForm[]);
   } else {
-    return spWebContext.web.lists
-      .getByTitle("requests")
+    const response = await spWebContext.web.lists
+      .getByTitle("Items")
       .items.filter(
         `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
       )();
+    return response.map((request) => {
+      // Convert date strings to Date objects
+      const eta = new Date(request.eta);
+      const CACExpiration = new Date(request.CACExpiration);
+      const completionDate = new Date(request.completionDate);
+      const newRequest = { ...request, eta, CACExpiration, completionDate };
+      return newRequest as IInForm;
+    });
   }
 };
 
@@ -187,62 +174,62 @@ export class RequestApi implements IInFormApi {
   }
 }
 
+const testItems: IResponseItem[] = [
+  {
+    Id: 1,
+    empName: "Doe, John D",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-11",
+    workLocation: "remote",
+    office: "OZIC",
+    isNewCivMil: "yes",
+    prevOrg: "",
+    isNewToBaseAndCenter: "yes",
+    hasExistingCAC: "no",
+    CACExpiration: new Date(),
+    eta: new Date(),
+    completionDate: new Date(),
+    supGovLead: {
+      text: "Default User",
+      imageUrl:
+        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+    } as SPPersona,
+  },
+  {
+    Id: 2,
+    empName: "Doe, Jane D",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-13",
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: "no",
+    prevOrg: "AFLCMC/WA",
+    isNewToBaseAndCenter: "no",
+    hasExistingCAC: "no",
+    CACExpiration: undefined,
+    eta: new Date(),
+    completionDate: new Date(),
+    supGovLead: {
+      text: "Default User",
+      imageUrl:
+        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
+    } as SPPersona,
+  },
+];
+
 export class RequestApiDev implements IInFormApi {
   sleep() {
     return new Promise((r) => setTimeout(r, 500));
   }
 
-  items: IResponseItem[] = [
-    {
-      Id: 1,
-      empName: "Doe, John D",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-11",
-      workLocation: "remote",
-      office: "OZIC",
-      isNewCivMil: "yes",
-      prevOrg: "",
-      isNewToBaseAndCenter: "yes",
-      hasExistingCAC: "no",
-      CACExpiration: new Date(),
-      eta: new Date(),
-      completionDate: new Date(),
-      supGovLead: {
-        text: "Default User",
-        imageUrl:
-          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-      } as SPPersona,
-    },
-    {
-      Id: 2,
-      empName: "Doe, Jane D",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-13",
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "no",
-      prevOrg: "AFLCMC/WA",
-      isNewToBaseAndCenter: "no",
-      hasExistingCAC: "no",
-      CACExpiration: undefined,
-      eta: new Date(),
-      completionDate: new Date(),
-      supGovLead: {
-        text: "Default User",
-        imageUrl:
-          "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-      } as SPPersona,
-    },
-  ];
-
   async getItemById(ID: number): Promise<IResponseItem | undefined> {
     await this.sleep();
-    return this.items.find((r) => r.Id === ID);
+    return testItems.find((r) => r.Id === ID);
   }
 
   async updateItem(Item: IInForm): Promise<IItemUpdateResult | any> {
     await this.sleep();
-    return (this.items[this.items.findIndex((r) => r.Id === Item.Id)] = Item);
+    return (testItems[testItems.findIndex((r) => r.Id === Item.Id)] = Item);
   }
 }
 
