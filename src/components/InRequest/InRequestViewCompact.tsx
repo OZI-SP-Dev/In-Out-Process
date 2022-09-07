@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { EMPTYPES } from "../../constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
-import { IInForm } from "../../api/RequestApi";
+import { IInRequest } from "../../api/RequestApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -16,14 +16,14 @@ const useStyles = makeStyles({
 });
 
 export interface IInRequestViewCompact {
-  formData: IInForm;
+  formData: IInRequest;
 }
 
 export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
   props
 ) => {
   const classes = useStyles();
-  const formData: IInForm = props.formData;
+  const formData: IInRequest = props.formData;
 
   // Function used to display the Employee Type in a shortened format.
   // If it is a Civilian add New/Existing after depending on the selection

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { EmailApiConfig } from "../api/EmailApi";
 import { EmailError } from "../api/InternalErrors";
-import { IInForm } from "../api/RequestApi";
+import { IInRequest } from "../api/RequestApi";
 import { IPerson } from "../api/UserApi";
 import { useError } from "./useError";
 
@@ -13,7 +13,7 @@ export interface IEmailSender {
     body: string,
     cc?: IPerson[]
   ) => Promise<void>;
-  sendInRequestSubmitEmail: (process: IInForm) => Promise<void>;
+  sendInRequestSubmitEmail: (process: IInRequest) => Promise<void>;
 }
 
 export function useEmail(): IEmailSender {
@@ -44,7 +44,9 @@ export function useEmail(): IEmailSender {
     }
   };
 
-  const sendInRequestSubmitEmail = async (request: IInForm): Promise<void> => {
+  const sendInRequestSubmitEmail = async (
+    request: IInRequest
+  ): Promise<void> => {
     // TODO - Populate with whom it should actually go to rather than selected Supervisor
     let to = [request.supGovLead] as IPerson[]; // TODO -- Don't use AS here -- Work issue #12 to standardize person object
     let subject = `In Process: ${request.empName} has been submitted`;
