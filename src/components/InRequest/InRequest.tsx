@@ -22,7 +22,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { UserContext } from "../../providers/UserProvider";
-import { IInForm, RequestApiConfig } from "../../api/RequestApi";
+import { IInRequest, RequestApiConfig } from "../../api/RequestApi";
 import { InRequestViewCompact } from "./InRequestViewCompact";
 import { InRequestEditPanel } from "./InRequestEditPanel";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
@@ -61,13 +61,13 @@ export const InRequest: FunctionComponent<any> = (props) => {
   const userContext = useContext(UserContext);
   const email = useEmail();
 
-  const [formData, setFormData] = useState<IInForm | undefined>(undefined);
+  const [formData, setFormData] = useState<IInRequest | undefined>(undefined);
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
     useBoolean(false);
 
-  // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInForm
+  // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
   //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
   const {
     control,
@@ -151,7 +151,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     return <>Loading...</>;
   }
 
-  const createNewRequest: SubmitHandler<IInForm> = async (data) => {
+  const createNewRequest: SubmitHandler<IInRequest> = async (data) => {
     /* Validation has passed, so create the new Request */
     await email.sendInRequestSubmitEmail(data);
     /* TODO - Save the New Request */
@@ -159,7 +159,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
     console.log(JSON.stringify(data));
   };
 
-  const updateRequest: SubmitHandler<IInForm> = (data) => {
+  const updateRequest: SubmitHandler<IInRequest> = (data) => {
     /* Validation has passed, so update the request */
     let dataCopy = { ...data };
     // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
@@ -588,7 +588,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
       case INFORMVIEWS.COMPACT:
         return (
           <>
-            <InRequestViewCompact formData={formData as IInForm} />{" "}
+            <InRequestViewCompact formData={formData as IInRequest} />{" "}
             <Button
               appearance="primary"
               className="floatRight"

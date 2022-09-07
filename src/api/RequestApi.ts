@@ -14,7 +14,7 @@ const getMyRequests = async () => {
   if (process.env.NODE_ENV === "development") {
     return Promise.resolve(testItems);
   } else if (userId === undefined) {
-    return Promise.reject([] as IInForm[]);
+    return Promise.reject([] as IInRequest[]);
   } else {
     const response = await spWebContext.web.lists
       .getByTitle("Items")
@@ -27,7 +27,7 @@ const getMyRequests = async () => {
       const CACExpiration = new Date(request.CACExpiration);
       const completionDate = new Date(request.completionDate);
       const newRequest = { ...request, eta, CACExpiration, completionDate };
-      return newRequest as IInForm;
+      return newRequest as IInRequest;
     });
   }
 };
@@ -40,11 +40,11 @@ export const useMyRequests = () => {
 };
 
 // create PnP JS response interface for the InForm
-// This extends the IInForm -- currently identical, but may need to vary when pulling in SPData
-type IResponseItem = IInForm;
+// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+type IResponseItem = IInRequest;
 
 // create IItem item to work with it internally
-export type IInForm = {
+export type IInRequest = {
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
@@ -97,7 +97,7 @@ export interface IInFormApi {
    *
    * @param requirementsRequest The RequirementsRequest to be saved/updated
    */
-  updateItem(IItem: IInForm): Promise<IItemUpdateResult>;
+  updateItem(IItem: IInRequest): Promise<IItemUpdateResult>;
 }
 
 export class RequestApi implements IInFormApi {
@@ -107,7 +107,7 @@ export class RequestApi implements IInFormApi {
     try {
       // use map to convert IResponseItem[] into our internal object IItem[]
       const response: IResponseItem = await this.itemList.items.getById(ID)();
-      const items: IInForm = {
+      const items: IInRequest = {
         Id: response.Id,
         empName: response.empName,
         empType: response.empType,
@@ -147,7 +147,7 @@ export class RequestApi implements IInFormApi {
     }
   }
 
-  async updateItem(Item: IInForm): Promise<IItemUpdateResult> {
+  async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
     try {
       return await this.itemList.items.getById(Item.Id).update(Item);
     } catch (e) {
@@ -229,7 +229,7 @@ export class RequestApiDev implements IInFormApi {
     return testItems.find((r) => r.Id === ID);
   }
 
-  async updateItem(Item: IInForm): Promise<IItemUpdateResult | any> {
+  async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
     await this.sleep();
     return (testItems[testItems.findIndex((r) => r.Id === Item.Id)] = Item);
   }
