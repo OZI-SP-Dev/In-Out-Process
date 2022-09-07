@@ -11,29 +11,33 @@ import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { ErrorProvider } from "./providers/ErrorProvider";
 import { ErrorNotification } from "./components/ErrorNotification/ErrorNotification";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+const queryClient = new QueryClient();
 function App() {
   return (
-    <FluentProvider theme={webLightTheme}>
-      <ThemeProvider>
-        <HashRouter>
-          <AppHeader />
-          <ErrorProvider>
-            <ErrorNotification />
-            <Routes>
-              <Route index element={<Home />} />
-              <Route path="roles" element={<Roles />} />
-              <Route path="item/:itemNum" element={<Item />} />
-              <Route
-                path="new"
-                element={<InRequest view={INFORMVIEWS.NEW} />}
-              />
-              <Route path="checklist" element={<CheckListTest />} />
-            </Routes>
-          </ErrorProvider>
-        </HashRouter>
-      </ThemeProvider>
-    </FluentProvider>
+    <QueryClientProvider client={queryClient}>
+      <FluentProvider theme={webLightTheme}>
+        <ThemeProvider>
+          <HashRouter>
+            <AppHeader />
+            <ErrorProvider>
+              <ErrorNotification />
+              <Routes>
+                <Route index element={<Home />} />
+                <Route path="roles" element={<Roles />} />
+                <Route path="item/:itemNum" element={<Item />} />
+                <Route
+                  path="new"
+                  element={<InRequest view={INFORMVIEWS.NEW} />}
+                />
+                <Route path="checklist" element={<CheckListTest />} />
+              </Routes>
+            </ErrorProvider>
+          </HashRouter>
+        </ThemeProvider>
+      </FluentProvider>
+    </QueryClientProvider>
   );
 }
 

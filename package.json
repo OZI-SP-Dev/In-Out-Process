@@ -9,6 +9,7 @@
     "@fluentui/react-components": "^9.0.1",
     "@pnp/core": "^3.4.1",
     "@pnp/sp": "^3.4.1",
+    "@tanstack/react-query": "^4.2.3",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
     "@testing-library/user-event": "^13.5.0",
