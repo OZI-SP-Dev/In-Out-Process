@@ -32,11 +32,11 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     switch (formData.empType) {
       case EMPTYPES.Civilian:
         displayValue =
-          "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
+          "Civilian - " + (formData.isNewCivMil ? "New" : "Existing");
         break;
       case EMPTYPES.Military:
         displayValue =
-          "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
+          "Military - " + (formData.isNewCivMil ? "New" : "Existing");
         break;
       case EMPTYPES.Contractor:
         displayValue = "Contractor";
@@ -79,7 +79,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Label>
             <br />
             <Text id="cacExpirationCVId" className={classes.capitalize}>
-              {formData.hasExistingCAC === "yes"
+              {formData.hasExistingCAC
                 ? formData.CACExpiration?.toLocaleDateString()
                 : "No CAC"}
             </Text>
@@ -126,7 +126,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
         </div>
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) &&
-          formData.isNewCivMil === "no" && (
+          !formData.isNewCivMil && (
             <div>
               <Label weight="semibold" htmlFor="prevOrgCVId">
                 Previous Organization
@@ -143,7 +143,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Label>
             <br />
             <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
-              {formData.isNewToBaseAndCenter}
+              {formData.isNewToBaseAndCenter ? "Yes" : "No"}
             </Text>
           </div>
         )}

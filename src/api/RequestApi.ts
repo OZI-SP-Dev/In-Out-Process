@@ -9,26 +9,92 @@ import { useQuery } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
+const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
+  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
+  const transformedRequest: IInRequest = {
+    Id: request.Id,
+    empName: request.empName,
+    employee: request.employee
+      ? {
+          SPUserId: request.employee.Id,
+          Email: request.employee.EMail,
+          text: request.employee.Title,
+        }
+      : undefined,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    workLocation: request.workLocation,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    eta: new Date(request.eta),
+    office: request.office,
+    completionDate: new Date(request.completionDate),
+    hasExistingCAC: request.hasExistingCAC,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    CACExpiration: request.CACExpiration
+      ? new Date(request.CACExpiration)
+      : undefined,
+    supGovLead: {
+      SPUserId: request.supGovLead.Id,
+      Email: request.supGovLead.EMail,
+      text: request.supGovLead.Title,
+    },
+  };
+
+  return transformedRequest;
+};
+
+const transformInRequestToSP = (request: IInRequest): IRequestItem => {
+  // Convert Date objects to strings
+  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
+  const transformedRequest: IRequestItem = {
+    Id: request.Id,
+    empName: request.empName,
+    employeeId: request.employee?.SPUserId,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    workLocation: request.workLocation,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    eta: request.eta.toISOString(),
+    office: request.office,
+    completionDate: request.completionDate.toISOString(),
+    hasExistingCAC: request.hasExistingCAC,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    CACExpiration: request.CACExpiration
+      ? request.CACExpiration.toISOString()
+      : "",
+    supGovLeadId: request.supGovLead.SPUserId as number, // TODO: forcing as number becasue type says optional but we are requiring
+  };
+  return transformedRequest;
+};
+
+// This is a listing of all fields to be returned with a request
+// Currently it is being used by all requests, but can be updated as needed
+// If we do make separate field requests, we should make a new type and transform functions
+const requestedFields =
+  "Id,empName,empType,gradeRank,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+const expandedFields = "supGovLead,employee";
+
 const getMyRequests = async () => {
-  const userId = _spPageContextInfo.userId;
   if (process.env.NODE_ENV === "development") {
-    return Promise.resolve(testItems);
-  } else if (userId === undefined) {
-    return Promise.reject([] as IInRequest[]);
+    let response = testItems;
+    return Promise.resolve(response);
   } else {
-    const response = await spWebContext.web.lists
-      .getByTitle("Items")
-      .items.filter(
-        `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-      )();
-    return response.map((request) => {
-      // Convert date strings to Date objects
-      const eta = new Date(request.eta);
-      const CACExpiration = new Date(request.CACExpiration);
-      const completionDate = new Date(request.completionDate);
-      const newRequest = { ...request, eta, CACExpiration, completionDate };
-      return newRequest as IInRequest;
-    });
+    // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
+    const userId = _spPageContextInfo?.userId;
+    if (userId === undefined) {
+      return Promise.reject([] as IInRequest[]);
+    } else {
+      const response: IResponseItem[] = await spWebContext.web.lists
+        .getByTitle("Items")
+        .items.filter(
+          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+        )
+        .select(requestedFields)
+        .expand(expandedFields)();
+      return response.map((request) => transformInRequestFromSP(request));
+    }
   }
 };
 
@@ -38,10 +104,6 @@ export const useMyRequests = () => {
     queryFn: () => getMyRequests(),
   });
 };
-
-// create PnP JS response interface for the InForm
-// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
-type IResponseItem = IInRequest;
 
 // create IItem item to work with it internally
 export type IInRequest = {
@@ -62,18 +124,14 @@ export type IInRequest = {
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewCivMil: "yes" | "no";
+  isNewCivMil: boolean;
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewToBaseAndCenter: "yes" | "no";
+  isNewToBaseAndCenter: boolean;
   /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  hasExistingCAC: "yes" | "no";
+  hasExistingCAC: boolean;
   /** Required - Will only be defined for Ctr, for others it will be undefined*/
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
@@ -81,6 +139,43 @@ export type IInRequest = {
   completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: SPPersona;
+  /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
+  employee: SPPersona | undefined;
+};
+
+// create PnP JS response interface for the InForm
+// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+type IResponseItem = Omit<
+  IInRequest,
+  "eta" | "completionDate" | "CACExpiration" | "supGovLead" | "employee"
+> & {
+  // Storing the date objects in Single Line Text fields as ISOStrings
+  eta: string;
+  completionDate: string;
+  CACExpiration: string;
+
+  // supGovLead is a Person field, and we request to expand it to retrieve Id, Title, and EMail
+  supGovLead: {
+    Id: number | undefined;
+    Title: string | undefined;
+    EMail: string | undefined;
+  };
+
+  // employee is a Person field, and we request to expand it to retrieve Id, Title, and EMail
+  employee:
+    | {
+        Id: number | undefined;
+        Title: string | undefined;
+        EMail: string | undefined;
+      }
+    | undefined;
+};
+
+// create PnP JS response interface for the InForm
+// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
+  supGovLeadId: number;
+  employeeId: number | undefined;
 };
 
 export interface IInFormApi {
@@ -90,7 +185,7 @@ export interface IInFormApi {
    * @param ID The ID of the item to retrieve from SharePoint
    * @returns The IITem for the given ID
    */
-  getItemById(ID: number): Promise<IResponseItem | undefined>;
+  getItemById(ID: number): Promise<IInRequest | undefined>;
 
   /**
    * Update/persist the given Item
@@ -103,27 +198,14 @@ export interface IInFormApi {
 export class RequestApi implements IInFormApi {
   itemList = spWebContext.web.lists.getByTitle("Items");
 
-  async getItemById(ID: number): Promise<IResponseItem | undefined> {
+  async getItemById(ID: number): Promise<IInRequest | undefined> {
     try {
       // use map to convert IResponseItem[] into our internal object IItem[]
-      const response: IResponseItem = await this.itemList.items.getById(ID)();
-      const items: IInRequest = {
-        Id: response.Id,
-        empName: response.empName,
-        empType: response.empType,
-        gradeRank: response.gradeRank,
-        workLocation: response.workLocation,
-        office: response.office,
-        isNewCivMil: response.isNewCivMil,
-        prevOrg: response.prevOrg,
-        isNewToBaseAndCenter: response.isNewToBaseAndCenter,
-        hasExistingCAC: response.hasExistingCAC,
-        CACExpiration: response.CACExpiration,
-        eta: response.eta,
-        completionDate: response.completionDate,
-        supGovLead: response.supGovLead,
-      };
-      return items;
+      const response: IResponseItem = await this.itemList.items
+        .getById(ID)
+        .select(requestedFields)
+        .expand(expandedFields)();
+      return transformInRequestFromSP(response);
     } catch (e) {
       console.error(`Error occurred while trying to fetch Item with ID ${ID}`);
       console.error(e);
@@ -149,7 +231,9 @@ export class RequestApi implements IInFormApi {
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
     try {
-      return await this.itemList.items.getById(Item.Id).update(Item);
+      return await this.itemList.items
+        .getById(Item.Id)
+        .update(transformInRequestToSP(Item));
     } catch (e) {
       console.error(
         `Error occurred while trying to fetch Item with ID ${Item.Id}`
@@ -176,7 +260,7 @@ export class RequestApi implements IInFormApi {
   }
 }
 
-const testItems: IResponseItem[] = [
+const testItems: IInRequest[] = [
   {
     Id: 1,
     empName: "Doe, John D",
@@ -184,18 +268,23 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-11",
     workLocation: "remote",
     office: "OZIC",
-    isNewCivMil: "yes",
+    isNewCivMil: true,
     prevOrg: "",
-    isNewToBaseAndCenter: "yes",
-    hasExistingCAC: "no",
-    CACExpiration: new Date(),
-    eta: new Date(),
-    completionDate: new Date(),
+    isNewToBaseAndCenter: true,
+    hasExistingCAC: false,
+    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
+    eta: new Date("2022-12-31T00:00:00.000Z"),
+    completionDate: new Date("2023-01-31T00:00:00.000Z"),
     supGovLead: {
+      SPUserId: 1,
       text: "Default User",
-      imageUrl:
-        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-    } as SPPersona,
+      Email: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      SPUserId: 2,
+      text: "Default User 2",
+      Email: "defaultTEST2@us.af.mil",
+    },
   },
   {
     Id: 2,
@@ -204,18 +293,23 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-13",
     workLocation: "local",
     office: "OZIC",
-    isNewCivMil: "no",
+    isNewCivMil: false,
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: "no",
-    hasExistingCAC: "no",
-    CACExpiration: undefined,
-    eta: new Date(),
-    completionDate: new Date(),
+    isNewToBaseAndCenter: false,
+    hasExistingCAC: false,
+    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
+    eta: new Date("2022-12-31T00:00:00.000Z"),
+    completionDate: new Date("2023-01-31T00:00:00.000Z"),
     supGovLead: {
+      SPUserId: 1,
       text: "Default User",
-      imageUrl:
-        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-    } as SPPersona,
+      Email: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      SPUserId: 2,
+      text: "Default User 2",
+      Email: "defaultTEST2@us.af.mil",
+    },
   },
 ];
 
@@ -224,14 +318,21 @@ export class RequestApiDev implements IInFormApi {
     return new Promise((r) => setTimeout(r, 500));
   }
 
-  async getItemById(ID: number): Promise<IResponseItem | undefined> {
+  async getItemById(ID: number): Promise<IInRequest | undefined> {
     await this.sleep();
-    return testItems.find((r) => r.Id === ID);
+    const response = testItems.find((r) => r.Id === ID);
+    if (response) {
+      return response;
+    } else return undefined;
   }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
     await this.sleep();
-    return (testItems[testItems.findIndex((r) => r.Id === Item.Id)] = Item);
+    const response = (testItems[testItems.findIndex((r) => r.Id === Item.Id)] =
+      Item);
+    if (response) {
+      return response;
+    } else return undefined;
   }
 }
 

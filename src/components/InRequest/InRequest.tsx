@@ -130,9 +130,22 @@ export const InRequest: FunctionComponent<any> = (props) => {
     const loadRequest = async () => {
       const res = await requestApi.getItemById(props.ReqId);
       if (!ignore && res) {
+        // Transform true/false to "yes" / "no" for the Radio Buttons
+        const hasExistingCAC = res?.hasExistingCAC ? "yes" : "no";
+        const isNewCivMil = res?.isNewCivMil ? "yes" : "no";
+        const isNewToBaseAndCenter = res?.isNewToBaseAndCenter ? "yes" : "no";
+
+        const transRes = {
+          ...res,
+          hasExistingCAC,
+          isNewCivMil,
+          isNewToBaseAndCenter,
+        };
+        // Set the form data as returned
         setFormData(res);
-        // Populate the React-Hook-Form with the data
-        reset(res);
+
+        // Populate the React-Hook-Form with the transformed data
+        reset(transRes);
       }
     };
     loadRequest();
@@ -161,32 +174,45 @@ export const InRequest: FunctionComponent<any> = (props) => {
 
   const updateRequest: SubmitHandler<IInRequest> = (data) => {
     /* Validation has passed, so update the request */
-    let dataCopy = { ...data };
+
+    // Transform "yes" / "no" to true/false
+    const hasExistingCAC = data?.hasExistingCAC ? true : false;
+    const isNewCivMil = data?.isNewCivMil ? true : false;
+    const isNewToBaseAndCenter = data?.isNewToBaseAndCenter ? true : false;
+
+    let dataCopy = {
+      ...data,
+      hasExistingCAC,
+      isNewCivMil,
+      isNewToBaseAndCenter,
+    };
+
     // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
     if (
       dataCopy.empType !== EMPTYPES.Civilian &&
       dataCopy.empType !== EMPTYPES.Military
     ) {
-      dataCopy.isNewCivMil = "no";
+      dataCopy.isNewCivMil = false;
       dataCopy.prevOrg = "";
-      dataCopy.isNewToBaseAndCenter = "no";
+      dataCopy.isNewToBaseAndCenter = false;
     } else {
       // If it is a new Civ/Mil then ensure prevOrg is set to ""
-      if (dataCopy.isNewCivMil === "yes") {
+      if (dataCopy.isNewCivMil === false) {
         dataCopy.prevOrg = "";
       }
     }
 
     if (dataCopy.empType !== EMPTYPES.Contractor) {
       // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
-      dataCopy.hasExistingCAC = "no";
+      dataCopy.hasExistingCAC = false;
       dataCopy.CACExpiration = undefined;
     } else {
-      if (dataCopy.hasExistingCAC === "no") {
+      if (!dataCopy.hasExistingCAC) {
         // If the CTR doesn't have an Existing CAC, set the CACExpiration to undefined
         dataCopy.CACExpiration = undefined;
       }
     }
+    requestApi.updateItem(dataCopy);
     setFormData(dataCopy);
     hideEditPanel();
   };
