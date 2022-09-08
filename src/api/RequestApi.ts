@@ -29,8 +29,8 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
     eta: new Date(request.eta),
     office: request.office,
     completionDate: new Date(request.completionDate),
-    hasExistingCAC: false,
-    isNewToBaseAndCenter: true,
+    hasExistingCAC: request.hasExistingCAC,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
     CACExpiration: request.CACExpiration
       ? new Date(request.CACExpiration)
       : undefined,
@@ -59,8 +59,8 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
     eta: request.eta.toISOString(),
     office: request.office,
     completionDate: request.completionDate.toISOString(),
-    hasExistingCAC: false,
-    isNewToBaseAndCenter: true,
+    hasExistingCAC: request.hasExistingCAC,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
