@@ -143,7 +143,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Label>
             <br />
             <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
-              {formData.isNewToBaseAndCenter}
+              {formData.isNewToBaseAndCenter ? "Yes" : "No"}
             </Text>
           </div>
         )}
