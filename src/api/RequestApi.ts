@@ -80,6 +80,13 @@ const transformInRequestToSP = (request: IInRequest): IResponseItem => {
   return newRequest;
 };
 
+// This is a listing of all fields to be returned with a request
+// Currently it is being used by all requests, but can be updated as needed
+// If we do make separate field requests, we should make a new type and transform functions
+const requestedFields =
+  "Id,empName,empType,gradeRank,workLocation,isNewCivMil,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+const expandedFields = "supGovLead,employee";
+
 const getMyRequests = async () => {
   const userId = _spPageContextInfo?.userId;
   if (process.env.NODE_ENV === "development") {
@@ -92,7 +99,9 @@ const getMyRequests = async () => {
       .getByTitle("Items")
       .items.filter(
         `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-      )();
+      )
+      .select(requestedFields)
+      .expand(expandedFields)();
     return response.map((request) => transformInRequestFromSP(request));
   }
 };
@@ -183,7 +192,10 @@ export class RequestApi implements IInFormApi {
   async getItemById(ID: number): Promise<IInRequest | undefined> {
     try {
       // use map to convert IResponseItem[] into our internal object IItem[]
-      const response: IResponseItem = await this.itemList.items.getById(ID)();
+      const response: IResponseItem = await this.itemList.items
+        .getById(ID)
+        .select(requestedFields)
+        .expand(expandedFields)();
       return transformInRequestFromSP(response);
     } catch (e) {
       console.error(`Error occurred while trying to fetch Item with ID ${ID}`);
