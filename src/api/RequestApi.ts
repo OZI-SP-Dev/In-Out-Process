@@ -88,21 +88,24 @@ const requestedFields =
 const expandedFields = "supGovLead,employee";
 
 const getMyRequests = async () => {
-  const userId = _spPageContextInfo?.userId;
   if (process.env.NODE_ENV === "development") {
     let response = testItems.map((item) => transformInRequestFromSP(item));
     return Promise.resolve(response);
-  } else if (userId === undefined) {
-    return Promise.reject([] as IInRequest[]);
   } else {
-    const response = await spWebContext.web.lists
-      .getByTitle("Items")
-      .items.filter(
-        `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-      )
-      .select(requestedFields)
-      .expand(expandedFields)();
-    return response.map((request) => transformInRequestFromSP(request));
+    // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
+    const userId = _spPageContextInfo?.userId;
+    if (userId === undefined) {
+      return Promise.reject([] as IInRequest[]);
+    } else {
+      const response: IResponseItem[] = await spWebContext.web.lists
+        .getByTitle("Items")
+        .items.filter(
+          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+        )
+        .select(requestedFields)
+        .expand(expandedFields)();
+      return response.map((request) => transformInRequestFromSP(request));
+    }
   }
 };
 
