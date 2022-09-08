@@ -9,10 +9,47 @@ import { useQuery } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
+const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
+  // Convert date strings to Date objects
+  const eta = new Date(request.eta);
+  const CACExpiration = request.CACExpiration
+    ? new Date(request.CACExpiration)
+    : undefined;
+  const completionDate = new Date(request.completionDate);
+
+  const newRequest: IInRequest = {
+    ...request,
+    eta,
+    CACExpiration,
+    completionDate,
+  };
+
+  return newRequest;
+};
+
+const transformInRequestToSP = (request: IInRequest): IResponseItem => {
+  // Convert Date objects to strings
+  const eta = request.eta.toISOString();
+  const CACExpiration = request.CACExpiration
+    ? request.CACExpiration.toISOString()
+    : "";
+  const completionDate = request.completionDate.toISOString();
+
+  const newRequest: IResponseItem = {
+    ...request,
+    eta,
+    CACExpiration,
+    completionDate,
+  };
+
+  return newRequest;
+};
+
 const getMyRequests = async () => {
-  const userId = _spPageContextInfo.userId;
+  const userId = _spPageContextInfo?.userId;
   if (process.env.NODE_ENV === "development") {
-    return Promise.resolve(testItems);
+    let response = testItems.map((item) => transformInRequestFromSP(item));
+    return Promise.resolve(response);
   } else if (userId === undefined) {
     return Promise.reject([] as IInRequest[]);
   } else {
@@ -21,14 +58,7 @@ const getMyRequests = async () => {
       .items.filter(
         `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
       )();
-    return response.map((request) => {
-      // Convert date strings to Date objects
-      const eta = new Date(request.eta);
-      const CACExpiration = new Date(request.CACExpiration);
-      const completionDate = new Date(request.completionDate);
-      const newRequest = { ...request, eta, CACExpiration, completionDate };
-      return newRequest as IInRequest;
-    });
+    return response.map((request) => transformInRequestFromSP(request));
   }
 };
 
@@ -38,10 +68,6 @@ export const useMyRequests = () => {
     queryFn: () => getMyRequests(),
   });
 };
-
-// create PnP JS response interface for the InForm
-// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
-type IResponseItem = IInRequest;
 
 // create IItem item to work with it internally
 export type IInRequest = {
@@ -79,6 +105,18 @@ export type IInRequest = {
   supGovLead: SPPersona;
 };
 
+// create PnP JS response interface for the InForm
+// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+type IResponseItem = Omit<
+  IInRequest,
+  "eta" | "completionDate" | "CACExpiration"
+> & {
+  // Storing the date objects in Single Line Text fields as ISOStrings
+  eta: string;
+  completionDate: string;
+  CACExpiration: string;
+};
+
 export interface IInFormApi {
   /**
    * Gets the request based on ID.
@@ -86,7 +124,7 @@ export interface IInFormApi {
    * @param ID The ID of the item to retrieve from SharePoint
    * @returns The IITem for the given ID
    */
-  getItemById(ID: number): Promise<IResponseItem | undefined>;
+  getItemById(ID: number): Promise<IInRequest | undefined>;
 
   /**
    * Update/persist the given Item
@@ -99,27 +137,11 @@ export interface IInFormApi {
 export class RequestApi implements IInFormApi {
   itemList = spWebContext.web.lists.getByTitle("Items");
 
-  async getItemById(ID: number): Promise<IResponseItem | undefined> {
+  async getItemById(ID: number): Promise<IInRequest | undefined> {
     try {
       // use map to convert IResponseItem[] into our internal object IItem[]
       const response: IResponseItem = await this.itemList.items.getById(ID)();
-      const items: IInRequest = {
-        Id: response.Id,
-        empName: response.empName,
-        empType: response.empType,
-        gradeRank: response.gradeRank,
-        workLocation: response.workLocation,
-        office: response.office,
-        isNewCivMil: response.isNewCivMil,
-        prevOrg: response.prevOrg,
-        isNewToBaseAndCenter: response.isNewToBaseAndCenter,
-        hasExistingCAC: response.hasExistingCAC,
-        CACExpiration: response.CACExpiration,
-        eta: response.eta,
-        completionDate: response.completionDate,
-        supGovLead: response.supGovLead,
-      };
-      return items;
+      return transformInRequestFromSP(response);
     } catch (e) {
       console.error(`Error occurred while trying to fetch Item with ID ${ID}`);
       console.error(e);
@@ -184,9 +206,9 @@ const testItems: IResponseItem[] = [
     prevOrg: "",
     isNewToBaseAndCenter: true,
     hasExistingCAC: false,
-    CACExpiration: new Date(),
-    eta: new Date(),
-    completionDate: new Date(),
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2022-12-31T00:00:00.000Z",
     supGovLead: {
       text: "Default User",
       imageUrl:
@@ -204,9 +226,9 @@ const testItems: IResponseItem[] = [
     prevOrg: "AFLCMC/WA",
     isNewToBaseAndCenter: false,
     hasExistingCAC: false,
-    CACExpiration: undefined,
-    eta: new Date(),
-    completionDate: new Date(),
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2022-12-31T00:00:00.000Z",
     supGovLead: {
       text: "Default User",
       imageUrl:
@@ -220,14 +242,22 @@ export class RequestApiDev implements IInFormApi {
     return new Promise((r) => setTimeout(r, 500));
   }
 
-  async getItemById(ID: number): Promise<IResponseItem | undefined> {
+  async getItemById(ID: number): Promise<IInRequest | undefined> {
     await this.sleep();
-    return testItems.find((r) => r.Id === ID);
+    const response = testItems.find((r) => r.Id === ID);
+    if (response) {
+      return transformInRequestFromSP(response);
+    } else return undefined;
   }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
     await this.sleep();
-    return (testItems[testItems.findIndex((r) => r.Id === Item.Id)] = Item);
+    let update: IResponseItem = transformInRequestToSP(Item);
+    const response = (testItems[testItems.findIndex((r) => r.Id === Item.Id)] =
+      update);
+    if (response) {
+      return transformInRequestFromSP(response);
+    } else return undefined;
   }
 }
 
