@@ -62,18 +62,14 @@ export type IInRequest = {
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewCivMil: "yes" | "no";
+  isNewCivMil: boolean;
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  isNewToBaseAndCenter: "yes" | "no";
+  isNewToBaseAndCenter: boolean;
   /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
-  hasExistingCAC: "yes" | "no";
+  hasExistingCAC: boolean;
   /** Required - Will only be defined for Ctr, for others it will be undefined*/
-  // TODO - Look into making this a Type or Leveraging SharePoint Type -- Think they possibly use yes/no instead of true/false
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
@@ -184,10 +180,10 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-11",
     workLocation: "remote",
     office: "OZIC",
-    isNewCivMil: "yes",
+    isNewCivMil: true,
     prevOrg: "",
-    isNewToBaseAndCenter: "yes",
-    hasExistingCAC: "no",
+    isNewToBaseAndCenter: true,
+    hasExistingCAC: false,
     CACExpiration: new Date(),
     eta: new Date(),
     completionDate: new Date(),
@@ -204,10 +200,10 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-13",
     workLocation: "local",
     office: "OZIC",
-    isNewCivMil: "no",
+    isNewCivMil: false,
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: "no",
-    hasExistingCAC: "no",
+    isNewToBaseAndCenter: false,
+    hasExistingCAC: false,
     CACExpiration: undefined,
     eta: new Date(),
     completionDate: new Date(),
