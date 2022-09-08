@@ -6,90 +6,79 @@ import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
 import { spWebContext } from "../providers/SPWebContext";
 import { useQuery } from "@tanstack/react-query";
-import { IPerson } from "./UserApi";
 
 declare var _spPageContextInfo: any;
 
 const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
-  // Convert date strings to Date objects
-  const eta = new Date(request.eta);
-  const CACExpiration = request.CACExpiration
-    ? new Date(request.CACExpiration)
-    : undefined;
-  const completionDate = new Date(request.completionDate);
-  const supGovLead: SPPersona = {
-    SPUserId: request.supGovLead.Id,
-    Email: request.supGovLead.EMail,
-    text: request.supGovLead.Title,
+  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
+  const transformedRequest: IInRequest = {
+    Id: request.Id,
+    empName: request.empName,
+    employee: request.employee
+      ? {
+          SPUserId: request.employee.Id,
+          Email: request.employee.EMail,
+          text: request.employee.Title,
+        }
+      : undefined,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    workLocation: request.workLocation,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    eta: new Date(request.eta),
+    office: request.office,
+    completionDate: new Date(request.completionDate),
+    hasExistingCAC: false,
+    isNewToBaseAndCenter: true,
+    CACExpiration: request.CACExpiration
+      ? new Date(request.CACExpiration)
+      : undefined,
+    supGovLead: {
+      SPUserId: request.supGovLead.Id,
+      Email: request.supGovLead.EMail,
+      text: request.supGovLead.Title,
+    },
   };
-  const employee: SPPersona | undefined = request.employee
-    ? {
-        SPUserId: request.employee.Id,
-        Email: request.employee.EMail,
-        text: request.employee.Title,
-      }
-    : undefined;
 
-  const newRequest: IInRequest = {
-    ...request,
-    eta,
-    CACExpiration,
-    completionDate,
-    supGovLead,
-    employee,
-  };
-
-  return newRequest;
+  return transformedRequest;
 };
 
-const transformInRequestToSP = (request: IInRequest): IResponseItem => {
+const transformInRequestToSP = (request: IInRequest): IRequestItem => {
   // Convert Date objects to strings
-  const eta = request.eta.toISOString();
-  const CACExpiration = request.CACExpiration
-    ? request.CACExpiration.toISOString()
-    : "";
-  const completionDate = request.completionDate.toISOString();
-
-  // TODO - Don't like forcing it to see each of these as numbers/strings
-  //  See if there is a better way to get the typescript to like this
-  //  possibly by correcting how the different people objects are defined/used
-
-  const supGovLead: IPerson = {
-    Id: request.supGovLead.SPUserId as number,
-    EMail: request.supGovLead.Email as string,
-    Title: request.supGovLead.text as string,
+  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
+  const transformedRequest: IRequestItem = {
+    Id: request.Id,
+    empName: request.empName,
+    employeeId: request.employee?.SPUserId,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    workLocation: request.workLocation,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    eta: request.eta.toISOString(),
+    office: request.office,
+    completionDate: request.completionDate.toISOString(),
+    hasExistingCAC: false,
+    isNewToBaseAndCenter: true,
+    CACExpiration: request.CACExpiration
+      ? request.CACExpiration.toISOString()
+      : "",
+    supGovLeadId: request.supGovLead.SPUserId as number, // TODO: forcing as number becasue type says optional but we are requiring
   };
-
-  const employee: IPerson | undefined = request.employee
-    ? {
-        Id: request.employee.SPUserId as number,
-        EMail: request.employee.Email as string,
-        Title: request.employee.text as string,
-      }
-    : undefined;
-
-  const newRequest: IResponseItem = {
-    ...request,
-    eta,
-    CACExpiration,
-    completionDate,
-    supGovLead,
-    employee,
-  };
-
-  return newRequest;
+  return transformedRequest;
 };
 
 // This is a listing of all fields to be returned with a request
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,workLocation,isNewCivMil,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+  "Id,empName,empType,gradeRank,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
 const expandedFields = "supGovLead,employee";
 
 const getMyRequests = async () => {
   if (process.env.NODE_ENV === "development") {
-    let response = testItems.map((item) => transformInRequestFromSP(item));
+    let response = testItems;
     return Promise.resolve(response);
   } else {
     // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
@@ -166,10 +155,27 @@ type IResponseItem = Omit<
   CACExpiration: string;
 
   // supGovLead is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  supGovLead: { Id: number; Title: string; EMail: string };
+  supGovLead: {
+    Id: number | undefined;
+    Title: string | undefined;
+    EMail: string | undefined;
+  };
 
   // employee is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  employee: { Id: number; Title: string; EMail: string } | undefined;
+  employee:
+    | {
+        Id: number | undefined;
+        Title: string | undefined;
+        EMail: string | undefined;
+      }
+    | undefined;
+};
+
+// create PnP JS response interface for the InForm
+// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
+  supGovLeadId: number;
+  employeeId: number | undefined;
 };
 
 export interface IInFormApi {
@@ -225,7 +231,9 @@ export class RequestApi implements IInFormApi {
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
     try {
-      return await this.itemList.items.getById(Item.Id).update(Item);
+      return await this.itemList.items
+        .getById(Item.Id)
+        .update(transformInRequestToSP(Item));
     } catch (e) {
       console.error(
         `Error occurred while trying to fetch Item with ID ${Item.Id}`
@@ -252,7 +260,7 @@ export class RequestApi implements IInFormApi {
   }
 }
 
-const testItems: IResponseItem[] = [
+const testItems: IInRequest[] = [
   {
     Id: 1,
     empName: "Doe, John D",
@@ -264,18 +272,18 @@ const testItems: IResponseItem[] = [
     prevOrg: "",
     isNewToBaseAndCenter: true,
     hasExistingCAC: false,
-    CACExpiration: "2022-12-31T00:00:00.000Z",
-    eta: "2022-12-31T00:00:00.000Z",
-    completionDate: "2022-12-31T00:00:00.000Z",
+    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
+    eta: new Date("2022-12-31T00:00:00.000Z"),
+    completionDate: new Date("2023-01-31T00:00:00.000Z"),
     supGovLead: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
+      SPUserId: 1,
+      text: "Default User",
+      Email: "defaultTEST@us.af.mil",
     },
     employee: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
+      SPUserId: 2,
+      text: "Default User 2",
+      Email: "defaultTEST2@us.af.mil",
     },
   },
   {
@@ -289,18 +297,18 @@ const testItems: IResponseItem[] = [
     prevOrg: "AFLCMC/WA",
     isNewToBaseAndCenter: false,
     hasExistingCAC: false,
-    CACExpiration: "2022-12-31T00:00:00.000Z",
-    eta: "2022-12-31T00:00:00.000Z",
-    completionDate: "2022-12-31T00:00:00.000Z",
+    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
+    eta: new Date("2022-12-31T00:00:00.000Z"),
+    completionDate: new Date("2023-01-31T00:00:00.000Z"),
     supGovLead: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
+      SPUserId: 1,
+      text: "Default User",
+      Email: "defaultTEST@us.af.mil",
     },
     employee: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
+      SPUserId: 2,
+      text: "Default User 2",
+      Email: "defaultTEST2@us.af.mil",
     },
   },
 ];
@@ -314,17 +322,16 @@ export class RequestApiDev implements IInFormApi {
     await this.sleep();
     const response = testItems.find((r) => r.Id === ID);
     if (response) {
-      return transformInRequestFromSP(response);
+      return response;
     } else return undefined;
   }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
     await this.sleep();
-    let update: IResponseItem = transformInRequestToSP(Item);
     const response = (testItems[testItems.findIndex((r) => r.Id === Item.Id)] =
-      update);
+      Item);
     if (response) {
-      return transformInRequestFromSP(response);
+      return response;
     } else return undefined;
   }
 }
