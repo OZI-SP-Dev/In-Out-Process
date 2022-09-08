@@ -6,6 +6,7 @@ import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 
 import { spWebContext } from "../providers/SPWebContext";
 import { useQuery } from "@tanstack/react-query";
+import { IPerson } from "./UserApi";
 
 declare var _spPageContextInfo: any;
 
@@ -16,12 +17,26 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
     ? new Date(request.CACExpiration)
     : undefined;
   const completionDate = new Date(request.completionDate);
+  const supGovLead: SPPersona = {
+    SPUserId: request.supGovLead.Id,
+    Email: request.supGovLead.EMail,
+    text: request.supGovLead.Title,
+  };
+  const employee: SPPersona | undefined = request.employee
+    ? {
+        SPUserId: request.employee.Id,
+        Email: request.employee.EMail,
+        text: request.employee.Title,
+      }
+    : undefined;
 
   const newRequest: IInRequest = {
     ...request,
     eta,
     CACExpiration,
     completionDate,
+    supGovLead,
+    employee,
   };
 
   return newRequest;
@@ -35,11 +50,31 @@ const transformInRequestToSP = (request: IInRequest): IResponseItem => {
     : "";
   const completionDate = request.completionDate.toISOString();
 
+  // TODO - Don't like forcing it to see each of these as numbers/strings
+  //  See if there is a better way to get the typescript to like this
+  //  possibly by correcting how the different people objects are defined/used
+
+  const supGovLead: IPerson = {
+    Id: request.supGovLead.SPUserId as number,
+    EMail: request.supGovLead.Email as string,
+    Title: request.supGovLead.text as string,
+  };
+
+  const employee: IPerson | undefined = request.employee
+    ? {
+        Id: request.employee.SPUserId as number,
+        EMail: request.employee.Email as string,
+        Title: request.employee.text as string,
+      }
+    : undefined;
+
   const newRequest: IResponseItem = {
     ...request,
     eta,
     CACExpiration,
     completionDate,
+    supGovLead,
+    employee,
   };
 
   return newRequest;
@@ -103,18 +138,26 @@ export type IInRequest = {
   completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: SPPersona;
+  /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
+  employee: SPPersona | undefined;
 };
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
 type IResponseItem = Omit<
   IInRequest,
-  "eta" | "completionDate" | "CACExpiration"
+  "eta" | "completionDate" | "CACExpiration" | "supGovLead" | "employee"
 > & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   eta: string;
   completionDate: string;
   CACExpiration: string;
+
+  // supGovLead is a Person field, and we request to expand it to retrieve Id, Title, and EMail
+  supGovLead: { Id: number; Title: string; EMail: string };
+
+  // employee is a Person field, and we request to expand it to retrieve Id, Title, and EMail
+  employee: { Id: number; Title: string; EMail: string } | undefined;
 };
 
 export interface IInFormApi {
@@ -210,10 +253,15 @@ const testItems: IResponseItem[] = [
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2022-12-31T00:00:00.000Z",
     supGovLead: {
-      text: "Default User",
-      imageUrl:
-        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-    } as SPPersona,
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
+    },
   },
   {
     Id: 2,
@@ -230,10 +278,15 @@ const testItems: IResponseItem[] = [
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2022-12-31T00:00:00.000Z",
     supGovLead: {
-      text: "Default User",
-      imageUrl:
-        "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-male.png",
-    } as SPPersona,
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
+    },
   },
 ];
 
