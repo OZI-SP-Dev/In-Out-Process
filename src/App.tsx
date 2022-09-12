@@ -11,12 +11,11 @@ import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { ErrorProvider } from "./providers/ErrorProvider";
 import { ErrorNotification } from "./components/ErrorNotification/ErrorNotification";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { UserProvider } from "providers/UserProvider";
 
-const queryClient = new QueryClient();
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <UserProvider>
       <FluentProvider theme={webLightTheme}>
         <ThemeProvider>
           <HashRouter>
@@ -37,7 +36,7 @@ function App() {
           </HashRouter>
         </ThemeProvider>
       </FluentProvider>
-    </QueryClientProvider>
+    </UserProvider>
   );
 }
 

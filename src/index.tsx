@@ -3,18 +3,20 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { UserProvider } from "./providers/UserProvider";
 import { initializeIcons } from "@fluentui/react/lib/Icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Initialize from a location we have access to, default location is blocked so using alternate
 //  see https://github.com/microsoft/fluentui/wiki/Using-icons
 initializeIcons();
 
+const queryClient = new QueryClient();
+
 ReactDOM.render(
   <StrictMode>
-    <UserProvider>
+    <QueryClientProvider client={queryClient} contextSharing={true}>
       <App />
-    </UserProvider>
+    </QueryClientProvider>
   </StrictMode>,
   document.getElementById("root")
 );
