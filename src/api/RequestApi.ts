@@ -3,15 +3,14 @@ import { IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
-
 import { spWebContext } from "../providers/SPWebContext";
 import { useQuery } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
+// Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
 const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
-  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
-  const transformedRequest: IInRequest = {
+  return {
     Id: request.Id,
     empName: request.empName,
     employee: request.employee
@@ -39,9 +38,13 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
       Email: request.supGovLead.EMail,
       text: request.supGovLead.Title,
     },
-  };
+  } as IInRequest;
+};
 
-  return transformedRequest;
+const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
+  return requests.map((request) => {
+    return transformInRequestFromSP(request);
+  });
 };
 
 const transformInRequestToSP = (request: IInRequest): IRequestItem => {
@@ -84,7 +87,7 @@ const getMyRequests = async () => {
     // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
     const userId = _spPageContextInfo?.userId;
     if (userId === undefined) {
-      return Promise.reject([] as IInRequest[]);
+      return Promise.reject([]);
     } else {
       const response: IResponseItem[] = await spWebContext.web.lists
         .getByTitle("Items")
@@ -93,15 +96,14 @@ const getMyRequests = async () => {
         )
         .select(requestedFields)
         .expand(expandedFields)();
-      return response.map((request) => transformInRequestFromSP(request));
+      return response;
     }
   }
 };
 
 export const useMyRequests = () => {
-  return useQuery({
-    queryKey: ["myRequests"],
-    queryFn: () => getMyRequests(),
+  return useQuery(["myRequests"], getMyRequests, {
+    select: transformInRequestsFromSP,
   });
 };
 
@@ -260,7 +262,7 @@ export class RequestApi implements IInFormApi {
   }
 }
 
-const testItems: IInRequest[] = [
+const testItems: IResponseItem[] = [
   {
     Id: 1,
     empName: "Doe, John D",
@@ -272,18 +274,18 @@ const testItems: IInRequest[] = [
     prevOrg: "",
     isNewToBaseAndCenter: true,
     hasExistingCAC: false,
-    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
-    eta: new Date("2022-12-31T00:00:00.000Z"),
-    completionDate: new Date("2023-01-31T00:00:00.000Z"),
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: {
-      SPUserId: 1,
-      text: "Default User",
-      Email: "defaultTEST@us.af.mil",
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
     },
     employee: {
-      SPUserId: 2,
-      text: "Default User 2",
-      Email: "defaultTEST2@us.af.mil",
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
     },
   },
   {
@@ -297,18 +299,18 @@ const testItems: IInRequest[] = [
     prevOrg: "AFLCMC/WA",
     isNewToBaseAndCenter: false,
     hasExistingCAC: false,
-    CACExpiration: new Date("2022-12-31T00:00:00.000Z"),
-    eta: new Date("2022-12-31T00:00:00.000Z"),
-    completionDate: new Date("2023-01-31T00:00:00.000Z"),
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: {
-      SPUserId: 1,
-      text: "Default User",
-      Email: "defaultTEST@us.af.mil",
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
     },
     employee: {
-      SPUserId: 2,
-      text: "Default User 2",
-      Email: "defaultTEST2@us.af.mil",
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
     },
   },
 ];
@@ -322,16 +324,14 @@ export class RequestApiDev implements IInFormApi {
     await this.sleep();
     const response = testItems.find((r) => r.Id === ID);
     if (response) {
-      return response;
+      return transformInRequestFromSP(response);
     } else return undefined;
   }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
     await this.sleep();
-    const response = (testItems[testItems.findIndex((r) => r.Id === Item.Id)] =
-      Item);
-    if (response) {
-      return response;
+    if (testItems.findIndex((r) => r.Id === Item.Id)) {
+      return Item;
     } else return undefined;
   }
 }
