@@ -24,10 +24,6 @@ export const UserProvider: FunctionComponent = ({ children }) => {
     const user = await userApi.getCurrentUser();
     if (user) {
       setUser(user);
-      let userRoles = await userApi.getCurrentUsersRoles();
-      if (userRoles) {
-        setRoles(userRoles);
-      }
     }
     setLoading(false);
   };
