@@ -1,13 +1,14 @@
 import { IPersonaProps } from "@fluentui/react";
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
-import { RoleType } from "./RolesApi";
 import { TestImages } from "@fluentui/example-data";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import "@pnp/sp/batching";
 import "@pnp/sp/site-users/web";
+
+declare var _spPageContextInfo: any;
 
 export interface IPerson extends IPersonaProps {
   Id: number;
@@ -69,19 +70,17 @@ export interface IUserApi {
 
 export class UserApi implements IUserApi {
   private currentUser?: IPerson;
-  private currentUsersRoles?: RoleType[];
 
   getCurrentUser = async (): Promise<IPerson> => {
     try {
       if (!this.currentUser) {
-        let user = await spWebContext.web.currentUser();
         this.currentUser = new Person(
           {
-            Id: user.Id,
-            Title: user.Title,
-            EMail: user.Email,
+            Id: _spPageContextInfo.userId,
+            Title: _spPageContextInfo.userDisplayName,
+            EMail: _spPageContextInfo.userEmail,
           },
-          user.LoginName
+          _spPageContextInfo.userLoginName
         );
       }
       return this.currentUser;
