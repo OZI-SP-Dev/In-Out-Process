@@ -3,9 +3,6 @@ import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { IPerson } from "./UserApi";
 
-// Declare a reference to the Global SP variable
-declare var _spPageContextInfo: any;
-
 /** Enum used to define the different roles in the tool */
 export enum RoleType {
   /** Role for granting Administrator capabilities  */
@@ -243,34 +240,6 @@ const getRolesForUser = async (userId: number): Promise<IUserRoles> => {
 };
 
 /**
- * Get the Roles of the current user.
- *
- * @returns The Roles for a given User in the form of the react-query results.  The data element is of RoleType[]
- */
-export const useMyRoles = () => {
-  let userId: number;
-  if (process.env.NODE_ENV === "development") {
-    // TODO: Investigate making this a DEV variable along with other current user info, so we can mimic logging in as differnt users
-    userId = 1;
-  } else {
-    // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
-    userId = _spPageContextInfo?.userId;
-  }
-
-  return useQuery({
-    queryKey: ["roles", userId],
-    queryFn: () => getRolesForUser(userId),
-    // We don't need to requery SharePoint for these
-    // Unless it is changing in our app -- and then we can
-    // have them invalidated, so it will re-query
-    staleTime: Infinity,
-    cacheTime: Infinity,
-    // Return just the RoleType[]
-    select: (data) => data.Roles.map((role) => role.Role),
-  });
-};
-
-/**
  * Get the Roles of a specific user.
  *
  * @param userId The Id number of the user for whom's roles are being requested
@@ -287,7 +256,7 @@ export const useUserRoles = (userId: number) => {
     staleTime: Infinity,
     cacheTime: Infinity,
     // Return just the RoleType[]
-    select: (data) => data.Roles,
+    select: (data) => data.Roles.map((role) => role.Role),
   });
 };
 

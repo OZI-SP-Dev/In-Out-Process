@@ -1,41 +1,23 @@
-import { createContext, FunctionComponent, useEffect, useState } from "react";
-import { RoleType, useMyRoles } from "../api/RolesApi";
-import { IPerson, UserApiConfig } from "../api/UserApi";
+import { createContext, FunctionComponent } from "react";
+import { RoleType, useUserRoles } from "../api/RolesApi";
+import { IPerson, useCurrentUser } from "../api/UserApi";
 
 export interface IUserContext {
   user: IPerson | undefined;
   roles: RoleType[];
-  loadingUser: boolean;
 }
 
 export const UserContext = createContext<Partial<IUserContext>>({
   user: undefined,
-  loadingUser: true,
 });
 
 export const UserProvider: FunctionComponent = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<IPerson>();
-  const { data: roles } = useMyRoles();
-
-  const userApi = UserApiConfig.getApi();
-
-  const fetchUser = async () => {
-    const user = await userApi.getCurrentUser();
-    if (user) {
-      setUser(user);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchUser(); // eslint-disable-next-line
-  }, []);
+  const user = useCurrentUser();
+  const { data: roles } = useUserRoles(user.Id);
 
   const userContext: IUserContext = {
     user,
     roles: roles ? roles : ([] as RoleType[]),
-    loadingUser: loading,
   };
 
   return (

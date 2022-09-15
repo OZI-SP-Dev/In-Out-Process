@@ -52,12 +52,30 @@ export class Person implements IPerson {
   }
 }
 
-export interface IUserApi {
-  /**
-   * @returns The current, logged in user. It will return a cached version after fetching it the first time.
-   */
-  getCurrentUser: () => Promise<IPerson>;
+export const useCurrentUser = () => {
+  let currentUser: Person;
+  if (process.env.NODE_ENV === "development") {
+    currentUser = new Person({
+      Id: 1,
+      Title: "Default User",
+      EMail: "me@example.com",
+      imageUrl: TestImages.personaMale,
+    });
+  } else {
+    currentUser = new Person(
+      {
+        Id: _spPageContextInfo.userId,
+        Title: _spPageContextInfo.userDisplayName,
+        EMail: _spPageContextInfo.userEmail,
+      },
+      _spPageContextInfo.userLoginName
+    );
+  }
 
+  return currentUser;
+};
+
+export interface IUserApi {
   /**
    * Get the Id of the user with the email given
    *
@@ -70,42 +88,6 @@ export interface IUserApi {
 
 export class UserApi implements IUserApi {
   private currentUser?: IPerson;
-
-  getCurrentUser = async (): Promise<IPerson> => {
-    try {
-      if (!this.currentUser) {
-        this.currentUser = new Person(
-          {
-            Id: _spPageContextInfo.userId,
-            Title: _spPageContextInfo.userDisplayName,
-            EMail: _spPageContextInfo.userEmail,
-          },
-          _spPageContextInfo.userLoginName
-        );
-      }
-      return this.currentUser;
-    } catch (e) {
-      console.error("Error occurred while trying to fetch the current user");
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch the current user: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch the current user: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          "Unknown error occurred while trying to fetch the current user"
-        );
-      }
-    }
-  };
 
   getUserId = async (email: string) => {
     try {
@@ -140,16 +122,6 @@ export class UserApiDev implements IUserApi {
   sleep() {
     return new Promise((r) => setTimeout(r, 500));
   }
-
-  getCurrentUser = async (): Promise<IPerson> => {
-    await this.sleep();
-    return new Person({
-      Id: 1,
-      Title: "Default User",
-      EMail: "me@example.com",
-      imageUrl: TestImages.personaMale,
-    });
-  };
 
   getUserId = async () => {
     await this.sleep();
