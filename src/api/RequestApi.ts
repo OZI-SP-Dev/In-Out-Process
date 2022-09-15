@@ -8,7 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
-// Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
+/**
+ * Directly map the incoming request to the IResponseItem to perform type
+ * conversions and drop SharePoint added data that is not needed, and will
+ * cause update errors
+ */
 const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
   return {
     Id: request.Id,
@@ -47,9 +51,16 @@ const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
   });
 };
 
+/**
+ * Directly map the incoming request to the IRequestItem to perform type
+ * conversions and drop SharePoint added data that is not needed, and
+ * will cause update errors.
+ *
+ * Convert Date objects to strings
+ * Convert Person objects to their IDs
+ */
+
 const transformInRequestToSP = (request: IInRequest): IRequestItem => {
-  // Convert Date objects to strings
-  // Directly map the incoming request to the IResponseItem to perform type conversions and drop SharePoint added data that is not needed, and will cause update errors
   const transformedRequest: IRequestItem = {
     Id: request.Id,
     empName: request.empName,
@@ -67,7 +78,7 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
-    supGovLeadId: request.supGovLead.SPUserId as number, // TODO: forcing as number becasue type says optional but we are requiring
+    supGovLeadId: request.supGovLead.SPUserId as number, // forcing as number becasue type says optional but we are requiring
   };
   return transformedRequest;
 };
@@ -79,6 +90,7 @@ const requestedFields =
   "Id,empName,empType,gradeRank,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
 const expandedFields = "supGovLead,employee";
 
+// Internal functions that actually do the fetching
 const getMyRequests = async () => {
   if (process.env.NODE_ENV === "development") {
     let response = testItems;
@@ -89,20 +101,110 @@ const getMyRequests = async () => {
     if (userId === undefined) {
       return Promise.reject([]);
     } else {
-      const response: IResponseItem[] = await spWebContext.web.lists
-        .getByTitle("Items")
-        .items.filter(
-          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-        )
-        .select(requestedFields)
-        .expand(expandedFields)();
-      return response;
+      try {
+        return spWebContext.web.lists
+          .getByTitle("Items")
+          .items.filter(
+            `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+          )
+          .select(requestedFields)
+          .expand(expandedFields)();
+      } catch (e) {
+        console.error(
+          `Error occurred while trying to fetch requests for user ${userId}}`
+        );
+        console.error(e);
+        if (e instanceof Error) {
+          throw new ApiError(
+            e,
+            `Error occurred while trying to fetch requests for user with ID ${userId}: ${e.message}`
+          );
+        } else if (typeof e === "string") {
+          throw new ApiError(
+            new Error(
+              `Error occurred while trying to fetch requests for user with ID ${userId}: ${e}`
+            )
+          );
+        } else {
+          throw new ApiError(
+            undefined,
+            `Unknown error occurred while trying to fetch requests for user with ID ${userId}`
+          );
+        }
+      }
     }
   }
 };
 
+const getRequest = async (Id: number) => {
+  if (process.env.NODE_ENV === "development") {
+    let response = testItems[Id - 1];
+    return Promise.resolve(response);
+  } else {
+    try {
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.getById(Id)
+        .select(requestedFields)
+        .expand(expandedFields)();
+    } catch (e) {
+      console.error(
+        `Error occurred while trying to fetch request with ID ${Id}}`
+      );
+      console.error(e);
+      if (e instanceof Error) {
+        throw new ApiError(
+          e,
+          `Error occurred while trying to fetch request with ID ${Id}: ${e.message}`
+        );
+      } else if (typeof e === "string") {
+        throw new ApiError(
+          new Error(
+            `Error occurred while trying to fetch request with ID ${Id}: ${e}`
+          )
+        );
+      } else {
+        throw new ApiError(
+          undefined,
+          `Unknown error occurred while trying to fetch request with ID ${Id}`
+        );
+      }
+    }
+  }
+};
+
+const getRequests = async () => {
+  if (process.env.NODE_ENV === "development") {
+    let response = testItems;
+    return Promise.resolve(response);
+  } else {
+    return spWebContext.web.lists
+      .getByTitle("Items")
+      .items.select(requestedFields)
+      .expand(expandedFields)();
+  }
+};
+
+// Exported hooks for working with requests
+
 export const useMyRequests = () => {
-  return useQuery(["myRequests"], getMyRequests, {
+  return useQuery(["requests", "currentUser"], getMyRequests, {
+    select: transformInRequestsFromSP,
+  });
+};
+
+export const useRequest = (requestId: number) => {
+  return useQuery({
+    queryKey: ["requests", requestId],
+    queryFn: () => getRequest(requestId),
+    select: transformInRequestFromSP,
+  });
+};
+
+export const useRequests = () => {
+  return useQuery({
+    queryKey: ["requests"],
+    queryFn: () => getRequests(),
     select: transformInRequestsFromSP,
   });
 };
@@ -182,14 +284,6 @@ type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
 
 export interface IInFormApi {
   /**
-   * Gets the request based on ID.
-   *
-   * @param ID The ID of the item to retrieve from SharePoint
-   * @returns The IITem for the given ID
-   */
-  getItemById(ID: number): Promise<IInRequest | undefined>;
-
-  /**
    * Update/persist the given Item
    *
    * @param requirementsRequest The RequirementsRequest to be saved/updated
@@ -199,37 +293,6 @@ export interface IInFormApi {
 
 export class RequestApi implements IInFormApi {
   itemList = spWebContext.web.lists.getByTitle("Items");
-
-  async getItemById(ID: number): Promise<IInRequest | undefined> {
-    try {
-      // use map to convert IResponseItem[] into our internal object IItem[]
-      const response: IResponseItem = await this.itemList.items
-        .getById(ID)
-        .select(requestedFields)
-        .expand(expandedFields)();
-      return transformInRequestFromSP(response);
-    } catch (e) {
-      console.error(`Error occurred while trying to fetch Item with ID ${ID}`);
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch Item with ID ${ID}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch Item with ID ${ID}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to Item with ID ${ID}`
-        );
-      }
-    }
-  }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
     try {
@@ -318,14 +381,6 @@ const testItems: IResponseItem[] = [
 export class RequestApiDev implements IInFormApi {
   sleep() {
     return new Promise((r) => setTimeout(r, 500));
-  }
-
-  async getItemById(ID: number): Promise<IInRequest | undefined> {
-    await this.sleep();
-    const response = testItems.find((r) => r.Id === ID);
-    if (response) {
-      return transformInRequestFromSP(response);
-    } else return undefined;
   }
 
   async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
