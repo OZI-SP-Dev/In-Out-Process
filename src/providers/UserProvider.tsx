@@ -1,5 +1,5 @@
 import { createContext, FunctionComponent, useEffect, useState } from "react";
-import { RoleType } from "../api/RolesApi";
+import { RoleType, useMyRoles } from "../api/RolesApi";
 import { IPerson, UserApiConfig } from "../api/UserApi";
 
 export interface IUserContext {
@@ -16,7 +16,7 @@ export const UserContext = createContext<Partial<IUserContext>>({
 export const UserProvider: FunctionComponent = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<IPerson>();
-  const [roles, setRoles] = useState<RoleType[]>([]);
+  const { data: roles } = useMyRoles();
 
   const userApi = UserApiConfig.getApi();
 
@@ -34,7 +34,7 @@ export const UserProvider: FunctionComponent = ({ children }) => {
 
   const userContext: IUserContext = {
     user,
-    roles,
+    roles: roles ? roles : ([] as RoleType[]),
     loadingUser: loading,
   };
 
