@@ -96,12 +96,12 @@ let maxId: number = testRoles.length;
 
 /** Function used by calls in the DEV env to mimic a delay in processing
  *
- * @param miliseconds - Optional value to sleep -- Defaults to 500 if not specified
+ * @param milliseconds - Optional value to sleep -- Defaults to 500 if not specified
  * @returns A Promise after the delayed amount of time
  */
-const sleep = (miliseconds?: number) => {
-  // Default to 500 miliseconds if no value is passed in
-  const sleepTime = miliseconds ? miliseconds : 500;
+const sleep = (milliseconds?: number) => {
+  // Default to 500 milliseconds if no value is passed in
+  const sleepTime = milliseconds ? milliseconds : 500;
   return new Promise((r) => setTimeout(r, sleepTime));
 };
 
