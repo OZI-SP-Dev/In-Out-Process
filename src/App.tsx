@@ -1,6 +1,5 @@
 import { HashRouter } from "react-router-dom";
 import "./App.css";
-import Roles from "./Roles";
 import { AppHeader } from "./components/AppHeader/AppHeader";
 import { Route, Routes } from "react-router-dom";
 import { Home } from "./Home";
@@ -12,6 +11,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { ErrorProvider } from "./providers/ErrorProvider";
 import { ErrorNotification } from "./components/ErrorNotification/ErrorNotification";
 import { UserProvider } from "providers/UserProvider";
+import { Roles } from "components/Roles/Roles";
 
 function App() {
   return (
