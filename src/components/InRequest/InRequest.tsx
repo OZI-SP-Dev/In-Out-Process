@@ -164,6 +164,14 @@ export const InRequest: FunctionComponent<any> = (props) => {
     return <>Loading...</>;
   }
 
+  //** Is the Current User the Superviosr/Gov Lead of this Request */
+  const isSupervisor: boolean =
+    formData?.supGovLead.SPUserId === userContext.user?.Id;
+
+  //** Is the Current User the Employee of this Request */
+  const isEmployee: boolean =
+    formData?.employee?.SPUserId === userContext.user?.Id;
+
   const createNewRequest: SubmitHandler<IInRequest> = async (data) => {
     /* Validation has passed, so create the new Request */
     await email.sendInRequestSubmitEmail(data);
@@ -615,20 +623,24 @@ export const InRequest: FunctionComponent<any> = (props) => {
         return (
           <>
             <InRequestViewCompact formData={formData as IInRequest} />{" "}
-            <Button
-              appearance="primary"
-              className="floatRight"
-              onClick={showEditPanel}
-            >
-              Edit
-            </Button>
-            <InRequestEditPanel
-              onEditSave={onEditSave}
-              onEditCancel={onEditCancel}
-              isEditPanelOpen={isEditPanelOpen}
-            >
-              {formView}
-            </InRequestEditPanel>
+            {isSupervisor && (
+              <>
+                <Button
+                  appearance="primary"
+                  className="floatRight"
+                  onClick={showEditPanel}
+                >
+                  Edit
+                </Button>
+                <InRequestEditPanel
+                  onEditSave={onEditSave}
+                  onEditCancel={onEditCancel}
+                  isEditPanelOpen={isEditPanelOpen}
+                >
+                  {formView}
+                </InRequestEditPanel>
+              </>
+            )}
           </>
         );
       case INFORMVIEWS.NEW:
