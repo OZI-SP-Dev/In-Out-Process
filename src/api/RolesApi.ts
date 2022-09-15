@@ -210,7 +210,7 @@ const getRolesForUser = async (userId: number): Promise<IUserRoles> => {
           .expand("User")()
       );
       if (response.length === 1) {
-        return Promise.resolve(response[0]);
+        return response[0];
       } else {
         // If we didn't error from the API, but returned 0 or more than 1 users worth of data
         //  then default the user to having no roles
