@@ -1,5 +1,5 @@
 import { ICheckListItem } from "../../api/CheckListItemApi";
-import { IColumn } from "@fluentui/react";
+import { IColumn, SelectionMode } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { FunctionComponent } from "react";
 
@@ -50,6 +50,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
         items={props.CheckListItems || []}
         columns={columns}
         enableShimmer={!props.CheckListItems}
+        selectionMode={SelectionMode.none}
       />
     </div>
   );
