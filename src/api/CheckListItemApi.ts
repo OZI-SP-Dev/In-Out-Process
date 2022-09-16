@@ -8,6 +8,11 @@ export interface ICheckListItem {
   Title: string;
   Lead: string; // TBD: better as role and/or person?
   CompletedDate?: DateTime;
+  CompletedBy?: {
+    Id: number | undefined;
+    Title: string | undefined;
+    EMail: string | undefined;
+  };
   SortOrder?: number;
 }
 
@@ -64,6 +69,12 @@ export class CheckListItemApiDev implements ICheckListItemApi {
       Id: 1,
       Title: "First Item!",
       Lead: "Anakin Skywalker",
+      CompletedDate: DateTime.now(),
+      CompletedBy: {
+        Id: 2,
+        Title: "Default User 2",
+        EMail: "defaultTEST2@us.af.mil",
+      },
     },
     {
       Id: 2,

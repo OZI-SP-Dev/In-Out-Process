@@ -41,6 +41,20 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item) => {
+        return <>{item.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
+      },
+    },
+    {
+      key: "column4",
+      name: "Completed By",
+      fieldName: "CompletedBy",
+      minWidth: 100,
+      maxWidth: 200,
+      isResizable: true,
+      onRender: (item) => {
+        return <>{item.CompletedBy?.Title}</>;
+      },
     },
   ];
 
