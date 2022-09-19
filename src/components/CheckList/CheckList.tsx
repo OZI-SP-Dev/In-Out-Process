@@ -1,14 +1,19 @@
-import { ICheckListItem, useUpdateCheckListItem } from "api/CheckListItemApi";
+import {
+  useChecklistItems,
+  useUpdateCheckListItem,
+} from "api/CheckListItemApi";
 import { IColumn, SelectionMode } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { FunctionComponent } from "react";
 import { Button } from "@fluentui/react-components";
 
 export interface ICheckList {
-  CheckListItems: ICheckListItem[] | undefined;
+  ReqId: number;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
+  const checlistItems = useChecklistItems(Number(props.ReqId));
+
   const { completeCheckListItem } = useUpdateCheckListItem();
 
   const completeCheckListItemClick = (itemId: number) => {
@@ -81,9 +86,9 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   return (
     <div>
       <ShimmeredDetailsList
-        items={props.CheckListItems || []}
+        items={checlistItems.data || []}
         columns={columns}
-        enableShimmer={!props.CheckListItems}
+        enableShimmer={!checlistItems.data}
         selectionMode={SelectionMode.none}
       />
     </div>
