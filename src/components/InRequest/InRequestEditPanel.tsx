@@ -13,9 +13,9 @@ import {
   makeStyles,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
+import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { EMPTYPES } from "../../constants/EmpTypes";
+import { EMPTYPES } from "constants/EmpTypes";
 import {
   GS_GRADES,
   MIL_GRADES,
@@ -23,7 +23,7 @@ import {
   OFFICES,
 } from "constants/GradeRanks";
 import { WORKLOCATIONS } from "constants/WorkLocations";
-import { IInRequest, RequestApiConfig } from "../../api/RequestApi";
+import { IInRequest, RequestApiConfig } from "api/RequestApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -37,7 +37,16 @@ const useStyles = makeStyles({
   },
 });
 
-export const InRequestEditPanel: FunctionComponent<any> = (props) => {
+interface IInRequestEditPanel {
+  data?: any;
+  onEditCancel: () => void;
+  isEditPanelOpen: boolean;
+  onEditSave: () => void;
+}
+
+export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
+  props
+) => {
   const classes = useStyles();
   const {
     control,
@@ -130,7 +139,7 @@ export const InRequestEditPanel: FunctionComponent<any> = (props) => {
     }
     requestApi.updateItem(dataCopy);
     //setFormData(dataCopy);
-    props.hideEditPanel();
+    props.onEditSave();
   };
 
   // The footer of the EditPanel, containing the "Save" and "Cancel" buttons

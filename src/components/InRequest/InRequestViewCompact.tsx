@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
-import { EMPTYPES } from "../../constants/EmpTypes";
+import { EMPTYPES } from "constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
-import { IInRequest } from "../../api/RequestApi";
+import { IInRequest } from "api/RequestApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({

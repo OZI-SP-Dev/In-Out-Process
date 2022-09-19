@@ -1,10 +1,10 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { useContext, useEffect, useMemo } from "react";
-import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
-import { OFFICES } from "../../constants/Offices";
-import { GS_GRADES, NH_GRADES, MIL_GRADES } from "../../constants/GradeRanks";
-import { EMPTYPES } from "../../constants/EmpTypes";
-import { WORKLOCATIONS } from "../../constants/WorkLocations";
+import { useEffect, useMemo } from "react";
+import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
+import { OFFICES } from "constants/Offices";
+import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
+import { EMPTYPES } from "constants/EmpTypes";
+import { WORKLOCATIONS } from "constants/WorkLocations";
 import {
   makeStyles,
   Button,
@@ -15,24 +15,11 @@ import {
   RadioGroup,
   tokens,
 } from "@fluentui/react-components";
-import { UserContext } from "../../providers/UserProvider";
-import { IInRequest, RequestApiConfig } from "../../api/RequestApi";
+//import { UserContext } from "../../providers/UserProvider";
+import { useCurrentUser } from "api/UserApi";
+import { IInRequest } from "../../api/RequestApi";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useEmail } from "../../hooks/useEmail";
-
-/**
- * Enum for holding the possible views of the In Request form view
- * @readonly
- * @enum {number}
- */
-export enum INFORMVIEWS {
-  //* Compact view for use within other components, to view details of the In Processing Request */
-  COMPACT,
-  //* Full page view for entering a new In Processing request */
-  NEW,
-  //* Popup/Inline view for editing details of an exisiting In Processing Request */
-  EDIT,
-}
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -48,7 +35,7 @@ const useStyles = makeStyles({
 
 export const InRequestNewForm = () => {
   const classes = useStyles();
-  const userContext = useContext(UserContext);
+  const currentUser = useCurrentUser();
   const email = useEmail();
 
   // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
@@ -91,16 +78,8 @@ export const InRequestNewForm = () => {
   }, [eta]);
 
   useEffect(() => {
-    if (userContext?.user) {
-      const persona = { ...userContext.user };
-      resetField("supGovLead", { defaultValue: persona });
-    }
-  }, [userContext.user, resetField]);
-
-  /* Temporarily show a Loading screen if we don't have the current user info yet. */
-  if (!userContext.user) {
-    return <>Loading...</>;
-  }
+    resetField("supGovLead", { defaultValue: currentUser });
+  }, [currentUser, resetField]);
 
   const createNewRequest: SubmitHandler<IInRequest> = async (data) => {
     /* Validation has passed, so create the new Request */

@@ -1,34 +1,26 @@
-import { FunctionComponent, useContext } from "react";
+import { FunctionComponent } from "react";
 import { Button } from "@fluentui/react-components";
-import { UserContext } from "../../providers/UserProvider";
-import { useRequest } from "../../api/RequestApi";
-import { InRequestViewCompact } from "./InRequestViewCompact";
-import { InRequestEditPanel } from "./InRequestEditPanel";
+import { useCurrentUser } from "api/UserApi";
+import { useRequest } from "api/RequestApi";
+import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
+import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { useBoolean } from "@fluentui/react-hooks";
 
-export const InRequest: FunctionComponent<any> = (props) => {
-  const userContext = useContext(UserContext);
+interface IInRequest {
+  ReqId: number;
+}
+export const InRequest: FunctionComponent<IInRequest> = (props) => {
+  const currentUser = useCurrentUser();
   const request = useRequest(props.ReqId);
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
     useBoolean(false);
 
-  if (request.isLoading) {
-    return <>Loading...</>;
-  }
-
   //** Is the Current User the Superviosr/Gov Lead of this Request */
-  const isSupervisor =
-    request.data?.supGovLead.SPUserId === userContext.user?.Id;
+  const isSupervisor = request.data?.supGovLead.SPUserId === currentUser.Id;
 
-  /* Callback function to be provided to the EditPanel component for action on Save */
-  const onEditCancel = () => {
-    // If the user cancels, set the form back to what was passed in orginally
-    hideEditPanel();
-  };
-
-  if (!request.isLoading && request.data) {
+  if (request.data) {
     return (
       <>
         <InRequestViewCompact formData={request.data} />{" "}
@@ -43,7 +35,7 @@ export const InRequest: FunctionComponent<any> = (props) => {
             </Button>
             <InRequestEditPanel
               onEditSave={hideEditPanel}
-              onEditCancel={onEditCancel}
+              onEditCancel={hideEditPanel}
               isEditPanelOpen={isEditPanelOpen}
               data={request.data}
             />
@@ -51,7 +43,11 @@ export const InRequest: FunctionComponent<any> = (props) => {
         )}
       </>
     );
-  } else {
-    return <>Waiting on requested data...</>;
   }
+
+  if (request.error) {
+    return <>"An error has occured: " + request.error</>;
+  }
+
+  return <>Loading...</>;
 };
