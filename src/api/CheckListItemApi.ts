@@ -106,12 +106,11 @@ const getItemsById = async (RequestId: number) => {
     return Promise.resolve(testCheckListItems);
   } else {
     try {
-      const response: IResponseItem[] = await spWebContext.web.lists
+      return spWebContext.web.lists
         .getByTitle("CheckListItems")
         .items.filter("RequestId eq " + RequestId)
         .select(requestedFields)
         .expand(expandedFields)();
-      return response;
     } catch (e) {
       console.error(
         `Error occurred while trying to fetch CheckListeItems for RequestId ${RequestId}`
@@ -187,7 +186,7 @@ const completeCheckListItem = async (spRequest: ISPCompleteCheckListItem) => {
 
     return Promise.resolve(spRequest);
   } else {
-    await spWebContext.web.lists
+    return spWebContext.web.lists
       .getByTitle("CheckListItems")
       .items.getById(spRequest.Id)
       .update(spRequest);
