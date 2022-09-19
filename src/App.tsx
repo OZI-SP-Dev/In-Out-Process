@@ -4,7 +4,6 @@ import { AppHeader } from "./components/AppHeader/AppHeader";
 import { Route, Routes } from "react-router-dom";
 import { Home } from "./Home";
 import { Item } from "./Item";
-import { CheckListTest } from "./components/CheckList/CheckListTest";
 import { ThemeProvider } from "@fluentui/react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { ErrorProvider } from "./providers/ErrorProvider";
@@ -27,7 +26,6 @@ function App() {
                 <Route path="roles" element={<Roles />} />
                 <Route path="item/:itemNum" element={<Item />} />
                 <Route path="new" element={<InRequestNewForm />} />
-                <Route path="checklist" element={<CheckListTest />} />
               </Routes>
             </ErrorProvider>
           </HashRouter>
