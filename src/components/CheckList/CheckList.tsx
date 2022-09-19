@@ -1,7 +1,4 @@
-import {
-  ICheckListItem,
-  useUpdateCheckListItem,
-} from "../../api/CheckListItemApi";
+import { ICheckListItem, useUpdateCheckListItem } from "api/CheckListItemApi";
 import { IColumn, SelectionMode } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { FunctionComponent } from "react";

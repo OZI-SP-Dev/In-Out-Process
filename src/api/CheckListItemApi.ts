@@ -1,8 +1,8 @@
-import { spWebContext } from "../providers/SPWebContext";
-import { ApiError } from "./InternalErrors";
+import { spWebContext } from "providers/SPWebContext";
+import { ApiError } from "api/InternalErrors";
 import { DateTime } from "luxon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser } from "./UserApi";
+import { useCurrentUser } from "api/UserApi";
 
 export interface ICheckListItem {
   Id: number;
