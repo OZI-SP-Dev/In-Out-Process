@@ -1,13 +1,24 @@
-import { ICheckListItem } from "../../api/CheckListItemApi";
+import {
+  ICheckListItem,
+  useUpdateCheckListItem,
+} from "../../api/CheckListItemApi";
 import { IColumn, SelectionMode } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { FunctionComponent } from "react";
+import { Button } from "@fluentui/react-components";
+import { UseQueryResult } from "@tanstack/react-query";
 
 export interface ICheckList {
-  CheckListItems: ICheckListItem[] | null;
+  CheckListItems: UseQueryResult<ICheckListItem[], unknown>;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
+  const { completeCheckListItem } = useUpdateCheckListItem();
+
+  const completeCheckListItemClick = (itemId: number) => {
+    completeCheckListItem(itemId);
+  };
+
   // Define columns for details list
   const columns: IColumn[] = [
     {
@@ -42,7 +53,20 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
       maxWidth: 200,
       isResizable: true,
       onRender: (item) => {
-        return <>{item.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
+        if (item.CompletedDate) {
+          return <>{item.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
+        } else {
+          return (
+            <>
+              <Button
+                appearance="primary"
+                onClick={() => completeCheckListItemClick(item.Id)}
+              >
+                Complete
+              </Button>
+            </>
+          );
+        }
       },
     },
     {
@@ -61,7 +85,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   return (
     <div>
       <ShimmeredDetailsList
-        items={props.CheckListItems || []}
+        items={props.CheckListItems.data || []}
         columns={columns}
         enableShimmer={!props.CheckListItems}
         selectionMode={SelectionMode.none}

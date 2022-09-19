@@ -1,20 +1,9 @@
 import { CheckList } from "./CheckList";
-import { ICheckListItem } from "../../api/CheckListItemApi";
+import { useChecklistItems } from "../../api/CheckListItemApi";
 import { FunctionComponent } from "react";
 
 export const CheckListTest: FunctionComponent = (props) => {
-  const items: ICheckListItem[] = [
-    {
-      Id: 1,
-      Title: "First Item!",
-      Lead: "Anakin Skywalker",
-    },
-    {
-      Id: 2,
-      Title: "Second Item!",
-      Lead: "Obi-Wan Kenobi",
-    },
-  ];
+  const items = useChecklistItems(1);
 
   return <CheckList CheckListItems={items} />;
 };
