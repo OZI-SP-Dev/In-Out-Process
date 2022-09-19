@@ -100,7 +100,7 @@ const transformCheckListItemsFromSP = (
  * @param RequestId The Id of the Request to retrieve CheckListItems from SharePoint
  * @returns The ICheckListItem for the given Id
  */
-const getItemsById = async (RequestId: number) => {
+const getCheckListItemsByRequestId = async (RequestId: number) => {
   if (process.env.NODE_ENV === "development") {
     await sleep(2000);
     return Promise.resolve(testCheckListItems);
@@ -138,14 +138,14 @@ const getItemsById = async (RequestId: number) => {
 };
 
 /**
- * Gets the checklist items based on the checklist Id.
+ * Gets the checklist items associated with the RequestId
  *
  * @param RequestId The Id of the parent request to retrieve from SharePoint
  */
 export const useChecklistItems = (RequestId: number) => {
   return useQuery({
     queryKey: ["checklist", RequestId],
-    queryFn: () => getItemsById(RequestId),
+    queryFn: () => getCheckListItemsByRequestId(RequestId),
     select: transformCheckListItemsFromSP,
   });
 };
