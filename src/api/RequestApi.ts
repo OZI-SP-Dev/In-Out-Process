@@ -42,7 +42,7 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
       Email: request.supGovLead.EMail,
       text: request.supGovLead.Title,
     },
-  } as IInRequest;
+  };
 };
 
 const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
