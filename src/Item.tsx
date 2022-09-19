@@ -6,7 +6,7 @@ import { InRequest, INFORMVIEWS } from "./components/InRequest/InRequest";
 
 export const Item: FunctionComponent = (props) => {
   const { itemNum } = useParams();
-  const checklisItems = useChecklistItems(Number(itemNum));
+  const { data: checklisItems } = useChecklistItems(Number(itemNum));
 
   return (
     <div>

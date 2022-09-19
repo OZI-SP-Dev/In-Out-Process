@@ -3,10 +3,9 @@ import { IColumn, SelectionMode } from "@fluentui/react";
 import { ShimmeredDetailsList } from "@fluentui/react/lib/ShimmeredDetailsList";
 import { FunctionComponent } from "react";
 import { Button } from "@fluentui/react-components";
-import { UseQueryResult } from "@tanstack/react-query";
 
 export interface ICheckList {
-  CheckListItems: UseQueryResult<ICheckListItem[], unknown>;
+  CheckListItems: ICheckListItem[] | undefined;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
@@ -82,7 +81,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   return (
     <div>
       <ShimmeredDetailsList
-        items={props.CheckListItems.data || []}
+        items={props.CheckListItems || []}
         columns={columns}
         enableShimmer={!props.CheckListItems}
         selectionMode={SelectionMode.none}
