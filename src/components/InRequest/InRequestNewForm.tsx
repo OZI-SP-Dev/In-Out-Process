@@ -77,10 +77,6 @@ export const InRequestNewForm = () => {
     } else return new Date();
   }, [eta]);
 
-  useEffect(() => {
-    resetField("supGovLead", { defaultValue: currentUser });
-  }, [currentUser, resetField]);
-
   const createNewRequest: SubmitHandler<IInRequest> = async (data) => {
     /* Validation has passed, so create the new Request */
     await email.sendInRequestSubmitEmail(data);
@@ -287,6 +283,7 @@ export const InRequestNewForm = () => {
       <Label>Supervisor/Government Lead</Label>
       <Controller
         name="supGovLead"
+        defaultValue={currentUser}
         control={control}
         rules={{
           required: "Supervisor/Gov Lead is required",
