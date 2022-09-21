@@ -1,6 +1,6 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { Info16Filled } from "@fluentui/react-icons";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
@@ -47,7 +47,6 @@ export const InRequestNewForm = () => {
     handleSubmit,
     formState: { errors },
     watch,
-    resetField,
     setValue,
   } = useForm<any>();
 
