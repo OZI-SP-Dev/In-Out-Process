@@ -166,6 +166,26 @@ export const InRequestNewForm = () => {
           {errors.gradeRank.message}
         </Text>
       )}
+      <Label htmlFor="MPCNId">MPCN</Label>
+      <Controller
+        name="MPCN"
+        control={control}
+        rules={{
+          required: "MPCN is required",
+          pattern: {
+            value: /^\d{7}$/i,
+            message: "MPCN must be 7 digits",
+          },
+        }}
+        render={({ field }) => (
+          <Input {...field} aria-describedby="MPCNErr" id="MPCNId" />
+        )}
+      />
+      {errors.MPCN && (
+        <Text id="MPCNErr" className={classes.errorText}>
+          {errors.MPCN.message}
+        </Text>
+      )}
       <Label htmlFor="workLocationId">Local or Remote?</Label>
       <Controller
         name="workLocation"

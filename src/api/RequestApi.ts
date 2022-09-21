@@ -26,6 +26,7 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
       : undefined,
     empType: request.empType,
     gradeRank: request.gradeRank,
+    MPCN: request.MPCN,
     workLocation: request.workLocation,
     isNewCivMil: request.isNewCivMil,
     prevOrg: request.prevOrg,
@@ -67,6 +68,7 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
     employeeId: request.employee?.SPUserId,
     empType: request.empType,
     gradeRank: request.gradeRank,
+    MPCN: request.MPCN,
     workLocation: request.workLocation,
     isNewCivMil: request.isNewCivMil,
     prevOrg: request.prevOrg,
@@ -87,7 +89,7 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+  "Id,empName,empType,gradeRank,MPCN,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -223,6 +225,8 @@ export type IInRequest = {
   empType: EMPTYPES;
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string;
+  /** Required - The Employee's MPCN from the UMD */
+  MPCN: number;
   /** Required - Possible values are 'local' and 'remote'  */
   workLocation: worklocation;
   /** Required - The Employee's Office */
@@ -331,6 +335,7 @@ const testItems: IResponseItem[] = [
     empName: "Doe, John D",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-11",
+    MPCN: 1234567,
     workLocation: "remote",
     office: "OZIC",
     isNewCivMil: true,
@@ -356,6 +361,7 @@ const testItems: IResponseItem[] = [
     empName: "Doe, Jane D",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
+    MPCN: 7654321,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: false,
