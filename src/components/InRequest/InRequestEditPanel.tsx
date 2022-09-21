@@ -11,8 +11,10 @@ import {
   RadioGroup,
   tokens,
   makeStyles,
+  Tooltip,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
+import { Info16Filled } from "@fluentui/react-icons";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -91,6 +93,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       hasExistingCAC: props.data?.hasExistingCAC ? "yes" : "no",
       isNewCivMil: props.data?.isNewCivMil ? "yes" : "no",
       isNewToBaseAndCenter: props.data?.isNewToBaseAndCenter ? "yes" : "no",
+      isTraveler: props.data?.isTraveler ? "yes" : "no",
     };
     //Populate the React-Hook-Form with the transformed data
     reset(transRes);
@@ -104,12 +107,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     const hasExistingCAC = data?.hasExistingCAC ? true : false;
     const isNewCivMil = data?.isNewCivMil ? true : false;
     const isNewToBaseAndCenter = data?.isNewToBaseAndCenter ? true : false;
+    const isTraveler = data?.isTraveler ? true : false;
 
     let dataCopy = {
       ...data,
       hasExistingCAC,
       isNewCivMil,
       isNewToBaseAndCenter,
+      isTraveler,
     };
 
     // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
@@ -120,6 +125,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       dataCopy.isNewCivMil = false;
       dataCopy.prevOrg = "";
       dataCopy.isNewToBaseAndCenter = false;
+      dataCopy.isTraveler = false;
     } else {
       // If it is a new Civ/Mil then ensure prevOrg is set to ""
       if (dataCopy.isNewCivMil === false) {
@@ -253,6 +259,72 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               {errors.gradeRank && (
                 <Text id="gradeRankErr" className={classes.errorText}>
                   {errors.gradeRank.message}
+                </Text>
+              )}
+              <Label htmlFor="MPCNId">
+                MPCN
+                <Tooltip
+                  content="The MPCN is a 7 digit number located on the UMD"
+                  relationship="label"
+                  appearance="inverted"
+                  withArrow={true}
+                  positioning={"after"}
+                >
+                  <span>
+                    <Info16Filled />
+                  </span>
+                </Tooltip>
+              </Label>
+              <Controller
+                name="MPCN"
+                control={control}
+                rules={{
+                  required: "MPCN is required",
+                  pattern: {
+                    value: /^\d{7}$/i,
+                    message: "MPCN must be 7 digits",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input {...field} aria-describedby="MPCNErr" id="MPCNId" />
+                )}
+              />
+              {errors.MPCN && (
+                <Text id="MPCNErr" className={classes.errorText}>
+                  {errors.MPCN.message}
+                </Text>
+              )}
+              <Label htmlFor="SARId">
+                SAR
+                <Tooltip
+                  content="The SAR is a 1 digit number located on the UMD"
+                  relationship="label"
+                  appearance="inverted"
+                  withArrow={true}
+                  positioning={"after"}
+                >
+                  <span>
+                    <Info16Filled />
+                  </span>
+                </Tooltip>
+              </Label>
+              <Controller
+                name="SAR"
+                control={control}
+                rules={{
+                  required: "SAR is required",
+                  pattern: {
+                    value: /^\d$/i,
+                    message: "SAR must be 1 digit",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input {...field} aria-describedby="SARErr" id="SARId" />
+                )}
+              />
+              {errors.SAR && (
+                <Text id="SARErr" className={classes.errorText}>
+                  {errors.SAR.message}
                 </Text>
               )}
               <Label htmlFor="workLocationId">Local or Remote?</Label>
@@ -490,7 +562,36 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                 </>
               )}
-
+              {(empType === EMPTYPES.Civilian ||
+                empType === EMPTYPES.Military) && (
+                <>
+                  <Label htmlFor="isTravelerId">
+                    Will the Employee require travel ability (DTS and GTC)
+                  </Label>
+                  <Controller
+                    name="isTraveler"
+                    control={control}
+                    rules={{
+                      required: "Selection is required",
+                    }}
+                    render={({ field }) => (
+                      <RadioGroup
+                        {...field}
+                        aria-describedby="isTravelerErr"
+                        id="isTravelerId"
+                      >
+                        <Radio key={"yes"} value={"yes"} label="Yes" />
+                        <Radio key={"no"} value={"no"} label="No" />
+                      </RadioGroup>
+                    )}
+                  />
+                  {errors.isTraveler && (
+                    <Text id="isTravelerErr" className={classes.errorText}>
+                      {errors.isTraveler.message}
+                    </Text>
+                  )}
+                </>
+              )}
               {empType === EMPTYPES.Contractor && (
                 <>
                   <Label htmlFor="hasExistingCACId">

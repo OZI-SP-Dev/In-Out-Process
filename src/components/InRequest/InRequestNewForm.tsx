@@ -1,5 +1,6 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { useEffect, useMemo } from "react";
+import { Info16Filled } from "@fluentui/react-icons";
+import { useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
@@ -14,6 +15,7 @@ import {
   Radio,
   RadioGroup,
   tokens,
+  Tooltip,
 } from "@fluentui/react-components";
 //import { UserContext } from "../../providers/UserProvider";
 import { useCurrentUser } from "api/UserApi";
@@ -45,7 +47,6 @@ export const InRequestNewForm = () => {
     handleSubmit,
     formState: { errors },
     watch,
-    resetField,
     setValue,
   } = useForm<any>();
 
@@ -164,6 +165,72 @@ export const InRequestNewForm = () => {
       {errors.gradeRank && (
         <Text id="gradeRankErr" className={classes.errorText}>
           {errors.gradeRank.message}
+        </Text>
+      )}
+      <Label htmlFor="MPCNId">
+        MPCN
+        <Tooltip
+          content="The MPCN is a 7 digit number located on the UMD"
+          relationship="label"
+          appearance="inverted"
+          withArrow={true}
+          positioning={"after"}
+        >
+          <span id="MPCNInfoId">
+            <Info16Filled />
+          </span>
+        </Tooltip>
+      </Label>
+      <Controller
+        name="MPCN"
+        control={control}
+        rules={{
+          required: "MPCN is required",
+          pattern: {
+            value: /^\d{7}$/i,
+            message: "MPCN must be 7 digits",
+          },
+        }}
+        render={({ field }) => (
+          <Input {...field} aria-describedby="MPCNErr" id="MPCNId" />
+        )}
+      />
+      {errors.MPCN && (
+        <Text id="MPCNErr" className={classes.errorText}>
+          {errors.MPCN.message}
+        </Text>
+      )}
+      <Label htmlFor="SARId">
+        SAR
+        <Tooltip
+          content="The SAR is a 1 digit number located on the UMD"
+          relationship="label"
+          appearance="inverted"
+          withArrow={true}
+          positioning={"after"}
+        >
+          <span>
+            <Info16Filled />
+          </span>
+        </Tooltip>
+      </Label>
+      <Controller
+        name="SAR"
+        control={control}
+        rules={{
+          required: "SAR is required",
+          pattern: {
+            value: /^\d$/i,
+            message: "SAR must be 1 digit",
+          },
+        }}
+        render={({ field }) => (
+          <Input {...field} aria-describedby="SARErr" id="SARId" />
+        )}
+      />
+      {errors.SAR && (
+        <Text id="SARErr" className={classes.errorText}>
+          {errors.SAR.message}
         </Text>
       )}
       <Label htmlFor="workLocationId">Local or Remote?</Label>
@@ -391,7 +458,35 @@ export const InRequestNewForm = () => {
           )}
         </>
       )}
-
+      {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
+        <>
+          <Label htmlFor="isTravelerId">
+            Will the Employee require travel ability (DTS and GTC)
+          </Label>
+          <Controller
+            name="isTraveler"
+            control={control}
+            rules={{
+              required: "Selection is required",
+            }}
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                aria-describedby="isTravelerErr"
+                id="isTravelerId"
+              >
+                <Radio key={"yes"} value={"yes"} label="Yes" />
+                <Radio key={"no"} value={"no"} label="No" />
+              </RadioGroup>
+            )}
+          />
+          {errors.isTraveler && (
+            <Text id="isTravelerErr" className={classes.errorText}>
+              {errors.isTraveler.message}
+            </Text>
+          )}
+        </>
+      )}
       {empType === EMPTYPES.Contractor && (
         <>
           <Label htmlFor="hasExistingCACId">

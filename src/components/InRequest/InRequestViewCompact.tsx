@@ -95,6 +95,20 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </Text>
         </div>
         <div>
+          <Label weight="semibold" htmlFor="MPCNCVId">
+            MPCN
+          </Label>
+          <br />
+          <Text id="MPCNCVId">{formData.MPCN}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="SARCVId">
+            SAR
+          </Label>
+          <br />
+          <Text id="SARCVId">{formData.SAR}</Text>
+        </div>
+        <div>
           <Label weight="semibold" htmlFor="arrivalDateCVId">
             Estimated on-boarding date
           </Label>
@@ -144,6 +158,18 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             <br />
             <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
               {formData.isNewToBaseAndCenter ? "Yes" : "No"}
+            </Text>
+          </div>
+        )}
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="isTravelerCVId">
+              Requires Travel Ability?
+            </Label>
+            <br />
+            <Text id="isTravelerCVId">
+              {formData.isTraveler ? "Yes" : "No"}
             </Text>
           </div>
         )}
