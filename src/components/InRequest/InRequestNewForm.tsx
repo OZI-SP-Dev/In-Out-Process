@@ -1,4 +1,5 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
+import { Info16Filled } from "@fluentui/react-icons";
 import { useEffect, useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
@@ -14,6 +15,7 @@ import {
   Radio,
   RadioGroup,
   tokens,
+  Tooltip,
 } from "@fluentui/react-components";
 //import { UserContext } from "../../providers/UserProvider";
 import { useCurrentUser } from "api/UserApi";
@@ -166,7 +168,20 @@ export const InRequestNewForm = () => {
           {errors.gradeRank.message}
         </Text>
       )}
-      <Label htmlFor="MPCNId">MPCN</Label>
+      <Label htmlFor="MPCNId">
+        MPCN
+        <Tooltip
+          content="The MPCN is a 7 digit number located on the UMD"
+          relationship="label"
+          appearance="inverted"
+          withArrow={true}
+          positioning={"after"}
+        >
+          <span id="MPCNInfoId">
+            <Info16Filled />
+          </span>
+        </Tooltip>
+      </Label>
       <Controller
         name="MPCN"
         control={control}
@@ -186,7 +201,20 @@ export const InRequestNewForm = () => {
           {errors.MPCN.message}
         </Text>
       )}
-      <Label htmlFor="SARId">SAR</Label>
+      <Label htmlFor="SARId">
+        SAR
+        <Tooltip
+          content="The SAR is a 1 digit number located on the UMD"
+          relationship="label"
+          appearance="inverted"
+          withArrow={true}
+          positioning={"after"}
+        >
+          <span>
+            <Info16Filled />
+          </span>
+        </Tooltip>
+      </Label>
       <Controller
         name="SAR"
         control={control}

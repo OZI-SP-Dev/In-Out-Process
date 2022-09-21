@@ -11,8 +11,10 @@ import {
   RadioGroup,
   tokens,
   makeStyles,
+  Tooltip,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
+import { Info16Filled } from "@fluentui/react-icons";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -255,7 +257,20 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.gradeRank.message}
                 </Text>
               )}
-              <Label htmlFor="MPCNId">MPCN</Label>
+              <Label htmlFor="MPCNId">
+                MPCN
+                <Tooltip
+                  content="The MPCN is a 7 digit number located on the UMD"
+                  relationship="label"
+                  appearance="inverted"
+                  withArrow={true}
+                  positioning={"after"}
+                >
+                  <span>
+                    <Info16Filled />
+                  </span>
+                </Tooltip>
+              </Label>
               <Controller
                 name="MPCN"
                 control={control}
@@ -275,7 +290,20 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.MPCN.message}
                 </Text>
               )}
-              <Label htmlFor="SARId">SAR</Label>
+              <Label htmlFor="SARId">
+                SAR
+                <Tooltip
+                  content="The SAR is a 1 digit number located on the UMD"
+                  relationship="label"
+                  appearance="inverted"
+                  withArrow={true}
+                  positioning={"after"}
+                >
+                  <span>
+                    <Info16Filled />
+                  </span>
+                </Tooltip>
+              </Label>
               <Controller
                 name="SAR"
                 control={control}
