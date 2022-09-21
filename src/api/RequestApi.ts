@@ -16,7 +16,7 @@ declare var _spPageContextInfo: any;
 const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
   return {
     Id: request.Id,
-    empName: request.empName,
+    empName: request.employee?.Title ? request.employee.Title : request.empName,
     employee: request.employee
       ? {
           SPUserId: request.employee.Id,
@@ -66,7 +66,7 @@ const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
 const transformInRequestToSP = (request: IInRequest): IRequestItem => {
   const transformedRequest: IRequestItem = {
     Id: request.Id,
-    empName: request.empName,
+    empName: request.employee?.text ? request.employee?.text : request.empName,
     employeeId: request.employee?.SPUserId,
     empType: request.empType,
     gradeRank: request.gradeRank,
@@ -393,6 +393,30 @@ const testItems: IResponseItem[] = [
       Title: "Default User 2",
       EMail: "defaultTEST2@us.af.mil",
     },
+  },
+  {
+    Id: 3,
+    empName: "Doe, Jack E",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-12",
+    MPCN: 1233217,
+    SAR: 6,
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: true,
+    isTraveler: true,
+    prevOrg: "",
+    isNewToBaseAndCenter: true,
+    hasExistingCAC: false,
+    CACExpiration: "",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: {
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: undefined,
   },
 ];
 
