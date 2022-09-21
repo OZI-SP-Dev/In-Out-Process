@@ -459,7 +459,35 @@ export const InRequestNewForm = () => {
           )}
         </>
       )}
-
+      {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
+        <>
+          <Label htmlFor="isTravelerId">
+            Will the Employee require travel ability (DTS and GTC)
+          </Label>
+          <Controller
+            name="isTraveler"
+            control={control}
+            rules={{
+              required: "Selection is required",
+            }}
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                aria-describedby="isTravelerErr"
+                id="isTravelerId"
+              >
+                <Radio key={"yes"} value={"yes"} label="Yes" />
+                <Radio key={"no"} value={"no"} label="No" />
+              </RadioGroup>
+            )}
+          />
+          {errors.isTraveler && (
+            <Text id="isTravelerErr" className={classes.errorText}>
+              {errors.isTraveler.message}
+            </Text>
+          )}
+        </>
+      )}
       {empType === EMPTYPES.Contractor && (
         <>
           <Label htmlFor="hasExistingCACId">

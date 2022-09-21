@@ -30,6 +30,7 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
     SAR: request.SAR,
     workLocation: request.workLocation,
     isNewCivMil: request.isNewCivMil,
+    isTraveler: request.isTraveler,
     prevOrg: request.prevOrg,
     eta: new Date(request.eta),
     office: request.office,
@@ -73,6 +74,7 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
     SAR: request.SAR,
     workLocation: request.workLocation,
     isNewCivMil: request.isNewCivMil,
+    isTraveler: request.isTraveler,
     prevOrg: request.prevOrg,
     eta: request.eta.toISOString(),
     office: request.office,
@@ -91,7 +93,7 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,workLocation,isNewCivMil,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+  "Id,empName,empType,gradeRank,MPCN,SAR,workLocation,isNewCivMil,isTraveler,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -237,6 +239,8 @@ export type IInRequest = {
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
   isNewCivMil: boolean;
+  /** Required - Can only be 'true' if it is a Civ/Mil.  Must be 'false' if it is not a 'civ' or 'mil' */
+  isTraveler: boolean;
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
@@ -344,6 +348,7 @@ const testItems: IResponseItem[] = [
     workLocation: "remote",
     office: "OZIC",
     isNewCivMil: true,
+    isTraveler: true,
     prevOrg: "",
     isNewToBaseAndCenter: true,
     hasExistingCAC: false,
@@ -371,6 +376,7 @@ const testItems: IResponseItem[] = [
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: false,
+    isTraveler: false,
     prevOrg: "AFLCMC/WA",
     isNewToBaseAndCenter: false,
     hasExistingCAC: false,

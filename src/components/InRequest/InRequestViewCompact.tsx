@@ -161,6 +161,18 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Text>
           </div>
         )}
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="isTravelerCVId">
+              Requires Travel Ability?
+            </Label>
+            <br />
+            <Text id="isTravelerCVId">
+              {formData.isTraveler ? "Yes" : "No"}
+            </Text>
+          </div>
+        )}
       </div>
     </>
   );

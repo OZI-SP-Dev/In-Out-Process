@@ -93,6 +93,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       hasExistingCAC: props.data?.hasExistingCAC ? "yes" : "no",
       isNewCivMil: props.data?.isNewCivMil ? "yes" : "no",
       isNewToBaseAndCenter: props.data?.isNewToBaseAndCenter ? "yes" : "no",
+      isTraveler: props.data?.isTraveler ? "yes" : "no",
     };
     //Populate the React-Hook-Form with the transformed data
     reset(transRes);
@@ -106,12 +107,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     const hasExistingCAC = data?.hasExistingCAC ? true : false;
     const isNewCivMil = data?.isNewCivMil ? true : false;
     const isNewToBaseAndCenter = data?.isNewToBaseAndCenter ? true : false;
+    const isTraveler = data?.isTraveler ? true : false;
 
     let dataCopy = {
       ...data,
       hasExistingCAC,
       isNewCivMil,
       isNewToBaseAndCenter,
+      isTraveler,
     };
 
     // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
@@ -122,6 +125,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       dataCopy.isNewCivMil = false;
       dataCopy.prevOrg = "";
       dataCopy.isNewToBaseAndCenter = false;
+      dataCopy.isTraveler = false;
     } else {
       // If it is a new Civ/Mil then ensure prevOrg is set to ""
       if (dataCopy.isNewCivMil === false) {
@@ -558,7 +562,36 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                 </>
               )}
-
+              {(empType === EMPTYPES.Civilian ||
+                empType === EMPTYPES.Military) && (
+                <>
+                  <Label htmlFor="isTravelerId">
+                    Will the Employee require travel ability (DTS and GTC)
+                  </Label>
+                  <Controller
+                    name="isTraveler"
+                    control={control}
+                    rules={{
+                      required: "Selection is required",
+                    }}
+                    render={({ field }) => (
+                      <RadioGroup
+                        {...field}
+                        aria-describedby="isTravelerErr"
+                        id="isTravelerId"
+                      >
+                        <Radio key={"yes"} value={"yes"} label="Yes" />
+                        <Radio key={"no"} value={"no"} label="No" />
+                      </RadioGroup>
+                    )}
+                  />
+                  {errors.isTraveler && (
+                    <Text id="isTravelerErr" className={classes.errorText}>
+                      {errors.isTraveler.message}
+                    </Text>
+                  )}
+                </>
+              )}
               {empType === EMPTYPES.Contractor && (
                 <>
                   <Label htmlFor="hasExistingCACId">
