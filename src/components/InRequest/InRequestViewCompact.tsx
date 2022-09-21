@@ -102,6 +102,13 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           <Text id="MPCNCVId">{formData.MPCN}</Text>
         </div>
         <div>
+          <Label weight="semibold" htmlFor="SARCVId">
+            SAR
+          </Label>
+          <br />
+          <Text id="SARCVId">{formData.SAR}</Text>
+        </div>
+        <div>
           <Label weight="semibold" htmlFor="arrivalDateCVId">
             Estimated on-boarding date
           </Label>

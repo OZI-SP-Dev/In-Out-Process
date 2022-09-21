@@ -275,6 +275,26 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.MPCN.message}
                 </Text>
               )}
+              <Label htmlFor="SARId">SAR</Label>
+              <Controller
+                name="SAR"
+                control={control}
+                rules={{
+                  required: "SAR is required",
+                  pattern: {
+                    value: /^\d$/i,
+                    message: "SAR must be 1 digit",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input {...field} aria-describedby="SARErr" id="SARId" />
+                )}
+              />
+              {errors.SAR && (
+                <Text id="SARErr" className={classes.errorText}>
+                  {errors.SAR.message}
+                </Text>
+              )}
               <Label htmlFor="workLocationId">Local or Remote?</Label>
               <Controller
                 name="workLocation"
