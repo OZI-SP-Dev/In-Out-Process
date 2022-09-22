@@ -11,11 +11,9 @@ import {
   RadioGroup,
   tokens,
   makeStyles,
-  Tooltip,
   Checkbox,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { Info16Filled } from "@fluentui/react-icons";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -314,17 +312,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Label htmlFor="MPCNId" size="small" weight="semibold" required>
                 <NumberFieldIcon />
                 MPCN
-                <Tooltip
-                  content="The MPCN is a 7 digit number located on the UMD"
-                  relationship="label"
-                  appearance="inverted"
-                  withArrow={true}
-                  positioning={"after"}
-                >
-                  <span>
-                    <Info16Filled />
-                  </span>
-                </Tooltip>
               </Label>
               <Controller
                 name="MPCN"
@@ -345,20 +332,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.MPCN.message}
                 </Text>
               )}
+              <Text weight="regular" size={200}>
+                The MPCN is a 7 digit number located on the UMD
+              </Text>
               <Label htmlFor="SARId" size="small" weight="semibold" required>
                 <NumberFieldIcon />
                 SAR
-                <Tooltip
-                  content="The SAR is a 1 digit number located on the UMD"
-                  relationship="label"
-                  appearance="inverted"
-                  withArrow={true}
-                  positioning={"after"}
-                >
-                  <span>
-                    <Info16Filled />
-                  </span>
-                </Tooltip>
               </Label>
               <Controller
                 name="SAR"
@@ -379,6 +358,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.SAR.message}
                 </Text>
               )}
+              <Text weight="regular" size={200}>
+                The SAR is a 1 digit number located on the UMD
+              </Text>
               <Label
                 htmlFor="workLocationId"
                 size="small"

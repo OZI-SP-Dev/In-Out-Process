@@ -1,5 +1,4 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { Info16Filled } from "@fluentui/react-icons";
 import { useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
@@ -15,7 +14,6 @@ import {
   Radio,
   RadioGroup,
   tokens,
-  Tooltip,
   Checkbox,
 } from "@fluentui/react-components";
 import { useCurrentUser } from "api/UserApi";
@@ -260,17 +258,6 @@ export const InRequestNewForm = () => {
       <Label htmlFor="MPCNId" size="small" weight="semibold" required>
         <NumberFieldIcon />
         MPCN
-        <Tooltip
-          content="The MPCN is a 7 digit number located on the UMD"
-          relationship="label"
-          appearance="inverted"
-          withArrow={true}
-          positioning={"after"}
-        >
-          <span id="MPCNInfoId">
-            <Info16Filled />
-          </span>
-        </Tooltip>
       </Label>
       <Controller
         name="MPCN"
@@ -291,20 +278,12 @@ export const InRequestNewForm = () => {
           {errors.MPCN.message}
         </Text>
       )}
+      <Text weight="regular" size={200}>
+        The MPCN is a 7 digit number located on the UMD
+      </Text>
       <Label htmlFor="SARId" size="small" weight="semibold" required>
         <NumberFieldIcon />
         SAR
-        <Tooltip
-          content="The SAR is a 1 digit number located on the UMD"
-          relationship="label"
-          appearance="inverted"
-          withArrow={true}
-          positioning={"after"}
-        >
-          <span>
-            <Info16Filled />
-          </span>
-        </Tooltip>
       </Label>
       <Controller
         name="SAR"
@@ -325,6 +304,9 @@ export const InRequestNewForm = () => {
           {errors.SAR.message}
         </Text>
       )}
+      <Text weight="regular" size={200}>
+        The SAR is a 1 digit number located on the UMD
+      </Text>
       <Label htmlFor="workLocationId" size="small" weight="semibold" required>
         <ToggleLeftRegular />
         Local or Remote?
