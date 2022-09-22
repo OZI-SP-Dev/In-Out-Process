@@ -44,6 +44,9 @@ const useStyles = makeStyles({
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
   },
+  fieldIcon: {
+    marginRight: "8px",
+  },
 });
 
 interface IInRequestEditPanel {
@@ -148,7 +151,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <ContactIcon />
+                <ContactIcon className={classes.fieldIcon} />
                 Employee Name
               </Label>
               {!isEmpNotInGAL && (
@@ -226,7 +229,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <RadioButtonFilled />
+                <RadioButtonFilled className={classes.fieldIcon} />
                 Employee Type
               </Label>
               <Controller
@@ -274,7 +277,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <DropdownIcon />
+                <DropdownIcon className={classes.fieldIcon} />
                 Grade/Rank
               </Label>
               <Controller
@@ -310,7 +313,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="MPCNId" size="small" weight="semibold" required>
-                <NumberFieldIcon />
+                <NumberFieldIcon className={classes.fieldIcon} />
                 MPCN
               </Label>
               <Controller
@@ -336,7 +339,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 The MPCN is a 7 digit number located on the UMD
               </Text>
               <Label htmlFor="SARId" size="small" weight="semibold" required>
-                <NumberFieldIcon />
+                <NumberFieldIcon className={classes.fieldIcon} />
                 SAR
               </Label>
               <Controller
@@ -367,7 +370,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <ToggleLeftRegular />
+                <ToggleLeftRegular className={classes.fieldIcon} />
                 Local or Remote?
               </Label>
               <Controller
@@ -406,7 +409,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <CalendarIcon />
+                <CalendarIcon className={classes.fieldIcon} />
                 Select estimated on-boarding date
               </Label>
               <Controller
@@ -446,7 +449,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 weight="semibold"
                 required
               >
-                <CalendarIcon />
+                <CalendarIcon className={classes.fieldIcon} />
                 Select target completion date
               </Label>
               <Controller
@@ -473,7 +476,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="officeId" size="small" weight="semibold" required>
-                <DropdownIcon />
+                <DropdownIcon className={classes.fieldIcon} />
                 Office
               </Label>
               <Controller
@@ -505,7 +508,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label size="small" weight="semibold" required>
-                <ContactIcon />
+                <ContactIcon className={classes.fieldIcon} />
                 Supervisor/Government Lead
               </Label>
               <Controller
@@ -543,7 +546,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     weight="semibold"
                     required
                   >
-                    <ToggleLeftRegular />
+                    <ToggleLeftRegular className={classes.fieldIcon} />
                     Is Employee a New Air Force{" "}
                     {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
                   </Label>
@@ -584,7 +587,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         weight="semibold"
                         required
                       >
-                        <TextFieldIcon />
+                        <TextFieldIcon className={classes.fieldIcon} />
                         Previous Organization
                       </Label>
                       <Controller
@@ -619,7 +622,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     weight="semibold"
                     required
                   >
-                    <ToggleLeftRegular />
+                    <ToggleLeftRegular className={classes.fieldIcon} />
                     Is Employee new to WPAFB and AFLCMC?
                   </Label>
                   <Controller
@@ -658,7 +661,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     weight="semibold"
                     required
                   >
-                    <ToggleLeftRegular />
+                    <ToggleLeftRegular className={classes.fieldIcon} />
                     Will the Employee require travel ability (DTS and GTC)
                   </Label>
                   <Controller
@@ -693,7 +696,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     weight="semibold"
                     required
                   >
-                    <ToggleLeftRegular />
+                    <ToggleLeftRegular className={classes.fieldIcon} />
                     Does the Support Contractor have an Existing CAC?
                   </Label>
                   <Controller
@@ -733,7 +736,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         weight="semibold"
                         required
                       >
-                        <CalendarIcon />
+                        <CalendarIcon className={classes.fieldIcon} />
                         CAC Expiration
                       </Label>
                       <Controller
