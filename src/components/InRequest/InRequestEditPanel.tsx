@@ -27,6 +27,14 @@ import {
 } from "constants/GradeRanks";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { IInRequest, useUpdateRequest } from "api/RequestApi";
+import {
+  TextFieldIcon,
+  NumberFieldIcon,
+  CalendarIcon,
+  DropdownIcon,
+  ContactIcon,
+} from "@fluentui/react-icons-mdl2";
+import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -137,6 +145,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               onSubmit={handleSubmit(updateThisRequest)}
             >
               <Label htmlFor="empNameId" weight="semibold" required>
+                <ContactIcon />
                 Employee Name
               </Label>
               {!isEmpNotInGAL && (
@@ -209,6 +218,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </>
               )}
               <Label htmlFor="empTypeId" weight="semibold" required>
+                <RadioButtonFilled />
                 Employee Type
               </Label>
               <Controller
@@ -251,6 +261,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="gradeRankId" weight="semibold" required>
+                <DropdownIcon />
                 Grade/Rank
               </Label>
               <Controller
@@ -286,6 +297,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="MPCNId" weight="semibold" required>
+                <NumberFieldIcon />
                 MPCN
                 <Tooltip
                   content="The MPCN is a 7 digit number located on the UMD"
@@ -319,6 +331,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="SARId" weight="semibold" required>
+                <NumberFieldIcon />
                 SAR
                 <Tooltip
                   content="The SAR is a 1 digit number located on the UMD"
@@ -352,6 +365,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="workLocationId" weight="semibold" required>
+                <ToggleLeftRegular />
                 Local or Remote?
               </Label>
               <Controller
@@ -385,6 +399,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="arrivalDateId" weight="semibold" required>
+                <CalendarIcon />
                 Select estimated on-boarding date
               </Label>
               <Controller
@@ -419,6 +434,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="completionDateId" weight="semibold" required>
+                <CalendarIcon />
                 Select target completion date
               </Label>
               <Controller
@@ -445,6 +461,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label htmlFor="officeId" weight="semibold" required>
+                <DropdownIcon />
                 Office
               </Label>
               <Controller
@@ -476,6 +493,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
               <Label weight="semibold" required>
+                <ContactIcon />
                 Supervisor/Government Lead
               </Label>
               <Controller
@@ -508,6 +526,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 empType === EMPTYPES.Military) && (
                 <>
                   <Label htmlFor="newCivId" weight="semibold" required>
+                    <ToggleLeftRegular />
                     Is Employee a New Air Force{" "}
                     {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
                   </Label>
@@ -543,6 +562,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {isNewCivMil === "no" && (
                     <>
                       <Label htmlFor="prevOrgId" weight="semibold" required>
+                        <TextFieldIcon />
                         Previous Organization
                       </Label>
                       <Controller
@@ -576,6 +596,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     weight="semibold"
                     required
                   >
+                    <ToggleLeftRegular />
                     Is Employee new to WPAFB and AFLCMC?
                   </Label>
                   <Controller
@@ -609,6 +630,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 empType === EMPTYPES.Military) && (
                 <>
                   <Label htmlFor="isTravelerId" weight="semibold" required>
+                    <ToggleLeftRegular />
                     Will the Employee require travel ability (DTS and GTC)
                   </Label>
                   <Controller
@@ -638,6 +660,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               {empType === EMPTYPES.Contractor && (
                 <>
                   <Label htmlFor="hasExistingCACId" weight="semibold" required>
+                    <ToggleLeftRegular />
                     Does the Support Contractor have an Existing CAC?
                   </Label>
                   <Controller
@@ -676,6 +699,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         weight="semibold"
                         required
                       >
+                        <CalendarIcon />
                         CAC Expiration
                       </Label>
                       <Controller

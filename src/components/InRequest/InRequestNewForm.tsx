@@ -24,6 +24,14 @@ import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
 import { useEmail } from "hooks/useEmail";
 import { useNavigate } from "react-router-dom";
+import {
+  TextFieldIcon,
+  NumberFieldIcon,
+  CalendarIcon,
+  DropdownIcon,
+  ContactIcon,
+} from "@fluentui/react-icons-mdl2";
+import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -104,6 +112,7 @@ export const InRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <Label htmlFor="empNameId" weight="semibold" required>
+        <ContactIcon />
         Employee Name
       </Label>
       {!isEmpNotInGAL && (
@@ -172,6 +181,7 @@ export const InRequestNewForm = () => {
         </>
       )}
       <Label htmlFor="empTypeId" weight="semibold" required>
+        <RadioButtonFilled />
         Employee Type
       </Label>
       <Controller
@@ -214,6 +224,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="gradeRankId" weight="semibold" required>
+        <DropdownIcon />
         Grade/Rank
       </Label>
       <Controller
@@ -247,6 +258,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="MPCNId" weight="semibold" required>
+        <NumberFieldIcon />
         MPCN
         <Tooltip
           content="The MPCN is a 7 digit number located on the UMD"
@@ -280,6 +292,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="SARId" weight="semibold" required>
+        <NumberFieldIcon />
         SAR
         <Tooltip
           content="The SAR is a 1 digit number located on the UMD"
@@ -313,6 +326,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="workLocationId" weight="semibold" required>
+        <ToggleLeftRegular />
         Local or Remote?
       </Label>
       <Controller
@@ -346,6 +360,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="arrivalDateId" weight="semibold" required>
+        <CalendarIcon />
         Select estimated on-boarding date
       </Label>
       <Controller
@@ -378,6 +393,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="completionDateId" weight="semibold" required>
+        <CalendarIcon />
         Select target completion date
       </Label>
       <Controller
@@ -404,6 +420,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label htmlFor="officeId" weight="semibold" required>
+        <DropdownIcon />
         Office
       </Label>
       <Controller
@@ -435,6 +452,7 @@ export const InRequestNewForm = () => {
         </Text>
       )}
       <Label weight="semibold" required>
+        <ContactIcon />
         Supervisor/Government Lead
       </Label>
       <Controller
@@ -467,6 +485,7 @@ export const InRequestNewForm = () => {
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
           <Label htmlFor="newCivId" weight="semibold" required>
+            <ToggleLeftRegular />
             Is Employee a New Air Force{" "}
             {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
           </Label>
@@ -502,6 +521,7 @@ export const InRequestNewForm = () => {
           {isNewCivMil === "no" && (
             <>
               <Label htmlFor="prevOrgId" weight="semibold" required>
+                <TextFieldIcon />
                 Previous Organization
               </Label>
               <Controller
@@ -530,6 +550,7 @@ export const InRequestNewForm = () => {
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
           <Label htmlFor="newToBaseAndCenterId" weight="semibold" required>
+            <ToggleLeftRegular />
             Is Employee new to WPAFB and AFLCMC?
           </Label>
           <Controller
@@ -559,6 +580,7 @@ export const InRequestNewForm = () => {
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
           <Label htmlFor="isTravelerId" weight="semibold" required>
+            <ToggleLeftRegular />
             Will the Employee require travel ability (DTS and GTC)
           </Label>
           <Controller
@@ -588,6 +610,7 @@ export const InRequestNewForm = () => {
       {empType === EMPTYPES.Contractor && (
         <>
           <Label htmlFor="hasExistingCACId" weight="semibold" required>
+            <ToggleLeftRegular />
             Does the Support Contractor have an Existing CAC?
           </Label>
           <Controller
@@ -622,6 +645,7 @@ export const InRequestNewForm = () => {
           {hasExistingCAC === "yes" && (
             <>
               <Label htmlFor="CACExpirationId" weight="semibold" required>
+                <CalendarIcon />
                 CAC Expiration
               </Label>
               <Controller

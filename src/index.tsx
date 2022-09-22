@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { initializeIcons } from "@fluentui/react/lib/Icons";
+import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Initialize from a location we have access to, default location is blocked so using alternate
