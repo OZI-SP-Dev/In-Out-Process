@@ -111,7 +111,7 @@ export const InRequestNewForm = () => {
       className={classes.formContainer}
       onSubmit={handleSubmit(createNewRequest)}
     >
-      <Label htmlFor="empNameId" weight="semibold" required>
+      <Label htmlFor="empNameId" size="small" weight="semibold" required>
         <ContactIcon />
         Employee Name
       </Label>
@@ -180,7 +180,7 @@ export const InRequestNewForm = () => {
           )}
         </>
       )}
-      <Label htmlFor="empTypeId" weight="semibold" required>
+      <Label htmlFor="empTypeId" size="small" weight="semibold" required>
         <RadioButtonFilled />
         Employee Type
       </Label>
@@ -223,7 +223,7 @@ export const InRequestNewForm = () => {
           {errors.empType.message}
         </Text>
       )}
-      <Label htmlFor="gradeRankId" weight="semibold" required>
+      <Label htmlFor="gradeRankId" size="small" weight="semibold" required>
         <DropdownIcon />
         Grade/Rank
       </Label>
@@ -257,7 +257,7 @@ export const InRequestNewForm = () => {
           {errors.gradeRank.message}
         </Text>
       )}
-      <Label htmlFor="MPCNId" weight="semibold" required>
+      <Label htmlFor="MPCNId" size="small" weight="semibold" required>
         <NumberFieldIcon />
         MPCN
         <Tooltip
@@ -291,7 +291,7 @@ export const InRequestNewForm = () => {
           {errors.MPCN.message}
         </Text>
       )}
-      <Label htmlFor="SARId" weight="semibold" required>
+      <Label htmlFor="SARId" size="small" weight="semibold" required>
         <NumberFieldIcon />
         SAR
         <Tooltip
@@ -325,7 +325,7 @@ export const InRequestNewForm = () => {
           {errors.SAR.message}
         </Text>
       )}
-      <Label htmlFor="workLocationId" weight="semibold" required>
+      <Label htmlFor="workLocationId" size="small" weight="semibold" required>
         <ToggleLeftRegular />
         Local or Remote?
       </Label>
@@ -359,7 +359,7 @@ export const InRequestNewForm = () => {
           {errors.workLocation.message}
         </Text>
       )}
-      <Label htmlFor="arrivalDateId" weight="semibold" required>
+      <Label htmlFor="arrivalDateId" size="small" weight="semibold" required>
         <CalendarIcon />
         Select estimated on-boarding date
       </Label>
@@ -392,7 +392,7 @@ export const InRequestNewForm = () => {
           {errors.eta.message}
         </Text>
       )}
-      <Label htmlFor="completionDateId" weight="semibold" required>
+      <Label htmlFor="completionDateId" size="small" weight="semibold" required>
         <CalendarIcon />
         Select target completion date
       </Label>
@@ -419,7 +419,7 @@ export const InRequestNewForm = () => {
           {errors.completionDate.message}
         </Text>
       )}
-      <Label htmlFor="officeId" weight="semibold" required>
+      <Label htmlFor="officeId" size="small" weight="semibold" required>
         <DropdownIcon />
         Office
       </Label>
@@ -451,7 +451,7 @@ export const InRequestNewForm = () => {
           {errors.office.message}
         </Text>
       )}
-      <Label weight="semibold" required>
+      <Label size="small" weight="semibold" required>
         <ContactIcon />
         Supervisor/Government Lead
       </Label>
@@ -484,7 +484,7 @@ export const InRequestNewForm = () => {
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
-          <Label htmlFor="newCivId" weight="semibold" required>
+          <Label htmlFor="newCivId" size="small" weight="semibold" required>
             <ToggleLeftRegular />
             Is Employee a New Air Force{" "}
             {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
@@ -520,7 +520,12 @@ export const InRequestNewForm = () => {
           )}
           {isNewCivMil === "no" && (
             <>
-              <Label htmlFor="prevOrgId" weight="semibold" required>
+              <Label
+                htmlFor="prevOrgId"
+                size="small"
+                weight="semibold"
+                required
+              >
                 <TextFieldIcon />
                 Previous Organization
               </Label>
@@ -549,7 +554,12 @@ export const InRequestNewForm = () => {
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
-          <Label htmlFor="newToBaseAndCenterId" weight="semibold" required>
+          <Label
+            htmlFor="newToBaseAndCenterId"
+            size="small"
+            weight="semibold"
+            required
+          >
             <ToggleLeftRegular />
             Is Employee new to WPAFB and AFLCMC?
           </Label>
@@ -579,7 +589,7 @@ export const InRequestNewForm = () => {
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
-          <Label htmlFor="isTravelerId" weight="semibold" required>
+          <Label htmlFor="isTravelerId" size="small" weight="semibold" required>
             <ToggleLeftRegular />
             Will the Employee require travel ability (DTS and GTC)
           </Label>
@@ -609,7 +619,12 @@ export const InRequestNewForm = () => {
       )}
       {empType === EMPTYPES.Contractor && (
         <>
-          <Label htmlFor="hasExistingCACId" weight="semibold" required>
+          <Label
+            htmlFor="hasExistingCACId"
+            size="small"
+            weight="semibold"
+            required
+          >
             <ToggleLeftRegular />
             Does the Support Contractor have an Existing CAC?
           </Label>
@@ -644,7 +659,12 @@ export const InRequestNewForm = () => {
           )}
           {hasExistingCAC === "yes" && (
             <>
-              <Label htmlFor="CACExpirationId" weight="semibold" required>
+              <Label
+                htmlFor="CACExpirationId"
+                size="small"
+                weight="semibold"
+                required
+              >
                 <CalendarIcon />
                 CAC Expiration
               </Label>
