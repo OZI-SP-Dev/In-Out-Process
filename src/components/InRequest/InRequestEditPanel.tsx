@@ -136,7 +136,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               className={classes.formContainer}
               onSubmit={handleSubmit(updateThisRequest)}
             >
-              <Label htmlFor="empNameId">Employee Name</Label>
+              <Label htmlFor="empNameId" required>
+                Employee Name
+              </Label>
               {!isEmpNotInGAL && (
                 <>
                   <Controller
@@ -206,7 +208,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                 </>
               )}
-              <Label htmlFor="empTypeId">Employee Type</Label>
+              <Label htmlFor="empTypeId" required>
+                Employee Type
+              </Label>
               <Controller
                 name="empType"
                 control={control}
@@ -246,7 +250,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.empType.message}
                 </Text>
               )}
-              <Label htmlFor="gradeRankId">Grade/Rank</Label>
+              <Label htmlFor="gradeRankId" required>
+                Grade/Rank
+              </Label>
               <Controller
                 name="gradeRank"
                 control={control}
@@ -279,7 +285,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.gradeRank.message}
                 </Text>
               )}
-              <Label htmlFor="MPCNId">
+              <Label htmlFor="MPCNId" required>
                 MPCN
                 <Tooltip
                   content="The MPCN is a 7 digit number located on the UMD"
@@ -312,7 +318,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.MPCN.message}
                 </Text>
               )}
-              <Label htmlFor="SARId">
+              <Label htmlFor="SARId" required>
                 SAR
                 <Tooltip
                   content="The SAR is a 1 digit number located on the UMD"
@@ -345,7 +351,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.SAR.message}
                 </Text>
               )}
-              <Label htmlFor="workLocationId">Local or Remote?</Label>
+              <Label htmlFor="workLocationId" required>
+                Local or Remote?
+              </Label>
               <Controller
                 name="workLocation"
                 control={control}
@@ -376,7 +384,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.workLocation.message}
                 </Text>
               )}
-              <Label htmlFor="arrivalDateId">
+              <Label htmlFor="arrivalDateId" required>
                 Select estimated on-boarding date
               </Label>
               <Controller
@@ -410,7 +418,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.eta.message}
                 </Text>
               )}
-              <Label htmlFor="completionDateId">
+              <Label htmlFor="completionDateId" required>
                 Select target completion date
               </Label>
               <Controller
@@ -436,7 +444,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.completionDate.message}
                 </Text>
               )}
-              <Label htmlFor="officeId">Office</Label>
+              <Label htmlFor="officeId" required>
+                Office
+              </Label>
               <Controller
                 name="office"
                 control={control}
@@ -465,7 +475,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.office.message}
                 </Text>
               )}
-              <Label>Supervisor/Government Lead</Label>
+              <Label required>Supervisor/Government Lead</Label>
               <Controller
                 name="supGovLead"
                 control={control}
@@ -495,7 +505,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               {(empType === EMPTYPES.Civilian ||
                 empType === EMPTYPES.Military) && (
                 <>
-                  <Label htmlFor="newCivId">
+                  <Label htmlFor="newCivId" required>
                     Is Employee a New Air Force{" "}
                     {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
                   </Label>
@@ -530,7 +540,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                   {isNewCivMil === "no" && (
                     <>
-                      <Label htmlFor="prevOrgId">Previous Organization</Label>
+                      <Label htmlFor="prevOrgId" required>
+                        Previous Organization
+                      </Label>
                       <Controller
                         name="prevOrg"
                         control={control}
@@ -557,7 +569,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               {(empType === EMPTYPES.Civilian ||
                 empType === EMPTYPES.Military) && (
                 <>
-                  <Label htmlFor="newToBaseAndCenterId">
+                  <Label htmlFor="newToBaseAndCenterId" required>
                     Is Employee new to WPAFB and AFLCMC?
                   </Label>
                   <Controller
@@ -590,7 +602,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               {(empType === EMPTYPES.Civilian ||
                 empType === EMPTYPES.Military) && (
                 <>
-                  <Label htmlFor="isTravelerId">
+                  <Label htmlFor="isTravelerId" required>
                     Will the Employee require travel ability (DTS and GTC)
                   </Label>
                   <Controller
@@ -619,7 +631,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               )}
               {empType === EMPTYPES.Contractor && (
                 <>
-                  <Label htmlFor="hasExistingCACId">
+                  <Label htmlFor="hasExistingCACId" required>
                     Does the Support Contractor have an Existing CAC?
                   </Label>
                   <Controller
@@ -653,7 +665,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                   {hasExistingCAC === "yes" && (
                     <>
-                      <Label htmlFor="CACExpirationId">CAC Expiration</Label>
+                      <Label htmlFor="CACExpirationId" required>
+                        CAC Expiration
+                      </Label>
                       <Controller
                         name="CACExpiration"
                         control={control}
