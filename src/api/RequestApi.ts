@@ -1,10 +1,10 @@
 import { ApiError } from "./InternalErrors";
-import { IItemUpdateResult } from "@pnp/sp/items";
+import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "../constants/EmpTypes";
 import { worklocation } from "../constants/WorkLocations";
 import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
 import { spWebContext } from "../providers/SPWebContext";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
@@ -213,6 +213,51 @@ export const useRequests = () => {
     queryFn: () => getRequests(),
     select: transformInRequestsFromSP,
   });
+};
+
+export const useAddRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ["requests"],
+    (newRequest: IInRequest) => {
+      if (process.env.NODE_ENV === "development") {
+        let returnRequest = {} as IItemAddResult;
+        returnRequest.data = { ...newRequest, Id: 4 };
+        return Promise.resolve(returnRequest);
+      } else {
+        return spWebContext.web.lists
+          .getByTitle("Items")
+          .items.add(transformInRequestToSP(newRequest));
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["requests"]);
+      },
+    }
+  );
+};
+
+export const useUpdateRequest = (Id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ["requests", Id],
+    (request: IInRequest) => {
+      if (process.env.NODE_ENV === "development") {
+        return new Promise((r) => setTimeout(() => request, 500));
+      } else {
+        return spWebContext.web.lists
+          .getByTitle("Items")
+          .items.getById(Id)
+          .update(transformInRequestToSP(request));
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["requests", Id]);
+      },
+    }
+  );
 };
 
 // create IItem item to work with it internally
