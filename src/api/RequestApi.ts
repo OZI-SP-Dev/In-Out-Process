@@ -16,7 +16,7 @@ declare var _spPageContextInfo: any;
 const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
   return {
     Id: request.Id,
-    empName: request.employee?.Title ? request.employee.Title : request.empName,
+    empName: request.empName,
     employee: request.employee
       ? {
           SPUserId: request.employee.Id,
@@ -66,7 +66,7 @@ const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
 const transformInRequestToSP = (request: IInRequest): IRequestItem => {
   const transformedRequest: IRequestItem = {
     Id: request.Id,
-    empName: request.employee?.text ? request.employee?.text : request.empName,
+    empName: request.empName,
     employeeId: request.employee?.SPUserId,
     empType: request.empType,
     gradeRank: request.gradeRank,
