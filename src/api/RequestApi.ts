@@ -1,9 +1,9 @@
 import { ApiError } from "./InternalErrors";
 import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
-import { EMPTYPES } from "../constants/EmpTypes";
-import { worklocation } from "../constants/WorkLocations";
-import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
-import { spWebContext } from "../providers/SPWebContext";
+import { EMPTYPES } from "constants/EmpTypes";
+import { worklocation } from "constants/WorkLocations";
+import { SPPersona } from "components/PeoplePicker/PeoplePicker";
+import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
@@ -68,17 +68,19 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
     empType: request.empType,
     gradeRank: request.gradeRank,
     workLocation: request.workLocation,
-    isNewCivMil: request.isNewCivMil,
+    isNewCivMil: request.isNewCivMil === "yes" ? true : false,
     prevOrg: request.prevOrg,
     eta: request.eta.toISOString(),
     office: request.office,
     completionDate: request.completionDate.toISOString(),
-    hasExistingCAC: request.hasExistingCAC,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    hasExistingCAC: request.hasExistingCAC === "yes" ? true : false,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter === "yes" ? true : false,
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
-    supGovLeadId: request.supGovLead.SPUserId as number, // forcing as number becasue type says optional but we are requiring
+    // FIXME: The PeoplePicker is all sorts of jacked up. Temporary fix until that's looked into further.
+    supGovLeadId:
+      Number(request.supGovLead.Id) || Number(request.supGovLead.SPUserId),
   };
   return transformedRequest;
 };
@@ -238,7 +240,9 @@ export const useUpdateRequest = (Id: number) => {
     ["requests", Id],
     (request: IInRequest) => {
       if (process.env.NODE_ENV === "development") {
-        return new Promise((r) => setTimeout(() => request, 500));
+        let returnRequest = {} as IItemUpdateResult;
+        returnRequest.data = { ...request, etag: "1" };
+        return Promise.resolve(returnRequest);
       } else {
         return spWebContext.web.lists
           .getByTitle("Items")
@@ -273,13 +277,13 @@ export type IInRequest = {
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCivMil: boolean;
+  isNewCivMil: "yes" | "no";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
-  isNewToBaseAndCenter: boolean;
+  isNewToBaseAndCenter: "yes" | "no";
   /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
-  hasExistingCAC: boolean;
+  hasExistingCAC: "yes" | "no";
   /** Required - Will only be defined for Ctr, for others it will be undefined*/
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
@@ -322,53 +326,20 @@ type IResponseItem = Omit<
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
-type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
+type IRequestItem = Omit<
+  IResponseItem,
+  | "supGovLead"
+  | "employee"
+  | "isNewCivMil"
+  | "hasExistingCAC"
+  | "isNewToBaseAndCenter"
+> & {
   supGovLeadId: number;
   employeeId: number | undefined;
+  isNewCivMil: boolean;
+  hasExistingCAC: boolean;
+  isNewToBaseAndCenter: boolean;
 };
-
-export interface IInFormApi {
-  /**
-   * Update/persist the given Item
-   *
-   * @param requirementsRequest The RequirementsRequest to be saved/updated
-   */
-  updateItem(IItem: IInRequest): Promise<IItemUpdateResult>;
-}
-
-export class RequestApi implements IInFormApi {
-  itemList = spWebContext.web.lists.getByTitle("Items");
-
-  async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
-    try {
-      return await this.itemList.items
-        .getById(Item.Id)
-        .update(transformInRequestToSP(Item));
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch Item with ID ${Item.Id}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch Item with ID ${Item.Id}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch Item with ID ${Item.Id}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to Item with ID ${Item.Id}`
-        );
-      }
-    }
-  }
-}
 
 const testItems: IResponseItem[] = [
   {
@@ -378,10 +349,10 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-11",
     workLocation: "remote",
     office: "OZIC",
-    isNewCivMil: true,
+    isNewCivMil: "yes",
     prevOrg: "",
-    isNewToBaseAndCenter: true,
-    hasExistingCAC: false,
+    isNewToBaseAndCenter: "yes",
+    hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
@@ -403,10 +374,10 @@ const testItems: IResponseItem[] = [
     gradeRank: "GS-13",
     workLocation: "local",
     office: "OZIC",
-    isNewCivMil: false,
+    isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: false,
-    hasExistingCAC: false,
+    isNewToBaseAndCenter: "no",
+    hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
@@ -422,31 +393,3 @@ const testItems: IResponseItem[] = [
     },
   },
 ];
-
-export class RequestApiDev implements IInFormApi {
-  sleep() {
-    return new Promise((r) => setTimeout(r, 500));
-  }
-
-  async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
-    await this.sleep();
-    if (testItems.findIndex((r) => r.Id === Item.Id)) {
-      return Item;
-    } else return undefined;
-  }
-}
-
-export class RequestApiConfig {
-  private static itemApi: IInFormApi;
-
-  // optionally supply the api used to set up test data in the dev version
-  static getApi(): IInFormApi {
-    if (!this.itemApi) {
-      this.itemApi =
-        process.env.NODE_ENV === "development"
-          ? new RequestApiDev()
-          : new RequestApi();
-    }
-    return this.itemApi;
-  }
-}

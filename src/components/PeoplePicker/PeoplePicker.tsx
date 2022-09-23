@@ -26,6 +26,7 @@ export interface SPPersona extends IPersonaProps {
   Department?: string;
   Email?: string;
   SPUserId?: number;
+  Id?: number;
 }
 
 interface IPeoplePickerProps {

@@ -14,7 +14,7 @@ import {
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
 import {
   GS_GRADES,
@@ -23,7 +23,7 @@ import {
   OFFICES,
 } from "constants/GradeRanks";
 import { WORKLOCATIONS } from "constants/WorkLocations";
-import { IInRequest, RequestApiConfig } from "api/RequestApi";
+import { IInRequest, useUpdateRequest } from "api/RequestApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -56,6 +56,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     reset,
     setValue,
   } = useForm<any>();
+  const updateRequest = useUpdateRequest(props.data.Id);
 
   // Setup watches
   const empType = watch("empType");
@@ -96,58 +97,19 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     reset(transRes);
   };
 
-  const updateRequest: SubmitHandler<IInRequest> = (data) => {
-    const requestApi = RequestApiConfig.getApi();
-    /* Validation has passed, so update the request */
-
-    // Transform "yes" / "no" to true/false
-    const hasExistingCAC = data?.hasExistingCAC ? true : false;
-    const isNewCivMil = data?.isNewCivMil ? true : false;
-    const isNewToBaseAndCenter = data?.isNewToBaseAndCenter ? true : false;
-
-    let dataCopy = {
-      ...data,
-      hasExistingCAC,
-      isNewCivMil,
-      isNewToBaseAndCenter,
-    };
-
-    // If it isn't a Civ/Mil, ensure values depending on Civ/Mil only are set correctly
-    if (
-      dataCopy.empType !== EMPTYPES.Civilian &&
-      dataCopy.empType !== EMPTYPES.Military
-    ) {
-      dataCopy.isNewCivMil = false;
-      dataCopy.prevOrg = "";
-      dataCopy.isNewToBaseAndCenter = false;
-    } else {
-      // If it is a new Civ/Mil then ensure prevOrg is set to ""
-      if (dataCopy.isNewCivMil === false) {
-        dataCopy.prevOrg = "";
-      }
-    }
-
-    if (dataCopy.empType !== EMPTYPES.Contractor) {
-      // If Employee is not a CTR then we should set hasExistingCAC to false and CACExpiration to undefined
-      dataCopy.hasExistingCAC = false;
-      dataCopy.CACExpiration = undefined;
-    } else {
-      if (!dataCopy.hasExistingCAC) {
-        // If the CTR doesn't have an Existing CAC, set the CACExpiration to undefined
-        dataCopy.CACExpiration = undefined;
-      }
-    }
-    requestApi.updateItem(dataCopy);
-    //setFormData(dataCopy);
-    props.onEditSave();
+  const updateThisRequest = (data: IInRequest) => {
+    updateRequest.mutate(data, {
+      onSuccess: () => {
+        props.onEditSave();
+      },
+    });
   };
 
   // The footer of the EditPanel, containing the "Save" and "Cancel" buttons
   const onRenderFooterContent = () => (
     <FluentProvider theme={webLightTheme}>
       <div>
-        {/*<Button appearance="primary" onClick={props.onEditSave}>*/}
-        <Button appearance="primary" onClick={handleSubmit(updateRequest)}>
+        <Button appearance="primary" onClick={handleSubmit(updateThisRequest)}>
           Save
         </Button>
         <Button appearance="secondary" onClick={props.onEditCancel}>
@@ -170,7 +132,11 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       >
         <FluentProvider theme={webLightTheme}>
           <>
-            <form id="inReqForm" className={classes.formContainer}>
+            <form
+              id="inReqForm"
+              className={classes.formContainer}
+              onSubmit={handleSubmit(updateThisRequest)}
+            >
               <Label htmlFor="empNameId">Employee Name</Label>
               <Controller
                 name="empName"
