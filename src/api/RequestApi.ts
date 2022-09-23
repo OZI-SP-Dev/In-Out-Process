@@ -394,6 +394,30 @@ const testItems: IResponseItem[] = [
       EMail: "defaultTEST2@us.af.mil",
     },
   },
+  {
+    Id: 3,
+    empName: "Doe, Jack E",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-12",
+    MPCN: 1233217,
+    SAR: 6,
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: true,
+    isTraveler: true,
+    prevOrg: "",
+    isNewToBaseAndCenter: true,
+    hasExistingCAC: false,
+    CACExpiration: "",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: {
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: undefined,
+  },
 ];
 
 export class RequestApiDev implements IInFormApi {

@@ -12,6 +12,7 @@ import {
   tokens,
   makeStyles,
   Tooltip,
+  Checkbox,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { Info16Filled } from "@fluentui/react-icons";
@@ -64,6 +65,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const isNewCivMil = watch("isNewCivMil");
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
+  const isEmpNotInGAL = watch("isEmpNotInGAL");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -94,6 +96,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       isNewCivMil: props.data?.isNewCivMil ? "yes" : "no",
       isNewToBaseAndCenter: props.data?.isNewToBaseAndCenter ? "yes" : "no",
       isTraveler: props.data?.isTraveler ? "yes" : "no",
+      isEmpNotInGAL: props.data?.employee ? false : true,
     };
     //Populate the React-Hook-Form with the transformed data
     reset(transRes);
@@ -178,24 +181,74 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
           <>
             <form id="inReqForm" className={classes.formContainer}>
               <Label htmlFor="empNameId">Employee Name</Label>
-              <Controller
-                name="empName"
-                control={control}
-                rules={{
-                  required: "Employee Name is required",
-                }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    aria-describedby="empNameErr"
-                    id="empNameId"
+              {!isEmpNotInGAL && (
+                <>
+                  <Controller
+                    name="employee"
+                    control={control}
+                    rules={{
+                      required: "Employee Name is required",
+                    }}
+                    render={({ field: { onBlur, onChange, value } }) => (
+                      <PeoplePicker
+                        ariaLabel="Employee"
+                        aria-describedby="employeeErr"
+                        defaultValue={value}
+                        updatePeople={(items) => {
+                          if (items[0]) {
+                            onChange(items[0]);
+                          } else {
+                            onChange();
+                          }
+                        }}
+                      />
+                    )}
                   />
+                  {errors.employee && (
+                    <Text id="employeeErr" className={classes.errorText}>
+                      {errors.employee.message}
+                    </Text>
+                  )}
+                </>
+              )}
+              <Controller
+                name="isEmpNotInGAL"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    {...field}
+                    label="Employee is not in the GAL"
+                    checked={field.value}
+                  ></Checkbox>
                 )}
               />
-              {errors.empName && (
-                <Text id="empNameErr" className={classes.errorText}>
-                  {errors.empName.message}
-                </Text>
+              {isEmpNotInGAL && (
+                <>
+                  <Controller
+                    name="empName"
+                    control={control}
+                    rules={{
+                      required: "Employee Name is required",
+                      pattern: {
+                        value: /\S/i,
+                        message: "Employee Name is required",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        aria-describedby="empNameErr"
+                        id="empNameId"
+                        placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
+                      />
+                    )}
+                  />
+                  {errors.empName && (
+                    <Text id="empNameErr" className={classes.errorText}>
+                      {errors.empName.message}
+                    </Text>
+                  )}
+                </>
               )}
               <Label htmlFor="empTypeId">Employee Type</Label>
               <Controller
