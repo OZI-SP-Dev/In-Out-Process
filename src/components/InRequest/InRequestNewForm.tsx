@@ -602,8 +602,6 @@ export const InRequestNewForm = () => {
         </>
       )}
 
-      {/*-- Button to show if it is a New Form */}
-      {/* TODO: Implement Saving In Processing Request */}
       <Button appearance="primary" type="submit">
         Create In Processing Record
       </Button>
