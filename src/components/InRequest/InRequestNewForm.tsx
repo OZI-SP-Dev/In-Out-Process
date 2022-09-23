@@ -1,5 +1,5 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
@@ -15,11 +15,11 @@ import {
   RadioGroup,
   tokens,
 } from "@fluentui/react-components";
-//import { UserContext } from "../../providers/UserProvider";
 import { useCurrentUser } from "api/UserApi";
-import { IInRequest } from "../../api/RequestApi";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { useEmail } from "../../hooks/useEmail";
+import { IInRequest, useAddRequest } from "api/RequestApi";
+import { useForm, Controller } from "react-hook-form";
+import { useEmail } from "hooks/useEmail";
+import { useNavigate } from "react-router-dom";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -37,6 +37,8 @@ export const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useCurrentUser();
   const email = useEmail();
+  const addRequest = useAddRequest();
+  const navigate = useNavigate();
 
   // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
   //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
@@ -45,7 +47,6 @@ export const InRequestNewForm = () => {
     handleSubmit,
     formState: { errors },
     watch,
-    resetField,
     setValue,
   } = useForm<any>();
 
@@ -77,21 +78,21 @@ export const InRequestNewForm = () => {
     } else return new Date();
   }, [eta]);
 
-  useEffect(() => {
-    resetField("supGovLead", { defaultValue: currentUser });
-  }, [currentUser, resetField]);
-
-  const createNewRequest: SubmitHandler<IInRequest> = async (data) => {
-    /* Validation has passed, so create the new Request */
-    await email.sendInRequestSubmitEmail(data);
-
-    /* TODO - Save the New Request */
-    alert("Notification Staged -- Create feature coming");
-    console.log(JSON.stringify(data));
+  const createNewRequest = (data: IInRequest) => {
+    email.sendInRequestSubmitEmail(data);
+    addRequest.mutate(data, {
+      onSuccess: (newData) => {
+        navigate("/item/" + newData.data.Id);
+      },
+    });
   };
 
   return (
-    <form id="inReqForm" className={classes.formContainer}>
+    <form
+      id="inReqForm"
+      className={classes.formContainer}
+      onSubmit={handleSubmit(createNewRequest)}
+    >
       <Label htmlFor="empNameId">Employee Name</Label>
       <Controller
         name="empName"
@@ -287,6 +288,7 @@ export const InRequestNewForm = () => {
       <Label>Supervisor/Government Lead</Label>
       <Controller
         name="supGovLead"
+        defaultValue={currentUser}
         control={control}
         rules={{
           required: "Supervisor/Gov Lead is required",
@@ -454,12 +456,7 @@ export const InRequestNewForm = () => {
 
       {/*-- Button to show if it is a New Form */}
       {/* TODO: Implement Saving In Processing Request */}
-      <Button
-        appearance="primary"
-        onClick={() => {
-          handleSubmit(createNewRequest)();
-        }}
-      >
+      <Button appearance="primary" type="submit">
         Create In Processing Record
       </Button>
     </form>
