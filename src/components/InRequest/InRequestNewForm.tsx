@@ -20,6 +20,7 @@ import {
 } from "@fluentui/react-components";
 import { useCurrentUser } from "api/UserApi";
 import { IInRequest, useAddRequest } from "api/RequestApi";
+import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
 import { useEmail } from "hooks/useEmail";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +42,7 @@ export const InRequestNewForm = () => {
   const currentUser = useCurrentUser();
   const email = useEmail();
   const addRequest = useAddRequest();
+  const addTasks = useAddTasks();
   const navigate = useNavigate();
 
   // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
@@ -86,7 +88,11 @@ export const InRequestNewForm = () => {
     email.sendInRequestSubmitEmail(data);
     addRequest.mutate(data, {
       onSuccess: (newData) => {
-        navigate("/item/" + newData.data.Id);
+        addTasks.mutate(newData.data, {
+          onSuccess: () => {
+            navigate("/item/" + newData.data.Id);
+          },
+        });
       },
     });
   };
