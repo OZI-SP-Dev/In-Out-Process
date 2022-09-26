@@ -1,4 +1,3 @@
-import { ApiError } from "./InternalErrors";
 import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "constants/EmpTypes";
 import { worklocation } from "constants/WorkLocations";
@@ -109,37 +108,13 @@ const getMyRequests = async () => {
     if (userId === undefined) {
       return Promise.reject([]);
     } else {
-      try {
-        return spWebContext.web.lists
-          .getByTitle("Items")
-          .items.filter(
-            `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-          )
-          .select(requestedFields)
-          .expand(expandedFields)();
-      } catch (e) {
-        console.error(
-          `Error occurred while trying to fetch requests for user ${userId}}`
-        );
-        console.error(e);
-        if (e instanceof Error) {
-          throw new ApiError(
-            e,
-            `Error occurred while trying to fetch requests for user with ID ${userId}: ${e.message}`
-          );
-        } else if (typeof e === "string") {
-          throw new ApiError(
-            new Error(
-              `Error occurred while trying to fetch requests for user with ID ${userId}: ${e}`
-            )
-          );
-        } else {
-          throw new ApiError(
-            undefined,
-            `Unknown error occurred while trying to fetch requests for user with ID ${userId}`
-          );
-        }
-      }
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.filter(
+          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+        )
+        .select(requestedFields)
+        .expand(expandedFields)();
     }
   }
 };
@@ -149,35 +124,11 @@ const getRequest = async (Id: number) => {
     let response = testItems[Id - 1];
     return Promise.resolve(response);
   } else {
-    try {
-      return spWebContext.web.lists
-        .getByTitle("Items")
-        .items.getById(Id)
-        .select(requestedFields)
-        .expand(expandedFields)();
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch request with ID ${Id}}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch request with ID ${Id}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch request with ID ${Id}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to fetch request with ID ${Id}`
-        );
-      }
-    }
+    return spWebContext.web.lists
+      .getByTitle("Items")
+      .items.getById(Id)
+      .select(requestedFields)
+      .expand(expandedFields)();
   }
 };
 
