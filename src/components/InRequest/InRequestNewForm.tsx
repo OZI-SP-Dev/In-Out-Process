@@ -14,7 +14,6 @@ import {
   Radio,
   RadioGroup,
   tokens,
-  Checkbox,
 } from "@fluentui/react-components";
 import { useCurrentUser } from "api/UserApi";
 import { IInRequest, useAddRequest } from "api/RequestApi";
@@ -77,7 +76,7 @@ export const InRequestNewForm = () => {
   const isNewCivMil = watch("isNewCivMil");
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
-  const isEmpNotInGAL = watch("isEmpNotInGAL");
+  const employee = watch("employee");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -121,74 +120,66 @@ export const InRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <div className={classes.fieldContainer}>
+        <Label htmlFor="empNameId" size="small" weight="semibold">
+          <ContactIcon className={classes.fieldIcon} />
+          Employee from GAL (skip if not in GAL)
+        </Label>
+        <Controller
+          name="employee"
+          control={control}
+          render={({ field: { onBlur, onChange, value } }) => (
+            <PeoplePicker
+              ariaLabel="Employee"
+              aria-describedby="employeeErr"
+              defaultValue={value}
+              updatePeople={(items) => {
+                if (items[0]) {
+                  setValue("empName", items[0].text);
+                  onChange(items[0]);
+                } else {
+                  setValue("empName", "");
+                  onChange();
+                }
+              }}
+            />
+          )}
+        />
+        {errors.employee && (
+          <Text id="employeeErr" className={classes.errorText}>
+            {errors.employee.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
         <Label htmlFor="empNameId" size="small" weight="semibold" required>
           <ContactIcon className={classes.fieldIcon} />
           Employee Name
         </Label>
-        {!isEmpNotInGAL && (
-          <>
-            <Controller
-              name="employee"
-              control={control}
-              rules={{
-                required: "Employee Name is required",
-              }}
-              render={({ field: { onBlur, onChange, value } }) => (
-                <PeoplePicker
-                  ariaLabel="Employee"
-                  aria-describedby="employeeErr"
-                  defaultValue={value}
-                  updatePeople={(items) => {
-                    if (items[0]) {
-                      onChange(items[0]);
-                    } else {
-                      onChange();
-                    }
-                  }}
-                />
-              )}
-            />
-            {errors.employee && (
-              <Text id="employeeErr" className={classes.errorText}>
-                {errors.employee.message}
-              </Text>
-            )}
-          </>
-        )}
         <Controller
-          name="isEmpNotInGAL"
+          name="empName"
           control={control}
+          rules={{
+            required: "Employee Name is required",
+            pattern: {
+              value: /\S/i,
+              message: "Employee Name is required",
+            },
+          }}
           render={({ field }) => (
-            <Checkbox {...field} label="Employee is not in the GAL"></Checkbox>
+            <Input
+              {...field}
+              key={employee?.text ? employee.text : "empName"}
+              disabled={employee?.text ? true : false}
+              aria-describedby="empNameErr"
+              id="empNameId"
+              placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
+            />
           )}
         />
-        {isEmpNotInGAL && (
-          <>
-            <Controller
-              name="empName"
-              control={control}
-              rules={{
-                required: "Employee Name is required",
-                pattern: {
-                  value: /\S/i,
-                  message: "Employee Name is required",
-                },
-              }}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  aria-describedby="empNameErr"
-                  id="empNameId"
-                  placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
-                />
-              )}
-            />
-            {errors.empName && (
-              <Text id="empNameErr" className={classes.errorText}>
-                {errors.empName.message}
-              </Text>
-            )}
-          </>
+        {errors.empName && (
+          <Text id="empNameErr" className={classes.errorText}>
+            {errors.empName.message}
+          </Text>
         )}
       </div>
       <div className={classes.fieldContainer}>
