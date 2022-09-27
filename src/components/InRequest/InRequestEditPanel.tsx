@@ -1,4 +1,11 @@
-import { Panel, PanelType } from "@fluentui/react";
+import {
+  CommandBar,
+  ICommandBarItemProps,
+  IPanelProps,
+  IRenderFunction,
+  Panel,
+  PanelType,
+} from "@fluentui/react";
 import { FunctionComponent, useMemo } from "react";
 import {
   Button,
@@ -85,6 +92,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const eta = watch("eta");
   const isEmpNotInGAL = watch("isEmpNotInGAL");
 
+  const compProps = props;
+
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
       case EMPTYPES.Civilian:
@@ -122,18 +131,40 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   };
 
   // The footer of the EditPanel, containing the "Save" and "Cancel" buttons
-  const onRenderFooterContent = () => (
-    <FluentProvider theme={webLightTheme}>
-      <div>
-        <Button appearance="primary" onClick={handleSubmit(updateThisRequest)}>
-          Save
-        </Button>
-        <Button appearance="secondary" onClick={props.onEditCancel}>
-          Cancel
-        </Button>
-      </div>
-    </FluentProvider>
-  );
+  const onRenderNavigationContent: IRenderFunction<IPanelProps> = (
+    props,
+    defaultRender
+  ) => {
+    const items: ICommandBarItemProps[] = [
+      {
+        key: "saveEdits",
+        text: "Save",
+        iconProps: { iconName: "Save" },
+        onClick: (ev?, item?) => {
+          handleSubmit(updateThisRequest)();
+        },
+      },
+      {
+        key: "cancelEdits",
+        text: "Cancel",
+        iconProps: { iconName: "Cancel" },
+        onClick: (ev?, item?) => {
+          compProps.onEditCancel();
+        },
+      },
+    ];
+
+    return (
+      <>
+        <CommandBar items={items}></CommandBar>
+        {
+          // This custom navigation still renders the close button (defaultRender).
+          // If you don't use defaultRender, be sure to provide some other way to close the panel.
+          defaultRender!(props)
+        }
+      </>
+    );
+  };
 
   return (
     <>
@@ -143,8 +174,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
         isBlocking={true}
         onDismiss={props.onEditCancel}
         headerText="Edit Request"
-        isFooterAtBottom={true}
-        onRenderFooterContent={onRenderFooterContent}
+        onRenderNavigationContent={onRenderNavigationContent}
         type={PanelType.medium}
       >
         <FluentProvider theme={webLightTheme}>
@@ -809,6 +839,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   )}
                 </>
               )}
+              <Button appearance="primary" type="submit">
+                Save
+              </Button>
+              <Button appearance="secondary" onClick={props.onEditCancel}>
+                Cancel
+              </Button>
             </form>
           </>
         </FluentProvider>
