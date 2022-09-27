@@ -51,6 +51,9 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
   },
+  fieldLabel: {
+    paddingBottom: ".5em",
+  },
 });
 
 export const InRequestNewForm = () => {
@@ -120,7 +123,12 @@ export const InRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <div className={classes.fieldContainer}>
-        <Label htmlFor="empNameId" size="small" weight="semibold">
+        <Label
+          htmlFor="empNameId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+        >
           <ContactIcon className={classes.fieldIcon} />
           Employee from GAL (skip if not in GAL)
         </Label>
@@ -151,7 +159,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="empNameId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="empNameId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <ContactIcon className={classes.fieldIcon} />
           Employee Name
         </Label>
@@ -183,7 +197,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="empTypeId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="empTypeId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <RadioButtonFilled className={classes.fieldIcon} />
           Employee Type
         </Label>
@@ -228,7 +248,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="gradeRankId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="gradeRankId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <DropdownIcon className={classes.fieldIcon} />
           Grade/Rank
         </Label>
@@ -264,7 +290,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="MPCNId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="MPCNId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <NumberFieldIcon className={classes.fieldIcon} />
           MPCN
         </Label>
@@ -292,7 +324,13 @@ export const InRequestNewForm = () => {
         </Text>
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="SARId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="SARId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <NumberFieldIcon className={classes.fieldIcon} />
           SAR
         </Label>
@@ -320,7 +358,13 @@ export const InRequestNewForm = () => {
         </Text>
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="workLocationId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="workLocationId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <ToggleLeftRegular className={classes.fieldIcon} />
           Local or Remote?
         </Label>
@@ -356,7 +400,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="arrivalDateId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="arrivalDateId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <CalendarIcon className={classes.fieldIcon} />
           Select estimated on-boarding date
         </Label>
@@ -395,6 +445,7 @@ export const InRequestNewForm = () => {
           htmlFor="completionDateId"
           size="small"
           weight="semibold"
+          className={classes.fieldLabel}
           required
         >
           <CalendarIcon className={classes.fieldIcon} />
@@ -425,7 +476,13 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label htmlFor="officeId" size="small" weight="semibold" required>
+        <Label
+          htmlFor="officeId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <DropdownIcon className={classes.fieldIcon} />
           Office
         </Label>
@@ -459,7 +516,12 @@ export const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label size="small" weight="semibold" required>
+        <Label
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <ContactIcon className={classes.fieldIcon} />
           Supervisor/Government Lead
         </Label>
@@ -494,7 +556,13 @@ export const InRequestNewForm = () => {
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <>
           <div className={classes.fieldContainer}>
-            <Label htmlFor="newCivId" size="small" weight="semibold" required>
+            <Label
+              htmlFor="newCivId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+              required
+            >
               <ToggleLeftRegular className={classes.fieldIcon} />
               Is Employee a New Air Force{" "}
               {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
@@ -535,6 +603,7 @@ export const InRequestNewForm = () => {
                 htmlFor="prevOrgId"
                 size="small"
                 weight="semibold"
+                className={classes.fieldLabel}
                 required
               >
                 <TextFieldIcon className={classes.fieldIcon} />
@@ -569,6 +638,7 @@ export const InRequestNewForm = () => {
             htmlFor="newToBaseAndCenterId"
             size="small"
             weight="semibold"
+            className={classes.fieldLabel}
             required
           >
             <ToggleLeftRegular className={classes.fieldIcon} />
@@ -600,7 +670,13 @@ export const InRequestNewForm = () => {
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <div className={classes.fieldContainer}>
-          <Label htmlFor="isTravelerId" size="small" weight="semibold" required>
+          <Label
+            htmlFor="isTravelerId"
+            size="small"
+            weight="semibold"
+            className={classes.fieldLabel}
+            required
+          >
             <ToggleLeftRegular className={classes.fieldIcon} />
             Will the Employee require travel ability (DTS and GTC)
           </Label>
@@ -635,6 +711,7 @@ export const InRequestNewForm = () => {
               htmlFor="hasExistingCACId"
               size="small"
               weight="semibold"
+              className={classes.fieldLabel}
               required
             >
               <ToggleLeftRegular className={classes.fieldIcon} />
@@ -676,6 +753,7 @@ export const InRequestNewForm = () => {
                 htmlFor="CACExpirationId"
                 size="small"
                 weight="semibold"
+                className={classes.fieldLabel}
                 required
               >
                 <CalendarIcon className={classes.fieldIcon} />

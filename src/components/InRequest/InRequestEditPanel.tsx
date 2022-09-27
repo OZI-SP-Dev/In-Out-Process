@@ -61,6 +61,9 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
   },
+  fieldLabel: {
+    paddingBottom: ".5em",
+  },
 });
 
 interface IInRequestEditPanel {
@@ -185,7 +188,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               onSubmit={handleSubmit(updateThisRequest)}
             >
               <div className={classes.fieldContainer}>
-                <Label htmlFor="empNameId" size="small" weight="semibold">
+                <Label
+                  htmlFor="empNameId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                >
                   <ContactIcon className={classes.fieldIcon} />
                   Employee from GAL (skip if not in GAL)
                 </Label>
@@ -220,6 +228,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="empNameId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <ContactIcon className={classes.fieldIcon} />
@@ -257,6 +266,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="empTypeId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <RadioButtonFilled className={classes.fieldIcon} />
@@ -307,6 +317,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="gradeRankId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <DropdownIcon className={classes.fieldIcon} />
@@ -346,7 +357,13 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 )}
               </div>
               <div className={classes.fieldContainer}>
-                <Label htmlFor="MPCNId" size="small" weight="semibold" required>
+                <Label
+                  htmlFor="MPCNId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
                   <NumberFieldIcon className={classes.fieldIcon} />
                   MPCN
                 </Label>
@@ -374,7 +391,13 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               </div>
               <div className={classes.fieldContainer}>
-                <Label htmlFor="SARId" size="small" weight="semibold" required>
+                <Label
+                  htmlFor="SARId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
                   <NumberFieldIcon className={classes.fieldIcon} />
                   SAR
                 </Label>
@@ -406,6 +429,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="workLocationId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <ToggleLeftRegular className={classes.fieldIcon} />
@@ -447,6 +471,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="arrivalDateId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <CalendarIcon className={classes.fieldIcon} />
@@ -489,6 +514,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="completionDateId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <CalendarIcon className={classes.fieldIcon} />
@@ -523,6 +549,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   htmlFor="officeId"
                   size="small"
                   weight="semibold"
+                  className={classes.fieldLabel}
                   required
                 >
                   <DropdownIcon className={classes.fieldIcon} />
@@ -558,7 +585,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 )}
               </div>
               <div className={classes.fieldContainer}>
-                <Label size="small" weight="semibold" required>
+                <Label
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
                   <ContactIcon className={classes.fieldIcon} />
                   Supervisor/Government Lead
                 </Label>
@@ -597,6 +629,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       htmlFor="newCivId"
                       size="small"
                       weight="semibold"
+                      className={classes.fieldLabel}
                       required
                     >
                       <ToggleLeftRegular className={classes.fieldIcon} />
@@ -639,6 +672,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         htmlFor="prevOrgId"
                         size="small"
                         weight="semibold"
+                        className={classes.fieldLabel}
                         required
                       >
                         <TextFieldIcon className={classes.fieldIcon} />
@@ -674,6 +708,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     htmlFor="newToBaseAndCenterId"
                     size="small"
                     weight="semibold"
+                    className={classes.fieldLabel}
                     required
                   >
                     <ToggleLeftRegular className={classes.fieldIcon} />
@@ -713,6 +748,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     htmlFor="isTravelerId"
                     size="small"
                     weight="semibold"
+                    className={classes.fieldLabel}
                     required
                   >
                     <ToggleLeftRegular className={classes.fieldIcon} />
@@ -749,6 +785,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       htmlFor="hasExistingCACId"
                       size="small"
                       weight="semibold"
+                      className={classes.fieldLabel}
                       required
                     >
                       <ToggleLeftRegular className={classes.fieldIcon} />
@@ -793,6 +830,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         htmlFor="CACExpirationId"
                         size="small"
                         weight="semibold"
+                        className={classes.fieldLabel}
                         required
                       >
                         <CalendarIcon className={classes.fieldIcon} />
