@@ -57,8 +57,8 @@ const useStyles = makeStyles({
   fieldContainer: {
     paddingLeft: "3px",
     paddingRight: "3px",
-    paddingTop: "4px",
-    paddingBottom: "4px",
+    paddingTop: "8px",
+    paddingBottom: "8px",
     display: "flex",
     flexDirection: "column",
   },
@@ -179,6 +179,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       >
         <FluentProvider theme={webLightTheme}>
           <>
+            <hr />
             <form
               id="inReqForm"
               className={classes.formContainer}

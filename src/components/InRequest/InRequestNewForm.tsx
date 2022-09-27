@@ -33,7 +33,7 @@ import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
-  formContainer: { display: "block" },
+  formContainer: { display: "block", paddingLeft: "8px", paddingRight: "8px" },
   floatRight: {
     float: "right",
   },
@@ -47,8 +47,8 @@ const useStyles = makeStyles({
   fieldContainer: {
     paddingLeft: "4px",
     paddingRight: "4px",
-    paddingTop: "4px",
-    paddingBottom: "4px",
+    paddingTop: "8px",
+    paddingBottom: "8px",
     display: "flex",
     flexDirection: "column",
   },
