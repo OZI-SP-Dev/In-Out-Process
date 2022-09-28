@@ -46,7 +46,7 @@ export const InRequest: FunctionComponent<IInRequest> = (props) => {
   }
 
   if (request.error) {
-    return <>"An error has occured: " + request.error</>;
+    return <>"An error has occured: " + {request.error}</>;
   }
 
   return <>Loading...</>;

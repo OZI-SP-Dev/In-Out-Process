@@ -1,10 +1,9 @@
-import { ApiError } from "./InternalErrors";
-import { IItemUpdateResult } from "@pnp/sp/items";
-import { EMPTYPES } from "../constants/EmpTypes";
-import { worklocation } from "../constants/WorkLocations";
-import { SPPersona } from "../components/PeoplePicker/PeoplePicker";
-import { spWebContext } from "../providers/SPWebContext";
-import { useQuery } from "@tanstack/react-query";
+import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
+import { EMPTYPES } from "constants/EmpTypes";
+import { worklocation } from "constants/WorkLocations";
+import { SPPersona } from "components/PeoplePicker/PeoplePicker";
+import { spWebContext } from "providers/SPWebContext";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 declare var _spPageContextInfo: any;
 
@@ -17,6 +16,26 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
   return {
     Id: request.Id,
     empName: request.empName,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    MPCN: request.MPCN,
+    SAR: request.SAR,
+    workLocation: request.workLocation,
+    office: request.office,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    hasExistingCAC: request.hasExistingCAC,
+    CACExpiration: request.CACExpiration
+      ? new Date(request.CACExpiration)
+      : undefined,
+    eta: new Date(request.eta),
+    completionDate: new Date(request.completionDate),
+    supGovLead: {
+      SPUserId: request.supGovLead.Id,
+      Email: request.supGovLead.EMail,
+      text: request.supGovLead.Title,
+    },
     employee: request.employee
       ? {
           SPUserId: request.employee.Id,
@@ -24,27 +43,7 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
           text: request.employee.Title,
         }
       : undefined,
-    empType: request.empType,
-    gradeRank: request.gradeRank,
-    MPCN: request.MPCN,
-    SAR: request.SAR,
-    workLocation: request.workLocation,
-    isNewCivMil: request.isNewCivMil,
     isTraveler: request.isTraveler,
-    prevOrg: request.prevOrg,
-    eta: new Date(request.eta),
-    office: request.office,
-    completionDate: new Date(request.completionDate),
-    hasExistingCAC: request.hasExistingCAC,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
-    CACExpiration: request.CACExpiration
-      ? new Date(request.CACExpiration)
-      : undefined,
-    supGovLead: {
-      SPUserId: request.supGovLead.Id,
-      Email: request.supGovLead.EMail,
-      text: request.supGovLead.Title,
-    },
   };
 };
 
@@ -67,24 +66,26 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
   const transformedRequest: IRequestItem = {
     Id: request.Id,
     empName: request.empName,
-    employeeId: request.employee?.SPUserId,
     empType: request.empType,
     gradeRank: request.gradeRank,
     MPCN: request.MPCN,
     SAR: request.SAR,
     workLocation: request.workLocation,
-    isNewCivMil: request.isNewCivMil,
-    isTraveler: request.isTraveler,
-    prevOrg: request.prevOrg,
-    eta: request.eta.toISOString(),
     office: request.office,
-    completionDate: request.completionDate.toISOString(),
-    hasExistingCAC: request.hasExistingCAC,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
     isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    hasExistingCAC: request.hasExistingCAC,
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
-    supGovLeadId: request.supGovLead.SPUserId as number, // forcing as number becasue type says optional but we are requiring
+    eta: request.eta.toISOString(),
+    completionDate: request.completionDate.toISOString(),
+    // FIXME: The PeoplePicker is all sorts of jacked up. Temporary fix until that's looked into further.
+    supGovLeadId:
+      Number(request.supGovLead.Id) || Number(request.supGovLead.SPUserId),
+    employeeId: request.employee?.SPUserId,
+    isTraveler: request.isTraveler,
   };
   return transformedRequest;
 };
@@ -107,37 +108,13 @@ const getMyRequests = async () => {
     if (userId === undefined) {
       return Promise.reject([]);
     } else {
-      try {
-        return spWebContext.web.lists
-          .getByTitle("Items")
-          .items.filter(
-            `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-          )
-          .select(requestedFields)
-          .expand(expandedFields)();
-      } catch (e) {
-        console.error(
-          `Error occurred while trying to fetch requests for user ${userId}}`
-        );
-        console.error(e);
-        if (e instanceof Error) {
-          throw new ApiError(
-            e,
-            `Error occurred while trying to fetch requests for user with ID ${userId}: ${e.message}`
-          );
-        } else if (typeof e === "string") {
-          throw new ApiError(
-            new Error(
-              `Error occurred while trying to fetch requests for user with ID ${userId}: ${e}`
-            )
-          );
-        } else {
-          throw new ApiError(
-            undefined,
-            `Unknown error occurred while trying to fetch requests for user with ID ${userId}`
-          );
-        }
-      }
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.filter(
+          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+        )
+        .select(requestedFields)
+        .expand(expandedFields)();
     }
   }
 };
@@ -147,35 +124,11 @@ const getRequest = async (Id: number) => {
     let response = testItems[Id - 1];
     return Promise.resolve(response);
   } else {
-    try {
-      return spWebContext.web.lists
-        .getByTitle("Items")
-        .items.getById(Id)
-        .select(requestedFields)
-        .expand(expandedFields)();
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch request with ID ${Id}}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch request with ID ${Id}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch request with ID ${Id}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to fetch request with ID ${Id}`
-        );
-      }
-    }
+    return spWebContext.web.lists
+      .getByTitle("Items")
+      .items.getById(Id)
+      .select(requestedFields)
+      .expand(expandedFields)();
   }
 };
 
@@ -215,6 +168,53 @@ export const useRequests = () => {
   });
 };
 
+export const useAddRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ["requests"],
+    (newRequest: IInRequest) => {
+      if (process.env.NODE_ENV === "development") {
+        let returnRequest = {} as IItemAddResult;
+        returnRequest.data = { ...newRequest, Id: 4 };
+        return Promise.resolve(returnRequest);
+      } else {
+        return spWebContext.web.lists
+          .getByTitle("Items")
+          .items.add(transformInRequestToSP(newRequest));
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["requests"]);
+      },
+    }
+  );
+};
+
+export const useUpdateRequest = (Id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ["requests", Id],
+    (request: IInRequest) => {
+      if (process.env.NODE_ENV === "development") {
+        let returnRequest = {} as IItemUpdateResult;
+        returnRequest.data = { ...request, etag: "1" };
+        return Promise.resolve(returnRequest);
+      } else {
+        return spWebContext.web.lists
+          .getByTitle("Items")
+          .items.getById(Id)
+          .update(transformInRequestToSP(request));
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["requests", Id]);
+      },
+    }
+  );
+};
+
 // create IItem item to work with it internally
 export type IInRequest = {
   /** Required - Will be -1 for NewForms that haven't been saved yet */
@@ -237,17 +237,15 @@ export type IInRequest = {
   workLocation: worklocation;
   /** Required - The Employee's Office */
   office: string;
-  /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCivMil: boolean;
-  /** Required - Can only be 'true' if it is a Civ/Mil.  Must be 'false' if it is not a 'civ' or 'mil' */
-  isTraveler: boolean;
-  /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
+  /** Required - Can only be 'yes' | 'no' if it is Civilian or Military.  Must be '' if it is a Contractor */
+  isNewCivMil: "yes" | "no" | "";
+  /** Required - The user's previous organization.  Will be '' if isNewCiv is not 'yes' */
   prevOrg: string;
-  /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
-  isNewToBaseAndCenter: boolean;
-  /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
-  hasExistingCAC: boolean;
-  /** Required - Will only be defined for Ctr, for others it will be undefined*/
+  /** Required - Can only be 'yes' | 'no' if it is a Civ/Mil. For Ctr, must be '' */
+  isNewToBaseAndCenter: "yes" | "no" | "";
+  /** Required - Can only be 'yes' | 'no' if is a Ctr.  For others it will be '' */
+  hasExistingCAC: "yes" | "no" | "";
+  /** Required - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
@@ -257,6 +255,8 @@ export type IInRequest = {
   supGovLead: SPPersona;
   /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
   employee: SPPersona | undefined;
+  /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
+  isTraveler: "yes" | "no" | "";
 };
 
 // create PnP JS response interface for the InForm
@@ -294,49 +294,6 @@ type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   employeeId: number | undefined;
 };
 
-export interface IInFormApi {
-  /**
-   * Update/persist the given Item
-   *
-   * @param requirementsRequest The RequirementsRequest to be saved/updated
-   */
-  updateItem(IItem: IInRequest): Promise<IItemUpdateResult>;
-}
-
-export class RequestApi implements IInFormApi {
-  itemList = spWebContext.web.lists.getByTitle("Items");
-
-  async updateItem(Item: IInRequest): Promise<IItemUpdateResult> {
-    try {
-      return await this.itemList.items
-        .getById(Item.Id)
-        .update(transformInRequestToSP(Item));
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch Item with ID ${Item.Id}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch Item with ID ${Item.Id}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch Item with ID ${Item.Id}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to Item with ID ${Item.Id}`
-        );
-      }
-    }
-  }
-}
-
 const testItems: IResponseItem[] = [
   {
     Id: 1,
@@ -347,11 +304,10 @@ const testItems: IResponseItem[] = [
     SAR: 5,
     workLocation: "remote",
     office: "OZIC",
-    isNewCivMil: true,
-    isTraveler: true,
+    isNewCivMil: "yes",
     prevOrg: "",
-    isNewToBaseAndCenter: true,
-    hasExistingCAC: false,
+    isNewToBaseAndCenter: "yes",
+    hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
@@ -365,6 +321,7 @@ const testItems: IResponseItem[] = [
       Title: "Default User 2",
       EMail: "defaultTEST2@us.af.mil",
     },
+    isTraveler: "no",
   },
   {
     Id: 2,
@@ -375,11 +332,10 @@ const testItems: IResponseItem[] = [
     SAR: 6,
     workLocation: "local",
     office: "OZIC",
-    isNewCivMil: false,
-    isTraveler: false,
+    isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: false,
-    hasExistingCAC: false,
+    isNewToBaseAndCenter: "no",
+    hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
@@ -393,6 +349,7 @@ const testItems: IResponseItem[] = [
       Title: "Default User 2",
       EMail: "defaultTEST2@us.af.mil",
     },
+    isTraveler: "no",
   },
   {
     Id: 3,
@@ -403,11 +360,11 @@ const testItems: IResponseItem[] = [
     SAR: 6,
     workLocation: "local",
     office: "OZIC",
-    isNewCivMil: true,
-    isTraveler: true,
+    isNewCivMil: "yes",
+    isTraveler: "yes",
     prevOrg: "",
-    isNewToBaseAndCenter: true,
-    hasExistingCAC: false,
+    isNewToBaseAndCenter: "yes",
+    hasExistingCAC: "no",
     CACExpiration: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
@@ -419,31 +376,3 @@ const testItems: IResponseItem[] = [
     employee: undefined,
   },
 ];
-
-export class RequestApiDev implements IInFormApi {
-  sleep() {
-    return new Promise((r) => setTimeout(r, 500));
-  }
-
-  async updateItem(Item: IInRequest): Promise<IItemUpdateResult | any> {
-    await this.sleep();
-    if (testItems.findIndex((r) => r.Id === Item.Id)) {
-      return Item;
-    } else return undefined;
-  }
-}
-
-export class RequestApiConfig {
-  private static itemApi: IInFormApi;
-
-  // optionally supply the api used to set up test data in the dev version
-  static getApi(): IInFormApi {
-    if (!this.itemApi) {
-      this.itemApi =
-        process.env.NODE_ENV === "development"
-          ? new RequestApiDev()
-          : new RequestApi();
-    }
-    return this.itemApi;
-  }
-}
