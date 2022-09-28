@@ -245,7 +245,7 @@ export type IInRequest = {
   isNewToBaseAndCenter: "yes" | "no" | "";
   /** Required - Can only be 'yes' | 'no' if is a Ctr.  For others it will be '' */
   hasExistingCAC: "yes" | "no" | "";
-  /** Required - Can only be 'yes' | 'no' if it is a Ctr. Must be '' for Civ or Mil. */
+  /** Required - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;

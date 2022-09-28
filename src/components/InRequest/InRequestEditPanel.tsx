@@ -505,9 +505,16 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     rules={{
                       required: "Selection is required",
                     }}
-                    render={({ field }) => (
+                    render={({ field: { onBlur, onChange, value } }) => (
                       <RadioGroup
-                        {...field}
+                        onBlur={onBlur}
+                        value={value}
+                        onChange={(e, option) => {
+                          if (option.value === "yes") {
+                            setValue("prevOrg", "");
+                          }
+                          onChange(e, option);
+                        }}
                         aria-describedby="isNewCivMilErr"
                         id="newCivId"
                       >
@@ -621,9 +628,16 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     rules={{
                       required: "Selection is required",
                     }}
-                    render={({ field }) => (
+                    render={({ field: { onBlur, onChange, value } }) => (
                       <RadioGroup
-                        {...field}
+                        onBlur={onBlur}
+                        value={value}
+                        onChange={(e, option) => {
+                          if (option.value === "no") {
+                            setValue("CACExpiration", undefined);
+                          }
+                          onChange(e, option);
+                        }}
                         aria-describedby="hasExistingCACErr"
                         id="hasExistingCACId"
                       >
