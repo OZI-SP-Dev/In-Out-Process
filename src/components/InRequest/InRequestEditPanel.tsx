@@ -91,21 +91,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   }, [eta]);
 
   const onOpen = () => {
-    const transRes = {
-      ...props.data,
-      hasExistingCAC: props.data?.hasExistingCAC ? "yes" : "no",
-      isNewCivMil: props.data?.isNewCivMil ? "yes" : "no",
-      isNewToBaseAndCenter: props.data?.isNewToBaseAndCenter ? "yes" : "no",
-      isTraveler: props.data?.isTraveler ? "yes" : "no",
-      isEmpNotInGAL: props.data?.employee ? false : true,
-    };
-    //Populate the React-Hook-Form with the transformed data
-    reset(transRes);
+    //Populate the React-Hook-Form with the data
+    reset(props.data);
   };
 
   const updateThisRequest = (data: IInRequest) => {
     updateRequest.mutate(data, {
       onSuccess: () => {
+        // Close the edit panel on a succesful edit
         props.onEditSave();
       },
     });
@@ -226,8 +219,17 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     onBlur={onBlur}
                     value={value}
                     onChange={(e, option) => {
-                      /* If they change employee type, clear out the selected grade */
+                      /* If they change employee type, clear out the related fields */
                       setValue("gradeRank", "");
+                      if (option.value === EMPTYPES.Contractor) {
+                        setValue("isNewCivMil", "");
+                        setValue("prevOrg", "");
+                        setValue("isNewToBaseAndCenter", "");
+                        setValue("isTraveler", "");
+                      } else {
+                        setValue("hasExistingCAC", "");
+                        setValue("CACExpiration", undefined);
+                      }
                       onChange(e, option);
                     }}
                     aria-describedby="empTypeErr"

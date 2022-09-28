@@ -16,6 +16,26 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
   return {
     Id: request.Id,
     empName: request.empName,
+    empType: request.empType,
+    gradeRank: request.gradeRank,
+    MPCN: request.MPCN,
+    SAR: request.SAR,
+    workLocation: request.workLocation,
+    office: request.office,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    hasExistingCAC: request.hasExistingCAC,
+    CACExpiration: request.CACExpiration
+      ? new Date(request.CACExpiration)
+      : undefined,
+    eta: new Date(request.eta),
+    completionDate: new Date(request.completionDate),
+    supGovLead: {
+      SPUserId: request.supGovLead.Id,
+      Email: request.supGovLead.EMail,
+      text: request.supGovLead.Title,
+    },
     employee: request.employee
       ? {
           SPUserId: request.employee.Id,
@@ -23,27 +43,7 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
           text: request.employee.Title,
         }
       : undefined,
-    empType: request.empType,
-    gradeRank: request.gradeRank,
-    MPCN: request.MPCN,
-    SAR: request.SAR,
-    workLocation: request.workLocation,
-    isNewCivMil: request.isNewCivMil ? "yes" : "no",
-    isTraveler: request.isTraveler ? "yes" : "no",
-    prevOrg: request.prevOrg,
-    eta: new Date(request.eta),
-    office: request.office,
-    completionDate: new Date(request.completionDate),
-    hasExistingCAC: request.hasExistingCAC,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
-    CACExpiration: request.CACExpiration
-      ? new Date(request.CACExpiration)
-      : undefined,
-    supGovLead: {
-      SPUserId: request.supGovLead.Id,
-      Email: request.supGovLead.EMail,
-      text: request.supGovLead.Title,
-    },
+    isTraveler: request.isTraveler,
   };
 };
 
@@ -66,26 +66,26 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
   const transformedRequest: IRequestItem = {
     Id: request.Id,
     empName: request.empName,
-    employeeId: request.employee?.SPUserId,
     empType: request.empType,
     gradeRank: request.gradeRank,
     MPCN: request.MPCN,
     SAR: request.SAR,
     workLocation: request.workLocation,
-    isNewCivMil: request.isNewCivMil === "yes" ? true : false,
-    prevOrg: request.prevOrg,
-    eta: request.eta.toISOString(),
     office: request.office,
-    completionDate: request.completionDate.toISOString(),
-    hasExistingCAC: request.hasExistingCAC === "yes" ? true : false,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter === "yes" ? true : false,
+    isNewCivMil: request.isNewCivMil,
+    prevOrg: request.prevOrg,
+    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
+    hasExistingCAC: request.hasExistingCAC,
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
+    eta: request.eta.toISOString(),
+    completionDate: request.completionDate.toISOString(),
     // FIXME: The PeoplePicker is all sorts of jacked up. Temporary fix until that's looked into further.
     supGovLeadId:
       Number(request.supGovLead.Id) || Number(request.supGovLead.SPUserId),
-    isTraveler: request.isTraveler === "yes" ? true : false,
+    employeeId: request.employee?.SPUserId,
+    isTraveler: request.isTraveler,
   };
   return transformedRequest;
 };
@@ -238,13 +238,13 @@ export type IInRequest = {
   /** Required - The Employee's Office */
   office: string;
   /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
-  isNewCivMil: "yes" | "no";
+  isNewCivMil: "yes" | "no" | "";
   /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
   prevOrg: string;
   /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
-  isNewToBaseAndCenter: "yes" | "no";
+  isNewToBaseAndCenter: "yes" | "no" | "";
   /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
-  hasExistingCAC: "yes" | "no";
+  hasExistingCAC: "yes" | "no" | "";
   /** Required - Will only be defined for Ctr, for others it will be undefined*/
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
@@ -255,7 +255,8 @@ export type IInRequest = {
   supGovLead: SPPersona;
   /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
   employee: SPPersona | undefined;
-  isTraveler: "yes" | "no";
+  /** Required - Can only be 'true' if it is a Civ/Mil. Must be 'false' if it is not a 'civ' or 'mil' */
+  isTraveler: "yes" | "no" | "";
 };
 
 // create PnP JS response interface for the InForm
@@ -288,21 +289,9 @@ type IResponseItem = Omit<
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
-type IRequestItem = Omit<
-  IResponseItem,
-  | "supGovLead"
-  | "employee"
-  | "isNewCivMil"
-  | "hasExistingCAC"
-  | "isNewToBaseAndCenter"
-  | "isTraveler"
-> & {
+type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   supGovLeadId: number;
   employeeId: number | undefined;
-  isNewCivMil: boolean;
-  hasExistingCAC: boolean;
-  isNewToBaseAndCenter: boolean;
-  isTraveler: boolean;
 };
 
 const testItems: IResponseItem[] = [

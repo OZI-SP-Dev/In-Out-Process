@@ -182,8 +182,17 @@ export const InRequestNewForm = () => {
             onBlur={onBlur}
             value={value}
             onChange={(e, option) => {
-              /* If they change employee type, clear out the selected grade */
+              /* If they change employee type, clear out the related fields */
               setValue("gradeRank", "");
+              if (option.value === EMPTYPES.Contractor) {
+                setValue("isNewCivMil", "");
+                setValue("prevOrg", "");
+                setValue("isNewToBaseAndCenter", "");
+                setValue("isTraveler", "");
+              } else {
+                setValue("hasExistingCAC", "");
+                setValue("CACExpiration", undefined);
+              }
               onChange(e, option);
             }}
             aria-describedby="empTypeErr"
