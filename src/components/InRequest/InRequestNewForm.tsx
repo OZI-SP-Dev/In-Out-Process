@@ -32,27 +32,40 @@ import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
-  formContainer: { display: "block", paddingLeft: "8px", paddingRight: "8px" },
+  formContainer: { display: "grid" },
   floatRight: {
     float: "right",
   },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
+    display: "block",
   },
   fieldIcon: {
-    marginRight: "8px",
+    marginRight: ".5em",
   },
   fieldContainer: {
-    paddingLeft: "4px",
-    paddingRight: "4px",
-    paddingTop: "8px",
-    paddingBottom: "8px",
-    display: "flex",
-    flexDirection: "column",
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    paddingTop: ".5em",
+    paddingBottom: ".5em",
+    display: "grid",
+    position: "relative",
   },
   fieldLabel: {
     paddingBottom: ".5em",
+    display: "flex",
+  },
+  fieldDescription: {
+    display: "block",
+  },
+  createButton: {
+    display: "grid",
+    justifyContent: "end",
+    marginLeft: "1em",
+    marginRight: "1em",
+    marginTop: ".5em",
+    marginBottom: ".5em",
   },
 });
 
@@ -123,12 +136,7 @@ export const InRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <div className={classes.fieldContainer}>
-        <Label
-          htmlFor="empNameId"
-          size="small"
-          weight="semibold"
-          className={classes.fieldLabel}
-        >
+        <Label size="small" weight="semibold" className={classes.fieldLabel}>
           <ContactIcon className={classes.fieldIcon} />
           Employee from GAL (skip if not in GAL)
         </Label>
@@ -319,7 +327,7 @@ export const InRequestNewForm = () => {
             {errors.MPCN.message}
           </Text>
         )}
-        <Text weight="regular" size={200}>
+        <Text weight="regular" size={200} className={classes.fieldDescription}>
           The MPCN is a 7 digit number located on the UMD
         </Text>
       </div>
@@ -353,7 +361,7 @@ export const InRequestNewForm = () => {
             {errors.SAR.message}
           </Text>
         )}
-        <Text weight="regular" size={200}>
+        <Text weight="regular" size={200} className={classes.fieldDescription}>
           The SAR is a 1 digit number located on the UMD
         </Text>
       </div>
@@ -786,9 +794,11 @@ export const InRequestNewForm = () => {
         </>
       )}
 
-      <Button appearance="primary" type="submit">
-        Create In Processing Record
-      </Button>
+      <div className={classes.createButton}>
+        <Button appearance="primary" type="submit">
+          Create In Processing Record
+        </Button>
+      </div>
     </form>
   );
 };
