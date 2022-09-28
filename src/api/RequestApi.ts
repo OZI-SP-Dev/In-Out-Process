@@ -237,15 +237,15 @@ export type IInRequest = {
   workLocation: worklocation;
   /** Required - The Employee's Office */
   office: string;
-  /** Required - Can only be 'true' if it is a New to USAF Civilain.  Must be 'false' if it is a 'mil' or 'ctr' */
+  /** Required - Can only be 'yes' | 'no' if it is Civilian or Military.  Must be '' if it is a Contractor */
   isNewCivMil: "yes" | "no" | "";
-  /** Required - The user's previous organization.  Will be "" if isNewCiv is false */
+  /** Required - The user's previous organization.  Will be '' if isNewCiv is not 'yes' */
   prevOrg: string;
-  /** Required - Can only be 'true' if is a Civ/Mil.  For Ctr, will be 'false' */
+  /** Required - Can only be 'yes' | 'no' if it is a Civ/Mil. For Ctr, must be '' */
   isNewToBaseAndCenter: "yes" | "no" | "";
-  /** Required - Can only be 'true' if is a Ctr.  For others it will be false */
+  /** Required - Can only be 'yes' | 'no' if is a Ctr.  For others it will be '' */
   hasExistingCAC: "yes" | "no" | "";
-  /** Required - Will only be defined for Ctr, for others it will be undefined*/
+  /** Required - Can only be 'yes' | 'no' if it is a Ctr. Must be '' for Civ or Mil. */
   CACExpiration: Date | undefined;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
@@ -255,7 +255,7 @@ export type IInRequest = {
   supGovLead: SPPersona;
   /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
   employee: SPPersona | undefined;
-  /** Required - Can only be 'true' if it is a Civ/Mil. Must be 'false' if it is not a 'civ' or 'mil' */
+  /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
   isTraveler: "yes" | "no" | "";
 };
 
