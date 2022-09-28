@@ -69,6 +69,9 @@ const useStyles = makeStyles({
   fieldDescription: {
     display: "block",
   },
+  panelNavCommandBar: {
+    marginRight: "auto", // Pull Command Bar far-left and close far-right
+  },
 });
 
 interface IInRequestEditPanel {
@@ -163,10 +166,11 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
 
     return (
       <>
-        <CommandBar items={items}></CommandBar>
+        <div className={classes.panelNavCommandBar}>
+          <CommandBar items={items}></CommandBar>
+        </div>
         {
-          // This custom navigation still renders the close button (defaultRender).
-          // If you don't use defaultRender, be sure to provide some other way to close the panel.
+          // Render the default close button
           defaultRender!(props)
         }
       </>
