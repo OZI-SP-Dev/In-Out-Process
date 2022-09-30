@@ -1,7 +1,7 @@
 import { Avatar, Text, Tooltip, makeStyles } from "@fluentui/react-components";
 import { useContext, FunctionComponent } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../../providers/UserProvider";
+import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
 
 /* FluentUI Styling */
