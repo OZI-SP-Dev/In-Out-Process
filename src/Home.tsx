@@ -5,16 +5,28 @@ import {
   AccordionItem,
   AccordionPanel,
   Button,
+  makeStyles,
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MyRequests } from "components/MyRequests/MyRequests";
 
-export const Home: FunctionComponent = (props) => {
-  const navigate = useNavigate();
+/* FluentUI Styling */
+const useStyles = makeStyles({
+  createButtons: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingTop: "1.5em",
+    paddingBottom: "1.5em",
+  },
+});
 
-  function createNewItem() {
-    navigate("new");
+export const Home: FunctionComponent = (props) => {
+  const classes = useStyles();
+  function createNewOutRequest() {
+    window.alert("This feature will be coming on a later release");
     return true;
   }
 
@@ -57,14 +69,16 @@ export const Home: FunctionComponent = (props) => {
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
-
-      <Button appearance="primary" onClick={createNewItem}>
-        Create New In Processing
-      </Button>
-      <Button appearance="primary" onClick={createNewItem}>
-        Create New Out Processing
-      </Button>
-
+      <div className={classes.createButtons}>
+        <Link to="/new" style={{ textDecorationLine: "none" }}>
+          <Button appearance="primary" size="large">
+            Create New In Processing Request
+          </Button>
+        </Link>
+        <Button appearance="primary" size="large" onClick={createNewOutRequest}>
+          Create New Out Processing Request
+        </Button>
+      </div>
       <MyRequests />
     </Stack>
   );
