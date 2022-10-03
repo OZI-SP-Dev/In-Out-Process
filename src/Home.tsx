@@ -4,20 +4,11 @@ import {
   AccordionHeader,
   AccordionItem,
   AccordionPanel,
-  Button,
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
-import { useNavigate } from "react-router-dom";
 import { MyRequests } from "components/MyRequests/MyRequests";
 
 export const Home: FunctionComponent = (props) => {
-  const navigate = useNavigate();
-
-  function createNewItem() {
-    navigate("new");
-    return true;
-  }
-
   return (
     <Stack>
       <Stack.Item align="center">
@@ -57,14 +48,6 @@ export const Home: FunctionComponent = (props) => {
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
-
-      <Button appearance="primary" onClick={createNewItem}>
-        Create New In Processing
-      </Button>
-      <Button appearance="primary" onClick={createNewItem}>
-        Create New Out Processing
-      </Button>
-
       <MyRequests />
     </Stack>
   );
