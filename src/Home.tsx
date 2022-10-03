@@ -4,32 +4,11 @@ import {
   AccordionHeader,
   AccordionItem,
   AccordionPanel,
-  Button,
-  makeStyles,
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
-import { Link } from "react-router-dom";
 import { MyRequests } from "components/MyRequests/MyRequests";
 
-/* FluentUI Styling */
-const useStyles = makeStyles({
-  createButtons: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingTop: "1.5em",
-    paddingBottom: "1.5em",
-  },
-});
-
 export const Home: FunctionComponent = (props) => {
-  const classes = useStyles();
-  function createNewOutRequest() {
-    window.alert("This feature will be coming on a later release");
-    return true;
-  }
-
   return (
     <Stack>
       <Stack.Item align="center">
@@ -69,16 +48,6 @@ export const Home: FunctionComponent = (props) => {
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
-      <div className={classes.createButtons}>
-        <Link to="/new" style={{ textDecorationLine: "none" }}>
-          <Button appearance="primary" size="large">
-            Create New In Processing Request
-          </Button>
-        </Link>
-        <Button appearance="primary" size="large" onClick={createNewOutRequest}>
-          Create New Out Processing Request
-        </Button>
-      </div>
       <MyRequests />
     </Stack>
   );
