@@ -1,6 +1,6 @@
-import { spWebContext, webUrl } from "../providers/SPWebContext";
-import { IPerson } from "./UserApi";
-import { EmailError } from "./InternalErrors";
+import { spWebContext, webUrl } from "providers/SPWebContext";
+import { IPerson } from "api/UserApi";
+import { EmailError } from "api/InternalErrors";
 
 export interface IEmailApi {
   readonly siteUrl: string;

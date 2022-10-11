@@ -1,6 +1,6 @@
 import { IPersonaProps } from "@fluentui/react";
-import { spWebContext } from "../providers/SPWebContext";
-import { ApiError } from "./InternalErrors";
+import { spWebContext } from "providers/SPWebContext";
+import { ApiError } from "api/InternalErrors";
 import { TestImages } from "@fluentui/example-data";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";

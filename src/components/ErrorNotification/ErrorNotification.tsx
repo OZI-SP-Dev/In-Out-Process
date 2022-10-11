@@ -1,6 +1,6 @@
 import { MessageBar, MessageBarType } from "@fluentui/react";
 import { FunctionComponent } from "react";
-import { useError } from "../../hooks/useError";
+import { useError } from "hooks/useError";
 
 export const ErrorNotification: FunctionComponent = (props) => {
   const { error, removeError } = useError();
