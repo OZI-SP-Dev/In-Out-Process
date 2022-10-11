@@ -62,7 +62,9 @@ const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
  * Convert Person objects to their IDs
  */
 
-const transformInRequestToSP = (request: IInRequest): IRequestItem => {
+const transformInRequestToSP = async (
+  request: IInRequest
+): Promise<IRequestItem> => {
   const transformedRequest: IRequestItem = {
     Id: request.Id,
     empName: request.empName,
@@ -81,8 +83,16 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
       : "",
     eta: request.eta.toISOString(),
     completionDate: request.completionDate.toISOString(),
-    supGovLeadId: request.supGovLead.Id,
-    employeeId: request.employee?.Id,
+    supGovLeadId:
+      request.supGovLead.Id === -1
+        ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data.Id
+        : request.supGovLead.Id,
+    employeeId: request.employee?.Id
+      ? request.employee.Id === -1
+        ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
+        : request.employee.Id
+      : -1,
+    employeeStringId: request.employee?.Id ? undefined : "",
     isTraveler: request.isTraveler,
   };
   return transformedRequest;
@@ -193,7 +203,7 @@ export const useUpdateRequest = (Id: number) => {
   const queryClient = useQueryClient();
   return useMutation(
     ["requests", Id],
-    (request: IInRequest) => {
+    async (request: IInRequest) => {
       if (process.env.NODE_ENV === "development") {
         let returnRequest = {} as IItemUpdateResult;
         returnRequest.data = { ...request, etag: "1" };
@@ -202,7 +212,7 @@ export const useUpdateRequest = (Id: number) => {
         return spWebContext.web.lists
           .getByTitle("Items")
           .items.getById(Id)
-          .update(transformInRequestToSP(request));
+          .update(await transformInRequestToSP(request));
       }
     },
     {
@@ -288,6 +298,7 @@ type IResponseItem = Omit<
 type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   supGovLeadId: number;
   employeeId: number | undefined;
+  employeeStringId: string | undefined;
 };
 
 const testItems: IResponseItem[] = [
