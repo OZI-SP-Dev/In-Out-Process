@@ -254,7 +254,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 render={({ field }) => (
                   <Input
                     {...field}
-                    key={employee?.[0] ? employee[0].text : "empName"}
+                    key={employee?.text ? employee.text : "empName"}
                     disabled={employee?.text ? true : false}
                     aria-describedby="empNameErr"
                     id="empNameId"
