@@ -255,7 +255,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <Input
                     {...field}
                     key={employee?.[0] ? employee[0].text : "empName"}
-                    disabled={employee?.[0] ? true : false}
+                    disabled={employee?.text ? true : false}
                     aria-describedby="empNameErr"
                     id="empNameId"
                     placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
