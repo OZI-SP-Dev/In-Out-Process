@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { EmailApiConfig } from "../api/EmailApi";
-import { EmailError } from "../api/InternalErrors";
-import { IInRequest } from "../api/RequestApi";
-import { IPerson } from "../api/UserApi";
-import { useError } from "./useError";
+import { EmailApiConfig } from "api/EmailApi";
+import { EmailError } from "api/InternalErrors";
+import { IInRequest } from "api/RequestApi";
+import { IPerson } from "api/UserApi";
+import { useError } from "hooks/useError";
 
 export interface IEmailSender {
   sending: boolean;

@@ -6,7 +6,7 @@ import {
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
 import { people } from "@fluentui/example-data";
-import { spWebContext } from "../../providers/SPWebContext";
+import { spWebContext } from "providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
 
 // TODO: Add a way to show as input needed/corrected

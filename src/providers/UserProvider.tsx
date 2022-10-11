@@ -1,6 +1,6 @@
 import { createContext, FunctionComponent } from "react";
-import { RoleType, useUserRoles } from "../api/RolesApi";
-import { IPerson, useCurrentUser } from "../api/UserApi";
+import { RoleType, useUserRoles } from "api/RolesApi";
+import { IPerson, useCurrentUser } from "api/UserApi";
 
 export interface IUserContext {
   user: IPerson | undefined;

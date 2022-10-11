@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { spWebContext } from "../providers/SPWebContext";
-import { ApiError } from "./InternalErrors";
-import { IPerson } from "./UserApi";
+import { spWebContext } from "providers/SPWebContext";
+import { ApiError } from "api/InternalErrors";
+import { IPerson } from "api/UserApi";
 
 /** Enum used to define the different roles in the tool */
 export enum RoleType {
