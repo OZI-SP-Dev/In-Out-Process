@@ -1,8 +1,7 @@
-import { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import { IPerson, Person } from "api/UserApi";
 import {
-  IBasePicker,
   IBasePickerSuggestionsProps,
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
@@ -44,8 +43,6 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   }
 
   const [peopleList] = useState<IPersonaProps[]>(people);
-
-  const picker = useRef<IBasePicker<IPersonaProps>>(null);
 
   const onFilterChanged = async (
     filterText: string,
@@ -167,7 +164,6 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
       inputProps={{
         "aria-label": props.ariaLabel,
       }}
-      componentRef={picker}
       resolveDelay={300}
       disabled={props.readOnly}
       itemLimit={props.itemLimit ? props.itemLimit : 1}
