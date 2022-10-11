@@ -149,8 +149,13 @@ export const InRequestNewForm = () => {
               aria-describedby="employeeErr"
               selectedItems={value}
               updatePeople={(items) => {
-                setValue("empName", items[0] ? items[0].text : "");
-                onChange(items);
+                if (items?.[0]) {
+                  setValue("empName", items[0].text);
+                  onChange(items[0]);
+                } else {
+                  setValue("empName", "");
+                  onChange([]);
+                }
               }}
             />
           )}
@@ -540,7 +545,15 @@ export const InRequestNewForm = () => {
               ariaLabel="Supervisor/Government Lead"
               aria-describedby="supGovLeadErr"
               selectedItems={value}
-              updatePeople={onChange}
+              updatePeople={(items) => {
+                if (items?.[0]) {
+                  setValue("empName", items[0].text);
+                  onChange(items[0]);
+                } else {
+                  setValue("empName", "");
+                  onChange([]);
+                }
+              }}
             />
           )}
         />
