@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import { IPerson, Person } from "api/UserApi";
 import {
@@ -8,7 +8,7 @@ import {
 import { people } from "@fluentui/example-data";
 import { spWebContext } from "../../providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
-import { PrincipalType, PrincipalSource} from "@pnp/sp";
+import { PrincipalType, PrincipalSource } from "@pnp/sp";
 
 // TODO: Add a way to show as input needed/corrected
 
@@ -42,8 +42,6 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   } else {
     selectedItems = [];
   }
-
-  const [peopleList] = useState<IPersonaProps[]>(people);
 
   const onFilterChanged = async (
     filterText: string,
@@ -128,7 +126,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   };
 
   const filterPersonasByText = (filterText: string): IPersonaProps[] => {
-    return peopleList.filter((item) =>
+    return people.filter((item) =>
       doesTextStartWith(item.text as string, filterText)
     );
   };
