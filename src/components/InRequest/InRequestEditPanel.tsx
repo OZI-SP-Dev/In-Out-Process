@@ -211,15 +211,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <PeoplePicker
                     ariaLabel="Employee"
                     aria-describedby="employeeErr"
-                    defaultValue={value}
+                    selectedItems={value}
                     updatePeople={(items) => {
-                      if (items[0]) {
-                        setValue("empName", items[0].text);
-                        onChange(items[0]);
-                      } else {
-                        setValue("empName", "");
-                        onChange();
-                      }
+                      setValue("empName", items[0] ? items[0].text : "");
+                      onChange(items);
                     }}
                   />
                 )}
@@ -254,8 +249,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 render={({ field }) => (
                   <Input
                     {...field}
-                    key={employee?.text ? employee.text : "empName"}
-                    disabled={employee?.text ? true : false}
+                    key={employee?.[0] ? employee[0].text : "empName"}
+                    disabled={employee?.[0] ? true : false}
                     aria-describedby="empNameErr"
                     id="empNameId"
                     placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
@@ -619,14 +614,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <PeoplePicker
                     ariaLabel="Supervisor/Government Lead"
                     aria-describedby="supGovLeadErr"
-                    defaultValue={value}
-                    updatePeople={(items) => {
-                      if (items[0]) {
-                        onChange(items[0]);
-                      } else {
-                        onChange();
-                      }
-                    }}
+                    selectedItems={value}
+                    updatePeople={onChange}
                   />
                 )}
               />

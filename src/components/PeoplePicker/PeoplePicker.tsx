@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { FunctionComponent, useRef, useState } from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import {
   IBasePicker,
@@ -32,30 +32,25 @@ export interface SPPersona extends IPersonaProps {
 interface IPeoplePickerProps {
   /** Required - The text used to label this people picker for screenreaders */
   ariaLabel: string;
-  /** Optional - The people to pre-populate the People Picker with */
-  defaultValue?: SPPersona[] | SPPersona;
   readOnly?: boolean;
   required?: boolean;
   /** Optional - Limit the People Picker to only allow selection of specific number -- Defaults to 1 */
   itemLimit?: number;
   updatePeople: (p: SPPersona[]) => void;
+  selectedItems: SPPersona[] | SPPersona;
 }
 
 export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
-  const [currentSelectedItems, setCurrentSelectedItems] = useState<
-    IPersonaProps[]
-  >([]);
-  const [peopleList] = useState<IPersonaProps[]>(people);
+  let selectedItems: SPPersona[];
+  if (Array.isArray(props.selectedItems)) {
+    selectedItems = [...props.selectedItems];
+  } else if (props.selectedItems) {
+    selectedItems = [{ ...props.selectedItems }];
+  } else {
+    selectedItems = [];
+  }
 
-  useEffect(() => {
-    let personas: SPPersona[] = [];
-    if (Array.isArray(props.defaultValue)) {
-      personas = [...props.defaultValue];
-    } else if (props.defaultValue) {
-      personas = [{ ...props.defaultValue }];
-    }
-    setCurrentSelectedItems(personas);
-  }, [props.defaultValue]);
+  const [peopleList] = useState<IPersonaProps[]>(people);
 
   const picker = useRef<IBasePicker<IPersonaProps>>(null);
 
@@ -150,9 +145,11 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   };
 
   const onItemsChange = (items: IPersonaProps[] | undefined): void => {
+    // Check to see if we have an ID for the email address already
     if (items) {
-      setCurrentSelectedItems(items);
       props.updatePeople(items);
+    } else {
+      props.updatePeople([]);
     }
   };
 
@@ -165,7 +162,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
       key={"controlled"}
       selectionAriaLabel={"Selected users"}
       removeButtonAriaLabel={"Remove"}
-      selectedItems={currentSelectedItems}
+      selectedItems={selectedItems}
       onChange={onItemsChange}
       inputProps={{
         "aria-label": props.ariaLabel,
