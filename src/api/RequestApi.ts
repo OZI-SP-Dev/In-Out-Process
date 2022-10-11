@@ -180,7 +180,7 @@ export const useAddRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ["requests"],
-    (newRequest: IInRequest) => {
+    async (newRequest: IInRequest) => {
       if (process.env.NODE_ENV === "development") {
         let returnRequest = {} as IItemAddResult;
         returnRequest.data = { ...newRequest, Id: 4 };
@@ -188,7 +188,7 @@ export const useAddRequest = () => {
       } else {
         return spWebContext.web.lists
           .getByTitle("Items")
-          .items.add(transformInRequestToSP(newRequest));
+          .items.add(await transformInRequestToSP(newRequest));
       }
     },
     {
