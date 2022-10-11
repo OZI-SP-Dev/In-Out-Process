@@ -18,7 +18,7 @@ export const InRequest: FunctionComponent<IInRequest> = (props) => {
     useBoolean(false);
 
   //** Is the Current User the Superviosr/Gov Lead of this Request */
-  const isSupervisor = request.data?.supGovLead.SPUserId === currentUser.Id;
+  const isSupervisor = request.data?.supGovLead.Id === currentUser.Id;
 
   if (request.data) {
     return (

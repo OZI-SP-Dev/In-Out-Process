@@ -1,7 +1,7 @@
 import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "constants/EmpTypes";
 import { worklocation } from "constants/WorkLocations";
-import { SPPersona } from "components/PeoplePicker/PeoplePicker";
+import { IPerson, Person } from "api/UserApi";
 import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -31,17 +31,17 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
       : undefined,
     eta: new Date(request.eta),
     completionDate: new Date(request.completionDate),
-    supGovLead: {
-      SPUserId: request.supGovLead.Id,
-      Email: request.supGovLead.EMail,
-      text: request.supGovLead.Title,
-    },
+    supGovLead: new Person({
+      Id: request.supGovLead.Id,
+      EMail: request.supGovLead.EMail,
+      Title: request.supGovLead.Title,
+    }),
     employee: request.employee
-      ? {
-          SPUserId: request.employee.Id,
-          Email: request.employee.EMail,
-          text: request.employee.Title,
-        }
+      ? new Person({
+          Id: request.employee.Id,
+          EMail: request.employee.EMail,
+          Title: request.employee.Title,
+        })
       : undefined,
     isTraveler: request.isTraveler,
   };
@@ -81,10 +81,8 @@ const transformInRequestToSP = (request: IInRequest): IRequestItem => {
       : "",
     eta: request.eta.toISOString(),
     completionDate: request.completionDate.toISOString(),
-    // FIXME: The PeoplePicker is all sorts of jacked up. Temporary fix until that's looked into further.
-    supGovLeadId:
-      Number(request.supGovLead.Id) || Number(request.supGovLead.SPUserId),
-    employeeId: request.employee?.SPUserId,
+    supGovLeadId: request.supGovLead.Id,
+    employeeId: request.employee?.Id,
     isTraveler: request.isTraveler,
   };
   return transformedRequest;
@@ -252,9 +250,9 @@ export type IInRequest = {
   /** Required - The Expected Completion Date - Default to 28 days from eta*/
   completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
-  supGovLead: SPPersona;
+  supGovLead: IPerson;
   /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
-  employee: SPPersona | undefined;
+  employee: IPerson | undefined;
   /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
   isTraveler: "yes" | "no" | "";
 };
@@ -272,19 +270,17 @@ type IResponseItem = Omit<
 
   // supGovLead is a Person field, and we request to expand it to retrieve Id, Title, and EMail
   supGovLead: {
-    Id: number | undefined;
-    Title: string | undefined;
-    EMail: string | undefined;
+    Id: number;
+    Title: string;
+    EMail: string;
   };
 
   // employee is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  employee:
-    | {
-        Id: number | undefined;
-        Title: string | undefined;
-        EMail: string | undefined;
-      }
-    | undefined;
+  employee?: {
+    Id: number;
+    Title: string;
+    EMail: string;
+  };
 };
 
 // create PnP JS response interface for the InForm
