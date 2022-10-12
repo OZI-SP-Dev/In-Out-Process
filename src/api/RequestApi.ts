@@ -253,52 +253,38 @@ export type IInRequest = {
   isNewToBaseAndCenter: "yes" | "no" | "";
   /** Required - Can only be 'yes' | 'no' if is a Ctr.  For others it will be '' */
   hasExistingCAC: "yes" | "no" | "";
-  /** Required - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */
-  CACExpiration: Date | undefined;
+  /** Optional - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */
+  CACExpiration?: Date;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Expected Completion Date - Default to 28 days from eta*/
   completionDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: IPerson;
-  /** Required - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
-  employee: IPerson | undefined;
+  /** Optional - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
+  employee?: IPerson;
   /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
   isTraveler: "yes" | "no" | "";
 };
 
 // create PnP JS response interface for the InForm
-// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+// This extends the IInRequest to change the types of certain objects
 type IResponseItem = Omit<
   IInRequest,
-  "eta" | "completionDate" | "CACExpiration" | "supGovLead" | "employee"
+  "eta" | "completionDate" | "CACExpiration"
 > & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   eta: string;
   completionDate: string;
   CACExpiration: string;
-
-  // supGovLead is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  supGovLead: {
-    Id: number;
-    Title: string;
-    EMail: string;
-  };
-
-  // employee is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  employee?: {
-    Id: number;
-    Title: string;
-    EMail: string;
-  };
 };
 
 // create PnP JS response interface for the InForm
-// This extends the IInRequest -- currently identical, but may need to vary when pulling in SPData
+// This extends the IInRequest to drop some required objects and add additional objects
 type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   supGovLeadId: number;
-  employeeId: number | undefined;
-  employeeStringId: string | undefined;
+  employeeId: number;
+  employeeStringId?: string;
 };
 
 const testItems: IResponseItem[] = [
