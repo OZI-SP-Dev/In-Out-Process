@@ -73,8 +73,8 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
             AllowMultipleEntities: false,
             MaximumEntitySuggestions: limitResults ? limitResults : 25,
             QueryString: filterText,
-            PrincipalSource: 15,
-            PrincipalType: 1,
+            PrincipalSource: 15, // PrincipalSource.All -- Cannot use the enum directly from PnPJS due to it being an ambient enum
+            PrincipalType: 1, // PrincipalType.User -- Cannot use the enum directly from PnPJS due to it being an ambient enum
           });
         let newPersonas: IPersonaProps[] = [];
         results.forEach((person: IPeoplePickerEntity) => {
