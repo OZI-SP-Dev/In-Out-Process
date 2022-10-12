@@ -8,7 +8,6 @@ import {
 import { people } from "@fluentui/example-data";
 import { spWebContext } from "../../providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
-import { PrincipalType, PrincipalSource } from "@pnp/sp";
 
 // TODO: Add a way to show as input needed/corrected
 
@@ -74,8 +73,8 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
             AllowMultipleEntities: false,
             MaximumEntitySuggestions: limitResults ? limitResults : 25,
             QueryString: filterText,
-            PrincipalSource: PrincipalSource.All,
-            PrincipalType: PrincipalType.User,
+            PrincipalSource: 15,
+            PrincipalType: 1,
           });
         let newPersonas: IPersonaProps[] = [];
         results.forEach((person: IPeoplePickerEntity) => {
