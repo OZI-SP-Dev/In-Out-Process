@@ -87,6 +87,12 @@ const transformInRequestToSP = async (
       request.supGovLead.Id === -1
         ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data.Id
         : request.supGovLead.Id,
+    /* If an employee is provided then we are upadting the employee field with a person
+        A value of -1 requires looking up the site user's Id, whereas a positive number means we already have the Id.
+       If the employee object is undefined then we need to clear the SharePoint field.  We do this by setting the
+        employeeId to -1 and the employeeStringId to "".  If we don't set employeeStringId to "" then both our app and the
+        native SharePoint UI will show a partial person object having an Id of -1 rather than a clear field  
+    */
     employeeId: request.employee?.Id
       ? request.employee.Id === -1
         ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
