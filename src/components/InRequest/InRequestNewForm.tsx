@@ -147,14 +147,14 @@ export const InRequestNewForm = () => {
             <PeoplePicker
               ariaLabel="Employee"
               aria-describedby="employeeErr"
-              defaultValue={value}
+              selectedItems={value}
               updatePeople={(items) => {
-                if (items[0]) {
+                if (items?.[0]) {
                   setValue("empName", items[0].text);
                   onChange(items[0]);
                 } else {
                   setValue("empName", "");
-                  onChange();
+                  onChange([]);
                 }
               }}
             />
@@ -544,12 +544,14 @@ export const InRequestNewForm = () => {
             <PeoplePicker
               ariaLabel="Supervisor/Government Lead"
               aria-describedby="supGovLeadErr"
-              defaultValue={value}
+              selectedItems={value}
               updatePeople={(items) => {
-                if (items[0]) {
+                if (items?.[0]) {
+                  setValue("empName", items[0].text);
                   onChange(items[0]);
                 } else {
-                  onChange();
+                  setValue("empName", "");
+                  onChange([]);
                 }
               }}
             />

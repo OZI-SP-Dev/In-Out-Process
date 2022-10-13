@@ -1,7 +1,7 @@
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { FunctionComponent } from "react";
 import { IPersonaProps } from "@fluentui/react/lib/Persona";
+import { IPerson, Person } from "api/UserApi";
 import {
-  IBasePicker,
   IBasePickerSuggestionsProps,
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
@@ -21,43 +21,26 @@ const suggestionProps: IBasePickerSuggestionsProps = {
   suggestionsContainerAriaLabel: "Suggested contacts",
 };
 
-export interface SPPersona extends IPersonaProps {
-  AccountName?: string;
-  Department?: string;
-  Email?: string;
-  SPUserId?: number;
-  Id?: number;
-}
-
 interface IPeoplePickerProps {
   /** Required - The text used to label this people picker for screenreaders */
   ariaLabel: string;
-  /** Optional - The people to pre-populate the People Picker with */
-  defaultValue?: SPPersona[] | SPPersona;
   readOnly?: boolean;
   required?: boolean;
   /** Optional - Limit the People Picker to only allow selection of specific number -- Defaults to 1 */
   itemLimit?: number;
-  updatePeople: (p: SPPersona[]) => void;
+  updatePeople: (p: IPerson[]) => void;
+  selectedItems: IPerson[] | IPerson;
 }
 
 export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
-  const [currentSelectedItems, setCurrentSelectedItems] = useState<
-    IPersonaProps[]
-  >([]);
-  const [peopleList] = useState<IPersonaProps[]>(people);
-
-  useEffect(() => {
-    let personas: SPPersona[] = [];
-    if (Array.isArray(props.defaultValue)) {
-      personas = [...props.defaultValue];
-    } else if (props.defaultValue) {
-      personas = [{ ...props.defaultValue }];
-    }
-    setCurrentSelectedItems(personas);
-  }, [props.defaultValue]);
-
-  const picker = useRef<IBasePicker<IPersonaProps>>(null);
+  let selectedItems: IPerson[];
+  if (Array.isArray(props.selectedItems)) {
+    selectedItems = [...props.selectedItems];
+  } else if (props.selectedItems) {
+    selectedItems = [{ ...props.selectedItems }];
+  } else {
+    selectedItems = [];
+  }
 
   const onFilterChanged = async (
     filterText: string,
@@ -69,7 +52,20 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
     if (filterText) {
       let filteredPersonas: IPersonaProps[]; //| Promise<IPersonaProps[]>;
       if (process.env.NODE_ENV === "development") {
-        filteredPersonas = await filterPersonasByText(filterText);
+        const results = await filterPersonasByText(filterText);
+        let newPersonas: IPerson[] = [];
+        // Handle DEV a little different than PROD -- as props like the image URL can't be built the same
+        results.forEach((person: IPersonaProps) => {
+          newPersonas.push({
+            ...person,
+            Id: -1,
+            Title: person.text ? person.text : "DEFAULT",
+            EMail: person.text
+              ? person.text + "@localhost"
+              : "DEFAULT@localhost",
+          });
+        });
+        filteredPersonas = [...newPersonas];
       } else {
         const results =
           await spWebContext.profiles.clientPeoplePickerSearchUser({
@@ -77,21 +73,16 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
             AllowMultipleEntities: false,
             MaximumEntitySuggestions: limitResults ? limitResults : 25,
             QueryString: filterText,
-            PrincipalSource: 15,
-            PrincipalType: 1,
+            PrincipalSource: 15, // PrincipalSource.All -- Cannot use the enum directly from PnPJS due to it being an ambient enum
+            PrincipalType: 1, // PrincipalType.User -- Cannot use the enum directly from PnPJS due to it being an ambient enum
           });
         let newPersonas: IPersonaProps[] = [];
         results.forEach((person: IPeoplePickerEntity) => {
-          const persona: SPPersona = {
-            text: person.DisplayText,
-            secondaryText: person.EntityData.Title,
-            imageInitials:
-              person.DisplayText.substr(
-                person.DisplayText.indexOf(" ") + 1,
-                1
-              ) + person.DisplayText.substr(0, 1),
-            Email: person.EntityData.Email,
-          };
+          const persona: IPersonaProps = new Person({
+            Id: -1,
+            Title: person.DisplayText,
+            EMail: person.EntityData.Email ? person.EntityData.Email : "",
+          });
           newPersonas.push(persona);
         });
 
@@ -134,7 +125,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   };
 
   const filterPersonasByText = (filterText: string): IPersonaProps[] => {
-    return peopleList.filter((item) =>
+    return people.filter((item) =>
       doesTextStartWith(item.text as string, filterText)
     );
   };
@@ -151,8 +142,9 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
 
   const onItemsChange = (items: IPersonaProps[] | undefined): void => {
     if (items) {
-      setCurrentSelectedItems(items);
-      props.updatePeople(items);
+      props.updatePeople(items as IPerson[]);
+    } else {
+      props.updatePeople([]);
     }
   };
 
@@ -165,12 +157,11 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
       key={"controlled"}
       selectionAriaLabel={"Selected users"}
       removeButtonAriaLabel={"Remove"}
-      selectedItems={currentSelectedItems}
+      selectedItems={selectedItems}
       onChange={onItemsChange}
       inputProps={{
         "aria-label": props.ariaLabel,
       }}
-      componentRef={picker}
       resolveDelay={300}
       disabled={props.readOnly}
       itemLimit={props.itemLimit ? props.itemLimit : 1}
