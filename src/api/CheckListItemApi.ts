@@ -2,18 +2,15 @@ import { spWebContext } from "providers/SPWebContext";
 import { ApiError } from "api/InternalErrors";
 import { DateTime } from "luxon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser } from "api/UserApi";
+import { IPerson, Person, useCurrentUser } from "api/UserApi";
 
 export interface ICheckListItem {
   Id: number;
   Title: string;
+  Description: string;
   Lead: string; // TBD: better as role and/or person?
   CompletedDate?: DateTime;
-  CompletedBy?: {
-    Id: number | undefined;
-    Title: string | undefined;
-    EMail: string | undefined;
-  };
+  CompletedBy?: IPerson;
   SortOrder?: number;
 }
 
@@ -22,15 +19,6 @@ export interface ICheckListItem {
 type IResponseItem = Omit<ICheckListItem, "CompletedDate"> & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   CompletedDate: string;
-
-  // CompletedBy is a Person field, and we request to expand it to retrieve Id, Title, and EMail
-  CompletedBy?:
-    | {
-        Id: number | undefined;
-        Title: string | undefined;
-        EMail: string | undefined;
-      }
-    | undefined;
 };
 
 // Interface for sending an update to SharePoint for marking CheckListItem as complete
@@ -45,6 +33,8 @@ let testCheckListItems: IResponseItem[] = [
   {
     Id: 1,
     Title: "First Item!",
+    Description:
+      "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
     Lead: "Anakin Skywalker",
     CompletedDate: "2022-09-15",
     CompletedBy: {
@@ -56,6 +46,8 @@ let testCheckListItems: IResponseItem[] = [
   {
     Id: 2,
     Title: "Second Item!",
+    Description:
+      "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
     Lead: "Obi-Wan Kenobi",
     CompletedDate: "",
     CompletedBy: undefined,
@@ -66,7 +58,7 @@ let testCheckListItems: IResponseItem[] = [
 // Currently it is being used by all requests to SP, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,Title,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail";
+  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail";
 const expandedFields = "CompletedBy";
 
 /**
@@ -80,11 +72,18 @@ const transformCheckListItemFromSP = (
   return {
     Id: request.Id,
     Title: request.Title,
+    Description: request.Description,
     Lead: request.Lead,
     CompletedDate: request.CompletedDate
       ? DateTime.fromISO(request.CompletedDate)
       : undefined,
-    CompletedBy: request.CompletedBy ? request.CompletedBy : undefined,
+    CompletedBy: request.CompletedBy
+      ? new Person({
+          Id: request.CompletedBy.Id,
+          Title: request.CompletedBy.Title,
+          EMail: request.CompletedBy.EMail,
+        })
+      : undefined,
   };
 };
 

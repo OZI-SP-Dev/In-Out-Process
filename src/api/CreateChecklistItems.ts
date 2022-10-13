@@ -12,7 +12,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Required for all inbounds?
   checklistItems.items.add({
     Title: "Welcome Package",
-    Description: "",
+    Description:
+      "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span><span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
     Lead: "Supervisor",
     RequestId: request.Id,
   });
