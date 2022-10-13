@@ -7,7 +7,6 @@ import {
   SelectionMode,
   ShimmeredDetailsList,
   Selection,
-  MarqueeSelection,
 } from "@fluentui/react";
 import { FunctionComponent, useState } from "react";
 import { Button, Link } from "@fluentui/react-components";
@@ -117,20 +116,18 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   ];
 
   return (
-    <div>
-      <MarqueeSelection selection={selection}>
-        <ShimmeredDetailsList
-          items={checlistItems.data || []}
-          columns={columns}
-          enableShimmer={!checlistItems.data}
-          selectionMode={SelectionMode.single}
-          onActiveItemChanged={(item) => {
-            setCurrentItemId(item.Id);
-          }}
-          onItemInvoked={showItemPanel}
-          selection={selection}
-        />
-      </MarqueeSelection>
+    <>
+      <ShimmeredDetailsList
+        items={checlistItems.data || []}
+        columns={columns}
+        enableShimmer={!checlistItems.data}
+        selectionMode={SelectionMode.single}
+        onActiveItemChanged={(item) => {
+          setCurrentItemId(item.Id);
+        }}
+        onItemInvoked={showItemPanel}
+        selection={selection}
+      />
       {currentItem && (
         <CheckListItemPanel
           isOpen={isItemPanelOpen}
@@ -139,6 +136,6 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           completeItem={completeCheckListItemClick}
         ></CheckListItemPanel>
       )}
-    </div>
+    </>
   );
 };
