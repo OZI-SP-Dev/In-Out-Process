@@ -17,7 +17,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
     useBoolean(false);
 
   //** Is the Current User the Superviosr/Gov Lead of this Request */
-  const isSupervisor = props.roles.includes(RoleType.Supervisor);
+  const isSupervisor = props.roles.includes(RoleType.SUPERVISOR);
 
   return (
     <>

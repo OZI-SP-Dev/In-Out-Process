@@ -16,11 +16,11 @@ export const Item: FunctionComponent = (props) => {
   } else {
     requestRoles = [...currentUser.roles];
     if (request?.data?.supGovLead.Id === currentUser.user?.Id) {
-      requestRoles.push(RoleType.Supervisor);
+      requestRoles.push(RoleType.SUPERVISOR);
       // If the current user is the Supervisor of the Request, then they also get the Employee role
-      requestRoles.push(RoleType.Employee);
+      requestRoles.push(RoleType.EMPLOYEE);
     } else if (request?.data?.employee?.Id === currentUser.user?.Id) {
-      requestRoles.push(RoleType.Employee);
+      requestRoles.push(RoleType.EMPLOYEE);
     }
   }
 

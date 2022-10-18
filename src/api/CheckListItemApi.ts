@@ -89,7 +89,7 @@ const transformCheckListItemFromSP = (
   request: IResponseItem
 ): ICheckListItem => {
   let lead: RoleType;
-  if (request.Lead in RoleType) {
+  if (Object.values(RoleType).includes(request.Lead as RoleType)) {
     lead = request.Lead as RoleType;
   } else {
     // If the Lead specified in the record doesn't exist on our mapping -- make the Lead ADMIN

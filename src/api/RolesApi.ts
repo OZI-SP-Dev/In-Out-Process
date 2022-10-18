@@ -10,17 +10,19 @@ export enum RoleType {
   /** Role for granting Information Technology (IT) capabilities */
   IT = "IT",
   /** Role for granting Automated Time Attendance and Production System (ATAAPS) capabilities */
-  ATAAPs = "ATAAPS",
+  ATAAPS = "ATAAPS",
   /** Role for granting Front Office Group (FOG) capabilities */
   FOG = "FOG",
   /** Role for granting Defense Travel System (DTS) capabilities  */
   DTS = "DTS",
   /** Role for granting Government Travel Card (GTC) capabilities */
   GTC = "GTC",
+  /** Role for granting Security capabilities */
+  SECURITY = "Security",
   /** Role for if current user is Employee on the current request */
-  Employee = "Employee",
+  EMPLOYEE = "Employee",
   /** Role for if current user is Supervisor on the current request */
-  Supervisor = "Supervisor",
+  SUPERVISOR = "Supervisor",
 }
 
 export interface IUserRoles {

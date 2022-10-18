@@ -2,6 +2,7 @@ import { spWebContext } from "providers/SPWebContext";
 import { IInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { RoleType } from "./RolesApi";
 
 const createInboundChecklistItems = (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();
@@ -14,7 +15,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     Title: "Welcome Package",
     Description:
       "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span><span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
-    Lead: "Supervisor",
+    Lead: RoleType.SUPERVISOR,
     RequestId: request.Id,
   });
 
@@ -23,7 +24,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
   checklistItems.items.add({
     Title: "IA Training",
     Description: "",
-    Lead: "Employee",
+    Lead: RoleType.EMPLOYEE,
     RequestId: request.Id,
   });
 
@@ -35,7 +36,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     checklistItems.items.add({
       Title: "Transfer CAC",
       Description: "",
-      Lead: "Security",
+      Lead: RoleType.SECURITY,
       RequestId: request.Id,
     });
   }
@@ -45,7 +46,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     checklistItems.items.add({
       Title: "Obtain CAC",
       Description: "",
-      Lead: "Security",
+      Lead: RoleType.SECURITY,
       RequestId: request.Id,
     });
   }
@@ -55,7 +56,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     checklistItems.items.add({
       Title: "Attend On-Base Training",
       Description: "",
-      Lead: "Employee",
+      Lead: RoleType.EMPLOYEE,
       RequestId: request.Id,
     });
   }
@@ -65,13 +66,13 @@ const createInboundChecklistItems = (request: IInRequest) => {
     checklistItems.items.add({
       Title: "GTC In-processing",
       Description: "",
-      Lead: "Travel",
+      Lead: RoleType.GTC,
       RequestId: request.Id,
     });
     checklistItems.items.add({
       Title: "DTS In-processing",
       Description: "",
-      Lead: "Travel",
+      Lead: RoleType.DTS,
       RequestId: request.Id,
     });
   }
@@ -81,7 +82,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     checklistItems.items.add({
       Title: "ATAAPS In-processing",
       Description: "",
-      Lead: "ATAAPS",
+      Lead: RoleType.ATAAPS,
       RequestId: request.Id,
     });
   }
