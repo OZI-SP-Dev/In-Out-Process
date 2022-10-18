@@ -17,6 +17,10 @@ export enum RoleType {
   DTS = "DTS",
   /** Role for granting Government Travel Card (GTC) capabilities */
   GTC = "GTC",
+  /** Role for if current user is Employee on the current request */
+  Employee = "Employee",
+  /** Role for if current user is Supervisor on the current request */
+  Supervisor = "Supervisor",
 }
 
 export interface IUserRoles {
