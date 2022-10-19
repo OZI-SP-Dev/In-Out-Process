@@ -352,7 +352,7 @@ const testItems: IResponseItem[] = [
   },
   {
     Id: 3,
-    empName: "Doe, Jack E",
+    empName: "Default User",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-12",
     MPCN: 1233217,
@@ -368,10 +368,14 @@ const testItems: IResponseItem[] = [
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: {
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
+    },
+    employee: {
       Id: 1,
       Title: "Default User",
       EMail: "defaultTEST@us.af.mil",
     },
-    employee: undefined,
   },
 ];

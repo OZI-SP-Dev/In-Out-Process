@@ -13,6 +13,7 @@ import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import { sanitize } from "dompurify";
+import { RoleType } from "api/RolesApi";
 
 const useStyles = makeStyles({
   detailContainer: { display: "block" },
@@ -41,6 +42,7 @@ export interface ICheckList {
   item: ICheckListItem;
   onDismiss: () => void;
   completeItem: (itemId: number) => void;
+  roles: RoleType[];
 }
 
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
@@ -73,7 +75,12 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
     return (
       <>
         <div className={classes.panelNavCommandBar}>
-          <CommandBar items={items}></CommandBar>
+          {
+            // If they are the Lead then show the CommandBar, otherwise hide it
+            compProps.roles?.includes(compProps.item.Lead) && (
+              <CommandBar items={items}></CommandBar>
+            )
+          }
         </div>
         {
           // Render the default close button

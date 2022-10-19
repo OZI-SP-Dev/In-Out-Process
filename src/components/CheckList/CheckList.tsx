@@ -12,9 +12,11 @@ import { FunctionComponent, useState } from "react";
 import { Button, Link } from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { CheckListItemPanel } from "components/CheckList/CheckListItemPanel";
+import { RoleType } from "api/RolesApi";
 
 export interface ICheckList {
   ReqId: number;
+  Roles: RoleType[];
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
@@ -91,12 +93,17 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           // TODO: Replace this button with a Command Bar at the top of the ShimmeredDetailList
           return (
             <>
-              <Button
-                appearance="primary"
-                onClick={() => completeCheckListItemClick(item.Id)}
-              >
-                Complete
-              </Button>
+              {
+                // Show the button to complete if they are the proper role
+                props.Roles?.includes(item.Lead) && (
+                  <Button
+                    appearance="primary"
+                    onClick={() => completeCheckListItemClick(item.Id)}
+                  >
+                    Complete
+                  </Button>
+                )
+              }
             </>
           );
         }
@@ -134,6 +141,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           onDismiss={hideItemPanel}
           item={currentItem}
           completeItem={completeCheckListItemClick}
+          roles={props.Roles}
         ></CheckListItemPanel>
       )}
     </>

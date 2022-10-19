@@ -3,12 +3,13 @@ import { ApiError } from "api/InternalErrors";
 import { DateTime } from "luxon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IPerson, Person, useCurrentUser } from "api/UserApi";
+import { RoleType } from "./RolesApi";
 
 export interface ICheckListItem {
   Id: number;
   Title: string;
   Description: string;
-  Lead: string; // TBD: better as role and/or person?
+  Lead: RoleType;
   CompletedDate?: DateTime;
   CompletedBy?: IPerson;
   SortOrder?: number;
@@ -16,9 +17,10 @@ export interface ICheckListItem {
 
 // create PnP JS response interface for the CheckListItems
 // This extends the ICheckListItem, replacing elements with the types to match SharePoint fields
-type IResponseItem = Omit<ICheckListItem, "CompletedDate"> & {
+type IResponseItem = Omit<ICheckListItem, "CompletedDate" | "Lead"> & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   CompletedDate: string;
+  Lead: string;
 };
 
 // Interface for sending an update to SharePoint for marking CheckListItem as complete
@@ -35,7 +37,7 @@ let testCheckListItems: IResponseItem[] = [
     Title: "First Item!",
     Description:
       "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
-    Lead: "Anakin Skywalker",
+    Lead: "Admin",
     CompletedDate: "2022-09-15",
     CompletedBy: {
       Id: 2,
@@ -46,9 +48,26 @@ let testCheckListItems: IResponseItem[] = [
   {
     Id: 2,
     Title: "Second Item!",
+    Description: "<p>This task should be able to be completed by IT</p>",
+    Lead: "IT",
+    CompletedDate: "",
+    CompletedBy: undefined,
+  },
+  {
+    Id: 3,
+    Title: "Third Item!",
     Description:
-      "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
-    Lead: "Obi-Wan Kenobi",
+      "<p>This task should be able to be completed by Supervisor</p>",
+    Lead: "Supervisor",
+    CompletedDate: "",
+    CompletedBy: undefined,
+  },
+  {
+    Id: 4,
+    Title: "Fourth Item!",
+    Description:
+      "<p>This task should be able to be completed by Employee or Supervisor</p>",
+    Lead: "Employee",
     CompletedDate: "",
     CompletedBy: undefined,
   },
@@ -69,11 +88,19 @@ const expandedFields = "CompletedBy";
 const transformCheckListItemFromSP = (
   request: IResponseItem
 ): ICheckListItem => {
+  let lead: RoleType;
+  if (Object.values(RoleType).includes(request.Lead as RoleType)) {
+    lead = request.Lead as RoleType;
+  } else {
+    // If the Lead specified in the record doesn't exist on our mapping -- make the Lead ADMIN
+    lead = RoleType.ADMIN;
+  }
+
   return {
     Id: request.Id,
     Title: request.Title,
     Description: request.Description,
-    Lead: request.Lead,
+    Lead: lead,
     CompletedDate: request.CompletedDate
       ? DateTime.fromISO(request.CompletedDate)
       : undefined,
