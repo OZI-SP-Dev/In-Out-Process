@@ -59,9 +59,7 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
         key: "markComplete",
         text: "Mark Complete",
         iconProps: { iconName: "CheckMark" },
-        disabled: compProps.item.CompletedBy
-          ? true
-          : false || !compProps.roles?.includes(compProps.item.Lead),
+        disabled: compProps.item.CompletedBy ? true : false,
         onClick: (ev?, item?) => {
           compProps.completeItem(compProps.item.Id);
         },
