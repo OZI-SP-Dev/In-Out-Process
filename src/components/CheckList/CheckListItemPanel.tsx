@@ -43,6 +43,7 @@ export interface ICheckList {
   onDismiss: () => void;
   completeItem: (itemId: number) => void;
   roles: RoleType[];
+  isRequestOpen: boolean;
 }
 
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
@@ -76,10 +77,9 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
       <>
         <div className={classes.panelNavCommandBar}>
           {
-            // If they are the Lead then show the CommandBar, otherwise hide it
-            compProps.roles?.includes(compProps.item.Lead) && (
-              <CommandBar items={items}></CommandBar>
-            )
+            // If they are the Lead then show the CommandBar AND the request isn't Closed/Cancelled, otherwise hide it
+            compProps.roles?.includes(compProps.item.Lead) &&
+              compProps.isRequestOpen && <CommandBar items={items}></CommandBar>
           }
         </div>
         {

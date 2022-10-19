@@ -2,6 +2,7 @@ import { FunctionComponent } from "react";
 import { EMPTYPES } from "constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
 import { IInRequest } from "api/RequestApi";
+import { MessageBar, MessageBarType } from "@fluentui/react";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -13,6 +14,7 @@ const useStyles = makeStyles({
     gridAutoRows: "minmax(50px, auto)",
   },
   capitalize: { textTransform: "capitalize" },
+  messageBar: { whiteSpace: "pre-wrap" }, // Allow the \n character to wrap text
 });
 
 export interface IInRequestViewCompact {
@@ -45,8 +47,29 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     return displayValue;
   };
 
+  let closedOrCancelledNotice: string = "";
+
+  if (formData.closedOrCancelledDate) {
+    if (formData.cancelReason) {
+      closedOrCancelledNotice = `This request was cancelled on ${formData.closedOrCancelledDate.toDateString()}.\n\nReason: ${
+        formData.cancelReason
+      }`;
+    } else {
+      closedOrCancelledNotice = `This request was closed on ${formData.closedOrCancelledDate.toDateString()}.`;
+    }
+  }
+
   return (
     <>
+      {closedOrCancelledNotice && (
+        <MessageBar
+          messageBarType={MessageBarType.warning}
+          isMultiline={true}
+          className={classes.messageBar}
+        >
+          {closedOrCancelledNotice}
+        </MessageBar>
+      )}
       <div id="inReqCompact" className={classes.compactContainer}>
         <div>
           <Label weight="semibold" htmlFor="empNameCVId">

@@ -44,6 +44,10 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
         })
       : undefined,
     isTraveler: request.isTraveler,
+    closedOrCancelledDate: request.closedOrCancelledDate
+      ? new Date(request.closedOrCancelledDate)
+      : undefined,
+    cancelReason: request.cancelReason,
   };
 };
 
@@ -100,6 +104,10 @@ const transformInRequestToSP = async (
       : -1,
     employeeStringId: request.employee?.Id ? undefined : "",
     isTraveler: request.isTraveler,
+    closedOrCancelledDate: request.closedOrCancelledDate
+      ? request.closedOrCancelledDate.toISOString()
+      : "",
+    cancelReason: request.cancelReason,
   };
   return transformedRequest;
 };
@@ -108,7 +116,7 @@ const transformInRequestToSP = async (
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,workLocation,isNewCivMil,isTraveler,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate";
+  "Id,empName,empType,gradeRank,MPCN,SAR,workLocation,isNewCivMil,isTraveler,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -271,18 +279,23 @@ export type IInRequest = {
   employee?: IPerson;
   /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
   isTraveler: "yes" | "no" | "";
+  /** Optional - Date Supervisor Closed or Cancelled -- If there is a cancelReason then we know it was cancelled */
+  closedOrCancelledDate?: Date;
+  /** Optional - The reason for why the request was cancelled */
+  cancelReason?: string;
 };
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to change the types of certain objects
 type IResponseItem = Omit<
   IInRequest,
-  "eta" | "completionDate" | "CACExpiration"
+  "eta" | "completionDate" | "CACExpiration" | "closedOrCancelledDate"
 > & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   eta: string;
   completionDate: string;
   CACExpiration: string;
+  closedOrCancelledDate?: string;
 };
 
 // create PnP JS response interface for the InForm
@@ -377,5 +390,64 @@ const testItems: IResponseItem[] = [
       Title: "Default User",
       EMail: "defaultTEST@us.af.mil",
     },
+  },
+  {
+    Id: 4,
+    empName: "Cancelled, Imma B",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-13",
+    MPCN: 7654321,
+    SAR: 6,
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: "no",
+    prevOrg: "AFLCMC/WA",
+    isNewToBaseAndCenter: "no",
+    hasExistingCAC: "no",
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: {
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
+    },
+    isTraveler: "no",
+    closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
+    cancelReason: "Employee proceeded with new opportunity",
+  },
+  {
+    Id: 5,
+    empName: "Closed, Aye M",
+    empType: EMPTYPES.Civilian,
+    gradeRank: "GS-13",
+    MPCN: 7654321,
+    SAR: 6,
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: "no",
+    prevOrg: "AFLCMC/WA",
+    isNewToBaseAndCenter: "no",
+    hasExistingCAC: "no",
+    CACExpiration: "2022-12-31T00:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: {
+      Id: 1,
+      Title: "Default User",
+      EMail: "defaultTEST@us.af.mil",
+    },
+    employee: {
+      Id: 2,
+      Title: "Default User 2",
+      EMail: "defaultTEST2@us.af.mil",
+    },
+    isTraveler: "no",
+    closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
   },
 ];

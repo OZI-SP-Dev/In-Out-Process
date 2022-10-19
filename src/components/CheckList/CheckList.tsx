@@ -17,6 +17,7 @@ import { RoleType } from "api/RolesApi";
 export interface ICheckList {
   ReqId: number;
   Roles: RoleType[];
+  IsRequestOpen: boolean;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
@@ -94,8 +95,8 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           return (
             <>
               {
-                // Show the button to complete if they are the proper role
-                props.Roles?.includes(item.Lead) && (
+                // Show the button to complete if they are the proper role AND the request is not Closed/Cancelled
+                props.Roles?.includes(item.Lead) && props.IsRequestOpen && (
                   <Button
                     appearance="primary"
                     onClick={() => completeCheckListItemClick(item.Id)}
@@ -142,6 +143,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           item={currentItem}
           completeItem={completeCheckListItemClick}
           roles={props.Roles}
+          isRequestOpen={props.IsRequestOpen}
         ></CheckListItemPanel>
       )}
     </>
