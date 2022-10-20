@@ -4,7 +4,6 @@ import { DateTime } from "luxon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IPerson, Person, useCurrentUser } from "api/UserApi";
 import { RoleType } from "./RolesApi";
-
 export interface ICheckListItem {
   Id: number;
   Title: string;
@@ -13,6 +12,7 @@ export interface ICheckListItem {
   CompletedDate?: DateTime;
   CompletedBy?: IPerson;
   SortOrder?: number;
+  ReqId: number;
 }
 
 // create PnP JS response interface for the CheckListItems
@@ -30,54 +30,113 @@ interface ISPCompleteCheckListItem {
   CompletedById: number;
 }
 
-/** CheckListItem Data for testing  */
-let testCheckListItems: IResponseItem[] = [
-  {
-    Id: 1,
-    Title: "First Item!",
-    Description:
-      "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
-    Lead: "Admin",
-    CompletedDate: "2022-09-15",
-    CompletedBy: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
+// Declare testItems so it can be used if needed
+let testCheckListItems: IResponseItem[] = [];
+
+// Generate data for testing but only in the development environment
+if (process.env.NODE_ENV === "development") {
+  /** CheckListItem Data for testing  */
+  testCheckListItems.push(
+    {
+      Id: 1,
+      Title: "First Item!",
+      Description:
+        "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
+      Lead: "Admin",
+      CompletedDate: "2022-09-15",
+      CompletedBy: {
+        Id: 2,
+        Title: "Default User 2",
+        EMail: "defaultTEST2@us.af.mil",
+      },
+      ReqId: 1,
     },
-  },
-  {
-    Id: 2,
-    Title: "Second Item!",
-    Description: "<p>This task should be able to be completed by IT</p>",
-    Lead: "IT",
-    CompletedDate: "",
-    CompletedBy: undefined,
-  },
-  {
-    Id: 3,
-    Title: "Third Item!",
-    Description:
-      "<p>This task should be able to be completed by Supervisor</p>",
-    Lead: "Supervisor",
-    CompletedDate: "",
-    CompletedBy: undefined,
-  },
-  {
-    Id: 4,
-    Title: "Fourth Item!",
-    Description:
-      "<p>This task should be able to be completed by Employee or Supervisor</p>",
-    Lead: "Employee",
-    CompletedDate: "",
-    CompletedBy: undefined,
-  },
-];
+    {
+      Id: 2,
+      Title: "Second Item!",
+      Description: "<p>This task should be able to be completed by IT</p>",
+      Lead: "IT",
+      CompletedDate: "",
+      CompletedBy: undefined,
+      ReqId: 1,
+    },
+    {
+      Id: 3,
+      Title: "Third Item!",
+      Description:
+        "<p>This task should be able to be completed by Supervisor</p>",
+      Lead: "Supervisor",
+      CompletedDate: "",
+      CompletedBy: undefined,
+      ReqId: 1,
+    },
+    {
+      Id: 4,
+      Title: "Fourth Item!",
+      Description:
+        "<p>This task should be able to be completed by Employee or Supervisor</p>",
+      Lead: "Employee",
+      CompletedDate: "",
+      CompletedBy: undefined,
+      ReqId: 1,
+    }
+  );
+
+  var x = testCheckListItems.length;
+  var numRoles = Object.keys(RoleType).length;
+  const today = new Date();
+
+  while (x++ < 1000) {
+    // Should it have a Completed Date?
+    let completedDate: string = "";
+    const randomDayDiff = Math.floor(Math.random() * 14);
+    let role: string;
+
+    // Make a higher chance task is Employee/Supervisor so there is higher change of an open one for current user
+    switch (Math.floor(Math.random() * 2)) {
+      case 0:
+        role = RoleType.EMPLOYEE;
+        break;
+      case 2:
+        role = RoleType.SUPERVISOR;
+        break;
+      default:
+        role =
+          Object.values(RoleType)[
+            Math.floor(Math.random() * (numRoles - 1)) + 1
+          ];
+    }
+
+    // If it isn't 0 then let's make it that date -- 0 will be "Incomplete CheckListItem"
+    if (randomDayDiff) {
+      const newDate = new Date();
+      newDate.setDate(today.getDate() - randomDayDiff);
+      completedDate = newDate.toISOString();
+    }
+
+    testCheckListItems.push({
+      Id: x,
+      Title: `Example item ${x}`,
+      Description: `<p>This is an auto generated sample checklist item</p>`,
+      Lead: role,
+      CompletedDate: completedDate,
+      CompletedBy: completedDate
+        ? {
+            Id: 2,
+            Title: "Default User 2",
+            EMail: "defaultTEST2@us.af.mil",
+          }
+        : undefined,
+      ReqId: Math.floor(Math.random() * 25) + 1,
+    });
+  }
+}
 
 // This is a listing of all fields to be returned with a CheckListItem
 // Currently it is being used by all requests to SP, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail";
+  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,ReqId";
 const expandedFields = "CompletedBy";
 
 /**
@@ -111,6 +170,7 @@ const transformCheckListItemFromSP = (
           EMail: request.CompletedBy.EMail,
         })
       : undefined,
+    ReqId: request.ReqId,
   };
 };
 
@@ -129,7 +189,9 @@ const transformCheckListItemsFromSP = (
 const getCheckListItemsByRequestId = async (RequestId: number) => {
   if (process.env.NODE_ENV === "development") {
     await sleep(2000);
-    return Promise.resolve(testCheckListItems);
+    return Promise.resolve(
+      testCheckListItems.filter((item) => item.ReqId === RequestId)
+    );
   } else {
     try {
       return spWebContext.web.lists
@@ -163,6 +225,48 @@ const getCheckListItemsByRequestId = async (RequestId: number) => {
   }
 };
 
+/** Internal functions that actually do the fetching
+ * @returns The ICheckListItems that are Open (do not have a completeion date) -- TODO -- Cancelled??
+ */
+const getOpenCheckListItems = async () => {
+  if (process.env.NODE_ENV === "development") {
+    await sleep(2000);
+    return Promise.resolve(
+      testCheckListItems.filter((item) => !item.CompletedDate)
+    );
+  } else {
+    try {
+      return spWebContext.web.lists
+        .getByTitle("CheckListItems")
+        .items.filter("CompletedDate eq null")
+        .select(requestedFields)
+        .expand(expandedFields)();
+    } catch (e) {
+      console.error(
+        `Error occurred while trying to fetch Open CheckListeItems`
+      );
+      console.error(e);
+      if (e instanceof Error) {
+        throw new ApiError(
+          e,
+          `Error occurred while trying to fetch Open CheckListeItems: ${e.message}`
+        );
+      } else if (typeof e === "string") {
+        throw new ApiError(
+          new Error(
+            `Error occurred while trying to fetch Open CheckListeItems: ${e}`
+          )
+        );
+      } else {
+        throw new ApiError(
+          undefined,
+          `Unknown error occurred while trying to fetch Open CheckListeItems`
+        );
+      }
+    }
+  }
+};
+
 /**
  * Gets the checklist items associated with the RequestId
  *
@@ -172,6 +276,19 @@ export const useChecklistItems = (RequestId: number) => {
   return useQuery({
     queryKey: ["checklist", RequestId],
     queryFn: () => getCheckListItemsByRequestId(RequestId),
+    select: transformCheckListItemsFromSP,
+  });
+};
+
+/**
+ * Gets the open checklist items -- right now this is determined by the Completion Date being empty -- but this is NOT accurate b/c of Cancelled Requests
+ * TODO -- Update how cancelled checklist items are handled
+ *
+ */
+export const useOpenChecklistItems = () => {
+  return useQuery({
+    queryKey: ["checklist"],
+    queryFn: () => getOpenCheckListItems(),
     select: transformCheckListItemsFromSP,
   });
 };

@@ -11,6 +11,7 @@ import { ErrorNotification } from "components/ErrorNotification/ErrorNotificatio
 import { UserProvider } from "providers/UserProvider";
 import { Roles } from "components/Roles/Roles";
 import { InRequestNewForm } from "components/InRequest/InRequestNewForm";
+import { MyCheckListItems } from "components/MyCheckListItems/MyCheckListItems";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                 <Route path="roles" element={<Roles />} />
                 <Route path="item/:itemNum" element={<Item />} />
                 <Route path="new" element={<InRequestNewForm />} />
+                <Route path="myCheckListItems" element={<MyCheckListItems />} />
               </Routes>
             </ErrorProvider>
           </HashRouter>
