@@ -25,15 +25,25 @@ export const Item: FunctionComponent = (props) => {
   }
 
   return (
-    <div>
-      <h1>Welcome to the Item Page</h1>
+    <>
+      <h1 style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
+        In Processing Request for {request.data?.empName || "...."}
+      </h1>
       {request.data ? (
-        <InRequest request={request.data} roles={requestRoles} />
+        <>
+          <InRequest request={request.data} roles={requestRoles} />
+          <CheckList
+            ReqId={Number(itemNum)}
+            Roles={requestRoles}
+            Request={request.data}
+          />
+        </>
       ) : (
-        <>Loading...</>
+        <div style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
+          Loading...
+        </div>
       )}
       {request.error && <>"An error has occured: " + {request.error}</>}
-      <CheckList ReqId={Number(itemNum)} Roles={requestRoles} />
-    </div>
+    </>
   );
 };

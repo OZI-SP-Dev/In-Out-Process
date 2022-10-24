@@ -13,10 +13,12 @@ import { Button, Link } from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { CheckListItemPanel } from "components/CheckList/CheckListItemPanel";
 import { RoleType } from "api/RolesApi";
+import { IInRequest } from "api/RequestApi";
 
 export interface ICheckList {
   ReqId: number;
   Roles: RoleType[];
+  Request: IInRequest;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
@@ -94,15 +96,16 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           return (
             <>
               {
-                // Show the button to complete if they are the proper role
-                props.Roles?.includes(item.Lead) && (
-                  <Button
-                    appearance="primary"
-                    onClick={() => completeCheckListItemClick(item.Id)}
-                  >
-                    Complete
-                  </Button>
-                )
+                // Show the button to complete if they are the proper role AND the request is Active
+                props.Roles?.includes(item.Lead) &&
+                  props.Request.status === "Active" && (
+                    <Button
+                      appearance="primary"
+                      onClick={() => completeCheckListItemClick(item.Id)}
+                    >
+                      Complete
+                    </Button>
+                  )
               }
             </>
           );
@@ -142,6 +145,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           item={currentItem}
           completeItem={completeCheckListItemClick}
           roles={props.Roles}
+          request={props.Request}
         ></CheckListItemPanel>
       )}
     </>
