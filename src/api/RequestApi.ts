@@ -48,6 +48,11 @@ const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
       ? new Date(request.closedOrCancelledDate)
       : undefined,
     cancelReason: request.cancelReason,
+    status: request.closedOrCancelledDate
+      ? request.cancelReason
+        ? "Cancelled"
+        : "Closed"
+      : "Active",
   };
 };
 
@@ -283,13 +288,19 @@ export type IInRequest = {
   closedOrCancelledDate?: Date;
   /** Optional - The reason for why the request was cancelled */
   cancelReason?: string;
+  // Required - This is a field internally used by the app -- it is calculated within the app and not passed to/from the data repo (SharePoint)
+  status: "Active" | "Cancelled" | "Closed";
 };
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to change the types of certain objects
 type IResponseItem = Omit<
   IInRequest,
-  "eta" | "completionDate" | "CACExpiration" | "closedOrCancelledDate"
+  | "eta"
+  | "completionDate"
+  | "CACExpiration"
+  | "closedOrCancelledDate"
+  | "status" // Drop the status object from the type, as it is used internally and is not data from the repository
 > & {
   // Storing the date objects in Single Line Text fields as ISOStrings
   eta: string;

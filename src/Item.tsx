@@ -11,9 +11,6 @@ export const Item: FunctionComponent = (props) => {
   const request = useRequest(Number(itemNum));
   let requestRoles: RoleType[];
 
-  // Initialize it as not being an open request so that the Checklist Complete buttons do not render until we know if it is or not
-  let isRequestOpen: boolean = false;
-
   if (currentUser.roles === undefined) {
     return <>Loading...</>;
   } else {
@@ -27,29 +24,26 @@ export const Item: FunctionComponent = (props) => {
     }
   }
 
-  // Once we get data back from React Query -- check to see if the request is not Closed/Cancelled
-  if (request.data && !request.data.closedOrCancelledDate) {
-    isRequestOpen = true;
-  }
-
   return (
     <>
       <h1 style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
         In Processing Request for {request.data?.empName || "...."}
       </h1>
       {request.data ? (
-        <InRequest request={request.data} roles={requestRoles} />
+        <>
+          <InRequest request={request.data} roles={requestRoles} />
+          <CheckList
+            ReqId={Number(itemNum)}
+            Roles={requestRoles}
+            Request={request.data}
+          />
+        </>
       ) : (
         <div style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
           Loading...
         </div>
       )}
       {request.error && <>"An error has occured: " + {request.error}</>}
-      <CheckList
-        ReqId={Number(itemNum)}
-        Roles={requestRoles}
-        IsRequestOpen={isRequestOpen}
-      />
     </>
   );
 };

@@ -14,6 +14,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
+import { IInRequest } from "api/RequestApi";
 
 const useStyles = makeStyles({
   detailContainer: { display: "block" },
@@ -43,7 +44,7 @@ export interface ICheckList {
   onDismiss: () => void;
   completeItem: (itemId: number) => void;
   roles: RoleType[];
-  isRequestOpen: boolean;
+  request: IInRequest;
 }
 
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
@@ -77,9 +78,11 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
       <>
         <div className={classes.panelNavCommandBar}>
           {
-            // If they are the Lead then show the CommandBar AND the request isn't Closed/Cancelled, otherwise hide it
+            // If they are the Lead AND the request is Active, then show the CommandBar, otherwise hide it
             compProps.roles?.includes(compProps.item.Lead) &&
-              compProps.isRequestOpen && <CommandBar items={items}></CommandBar>
+              compProps.request.status === "Active" && (
+                <CommandBar items={items}></CommandBar>
+              )
           }
         </div>
         {

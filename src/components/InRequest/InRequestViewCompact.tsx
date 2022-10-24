@@ -49,14 +49,12 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
 
   let closedOrCancelledNotice: string = "";
 
-  if (formData.closedOrCancelledDate) {
-    if (formData.cancelReason) {
-      closedOrCancelledNotice = `This request was cancelled on ${formData.closedOrCancelledDate.toDateString()}.\n\nReason: ${
-        formData.cancelReason
-      }`;
-    } else {
-      closedOrCancelledNotice = `This request was closed on ${formData.closedOrCancelledDate.toDateString()}.`;
-    }
+  if (formData.status === "Cancelled") {
+    closedOrCancelledNotice = `This request was cancelled on ${formData.closedOrCancelledDate?.toDateString()}.\n\nReason: ${
+      formData.cancelReason
+    }`;
+  } else if (formData.status === "Closed") {
+    closedOrCancelledNotice = `This request was closed on ${formData.closedOrCancelledDate?.toDateString()}.`;
   }
 
   return (
