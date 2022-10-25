@@ -1,9 +1,15 @@
 import { spWebContext } from "providers/SPWebContext";
 import { ApiError } from "api/InternalErrors";
 import { DateTime } from "luxon";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  MutateOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { IPerson, Person, useCurrentUser } from "api/UserApi";
 import { RoleType } from "./RolesApi";
+import { IItemUpdateResult } from "@pnp/sp/items";
 export interface ICheckListItem {
   Id: number;
   Title: string;
@@ -305,7 +311,7 @@ const sleep = (milliseconds?: number) => {
 };
 
 /**
- * Submit the new role to SharePoint
+ * Submit the update to the CheckListItem to SharePoint
  * Internal function used by the react-query useMutation
  *
  */
@@ -336,12 +342,21 @@ const completeCheckListItem = async (spRequest: ISPCompleteCheckListItem) => {
   }
 };
 
+type checklistmutateoptions = MutateOptions<
+  IItemUpdateResult | ISPCompleteCheckListItem,
+  unknown,
+  ISPCompleteCheckListItem,
+  { previousChecklistItems: ICheckListItem[] | undefined }
+>;
+
 /**
- * Hook that returns 2 functions to be used for Role Management
- *
+ * Hook that returns a function to mark a CheckListItem as Complete
  */
 export const useUpdateCheckListItem = (): {
-  completeCheckListItem: (itemId: number) => void;
+  completeCheckListItem: (
+    itemId: number,
+    options?: checklistmutateoptions
+  ) => void;
 } => {
   const queryClient = useQueryClient();
   const currentUser = useCurrentUser();
@@ -351,11 +366,51 @@ export const useUpdateCheckListItem = (): {
     ["checklist"],
     completeCheckListItem,
     {
+      // When mutate is called:
+      onMutate: async (checkListItem) => {
+        // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+        await queryClient.cancelQueries(["checklist"]);
+
+        // Snapshot the previous value
+        const previousChecklistItems = queryClient.getQueryData<
+          ICheckListItem[]
+        >(["checklist"]);
+
+        // Optimistically update to the new value
+        if (previousChecklistItems) {
+          let newChecklist = [...previousChecklistItems];
+          let itemIndex = newChecklist.findIndex(
+            (item) => item.Id === checkListItem.Id
+          );
+
+          // Remove the Checklist item from our list since it is now completed
+          if (itemIndex >= 0) {
+            newChecklist.splice(itemIndex, 1);
+          }
+
+          // Set the react query to hold our updated value until it is queried next
+          queryClient.setQueryData<ICheckListItem[]>(
+            ["checklist"],
+            newChecklist
+          );
+        }
+
+        return { previousChecklistItems };
+      },
+
       // Always refetch after error or success:
       onSettled: () => {
         queryClient.invalidateQueries(["checklist"]);
       },
-      onError: (error, variable) => {
+      onError: (error, variable, context) => {
+        // If the mutation fails, use the context returned from onMutate to roll back
+        //  to the previous snapshot -- until we get the results back from SharePoint with the invalidating
+        if (context?.previousChecklistItems) {
+          queryClient.setQueryData<ICheckListItem[]>(
+            ["checklist"],
+            context.previousChecklistItems
+          );
+        }
         if (error instanceof Error) {
           throw new ApiError(
             error,
@@ -378,13 +433,16 @@ export const useUpdateCheckListItem = (): {
   );
 
   // Create a refence to the mutate function to pass to the component using this hook to mark the item as Complete
-  const completeChecklistItem = (itemId: number) => {
+  const completeChecklistItem = (
+    itemId: number,
+    options?: checklistmutateoptions
+  ) => {
     let spRequest: ISPCompleteCheckListItem = {
       Id: itemId,
       CompletedById: currentUser.Id,
       CompletedDate: DateTime.now().toISODate(),
     };
-    return completeCheckListItemMutation.mutate(spRequest);
+    return completeCheckListItemMutation.mutate(spRequest, options);
   };
 
   // Return object of functions that can be called
