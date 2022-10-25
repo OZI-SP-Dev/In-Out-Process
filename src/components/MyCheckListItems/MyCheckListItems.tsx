@@ -87,7 +87,7 @@ export const MyCheckListItems = () => {
     myCheckListItems = checklistItems.map((item) => {
       let retItem: ICheckListItemLookup = {
         ...item,
-        request: requestLookup[item.ReqId.toString()],
+        request: requestLookup[item.RequestId.toString()],
       };
       return retItem;
     });

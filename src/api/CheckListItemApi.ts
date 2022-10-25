@@ -18,7 +18,7 @@ export interface ICheckListItem {
   CompletedDate?: DateTime;
   CompletedBy?: IPerson;
   SortOrder?: number;
-  ReqId: number;
+  RequestId: number;
 }
 
 // create PnP JS response interface for the CheckListItems
@@ -55,7 +55,7 @@ if (process.env.NODE_ENV === "development") {
         Title: "Default User 2",
         EMail: "defaultTEST2@us.af.mil",
       },
-      ReqId: 1,
+      RequestId: 1,
     },
     {
       Id: 2,
@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === "development") {
       Lead: "IT",
       CompletedDate: "",
       CompletedBy: undefined,
-      ReqId: 1,
+      RequestId: 1,
     },
     {
       Id: 3,
@@ -74,7 +74,7 @@ if (process.env.NODE_ENV === "development") {
       Lead: "Supervisor",
       CompletedDate: "",
       CompletedBy: undefined,
-      ReqId: 1,
+      RequestId: 1,
     },
     {
       Id: 4,
@@ -84,7 +84,7 @@ if (process.env.NODE_ENV === "development") {
       Lead: "Employee",
       CompletedDate: "",
       CompletedBy: undefined,
-      ReqId: 1,
+      RequestId: 1,
     }
   );
 
@@ -133,7 +133,7 @@ if (process.env.NODE_ENV === "development") {
             EMail: "defaultTEST2@us.af.mil",
           }
         : undefined,
-      ReqId: Math.floor(Math.random() * 25) + 1,
+      RequestId: Math.floor(Math.random() * 25) + 1,
     });
   }
 }
@@ -142,7 +142,7 @@ if (process.env.NODE_ENV === "development") {
 // Currently it is being used by all requests to SP, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,ReqId";
+  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,RequestId";
 const expandedFields = "CompletedBy";
 
 /**
@@ -176,7 +176,7 @@ const transformCheckListItemFromSP = (
           EMail: request.CompletedBy.EMail,
         })
       : undefined,
-    ReqId: request.ReqId,
+    RequestId: request.RequestId,
   };
 };
 
@@ -196,7 +196,7 @@ const getCheckListItemsByRequestId = async (RequestId: number) => {
   if (process.env.NODE_ENV === "development") {
     await sleep(2000);
     return Promise.resolve(
-      testCheckListItems.filter((item) => item.ReqId === RequestId)
+      testCheckListItems.filter((item) => item.RequestId === RequestId)
     );
   } else {
     try {
