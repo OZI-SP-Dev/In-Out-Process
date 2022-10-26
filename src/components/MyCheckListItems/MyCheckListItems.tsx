@@ -171,6 +171,9 @@ export const MyCheckListItems = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item) => (
+        <Link to={"/item/" + item.RequestId}>{item.Title}</Link>
+      ),
     },
     {
       key: "complete",
@@ -196,9 +199,6 @@ export const MyCheckListItems = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
-      onRender: (item) => (
-        <Link to={"/item/" + item.ReqId}>{item.request.empName}</Link>
-      ),
     },
     {
       key: "onBoardDate",
