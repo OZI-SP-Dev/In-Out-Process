@@ -56,6 +56,9 @@ export const AppHeader: FunctionComponent<any> = (props) => {
         <Link to="/new" className={classes.navLink}>
           New In Processing
         </Link>
+        <Link to="/myCheckListItems" className={classes.navLink}>
+          My Checklist Items
+        </Link>
         <Tooltip
           relationship="description"
           content={userContext.user ? userContext.user?.Title : ""}

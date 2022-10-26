@@ -7,6 +7,7 @@ import {
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { MyRequests } from "components/MyRequests/MyRequests";
+import { Link } from "react-router-dom";
 
 export const Home: FunctionComponent = (props) => {
   return (
@@ -49,6 +50,10 @@ export const Home: FunctionComponent = (props) => {
         </AccordionItem>
       </Accordion>
       <MyRequests />
+      <br />
+      <h2 style={{ paddingLeft: "1em" }}>
+        <Link to="/myCheckListItems">View My Checklist Items</Link>
+      </h2>
     </Stack>
   );
 };
