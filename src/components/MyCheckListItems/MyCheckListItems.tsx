@@ -19,9 +19,13 @@ import { useContext, useState } from "react";
 import { useError } from "hooks/useError";
 import { ApiError } from "api/InternalErrors";
 
-/** ICheckListItem extended by adding the request info  */
+/** ICheckListItem extended by adding the request info
+ * It is optional since we may not have the request referenced by
+ * the checklist.  The mapping will drop those which don't have
+ * a request reference
+ */
 interface ICheckListItemLookup extends ICheckListItem {
-  request: IInRequest;
+  request?: IInRequest;
 }
 
 /** FluentUI Styling */
@@ -69,26 +73,21 @@ export const MyCheckListItems = () => {
     }, {} as groupcollapse)
   );
 
-  /** Listing of requests stored by the Id */
-  let requestLookup: {
-    [k: string]: IInRequest;
-  };
-
   /** The current user's CheckListItems */
   let myCheckListItems: ICheckListItemLookup[] | undefined;
 
   // Ensure we have all the data we need to correctly determine which items to show
   if (checklistItems && requests && user?.user && user?.roles) {
     // Create an object where we can quickly reference the Request based on the Id
-    requestLookup = Object.fromEntries(
-      requests.map((request) => [request.Id.toString(), request])
+    const requestLookup = new Map(
+      requests.map((request) => [request.Id, request])
     );
 
     // Create an object containg both the CheckList item and the reference to the Request
     myCheckListItems = checklistItems.map((item) => {
       let retItem: ICheckListItemLookup = {
         ...item,
-        request: requestLookup[item.RequestId.toString()],
+        request: requestLookup.get(item.RequestId),
       };
       return retItem;
     });
@@ -96,6 +95,8 @@ export const MyCheckListItems = () => {
     // Filter the checklist to remove those that are not valid for the current user
     myCheckListItems = myCheckListItems.filter(
       (item) =>
+        // Don't return items if we don't have a reference to the request it belongs to
+        item.request &&
         // Only return items for requests that are Active
         item.request.status === "Active" &&
         // Return items that the current user is the Employee or Supervisor for Employee checklist items
