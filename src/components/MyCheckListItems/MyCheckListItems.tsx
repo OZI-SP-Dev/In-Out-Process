@@ -16,8 +16,6 @@ import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { RoleType } from "api/RolesApi";
 import { useContext, useState } from "react";
-import { useError } from "hooks/useError";
-import { ApiError } from "api/InternalErrors";
 
 /** ICheckListItem extended by adding the request info
  * It is optional since we may not have the request referenced by
@@ -52,9 +50,6 @@ export const MyCheckListItems = () => {
 
   /** Hook to get the requests */
   const { data: requests } = useRequests();
-
-  /** Error Handling Hook */
-  const errorObj = useError();
 
   /** This is a type used to create an object to store whether the group is collapsed */
   type groupcollapse = { [key in RoleType]: boolean };
@@ -147,18 +142,7 @@ export const MyCheckListItems = () => {
 
   /** Function to handle when the Complete button is clicked */
   const completeCheckListItemClick = (itemId: number) => {
-    completeCheckListItem(itemId, {
-      onError: (error) => {
-        // If the mutation errored, then add an Error Notification
-        if (error instanceof ApiError) {
-          errorObj.addError(error.message);
-        } else {
-          errorObj.addError(
-            `An unknown error occured while trying to delete Checklist Item #${itemId}`
-          );
-        }
-      },
-    });
+    completeCheckListItem(itemId);
   };
 
   // Define columns for details list
