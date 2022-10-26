@@ -10,6 +10,7 @@ import {
 import { IPerson, Person, useCurrentUser } from "api/UserApi";
 import { RoleType } from "./RolesApi";
 import { IItemUpdateResult } from "@pnp/sp/items";
+import { useError } from "hooks/useError";
 export interface ICheckListItem {
   Id: number;
   Title: string;
@@ -360,6 +361,7 @@ export const useUpdateCheckListItem = (): {
 } => {
   const queryClient = useQueryClient();
   const currentUser = useCurrentUser();
+  const errObj = useError();
 
   /** React Query Mutation used to Complete a CheckListItem */
   const completeCheckListItemMutation = useMutation(
@@ -412,20 +414,16 @@ export const useUpdateCheckListItem = (): {
           );
         }
         if (error instanceof Error) {
-          throw new ApiError(
-            error,
-            `Error occurred while trying to complete checklist item ${variable}: ${error.message}`
+          errObj.addError(
+            `Error occurred while trying to complete checklist item ${variable.Id}: ${error.message}`
           );
         } else if (typeof error === "string") {
-          throw new ApiError(
-            new Error(
-              `Error occurred while trying to complete checklist item ${variable}: ${error}`
-            )
+          errObj.addError(
+            `Error occurred while trying to complete checklist item ${variable.Id}: ${error}`
           );
         } else {
-          throw new ApiError(
-            undefined,
-            `Unknown error occurred while trying to complete checklist item ${variable}`
+          errObj.addError(
+            `Unknown error occurred while trying to complete checklist item ${variable.Id}`
           );
         }
       },
