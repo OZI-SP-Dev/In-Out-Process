@@ -1,4 +1,5 @@
 import {
+  ConstrainMode,
   IColumn,
   IGroup,
   SelectionMode,
@@ -96,7 +97,6 @@ export const MyCheckListItems = () => {
     myCheckListItems = myCheckListItems.filter(
       (item) =>
         // Only return items for requests that are Active
-
         item.request.status === "Active" &&
         // Return items that the current user is the Employee or Supervisor for Employee checklist items
         ((item.Lead === RoleType.EMPLOYEE &&
@@ -138,6 +138,12 @@ export const MyCheckListItems = () => {
       { currentItem: {} as IGroup, all: [] as IGroup[] }
     );
   }
+
+  // If there is only 1 group that has CheckListItems -- then expand it
+  if (groups?.all.length === 1) {
+    groups.all[0].isCollapsed = false;
+  }
+
   /** Function to handle when the Complete button is clicked */
   const completeCheckListItemClick = (itemId: number) => {
     completeCheckListItem(itemId, {
@@ -251,6 +257,7 @@ export const MyCheckListItems = () => {
           },
         }}
         compact={true}
+        constrainMode={ConstrainMode.unconstrained}
       />
     </>
   );
