@@ -186,15 +186,18 @@ export const MyCheckListItems = () => {
     {
       key: "empName",
       name: "Employee Name",
-      fieldName: "request.empName",
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item) => {
+        if (item.request.empName) {
+          return item.request.empName;
+        }
+      },
     },
     {
       key: "onBoardDate",
       name: "Estimated On-Boarding",
-      fieldName: "eta",
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
@@ -207,7 +210,6 @@ export const MyCheckListItems = () => {
     {
       key: "completionTargetDate",
       name: "Target Completion",
-      fieldName: "completionDate",
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
