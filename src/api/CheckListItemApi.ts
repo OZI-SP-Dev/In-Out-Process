@@ -325,14 +325,16 @@ const completeCheckListItem = async (spRequest: ISPCompleteCheckListItem) => {
       (item) => item.Id === spRequest.Id
     );
 
-    // TODO -- Perform a lookup to get the User's Info for Test
-    testCheckListItems[checkListItemIndex].CompletedBy = {
-      Id: spRequest.CompletedById,
-      Title: "Default User",
-      EMail: "me@example.com",
+    // Perform mutation at the highest array level for the checklist item so that Details List will see the update
+    testCheckListItems[checkListItemIndex] = {
+      ...testCheckListItems[checkListItemIndex],
+      CompletedBy: {
+        Id: spRequest.CompletedById,
+        Title: "Default User", // TODO -- Perform a lookup to get the User's Info for Test
+        EMail: "me@example.com",
+      },
+      CompletedDate: spRequest.CompletedDate,
     };
-    testCheckListItems[checkListItemIndex].CompletedDate =
-      spRequest.CompletedDate;
 
     return Promise.resolve(spRequest);
   } else {
