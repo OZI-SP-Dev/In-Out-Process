@@ -47,7 +47,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
 
   return useMutation(
     ["checklist", item.RequestId],
-    (newRequest: IInRequest) => {
+    () => {
       if (process.env.NODE_ENV === "development") {
         // TODO: Find a better way to show this in nodejs dev environment
         return Promise.resolve();
