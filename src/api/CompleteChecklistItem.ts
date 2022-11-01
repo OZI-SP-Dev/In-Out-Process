@@ -22,20 +22,10 @@ const completeCheckListItem = (
   // Find additional updates
   switch (item.TemplateId) {
     // Valid for testing only
-    // first item -1 should enable TemplateId -4
-    case -1: //Testing only
+    // Welcome Package 1 should enable TESTING ITEM -1
+    case 1: //Testing only
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === -4) {
-          batch.items.getById(element.Id).update({ Active: true });
-        }
-      });
-      break;
-
-    // Obtain CAC: 4
-    // Enable TemplateId 8 -- ATAAPS
-    case 4:
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === 8) {
+        if (element.TemplateId === -1) {
           batch.items.getById(element.Id).update({ Active: true });
         }
       });

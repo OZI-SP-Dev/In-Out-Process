@@ -9,6 +9,17 @@ const createInboundChecklistItems = (request: IInRequest) => {
 
   const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
 
+  // TESTING ITEM
+  checklistItems.items.add({
+    Title: "TESTING ITEM",
+    Description:
+      "<p>This item should become enabled AFTER the Welcome Package is complete</p>",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: -1,
+    Active: false,
+  });
+
   // Welcome Package
   // Required for all inbounds?
   checklistItems.items.add({
