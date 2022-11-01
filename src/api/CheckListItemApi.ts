@@ -20,6 +20,8 @@ export interface ICheckListItem {
   CompletedBy?: IPerson;
   SortOrder?: number;
   RequestId: number;
+  TemplateId: number;
+  Active: boolean;
 }
 
 // create PnP JS response interface for the CheckListItems
@@ -57,6 +59,8 @@ if (process.env.NODE_ENV === "development") {
         EMail: "defaultTEST2@us.af.mil",
       },
       RequestId: 1,
+      TemplateId: -1,
+      Active: true,
     },
     {
       Id: 2,
@@ -66,6 +70,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -2,
+      Active: true,
     },
     {
       Id: 3,
@@ -76,6 +82,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -3,
+      Active: true,
     },
     {
       Id: 4,
@@ -86,6 +94,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -4,
+      Active: false,
     }
   );
 
@@ -135,6 +145,8 @@ if (process.env.NODE_ENV === "development") {
           }
         : undefined,
       RequestId: Math.floor(Math.random() * 25) + 1,
+      TemplateId: -5,
+      Active: true,
     });
   }
 }
@@ -143,7 +155,7 @@ if (process.env.NODE_ENV === "development") {
 // Currently it is being used by all requests to SP, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,RequestId";
+  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,RequestId,TemplateId,Active";
 const expandedFields = "CompletedBy";
 
 /**
@@ -178,6 +190,8 @@ const transformCheckListItemFromSP = (
         })
       : undefined,
     RequestId: request.RequestId,
+    TemplateId: request.TemplateId,
+    Active: request.Active,
   };
 };
 
