@@ -80,9 +80,8 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
           {
             // If they are the Lead AND the request is Active, then show the CommandBar, otherwise hide it
             compProps.roles?.includes(compProps.item.Lead) &&
-              compProps.request.status === "Active" && (
-                <CommandBar items={items}></CommandBar>
-              )
+              compProps.request.status === "Active" &&
+              compProps.item.Active && <CommandBar items={items}></CommandBar>
           }
         </div>
         {

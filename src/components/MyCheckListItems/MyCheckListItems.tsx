@@ -172,16 +172,17 @@ export const MyCheckListItems = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
-      onRender: (item) => (
-        <Button
-          appearance="primary"
-          onClick={() => {
-            completeCheckListItemClick(item.Id);
-          }}
-        >
-          Complete
-        </Button>
-      ),
+      onRender: (item) =>
+        item.Active && (
+          <Button
+            appearance="primary"
+            onClick={() => {
+              completeCheckListItemClick(item.Id);
+            }}
+          >
+            Complete
+          </Button>
+        ),
     },
     {
       key: "empName",

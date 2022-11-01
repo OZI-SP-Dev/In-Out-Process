@@ -98,7 +98,8 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
               {
                 // Show the button to complete if they are the proper role AND the request is Active
                 props.Roles?.includes(item.Lead) &&
-                  props.Request.status === "Active" && (
+                  props.Request.status === "Active" &&
+                  item.Active && (
                     <Button
                       appearance="primary"
                       onClick={() => completeCheckListItemClick(item.Id)}
