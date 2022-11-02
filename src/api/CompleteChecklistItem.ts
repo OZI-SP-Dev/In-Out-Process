@@ -1,6 +1,5 @@
 import { ICheckListItem } from "api/CheckListItemApi";
 import { spWebContext } from "providers/SPWebContext";
-import { IInRequest } from "api/RequestApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { Person, useCurrentUser } from "api/UserApi";

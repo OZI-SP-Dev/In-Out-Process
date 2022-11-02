@@ -1,7 +1,4 @@
-import {
-  useChecklistItems,
-  useUpdateCheckListItem,
-} from "api/CheckListItemApi";
+import { useChecklistItems } from "api/CheckListItemApi";
 import {
   IColumn,
   SelectionMode,
@@ -25,8 +22,6 @@ export interface ICheckList {
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
   const checlistItems = useChecklistItems(Number(props.ReqId));
 
-  const { completeCheckListItem } = useUpdateCheckListItem();
-
   // State and functions to handle whether or not to display the CheckList Item Panel
   const [isItemPanelOpen, { setTrue: showItemPanel, setFalse: hideItemPanel }] =
     useBoolean(false);
@@ -41,10 +36,6 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   const currentItem = checlistItems.data?.find(
     (item) => item.Id === currentItemId
   );
-
-  const completeCheckListItemClick = (itemId: number) => {
-    completeCheckListItem(itemId);
-  };
 
   // Define columns for details list
   const columns: IColumn[] = [
@@ -135,7 +126,6 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           isOpen={isItemPanelOpen}
           onDismiss={hideItemPanel}
           item={currentItem}
-          completeItem={completeCheckListItemClick}
           roles={props.Roles}
           request={props.Request}
         ></CheckListItemPanel>
