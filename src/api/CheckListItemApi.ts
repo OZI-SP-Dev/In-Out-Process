@@ -8,7 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { IPerson, Person, useCurrentUser } from "api/UserApi";
-import { RoleType } from "./RolesApi";
+import { RoleType } from "api/RolesApi";
 import { IItemUpdateResult } from "@pnp/sp/items";
 import { useError } from "hooks/useError";
 export interface ICheckListItem {

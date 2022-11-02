@@ -2,7 +2,7 @@ import { spWebContext } from "providers/SPWebContext";
 import { IInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { RoleType } from "./RolesApi";
+import { RoleType } from "api/RolesApi";
 
 const createInboundChecklistItems = (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();

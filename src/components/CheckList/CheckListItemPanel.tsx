@@ -7,7 +7,7 @@ import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
-import { CheckListItemButton } from "./CheckListItemButton";
+import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 
 const useStyles = makeStyles({
   detailContainer: { display: "block" },

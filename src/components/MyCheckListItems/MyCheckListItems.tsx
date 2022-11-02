@@ -5,17 +5,14 @@ import {
   SelectionMode,
   ShimmeredDetailsList,
 } from "@fluentui/react";
-import { Button, makeStyles } from "@fluentui/react-components";
-import {
-  ICheckListItem,
-  useOpenChecklistItems,
-  useUpdateCheckListItem,
-} from "api/CheckListItemApi";
+import { makeStyles } from "@fluentui/react-components";
+import { ICheckListItem, useOpenChecklistItems } from "api/CheckListItemApi";
 import { IInRequest, useRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { RoleType } from "api/RolesApi";
 import { useContext, useState } from "react";
+import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 
 /** ICheckListItem extended by adding the request info
  * It is optional since we may not have the request referenced by
@@ -44,9 +41,6 @@ export const MyCheckListItems = () => {
 
   /** Hook to get the CheckListItems that don't have a Completion Date  */
   const { data: checklistItems } = useOpenChecklistItems();
-
-  /** Hook to update a CheckListItem */
-  const { completeCheckListItem } = useUpdateCheckListItem();
 
   /** Hook to get the requests */
   const { data: requests } = useRequests();
@@ -140,11 +134,6 @@ export const MyCheckListItems = () => {
     groups.all[0].isCollapsed = false;
   }
 
-  /** Function to handle when the Complete button is clicked */
-  const completeCheckListItemClick = (itemId: number) => {
-    completeCheckListItem(itemId);
-  };
-
   // Define columns for details list
   const columns: IColumn[] = [
     {
@@ -172,17 +161,7 @@ export const MyCheckListItems = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
-      onRender: (item) =>
-        item.Active && (
-          <Button
-            appearance="primary"
-            onClick={() => {
-              completeCheckListItemClick(item.Id);
-            }}
-          >
-            Complete
-          </Button>
-        ),
+      onRender: (item) => <CheckListItemButton checklistItem={item} />,
     },
     {
       key: "empName",
