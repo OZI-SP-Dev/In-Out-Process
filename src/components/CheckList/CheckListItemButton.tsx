@@ -1,39 +1,29 @@
 import { ICheckListItem } from "api/CheckListItemApi";
 import { Button } from "@fluentui/react-components";
-import { RoleType } from "api/RolesApi";
-import { useRequest } from "api/RequestApi";
 import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 
-export const CheckListItemButton = (
-  checklistItem: ICheckListItem,
-  roles: RoleType[]
-) => {
-  const request = useRequest(checklistItem.RequestId);
+interface CheckListItemButtonProps {
+  checklistItem: ICheckListItem;
+}
+
+export const CheckListItemButton = ({
+  checklistItem,
+}: CheckListItemButtonProps) => {
   const completeCheckListItem = useCompleteChecklistItem(checklistItem);
 
-  if (checklistItem.CompletedDate) {
-    return <>{checklistItem.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
-  }
-
-  if (completeCheckListItem.isLoading) {
+  // Utilize both isLoading and isSuccess
+  // This removes button until query cache is updated
+  if (completeCheckListItem.isLoading || completeCheckListItem.isSuccess) {
     return <>Saving...</>;
   }
 
   return (
-    <>
-      {
-        // Show the button to complete if they are the proper role AND the request is Active
-        roles?.includes(checklistItem.Lead) &&
-          request.data?.status === "Active" &&
-          checklistItem.Active && (
-            <Button
-              appearance="primary"
-              onClick={() => completeCheckListItem.mutate()}
-            >
-              Complete
-            </Button>
-          )
-      }
-    </>
+    <Button
+      appearance="primary"
+      onClick={() => completeCheckListItem.mutate()}
+      disabledFocusable={!checklistItem.Active}
+    >
+      Complete
+    </Button>
   );
 };
