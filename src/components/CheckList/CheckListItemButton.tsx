@@ -41,7 +41,13 @@ export const CheckListItemButton = ({
           Complete
         </Button>
       </Tooltip>
-      {completeCheckListItem.isError && <>{completeCheckListItem.error}</>}
+      {completeCheckListItem.isError && (
+        <>
+          An error occurred:{" "}
+          {completeCheckListItem.error instanceof Error &&
+            completeCheckListItem.error?.message}
+        </>
+      )}
     </>
   );
 };
