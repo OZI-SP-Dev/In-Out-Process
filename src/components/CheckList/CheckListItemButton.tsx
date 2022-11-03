@@ -2,6 +2,7 @@ import { ICheckListItem } from "api/CheckListItemApi";
 import { Button, Tooltip, Spinner } from "@fluentui/react-components";
 import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 import { useState } from "react";
+import { AlertSolidIcon } from "@fluentui/react-icons-mdl2";
 
 interface CheckListItemButtonProps {
   checklistItem: ICheckListItem;
@@ -42,11 +43,16 @@ export const CheckListItemButton = ({
         </Button>
       </Tooltip>
       {completeCheckListItem.isError && (
-        <>
-          An error occurred:{" "}
-          {completeCheckListItem.error instanceof Error &&
-            completeCheckListItem.error?.message}
-        </>
+        <Tooltip
+          content={
+            completeCheckListItem.error instanceof Error
+              ? completeCheckListItem.error?.message
+              : "An error occurred."
+          }
+          relationship="description"
+        >
+          <AlertSolidIcon />
+        </Tooltip>
       )}
     </>
   );
