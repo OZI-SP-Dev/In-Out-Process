@@ -1,5 +1,5 @@
 import { ICheckListItem } from "api/CheckListItemApi";
-import { Button, Tooltip } from "@fluentui/react-components";
+import { Button, Tooltip, Spinner } from "@fluentui/react-components";
 import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 import { useState } from "react";
 
@@ -16,7 +16,13 @@ export const CheckListItemButton = ({
   // Utilize both isLoading and isSuccess
   // This removes button until query cache is updated
   if (completeCheckListItem.isLoading || completeCheckListItem.isSuccess) {
-    return <>Saving...</>;
+    return (
+      <Spinner
+        style={{ justifyContent: "flex-start" }}
+        size="small"
+        label="Saving..."
+      />
+    );
   }
 
   return (
