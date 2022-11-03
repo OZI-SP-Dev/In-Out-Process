@@ -57,11 +57,11 @@ interface ISPSubmitRole {
   Title: RoleType;
 }
 
-/** Interface for Map of User Roles grouped with key of Role */
-interface IRolesByType extends Map<RoleType, SPRole[]> {}
+/** Type for Map of User Roles grouped with key of Role */
+type IRolesByType = Map<RoleType, SPRole[]>;
 
-/** Interface for Map of User Roles grouped with key of UserId */
-interface IRolesByUser extends Map<number, SPRole[]> {}
+/** Type for Map of User Roles grouped with key of UserId */
+type IRolesByUser = Map<number, SPRole[]>;
 
 /** Test data for use in DEV environment -- mimics structure of Roles list in SharePoint */
 let testRoles: SPRole[];
