@@ -1,4 +1,12 @@
-import { Avatar, Text, Tooltip, makeStyles } from "@fluentui/react-components";
+import {
+  Avatar,
+  Text,
+  Tooltip,
+  makeStyles,
+  Popover,
+  PopoverTrigger,
+  PopoverSurface,
+} from "@fluentui/react-components";
 import { useContext, FunctionComponent } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
@@ -59,17 +67,29 @@ export const AppHeader: FunctionComponent<any> = (props) => {
         <Link to="/myCheckListItems" className={classes.navLink}>
           My Checklist Items
         </Link>
-        <Tooltip
-          relationship="description"
-          content={userContext.user ? userContext.user?.Title : ""}
-        >
-          <Avatar
-            className={classes.navAvatar}
-            image={{ src: userContext.user?.imageUrl }}
-            name={userContext.user?.Title}
-            size={32}
-          />
-        </Tooltip>
+
+        <Popover>
+          <PopoverTrigger>
+            <Tooltip
+              relationship="description"
+              content={userContext.user ? userContext.user?.Title : ""}
+            >
+              <Avatar
+                className={classes.navAvatar}
+                image={{ src: userContext.user?.imageUrl }}
+                name={userContext.user?.Title}
+                size={32}
+              ></Avatar>
+            </Tooltip>
+          </PopoverTrigger>
+          <PopoverSurface aria-label="Your roles">
+            <ul>
+              {userContext.roles?.map((role) => (
+                <li key={role}>{role}</li>
+              ))}
+            </ul>
+          </PopoverSurface>
+        </Popover>
       </div>
       {/* The below div is set to the same height of the above div,
             to ensure all conent loaded has proper padding at the top so that it isn't below the header */}

@@ -24,12 +24,6 @@ export const Roles: React.FunctionComponent = () => {
     <>
       {/* TODO -- Replace this page with a component for Adding users -- Also with components for viewing by RoleTpye -- And Viewing by User 
               This interface is just a placeholder for testing that RolesAPI update */}
-      Current User Roles
-      <ol>
-        {userContext.roles?.map((role) => (
-          <li key={role}>{role}</li>
-        ))}
-      </ol>
       Roles By User
       <RolesByUser />
       All Roles by Role
