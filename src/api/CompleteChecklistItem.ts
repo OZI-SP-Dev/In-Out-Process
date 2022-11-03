@@ -45,7 +45,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const currentUser = useCurrentUser();
 
   return useMutation(
-    ["checklist", item.RequestId],
+    ["checklist", item.Id],
     () => {
       if (process.env.NODE_ENV === "development") {
         // TODO: Find a better way to show this in nodejs dev environment
