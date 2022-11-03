@@ -1,24 +1,15 @@
 import { useContext } from "react";
-import {
-  useRoleManagement,
-  RoleType,
-  useAllUserRolesByUser,
-} from "api/RolesApi";
+import { useRoleManagement, RoleType } from "api/RolesApi";
 import { UserContext } from "providers/UserProvider";
 import { Button } from "@fluentui/react-components";
 import { RolesByRole } from "components/Roles/RolesByRole";
+import { RolesByUser } from "components/Roles/RolesByUser";
 
 export const Roles: React.FunctionComponent = () => {
-  const { data: allRolesByUser } = useAllUserRolesByUser();
   const userContext = useContext(UserContext);
 
-  // We have to turn the Map objects into Arrays to be able to read them in the JSX
-  const userKeys = allRolesByUser
-    ? Array.from(allRolesByUser.keys())
-    : undefined;
-
   // Get the hook with functions to perform Role Management
-  const { addRole, removeRole } = useRoleManagement();
+  const { addRole } = useRoleManagement();
 
   // Function to test adding a Role
   const addRoleClick = (role: RoleType) => {
@@ -27,11 +18,6 @@ export const Roles: React.FunctionComponent = () => {
       User: user ? user : { Id: 1, EMail: "ADMIN", Title: "ADMIN" },
       Role: role,
     });
-  };
-
-  // Function to test removing a Role
-  const removeRoleClick = (role: number) => {
-    removeRole.mutate(role);
   };
 
   return (
@@ -44,24 +30,8 @@ export const Roles: React.FunctionComponent = () => {
           <li key={role}>{role}</li>
         ))}
       </ol>
-      All Roles
-      <ol>
-        {userKeys?.map((key) => (
-          <li key={key}>
-            {allRolesByUser?.get(key)?.map((role) => role.User.Title)[0]}
-            <ol>
-              {allRolesByUser?.get(key)?.map((obj) => (
-                <li key={obj.Title}>
-                  {obj.Title}{" "}
-                  <Button onClick={() => removeRoleClick(obj.Id)}>
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ol>
+      Roles By User
+      <RolesByUser />
       All Roles by Role
       <RolesByRole />
       <Button onClick={() => addRoleClick(RoleType.ATAAPS)}>Add ATAAPS</Button>
