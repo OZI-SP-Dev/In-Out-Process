@@ -105,12 +105,11 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
             )}
           </div>
           <div className={classes.fieldContainer}>
-            {props.item.CompletedBy
-              ? null
-              : props.roles?.includes(props.item.Lead) &&
-                props.request.status === "Active" && (
-                  <CheckListItemButton checklistItem={props.item} />
-                )}
+            {!props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" && (
+                <CheckListItemButton checklistItem={props.item} />
+              )}
           </div>
         </div>
       </FluentProvider>
