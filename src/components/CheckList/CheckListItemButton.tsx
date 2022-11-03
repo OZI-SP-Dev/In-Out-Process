@@ -41,17 +41,17 @@ export const CheckListItemButton = ({
         >
           Complete
         </Button>
-      </Tooltip>
+      </Tooltip>{" "}
       {completeCheckListItem.isError && (
         <Tooltip
           content={
             completeCheckListItem.error instanceof Error
-              ? completeCheckListItem.error?.message
+              ? completeCheckListItem.error.message
               : "An error occurred."
           }
           relationship="description"
         >
-          <AlertSolidIcon />
+          <AlertSolidIcon style={{ color: "red", fontSize: "large" }} />
         </Tooltip>
       )}
     </>
