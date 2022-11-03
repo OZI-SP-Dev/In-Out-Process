@@ -207,6 +207,7 @@ export const MyCheckListItems = () => {
         <h1>My CheckList Items</h1>
       </div>
       <ShimmeredDetailsList
+        setKey="Id"
         items={myCheckListItems || []}
         columns={columns}
         enableShimmer={!checklistItems}

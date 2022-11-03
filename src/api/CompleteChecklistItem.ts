@@ -56,7 +56,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["checklist"]);
+        return queryClient.invalidateQueries(["checklist"]);
       },
     }
   );

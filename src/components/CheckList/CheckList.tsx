@@ -111,6 +111,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   return (
     <>
       <ShimmeredDetailsList
+        setKey="Id"
         items={checlistItems.data || []}
         columns={columns}
         enableShimmer={!checlistItems.data}

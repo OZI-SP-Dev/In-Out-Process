@@ -133,6 +133,7 @@ export const MyRequests = () => {
           columns={columns}
           enableShimmer={!data}
           selectionMode={SelectionMode.none}
+          setKey="Id"
         />
       </div>
     </>
