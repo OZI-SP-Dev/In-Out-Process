@@ -3,6 +3,7 @@ import { Button, Tooltip, Spinner, Badge } from "@fluentui/react-components";
 import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 import { useState } from "react";
 import { AlertSolidIcon } from "@fluentui/react-icons-mdl2";
+import { useIsMutating } from "@tanstack/react-query";
 
 interface CheckListItemButtonProps {
   checklistItem: ICheckListItem;
@@ -12,11 +13,15 @@ export const CheckListItemButton = ({
   checklistItem,
 }: CheckListItemButtonProps) => {
   const completeCheckListItem = useCompleteChecklistItem(checklistItem);
+  const isMutating = useIsMutating({
+    mutationKey: ["checklist", checklistItem.Id],
+  });
   const [visible, setVisible] = useState(false);
 
-  // Utilize both isLoading and isSuccess
-  // This removes button until query cache is updated
-  if (completeCheckListItem.isLoading || completeCheckListItem.isSuccess) {
+  // Because this button may be used more than once on a screen we can't use .isLoading
+  // .isLoading will be true if ANY item is currently using this mutation
+  // by using useIsMutating we can look for a specific mutation key
+  if (isMutating > 0) {
     return (
       <Spinner
         style={{ justifyContent: "flex-start" }}
