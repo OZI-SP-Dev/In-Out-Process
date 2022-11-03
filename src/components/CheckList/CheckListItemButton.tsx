@@ -1,5 +1,5 @@
 import { ICheckListItem } from "api/CheckListItemApi";
-import { Button, Tooltip, Spinner } from "@fluentui/react-components";
+import { Button, Tooltip, Spinner, Badge } from "@fluentui/react-components";
 import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 import { useState } from "react";
 import { AlertSolidIcon } from "@fluentui/react-icons-mdl2";
@@ -49,9 +49,15 @@ export const CheckListItemButton = ({
               ? completeCheckListItem.error.message
               : "An error occurred."
           }
-          relationship="description"
+          relationship="label"
         >
-          <AlertSolidIcon style={{ color: "red", fontSize: "large" }} />
+          <Badge
+            size="extra-large"
+            appearance="ghost"
+            color="danger"
+            style={{ verticalAlign: "middle" }}
+            icon={<AlertSolidIcon />}
+          />
         </Tooltip>
       )}
     </>
