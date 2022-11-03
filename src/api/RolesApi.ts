@@ -110,19 +110,17 @@ if (process.env.NODE_ENV === "development") {
  * @param resolveValue - Optional value to pass back as the reolved promise
  * @returns A Promise after the delayed amount of time
  */
-const sleep = <T extends any>(
-  milliseconds?: number,
+const sleep = <T>(
+  milliseconds: number = 500, // Default to 500 milliseconds if no value is passed in
   resolveValue?: T
 ): Promise<T> => {
-  // Default to 500 milliseconds if no value is passed in
-  const sleepTime = milliseconds ? milliseconds : 500;
   if (resolveValue) {
     return new Promise((resolve) => {
-      setTimeout(() => resolve(resolveValue), sleepTime);
+      setTimeout(() => resolve(resolveValue), milliseconds);
     });
   } else {
     return new Promise((resolve) => {
-      setTimeout(resolve, sleepTime);
+      setTimeout(resolve, milliseconds);
     });
   }
 };
