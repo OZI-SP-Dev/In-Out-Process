@@ -3,20 +3,16 @@ import {
   useRoleManagement,
   RoleType,
   useAllUserRolesByUser,
-  useAllUserRolesByRole,
 } from "api/RolesApi";
 import { UserContext } from "providers/UserProvider";
 import { Button } from "@fluentui/react-components";
+import { RolesByRole } from "components/Roles/RolesByRole";
 
 export const Roles: React.FunctionComponent = () => {
   const { data: allRolesByUser } = useAllUserRolesByUser();
-  const { data: allRolesByType } = useAllUserRolesByRole();
   const userContext = useContext(UserContext);
 
   // We have to turn the Map objects into Arrays to be able to read them in the JSX
-  const typeKeys = allRolesByType
-    ? Array.from(allRolesByType.keys())
-    : undefined;
   const userKeys = allRolesByUser
     ? Array.from(allRolesByUser.keys())
     : undefined;
@@ -67,23 +63,7 @@ export const Roles: React.FunctionComponent = () => {
         ))}
       </ol>
       All Roles by Role
-      <ol>
-        {typeKeys?.map((key) => (
-          <li key={key}>
-            {key}
-            <ol>
-              {allRolesByType?.get(key)?.map((obj) => (
-                <li key={obj.User.Title}>
-                  {obj.User.Title}{" "}
-                  <Button onClick={() => removeRoleClick(obj.Id)}>
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ol>
+      <RolesByRole />
       <Button onClick={() => addRoleClick(RoleType.ATAAPS)}>Add ATAAPS</Button>
       <Button onClick={() => addRoleClick(RoleType.ADMIN)}>Add ADMIN</Button>
       <Button onClick={() => addRoleClick(RoleType.FOG)}>Add FOG</Button>

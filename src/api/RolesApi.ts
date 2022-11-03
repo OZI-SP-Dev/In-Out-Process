@@ -33,7 +33,7 @@ export enum RoleType {
 }
 
 /** The structure of records in the Roles list in SharePoint */
-interface SPRole {
+export interface SPRole {
   /** The Id of the entry in the Roles list  */
   Id: number;
   /** The User entry in the Roles list  */
