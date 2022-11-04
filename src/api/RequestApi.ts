@@ -1,10 +1,8 @@
-import { IItemAddResult, IItemUpdateResult } from "@pnp/sp/items";
 import { EMPTYPES } from "constants/EmpTypes";
 import { worklocation } from "constants/WorkLocations";
 import { IPerson, Person } from "api/UserApi";
 import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { people } from "@fluentui/example-data";
 
 declare var _spPageContextInfo: any;
 
@@ -127,52 +125,34 @@ const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
 const getMyRequests = async () => {
-  if (process.env.NODE_ENV === "development") {
-    return Promise.resolve(
-      testItems.filter(
-        (item) => item.employee?.Id === 1 || item.supGovLead.Id === 1
-      )
-    );
-  } else {
-    // userId moved inside statement determining if dev environment or not as was exiting without returning when not existing in dev
-    const userId = _spPageContextInfo?.userId;
-    if (userId === undefined) {
-      return Promise.reject([]);
-    } else {
-      return spWebContext.web.lists
-        .getByTitle("Items")
-        .items.filter(
-          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
-        )
-        .select(requestedFields)
-        .expand(expandedFields)();
-    }
-  }
-};
-
-const getRequest = async (Id: number) => {
-  if (process.env.NODE_ENV === "development") {
-    let response = testItems[Id - 1];
-    return Promise.resolve(response);
+  const userId =
+    process.env.NODE_ENV === "development" ? 1 : _spPageContextInfo?.userId;
+  if (userId === undefined) {
+    return Promise.reject([]);
   } else {
     return spWebContext.web.lists
       .getByTitle("Items")
-      .items.getById(Id)
+      .items.filter(
+        `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+      )
       .select(requestedFields)
       .expand(expandedFields)();
   }
 };
 
+const getRequest = async (Id: number) => {
+  return spWebContext.web.lists
+    .getByTitle("Items")
+    .items.getById(Id)
+    .select(requestedFields)
+    .expand(expandedFields)();
+};
+
 const getRequests = async () => {
-  if (process.env.NODE_ENV === "development") {
-    let response = testItems;
-    return Promise.resolve(response);
-  } else {
-    return spWebContext.web.lists
-      .getByTitle("Items")
-      .items.select(requestedFields)
-      .expand(expandedFields)();
-  }
+  return spWebContext.web.lists
+    .getByTitle("Items")
+    .items.select(requestedFields)
+    .expand(expandedFields)();
 };
 
 // Exported hooks for working with requests
@@ -204,15 +184,9 @@ export const useAddRequest = () => {
   return useMutation(
     ["requests"],
     async (newRequest: IInRequest) => {
-      if (process.env.NODE_ENV === "development") {
-        let returnRequest = {} as IItemAddResult;
-        returnRequest.data = { ...newRequest, Id: 4 };
-        return Promise.resolve(returnRequest);
-      } else {
-        return spWebContext.web.lists
-          .getByTitle("Items")
-          .items.add(await transformInRequestToSP(newRequest));
-      }
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.add(await transformInRequestToSP(newRequest));
     },
     {
       onSuccess: () => {
@@ -227,16 +201,10 @@ export const useUpdateRequest = (Id: number) => {
   return useMutation(
     ["requests", Id],
     async (request: IInRequest) => {
-      if (process.env.NODE_ENV === "development") {
-        let returnRequest = {} as IItemUpdateResult;
-        returnRequest.data = { ...request, etag: "1" };
-        return Promise.resolve(returnRequest);
-      } else {
-        return spWebContext.web.lists
-          .getByTitle("Items")
-          .items.getById(Id)
-          .update(await transformInRequestToSP(request));
-      }
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.getById(Id)
+        .update(await transformInRequestToSP(request));
     },
     {
       onSuccess: () => {
@@ -320,236 +288,3 @@ type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   employeeId: number;
   employeeStringId?: string;
 };
-
-// Declare testItems so it can be used if needed
-let testItems: IResponseItem[] = [];
-
-// Generate data for testing but only in the development environment
-if (process.env.NODE_ENV === "development") {
-  testItems.push(
-    {
-      Id: 2,
-      empName: "Doe, John D",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-11",
-      MPCN: 1234567,
-      SAR: 5,
-      workLocation: "remote",
-      office: "OZIC",
-      isNewCivMil: "yes",
-      prevOrg: "",
-      isNewToBaseAndCenter: "yes",
-      hasExistingCAC: "no",
-      CACExpiration: "2022-12-31T00:00:00.000Z",
-      eta: "2022-12-31T00:00:00.000Z",
-      completionDate: "2023-01-31T00:00:00.000Z",
-      supGovLead: {
-        Id: 1,
-        Title: "Default User",
-        EMail: "defaultTEST@us.af.mil",
-      },
-      employee: {
-        Id: 2,
-        Title: "Default User 2",
-        EMail: "defaultTEST2@us.af.mil",
-      },
-      isTraveler: "no",
-    },
-    {
-      Id: 1,
-      empName: "Doe, Jane D",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-13",
-      MPCN: 7654321,
-      SAR: 6,
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "no",
-      prevOrg: "AFLCMC/WA",
-      isNewToBaseAndCenter: "no",
-      hasExistingCAC: "no",
-      CACExpiration: "2022-12-31T00:00:00.000Z",
-      eta: "2022-12-31T00:00:00.000Z",
-      completionDate: "2023-01-31T00:00:00.000Z",
-      supGovLead: {
-        Id: 1,
-        Title: "Default User",
-        EMail: "defaultTEST@us.af.mil",
-      },
-      employee: {
-        Id: 2,
-        Title: "Default User 2",
-        EMail: "defaultTEST2@us.af.mil",
-      },
-      isTraveler: "no",
-    },
-    {
-      Id: 3,
-      empName: "Default User",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-12",
-      MPCN: 1233217,
-      SAR: 6,
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "yes",
-      isTraveler: "yes",
-      prevOrg: "",
-      isNewToBaseAndCenter: "yes",
-      hasExistingCAC: "no",
-      CACExpiration: "",
-      eta: "2022-12-31T00:00:00.000Z",
-      completionDate: "2023-01-31T00:00:00.000Z",
-      supGovLead: {
-        Id: 2,
-        Title: "Default User 2",
-        EMail: "defaultTEST2@us.af.mil",
-      },
-      employee: {
-        Id: 1,
-        Title: "Default User",
-        EMail: "defaultTEST@us.af.mil",
-      },
-    },
-    {
-      Id: 5,
-      empName: "Cancelled, Imma B",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-13",
-      MPCN: 7654321,
-      SAR: 6,
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "no",
-      prevOrg: "AFLCMC/WA",
-      isNewToBaseAndCenter: "no",
-      hasExistingCAC: "no",
-      CACExpiration: "2022-12-31T00:00:00.000Z",
-      eta: "2022-12-31T00:00:00.000Z",
-      completionDate: "2023-01-31T00:00:00.000Z",
-      supGovLead: {
-        Id: 1,
-        Title: "Default User",
-        EMail: "defaultTEST@us.af.mil",
-      },
-      employee: {
-        Id: 2,
-        Title: "Default User 2",
-        EMail: "defaultTEST2@us.af.mil",
-      },
-      isTraveler: "no",
-      closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
-      cancelReason: "Employee proceeded with new opportunity",
-    },
-    {
-      Id: 4,
-      empName: "Closed, Aye M",
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-13",
-      MPCN: 7654321,
-      SAR: 6,
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "no",
-      prevOrg: "AFLCMC/WA",
-      isNewToBaseAndCenter: "no",
-      hasExistingCAC: "no",
-      CACExpiration: "2022-12-31T00:00:00.000Z",
-      eta: "2022-12-31T00:00:00.000Z",
-      completionDate: "2023-01-31T00:00:00.000Z",
-      supGovLead: {
-        Id: 1,
-        Title: "Default User",
-        EMail: "defaultTEST@us.af.mil",
-      },
-      employee: {
-        Id: 2,
-        Title: "Default User 2",
-        EMail: "defaultTEST2@us.af.mil",
-      },
-      isTraveler: "no",
-      closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
-    }
-  );
-
-  var x = testItems.length;
-  const today = new Date();
-
-  while (x++ < 25) {
-    // Should it have a Completed Date?
-    let closedDate: string = "";
-    let completionDate: string = "";
-    let etaDate: string = "";
-    let employee: { Id: number; Title: string; EMail: string };
-    let supervisor: { Id: number; Title: string; EMail: string };
-
-    const randomDayDiff = Math.floor(Math.random() * 14);
-
-    // Use a random person
-    const employeeId = Math.floor(Math.random() * people.length);
-    const supervisorId = Math.floor(Math.random() * people.length);
-    const empTitle = people[employeeId].text;
-    const supTitle = people[supervisorId].text;
-    employee = {
-      Id: employeeId,
-      Title: empTitle ? empTitle : "TEST USER",
-      EMail: `${people[employeeId].key}@test.us.af.mil`,
-    };
-    supervisor = {
-      Id: supervisorId,
-      Title: supTitle ? supTitle : "TEST SUPERVISOR",
-      EMail: `${people[supervisorId].key}@test.us.af.mil`,
-    };
-
-    // Determine if we should make the current user be the Employee or Supervisor
-    const useCurrentUser = Math.floor(Math.random() * 3);
-    if (useCurrentUser === 0) {
-      // Make the Employee the current user
-      employee = { Id: 1, Title: "Default User", EMail: "me@example.com" };
-    } else if (useCurrentUser === 1) {
-      // Make the Supervisor the current user
-      supervisor = { Id: 1, Title: "Default User", EMail: "me@example.com" };
-    }
-
-    // If it isn't 0 then let's make it that date -- 0 will be "Incomplete CheckListItem"
-    if (randomDayDiff) {
-      let newDate = new Date();
-      newDate.setDate(today.getDate() - randomDayDiff);
-      closedDate = newDate.toISOString();
-      newDate.setDate(newDate.getDate() - 14);
-      etaDate = newDate.toISOString();
-      completionDate = etaDate;
-    }
-    // If it was 0, then let's set some future dates
-    else {
-      const randomDayDiff = Math.floor(Math.random() * 14);
-      let newDate = new Date();
-      newDate.setDate(today.getDate() + randomDayDiff);
-      etaDate = newDate.toISOString();
-      newDate.setDate(newDate.getDate() + 14);
-      completionDate = newDate.toISOString();
-    }
-
-    testItems.push({
-      Id: x,
-      empName: employee.Title,
-      empType: EMPTYPES.Civilian,
-      gradeRank: "GS-13",
-      MPCN: 7654321,
-      SAR: 6,
-      workLocation: "local",
-      office: "OZIC",
-      isNewCivMil: "no",
-      prevOrg: "AFLCMC/WA",
-      isNewToBaseAndCenter: "no",
-      hasExistingCAC: "no",
-      CACExpiration: "2022-12-31T00:00:00.000Z",
-      eta: etaDate,
-      completionDate: completionDate,
-      supGovLead: supervisor,
-      employee: employee,
-      isTraveler: "no",
-      closedOrCancelledDate: closedDate,
-    });
-  }
-}
