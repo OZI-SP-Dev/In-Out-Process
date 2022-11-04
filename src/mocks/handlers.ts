@@ -44,60 +44,13 @@ export const handlers = [
       let index = requests.findIndex(
         (element: any) => element.Id === Number(ItemId)
       );
-      let body = await req.json();
-
-      requests[index].Id = body.Id ? body.Id : requests[index].Id;
-      requests[index].empName = body.empName
-        ? body.empName
-        : requests[index].empName;
-      requests[index].empType = body.empType
-        ? body.empType
-        : requests[index].empType;
-      requests[index].gradeRank = body.gradeRank
-        ? body.gradeRank
-        : requests[index].gradeRank;
-      requests[index].MPCN = body.MPCN ? body.MPCN : requests[index].MPCN;
-      requests[index].SAR = body.SAR ? body.SAR : requests[index].SAR;
-      requests[index].workLocation = body.workLocation
-        ? body.workLocation
-        : requests[index].workLocation;
-      requests[index].office = body.office
-        ? body.office
-        : requests[index].office;
-      requests[index].isNewCivMil = body.isNewCivMil
-        ? body.isNewCivMil
-        : requests[index].isNewCivMil;
-      requests[index].prevOrg = body.prevOrg
-        ? body.prevOrg
-        : requests[index].prevOrg;
-      requests[index].isNewToBaseAndCenter = body.isNewToBaseAndCenter
-        ? body.isNewToBaseAndCenter
-        : requests[index].isNewToBaseAndCenter;
-      requests[index].hasExistingCAC = body.hasExistingCAC
-        ? body.hasExistingCAC
-        : requests[index].hasExistingCAC;
-      requests[index].CACExpiration = body.CACExpiration
-        ? body.CACExpiration
-        : requests[index].CACExpiration;
-      requests[index].eta = body.eta ? body.eta : requests[index].eta;
-      requests[index].completionDate = body.completionDate
-        ? body.completionDate
-        : requests[index].completionDate;
-      // supGovLead: {
-      //   Id: 1,
-      //   Title: "Default User",
-      //   EMail: "defaultTEST@us.af.mil",
-      // },
-      // employee: {
-      //   Id: 2,
-      //   Title: "Default User 2",
-      //   EMail: "defaultTEST2@us.af.mil",
-      // },
-      requests[index].isTraveler = body.isTraveler
-        ? body.isTraveler
-        : requests[index].isTraveler;
-
-      return res(ctx.status(200), ctx.json({ value: requests[index] }));
+      if (index !== -1) {
+        let body = await req.json();
+        updateRequest(body);
+        return res(ctx.status(200), ctx.json({ value: requests[index] }));
+      } else {
+        return res(ctx.status(404), ctx.json(notFound));
+      }
     }
   ),
 
@@ -364,48 +317,46 @@ const notFound = {
  * Update request
  */
 const updateRequest = (item: any) => {
+  console.log(item);
   let index = requests.findIndex(
     (element: any) => element.Id === Number(item.Id)
   );
 
-  if (index) {
-    let newItem = structuredClone(requests[index]);
-
-    newItem[index].Id = item.Id ? item.Id : newItem[index].Id;
-    newItem[index].empName = item.empName
+  if (index !== -1) {
+    requests[index].empName = item.empName
       ? item.empName
-      : newItem[index].empName;
-    newItem[index].empType = item.empType
+      : requests[index].empName;
+    requests[index].empType = item.empType
       ? item.empType
-      : newItem[index].empType;
-    newItem[index].gradeRank = item.gradeRank
+      : requests[index].empType;
+    requests[index].gradeRank = item.gradeRank
       ? item.gradeRank
-      : newItem[index].gradeRank;
-    newItem[index].MPCN = item.MPCN ? item.MPCN : newItem[index].MPCN;
-    newItem[index].SAR = item.SAR ? item.SAR : newItem[index].SAR;
-    newItem[index].workLocation = item.workLocation
+      : requests[index].gradeRank;
+    requests[index].MPCN = item.MPCN ? item.MPCN : requests[index].MPCN;
+    requests[index].SAR = item.SAR ? item.SAR : requests[index].SAR;
+    requests[index].workLocation = item.workLocation
       ? item.workLocation
-      : newItem[index].workLocation;
-    newItem[index].office = item.office ? item.office : newItem[index].office;
-    newItem[index].isNewCivMil = item.isNewCivMil
+      : requests[index].workLocation;
+    requests[index].office = item.office ? item.office : requests[index].office;
+    requests[index].isNewCivMil = item.isNewCivMil
       ? item.isNewCivMil
-      : newItem[index].isNewCivMil;
-    newItem[index].prevOrg = item.prevOrg
+      : requests[index].isNewCivMil;
+    requests[index].prevOrg = item.prevOrg
       ? item.prevOrg
-      : newItem[index].prevOrg;
-    newItem[index].isNewToBaseAndCenter = item.isNewToBaseAndCenter
+      : requests[index].prevOrg;
+    requests[index].isNewToBaseAndCenter = item.isNewToBaseAndCenter
       ? item.isNewToBaseAndCenter
-      : newItem[index].isNewToBaseAndCenter;
-    newItem[index].hasExistingCAC = item.hasExistingCAC
+      : requests[index].isNewToBaseAndCenter;
+    requests[index].hasExistingCAC = item.hasExistingCAC
       ? item.hasExistingCAC
-      : newItem[index].hasExistingCAC;
-    newItem[index].CACExpiration = item.CACExpiration
+      : requests[index].hasExistingCAC;
+    requests[index].CACExpiration = item.CACExpiration
       ? item.CACExpiration
-      : newItem[index].CACExpiration;
-    newItem[index].eta = item.eta ? item.eta : newItem[index].eta;
-    newItem[index].completionDate = item.completionDate
+      : requests[index].CACExpiration;
+    requests[index].eta = item.eta ? item.eta : requests[index].eta;
+    requests[index].completionDate = item.completionDate
       ? item.completionDate
-      : newItem[index].completionDate;
+      : requests[index].completionDate;
     // supGovLead: {
     //   Id: 1,
     //   Title: "Default User",
@@ -416,13 +367,8 @@ const updateRequest = (item: any) => {
     //   Title: "Default User 2",
     //   EMail: "defaultTEST2@us.af.mil",
     // },
-    newItem[index].isTraveler = item.isTraveler
+    requests[index].isTraveler = item.isTraveler
       ? item.isTraveler
-      : newItem[index].isTraveler;
-
-    requests[index] = newItem;
-    return newItem;
-  } else {
-    return notFound;
+      : requests[index].isTraveler;
   }
 };
