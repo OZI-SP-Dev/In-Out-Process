@@ -127,11 +127,11 @@ export const useAddTasks = () => {
   return useMutation(
     ["checklist"],
     (newRequest: IInRequest) => {
-      if (process.env.NODE_ENV === "development") {
-        return Promise.resolve();
-      } else {
-        return createInboundChecklistItems(newRequest);
-      }
+      // if (process.env.NODE_ENV === "development") {
+      //   return Promise.resolve();
+      // } else {
+      return createInboundChecklistItems(newRequest);
+      // }
     },
     {
       onSuccess: () => {
