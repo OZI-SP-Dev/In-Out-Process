@@ -4,12 +4,21 @@ import { UserContext } from "providers/UserProvider";
 import { Button } from "@fluentui/react-components";
 import { RolesByRole } from "components/Roles/RolesByRole";
 import { RolesByUser } from "components/Roles/RolesByUser";
+import { Navigate } from "react-router-dom";
 
 export const Roles: React.FunctionComponent = () => {
   const userContext = useContext(UserContext);
 
   // Get the hook with functions to perform Role Management
   const { addRole } = useRoleManagement();
+
+  // Ensure we have a roles object before determining whether or not to redirect
+  if (userContext.roles) {
+    if (!userContext.roles.includes(RoleType.ADMIN)) {
+      // If they are not an ADMIN, redirect to the Homepage
+      return <Navigate to="/" replace={true} />;
+    }
+  }
 
   // Function to test adding a Role
   const addRoleClick = (role: RoleType) => {

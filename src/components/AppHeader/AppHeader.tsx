@@ -11,6 +11,7 @@ import { useContext, FunctionComponent } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
+import { RoleType } from "api/RolesApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -67,7 +68,14 @@ export const AppHeader: FunctionComponent<any> = (props) => {
         <Link to="/myCheckListItems" className={classes.navLink}>
           My Checklist Items
         </Link>
-
+        {
+          /* Include a link to Manage Roles if the current user is an ADMIN */
+          userContext.roles?.includes(RoleType.ADMIN) && (
+            <Link to="/roles" className={classes.navLink}>
+              Manage Roles
+            </Link>
+          )
+        }
         <Popover>
           <PopoverTrigger>
             <Tooltip
