@@ -2,12 +2,23 @@ import { spWebContext } from "providers/SPWebContext";
 import { IInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { RoleType } from "./RolesApi";
+import { RoleType } from "api/RolesApi";
 
 const createInboundChecklistItems = (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();
 
   const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  // TESTING ITEM
+  checklistItems.items.add({
+    Title: "TESTING ITEM",
+    Description:
+      "<p>This item should become enabled AFTER the Welcome Package is complete</p>",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: -1,
+    Active: false,
+  });
 
   // Welcome Package
   // Required for all inbounds?
@@ -17,6 +28,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
       "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span><span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
     Lead: RoleType.SUPERVISOR,
     RequestId: request.Id,
+    TemplateId: 1,
+    Active: true,
   });
 
   // IA Training
@@ -26,6 +39,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
     Description: "",
     Lead: RoleType.EMPLOYEE,
     RequestId: request.Id,
+    TemplateId: 2,
+    Active: true,
   });
 
   // Transfer CAC if civilian employee already has one
@@ -38,6 +53,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
       Description: "",
       Lead: RoleType.SECURITY,
       RequestId: request.Id,
+      TemplateId: 3,
+      Active: true,
     });
   }
 
@@ -48,6 +65,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
       Description: "",
       Lead: RoleType.SECURITY,
       RequestId: request.Id,
+      TemplateId: 4,
+      Active: true,
     });
   }
 
@@ -58,6 +77,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
       Description: "",
       Lead: RoleType.EMPLOYEE,
       RequestId: request.Id,
+      TemplateId: 5,
+      Active: true,
     });
   }
 
@@ -68,12 +89,16 @@ const createInboundChecklistItems = (request: IInRequest) => {
       Description: "",
       Lead: RoleType.GTC,
       RequestId: request.Id,
+      TemplateId: 6,
+      Active: true,
     });
     checklistItems.items.add({
       Title: "DTS In-processing",
       Description: "",
       Lead: RoleType.DTS,
       RequestId: request.Id,
+      TemplateId: 7,
+      Active: true,
     });
   }
 
@@ -84,6 +109,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
       Description: "",
       Lead: RoleType.ATAAPS,
       RequestId: request.Id,
+      TemplateId: 8,
+      Active: false,
     });
   }
 

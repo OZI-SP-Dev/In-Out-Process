@@ -1,13 +1,5 @@
 import { ICheckListItem } from "api/CheckListItemApi";
-import {
-  ActivityItem,
-  CommandBar,
-  ICommandBarItemProps,
-  IPanelProps,
-  IRenderFunction,
-  Panel,
-  PanelType,
-} from "@fluentui/react";
+import { ActivityItem, Panel, PanelType } from "@fluentui/react";
 import { Label, Text, makeStyles } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
@@ -15,6 +7,7 @@ import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
+import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 
 const useStyles = makeStyles({
   detailContainer: { display: "block" },
@@ -42,63 +35,18 @@ export interface ICheckList {
   isOpen: boolean;
   item: ICheckListItem;
   onDismiss: () => void;
-  completeItem: (itemId: number) => void;
   roles: RoleType[];
   request: IInRequest;
 }
 
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
   const classes = useStyles();
-  const compProps = props;
-
-  // The Navigation Header of the CheckListItemPanel, containing the "Mark Complete" and "Close" buttons
-  const onRenderNavigationContent: IRenderFunction<IPanelProps> = (
-    props,
-    defaultRender
-  ) => {
-    const items: ICommandBarItemProps[] = [
-      {
-        key: "markComplete",
-        text: "Mark Complete",
-        iconProps: { iconName: "CheckMark" },
-        disabled: compProps.item.CompletedBy ? true : false,
-        onClick: (ev?, item?) => {
-          compProps.completeItem(compProps.item.Id);
-        },
-      },
-      {
-        key: "closePanel",
-        text: "Close",
-        iconProps: { iconName: "Cancel" },
-        onClick: props?.onDismiss,
-      },
-    ];
-
-    return (
-      <>
-        <div className={classes.panelNavCommandBar}>
-          {
-            // If they are the Lead AND the request is Active, then show the CommandBar, otherwise hide it
-            compProps.roles?.includes(compProps.item.Lead) &&
-              compProps.request.status === "Active" && (
-                <CommandBar items={items}></CommandBar>
-              )
-          }
-        </div>
-        {
-          // Render the default close button
-          defaultRender!(props)
-        }
-      </>
-    );
-  };
 
   return (
     <Panel
       isOpen={props.isOpen}
       isBlocking={false}
       onDismiss={props.onDismiss}
-      onRenderNavigationContent={onRenderNavigationContent}
       headerText={props.item ? props.item.Title : ""}
       type={PanelType.medium}
     >
@@ -153,10 +101,15 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
                 timeStamp={props.item.CompletedDate?.toFormat("MMMM dd, yyyy")}
               ></ActivityItem>
             ) : (
-              <ActivityItem
-                activityDescription={<div>Not yet completed</div>}
-              ></ActivityItem>
+              <>Not yet completed</>
             )}
+          </div>
+          <div className={classes.fieldContainer}>
+            {!props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" && (
+                <CheckListItemButton checklistItem={props.item} />
+              )}
           </div>
         </div>
       </FluentProvider>

@@ -1,16 +1,9 @@
 import { spWebContext } from "providers/SPWebContext";
 import { ApiError } from "api/InternalErrors";
 import { DateTime } from "luxon";
-import {
-  MutateOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { IPerson, Person, useCurrentUser } from "api/UserApi";
-import { RoleType } from "./RolesApi";
-import { IItemUpdateResult } from "@pnp/sp/items";
-import { useError } from "hooks/useError";
+import { useQuery } from "@tanstack/react-query";
+import { IPerson, Person } from "api/UserApi";
+import { RoleType } from "api/RolesApi";
 export interface ICheckListItem {
   Id: number;
   Title: string;
@@ -20,6 +13,8 @@ export interface ICheckListItem {
   CompletedBy?: IPerson;
   SortOrder?: number;
   RequestId: number;
+  TemplateId: number;
+  Active: boolean;
 }
 
 // create PnP JS response interface for the CheckListItems
@@ -29,13 +24,6 @@ type IResponseItem = Omit<ICheckListItem, "CompletedDate" | "Lead"> & {
   CompletedDate: string;
   Lead: string;
 };
-
-// Interface for sending an update to SharePoint for marking CheckListItem as complete
-interface ISPCompleteCheckListItem {
-  Id: number;
-  CompletedDate: string;
-  CompletedById: number;
-}
 
 // Declare testItems so it can be used if needed
 let testCheckListItems: IResponseItem[] = [];
@@ -57,6 +45,8 @@ if (process.env.NODE_ENV === "development") {
         EMail: "defaultTEST2@us.af.mil",
       },
       RequestId: 1,
+      TemplateId: -1,
+      Active: true,
     },
     {
       Id: 2,
@@ -66,6 +56,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -2,
+      Active: true,
     },
     {
       Id: 3,
@@ -76,6 +68,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -3,
+      Active: true,
     },
     {
       Id: 4,
@@ -86,6 +80,8 @@ if (process.env.NODE_ENV === "development") {
       CompletedDate: "",
       CompletedBy: undefined,
       RequestId: 1,
+      TemplateId: -4,
+      Active: false,
     }
   );
 
@@ -135,6 +131,8 @@ if (process.env.NODE_ENV === "development") {
           }
         : undefined,
       RequestId: Math.floor(Math.random() * 25) + 1,
+      TemplateId: -5,
+      Active: true,
     });
   }
 }
@@ -143,7 +141,7 @@ if (process.env.NODE_ENV === "development") {
 // Currently it is being used by all requests to SP, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,RequestId";
+  "Id,Title,Description,Lead,CompletedDate,CompletedBy/Id,CompletedBy/Title,CompletedBy/EMail,RequestId,TemplateId,Active";
 const expandedFields = "CompletedBy";
 
 /**
@@ -178,6 +176,8 @@ const transformCheckListItemFromSP = (
         })
       : undefined,
     RequestId: request.RequestId,
+    TemplateId: request.TemplateId,
+    Active: request.Active,
   };
 };
 
@@ -309,142 +309,4 @@ const sleep = (milliseconds?: number) => {
   // Default to 500 milliseconds if no value is passed in
   const sleepTime = milliseconds ? milliseconds : 500;
   return new Promise((r) => setTimeout(r, sleepTime));
-};
-
-/**
- * Submit the update to the CheckListItem to SharePoint
- * Internal function used by the react-query useMutation
- *
- */
-const completeCheckListItem = async (spRequest: ISPCompleteCheckListItem) => {
-  if (process.env.NODE_ENV === "development") {
-    await sleep();
-
-    //Mutate checklistitems as we are mimicking the data being stored in SharePoint
-    const checkListItemIndex = testCheckListItems.findIndex(
-      (item) => item.Id === spRequest.Id
-    );
-
-    // Perform mutation at the highest array level for the checklist item so that Details List will see the update
-    testCheckListItems[checkListItemIndex] = {
-      ...testCheckListItems[checkListItemIndex],
-      CompletedBy: {
-        Id: spRequest.CompletedById,
-        Title: "Default User", // TODO -- Perform a lookup to get the User's Info for Test
-        EMail: "me@example.com",
-      },
-      CompletedDate: spRequest.CompletedDate,
-    };
-
-    return Promise.resolve(spRequest);
-  } else {
-    return spWebContext.web.lists
-      .getByTitle("CheckListItems")
-      .items.getById(spRequest.Id)
-      .update(spRequest);
-  }
-};
-
-type checklistmutateoptions = MutateOptions<
-  IItemUpdateResult | ISPCompleteCheckListItem,
-  unknown,
-  ISPCompleteCheckListItem,
-  { previousChecklistItems: ICheckListItem[] | undefined }
->;
-
-/**
- * Hook that returns a function to mark a CheckListItem as Complete
- */
-export const useUpdateCheckListItem = (): {
-  completeCheckListItem: (
-    itemId: number,
-    options?: checklistmutateoptions
-  ) => void;
-} => {
-  const queryClient = useQueryClient();
-  const currentUser = useCurrentUser();
-  const errObj = useError();
-
-  /** React Query Mutation used to Complete a CheckListItem */
-  const completeCheckListItemMutation = useMutation(
-    ["checklist"],
-    completeCheckListItem,
-    {
-      // When mutate is called:
-      onMutate: async (checkListItem) => {
-        // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        await queryClient.cancelQueries(["checklist"]);
-
-        // Snapshot the previous value
-        const previousChecklistItems = queryClient.getQueryData<
-          ICheckListItem[]
-        >(["checklist"]);
-
-        // Optimistically update to the new value
-        if (previousChecklistItems) {
-          let newChecklist = [...previousChecklistItems];
-          let itemIndex = newChecklist.findIndex(
-            (item) => item.Id === checkListItem.Id
-          );
-
-          // Remove the Checklist item from our list since it is now completed
-          if (itemIndex >= 0) {
-            newChecklist.splice(itemIndex, 1);
-          }
-
-          // Set the react query to hold our updated value until it is queried next
-          queryClient.setQueryData<ICheckListItem[]>(
-            ["checklist"],
-            newChecklist
-          );
-        }
-
-        return { previousChecklistItems };
-      },
-
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries(["checklist"]);
-      },
-      onError: (error, variable, context) => {
-        // If the mutation fails, use the context returned from onMutate to roll back
-        //  to the previous snapshot -- until we get the results back from SharePoint with the invalidating
-        if (context?.previousChecklistItems) {
-          queryClient.setQueryData<ICheckListItem[]>(
-            ["checklist"],
-            context.previousChecklistItems
-          );
-        }
-        if (error instanceof Error) {
-          errObj.addError(
-            `Error occurred while trying to complete checklist item ${variable.Id}: ${error.message}`
-          );
-        } else if (typeof error === "string") {
-          errObj.addError(
-            `Error occurred while trying to complete checklist item ${variable.Id}: ${error}`
-          );
-        } else {
-          errObj.addError(
-            `Unknown error occurred while trying to complete checklist item ${variable.Id}`
-          );
-        }
-      },
-    }
-  );
-
-  // Create a refence to the mutate function to pass to the component using this hook to mark the item as Complete
-  const completeChecklistItem = (
-    itemId: number,
-    options?: checklistmutateoptions
-  ) => {
-    let spRequest: ISPCompleteCheckListItem = {
-      Id: itemId,
-      CompletedById: currentUser.Id,
-      CompletedDate: DateTime.now().toISODate(),
-    };
-    return completeCheckListItemMutation.mutate(spRequest, options);
-  };
-
-  // Return object of functions that can be called
-  return { completeCheckListItem: completeChecklistItem };
 };

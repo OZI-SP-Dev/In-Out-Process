@@ -1,7 +1,4 @@
-import {
-  useChecklistItems,
-  useUpdateCheckListItem,
-} from "api/CheckListItemApi";
+import { useChecklistItems } from "api/CheckListItemApi";
 import {
   IColumn,
   SelectionMode,
@@ -9,11 +6,12 @@ import {
   Selection,
 } from "@fluentui/react";
 import { FunctionComponent, useState } from "react";
-import { Button, Link } from "@fluentui/react-components";
+import { Link } from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { CheckListItemPanel } from "components/CheckList/CheckListItemPanel";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
+import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 
 export interface ICheckList {
   ReqId: number;
@@ -23,8 +21,6 @@ export interface ICheckList {
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
   const checlistItems = useChecklistItems(Number(props.ReqId));
-
-  const { completeCheckListItem } = useUpdateCheckListItem();
 
   // State and functions to handle whether or not to display the CheckList Item Panel
   const [isItemPanelOpen, { setTrue: showItemPanel, setFalse: hideItemPanel }] =
@@ -40,10 +36,6 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   const currentItem = checlistItems.data?.find(
     (item) => item.Id === currentItemId
   );
-
-  const completeCheckListItemClick = (itemId: number) => {
-    completeCheckListItem(itemId);
-  };
 
   // Define columns for details list
   const columns: IColumn[] = [
@@ -94,20 +86,11 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
         } else {
           // TODO: Replace this button with a Command Bar at the top of the ShimmeredDetailList
           return (
-            <>
-              {
-                // Show the button to complete if they are the proper role AND the request is Active
-                props.Roles?.includes(item.Lead) &&
-                  props.Request.status === "Active" && (
-                    <Button
-                      appearance="primary"
-                      onClick={() => completeCheckListItemClick(item.Id)}
-                    >
-                      Complete
-                    </Button>
-                  )
-              }
-            </>
+            // Show the button to complete if they are the proper role AND the request is Active
+            props.Roles?.includes(item.Lead) &&
+            props.Request.status === "Active" && (
+              <CheckListItemButton checklistItem={item} />
+            )
           );
         }
       },
@@ -128,6 +111,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   return (
     <>
       <ShimmeredDetailsList
+        setKey="Id"
         items={checlistItems.data || []}
         columns={columns}
         enableShimmer={!checlistItems.data}
@@ -143,7 +127,6 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
           isOpen={isItemPanelOpen}
           onDismiss={hideItemPanel}
           item={currentItem}
-          completeItem={completeCheckListItemClick}
           roles={props.Roles}
           request={props.Request}
         ></CheckListItemPanel>
