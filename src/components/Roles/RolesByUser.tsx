@@ -13,18 +13,20 @@ import { CancelIcon } from "@fluentui/react-icons-mdl2";
 export const RolesByUser: React.FunctionComponent = () => {
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [items, setItems] = useState<SPRole[]>([]);
-
-  // TODO - Actually implement people picker to select the user
-  const selectedUser: IPerson = { Id: 1, Title: "TEST", EMail: "TEST" };
+  const [selectedUser, setSelectedUser] = useState<IPerson>();
 
   useEffect(() => {
-    const newItems = allRolesByUser?.get(selectedUser.Id);
-    if (newItems === undefined) {
-      setItems([]);
+    if (typeof selectedUser?.EMail === "string") {
+      const newItems = allRolesByUser?.get(selectedUser.EMail);
+      if (newItems === undefined) {
+        setItems([]);
+      } else {
+        setItems(newItems);
+      }
     } else {
-      setItems(newItems);
+      setItems([]);
     }
-  }, [allRolesByUser, selectedUser.Id]);
+  }, [allRolesByUser, selectedUser?.EMail]);
 
   const columns: IColumn[] = [
     {
@@ -58,10 +60,12 @@ export const RolesByUser: React.FunctionComponent = () => {
     <>
       <PeoplePicker
         ariaLabel={"Select the user to view the roles of"}
-        updatePeople={function (p: IPerson[]): void {
-          throw new Error("Function not implemented.");
+        updatePeople={(selectedUser) => {
+          if (selectedUser) {
+            setSelectedUser(selectedUser[0]);
+          }
         }}
-        selectedItems={selectedUser}
+        selectedItems={selectedUser ? selectedUser : []}
       ></PeoplePicker>
       <DetailsList
         items={items}

@@ -61,7 +61,7 @@ interface ISPSubmitRole {
 type IRolesByType = Map<RoleType, SPRole[]>;
 
 /** Type for Map of User Roles grouped with key of UserId */
-type IRolesByUser = Map<number, SPRole[]>;
+type IRolesByUser = Map<string, SPRole[]>;
 
 /** Test data for use in DEV environment -- mimics structure of Roles list in SharePoint */
 let testRoles: SPRole[];
@@ -133,11 +133,11 @@ const sleep = <T>(
  * @returns An Map with UserId as grouping the SPRole[] by user(s)
  */
 const getIUserRoles = (roles: SPRole[]): IRolesByUser => {
-  const map: IRolesByUser = new Map<number, SPRole[]>();
+  const map: IRolesByUser = new Map<string, SPRole[]>();
   for (let role of roles) {
     // Ensure the role on the Record actually exists in RoleType -- otherwise ignore this record
     if (Object.values(RoleType).includes(role.Title)) {
-      const key = role.User.Id;
+      const key = role.User.EMail;
       const collection = map.get(key);
       if (!collection) {
         map.set(key, [role]);
@@ -338,7 +338,7 @@ export const useRoleManagement = (): {
   const submitRole = async (submitRoleVal: ISubmitRole) => {
     if (currentRolesByUser) {
       const alreadyExists = currentRolesByUser
-        ?.get(submitRoleVal.User.Id)
+        ?.get(submitRoleVal.User.EMail)
         ?.find((roles) => roles.Title === submitRoleVal.Role);
       if (alreadyExists) {
         return Promise.reject(
