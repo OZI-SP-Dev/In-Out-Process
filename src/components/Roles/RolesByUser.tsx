@@ -8,9 +8,31 @@ import {
   IColumn,
   SelectionMode,
 } from "@fluentui/react";
-import { CancelIcon } from "@fluentui/react-icons-mdl2";
+import { CancelIcon, ContactIcon, ListIcon } from "@fluentui/react-icons-mdl2";
+import { Label, makeStyles, Text } from "@fluentui/react-components";
+
+/* FluentUI Styling */
+const useStyles = makeStyles({
+  formContainer: { display: "grid" },
+  fieldIcon: {
+    marginRight: ".5em",
+  },
+  fieldContainer: {
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    paddingTop: ".5em",
+    paddingBottom: ".5em",
+    display: "grid",
+    position: "relative",
+  },
+  fieldLabel: {
+    paddingBottom: ".5em",
+    display: "flex",
+  },
+});
 
 export const RolesByUser: React.FunctionComponent = () => {
+  const classes = useStyles();
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [items, setItems] = useState<SPRole[]>([]);
   const [selectedUser, setSelectedUser] = useState<IPerson>();
@@ -57,22 +79,38 @@ export const RolesByUser: React.FunctionComponent = () => {
   };
 
   return (
-    <>
-      <PeoplePicker
-        ariaLabel={"Select the user to view the roles of"}
-        updatePeople={(selectedUser) => {
-          if (selectedUser) {
-            setSelectedUser(selectedUser[0]);
-          }
-        }}
-        selectedItems={selectedUser ? selectedUser : []}
-      ></PeoplePicker>
-      <DetailsList
-        items={items}
-        columns={columns}
-        selectionMode={SelectionMode.none}
-        constrainMode={ConstrainMode.unconstrained}
-      ></DetailsList>
-    </>
+    <div className={classes.formContainer}>
+      <div className={classes.fieldContainer}>
+        <Label size="small" weight="semibold" className={classes.fieldLabel}>
+          <ContactIcon className={classes.fieldIcon} />
+          User
+        </Label>
+        <PeoplePicker
+          ariaLabel={"Select the user to view the roles of"}
+          updatePeople={(selectedUser) => {
+            if (selectedUser) {
+              setSelectedUser(selectedUser[0]);
+            }
+          }}
+          selectedItems={selectedUser ? selectedUser : []}
+        ></PeoplePicker>
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label size="small" weight="semibold" className={classes.fieldLabel}>
+          <ListIcon className={classes.fieldIcon} />
+          Roles
+        </Label>
+        <DetailsList
+          items={items}
+          columns={columns}
+          selectionMode={SelectionMode.none}
+          constrainMode={ConstrainMode.unconstrained}
+          isHeaderVisible={false}
+        ></DetailsList>
+        {items.length === 0 && (
+          <Text>No roles assigned to the selected user.</Text>
+        )}
+      </div>
+    </div>
   );
 };

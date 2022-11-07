@@ -6,6 +6,7 @@ import {
   useAllUserRolesByRole,
 } from "api/RolesApi";
 import {
+  makeStyles,
   SelectTabData,
   SelectTabEvent,
   Tab,
@@ -20,7 +21,24 @@ import {
 } from "@fluentui/react";
 import { CancelIcon } from "@fluentui/react-icons-mdl2";
 
+/* FluentUI Styling */
+const useStyles = makeStyles({
+  flexContainer: { display: "flex" },
+  roleList: {
+    flexGrow: 0,
+    width: "10em",
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    paddingTop: ".5em",
+    paddingBottom: ".5em",
+  },
+  userList: {
+    flexGrow: 1,
+  },
+});
+
 export const RolesByRole: React.FunctionComponent = () => {
+  const classes = useStyles();
   const { data: allRolesByType } = useAllUserRolesByRole();
   const [selectedValue, setSelectedValue] = useState<TabValue>(RoleType.ADMIN);
   const initialItems = allRolesByType?.get(RoleType.ADMIN);
@@ -48,8 +66,8 @@ export const RolesByRole: React.FunctionComponent = () => {
 
   const columns: IColumn[] = [
     {
-      key: "name",
-      name: "Name",
+      key: "user",
+      name: "User",
       minWidth: 100,
       isResizable: true,
       onRender: (item) => item.User.Title,
@@ -80,8 +98,8 @@ export const RolesByRole: React.FunctionComponent = () => {
 
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <div style={{ flexGrow: 0, width: "10em" }}>
+      <div className={classes.flexContainer}>
+        <div className={classes.roleList}>
           <TabList
             selectedValue={selectedValue}
             vertical
@@ -94,7 +112,7 @@ export const RolesByRole: React.FunctionComponent = () => {
             ))}
           </TabList>
         </div>
-        <div style={{ flexGrow: 1 }}>
+        <div className={classes.userList}>
           <DetailsList
             items={items}
             columns={columns}

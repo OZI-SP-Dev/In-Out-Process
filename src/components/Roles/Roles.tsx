@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { RoleType } from "api/RolesApi";
 import { UserContext } from "providers/UserProvider";
 import {
+  makeStyles,
   SelectTabData,
   SelectTabEvent,
   Tab,
@@ -13,7 +14,16 @@ import { RolesByUser } from "components/Roles/RolesByUser";
 import { Navigate } from "react-router-dom";
 import { AddUserRole } from "./AddUserRole";
 
+/** FluentUI Styling */
+const useStyles = makeStyles({
+  header: {
+    paddingLeft: "1em",
+    paddingRight: "1em",
+  },
+});
+
 export const Roles: React.FunctionComponent = () => {
+  const classes = useStyles();
   const userContext = useContext(UserContext);
   // Which tab is selected
   const [selectedValue, setSelectedValue] = useState<TabValue>("ByRole");
@@ -33,7 +43,7 @@ export const Roles: React.FunctionComponent = () => {
 
   return (
     <>
-      <h2>Current Assigned Roles</h2>
+      <h2 className={classes.header}>Current Assigned Roles</h2>
       <TabList selectedValue={selectedValue} onTabSelect={onTabSelect}>
         <Tab value="ByRole">By Role</Tab>
         <Tab value="ByUser">By User</Tab>
@@ -41,7 +51,7 @@ export const Roles: React.FunctionComponent = () => {
       {selectedValue === "ByRole" && <RolesByRole />}
       {selectedValue === "ByUser" && <RolesByUser />}
       <hr />
-      <h2>Add User to Role</h2>
+      <h2 className={classes.header}>Add User to Role</h2>
       <AddUserRole />{" "}
     </>
   );
