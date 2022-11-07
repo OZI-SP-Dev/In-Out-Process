@@ -5,6 +5,7 @@ import { Button } from "@fluentui/react-components";
 import { RolesByRole } from "components/Roles/RolesByRole";
 import { RolesByUser } from "components/Roles/RolesByUser";
 import { Navigate } from "react-router-dom";
+import { AddUserRole } from "./AddUserRole";
 
 export const Roles: React.FunctionComponent = () => {
   const userContext = useContext(UserContext);
@@ -33,6 +34,8 @@ export const Roles: React.FunctionComponent = () => {
     <>
       {/* TODO -- Replace this page with a component for Adding users -- Also with components for viewing by RoleTpye -- And Viewing by User 
               This interface is just a placeholder for testing that RolesAPI update */}
+      Add Role to a User
+      <AddUserRole />
       Roles By User
       <RolesByUser />
       All Roles by Role
