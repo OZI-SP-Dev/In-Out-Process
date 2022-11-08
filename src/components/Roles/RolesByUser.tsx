@@ -7,8 +7,11 @@ import {
   DetailsList,
   IColumn,
   SelectionMode,
+  Selection,
+  CommandBar,
+  ICommandBarItemProps,
 } from "@fluentui/react";
-import { CancelIcon, ContactIcon, ListIcon } from "@fluentui/react-icons-mdl2";
+import { ContactIcon } from "@fluentui/react-icons-mdl2";
 import { Label, makeStyles, Text } from "@fluentui/react-components";
 
 /* FluentUI Styling */
@@ -36,6 +39,7 @@ export const RolesByUser: React.FunctionComponent = () => {
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [items, setItems] = useState<SPRole[]>([]);
   const [selectedUser, setSelectedUser] = useState<IPerson>();
+  const [selection] = useState(new Selection());
 
   useEffect(() => {
     if (typeof selectedUser?.EMail === "string") {
@@ -52,31 +56,31 @@ export const RolesByUser: React.FunctionComponent = () => {
 
   const columns: IColumn[] = [
     {
-      key: "name",
+      key: "role",
       name: "Role",
       minWidth: 100,
       isResizable: true,
       onRender: (item) => item.Title,
-    },
-    {
-      key: "action",
-      name: "",
-      minWidth: 20,
-      maxWidth: 20,
-      isResizable: false,
-      onRender: (item) => (
-        <CancelIcon onClick={() => removeRoleClick(item.Id)} />
-      ),
     },
   ];
 
   // Get the hook with functions to perform Role Management
   const { removeRole } = useRoleManagement();
 
-  // Function to test removing a Role
-  const removeRoleClick = (role: number) => {
-    removeRole.mutate(role);
-  };
+  const commandItems: ICommandBarItemProps[] = [
+    {
+      key: "delete",
+      text: "Delete",
+      iconProps: { iconName: "Delete" },
+      onClick: () => {
+        let selectedEntries = selection.getSelection();
+        for (let entry of selectedEntries) {
+          let spRoleEntry = entry as SPRole;
+          removeRole.mutate(spRoleEntry.Id);
+        }
+      },
+    },
+  ];
 
   return (
     <div className={classes.formContainer}>
@@ -96,16 +100,13 @@ export const RolesByUser: React.FunctionComponent = () => {
         ></PeoplePicker>
       </div>
       <div className={classes.fieldContainer}>
-        <Label size="small" weight="semibold" className={classes.fieldLabel}>
-          <ListIcon className={classes.fieldIcon} />
-          Roles
-        </Label>
+        <CommandBar items={commandItems}></CommandBar>
         <DetailsList
           items={items}
           columns={columns}
-          selectionMode={SelectionMode.none}
+          selectionMode={SelectionMode.multiple}
           constrainMode={ConstrainMode.unconstrained}
-          isHeaderVisible={false}
+          selection={selection}
         ></DetailsList>
         {items.length === 0 && (
           <Text>No roles assigned to the selected user.</Text>
