@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState } from "react";
 import {
   Button,
   FluentProvider,
@@ -7,6 +7,8 @@ import {
   makeStyles,
   tokens,
   Tooltip,
+  Spinner,
+  Badge,
 } from "@fluentui/react-components";
 import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
@@ -20,6 +22,7 @@ import {
   EditIcon,
   CancelIcon,
   CompletedIcon,
+  AlertSolidIcon,
 } from "@fluentui/react-icons-mdl2";
 import { useChecklistItems } from "api/CheckListItemApi";
 
@@ -40,6 +43,7 @@ const useStyles = makeStyles({
     marginTop: "-.75em",
     marginBottom: ".5em",
     paddingLeft: ".75em",
+    display: "flex",
   },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
@@ -71,6 +75,11 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   /* Hook to update this request */
   const updateRequest = useUpdateRequest(props.request.Id);
 
+  /** State keepeing track of which type of update is currently processing */
+  const [updateType, setUpdateType] = useState<"cancel" | "complete" | "none">(
+    "none"
+  );
+
   /* The form inside the Cancel Dialog to collect a reason for cancellation */
   const {
     control,
@@ -85,6 +94,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   ] = useBoolean(true);
 
   const performCancel = (item: any) => {
+    setUpdateType("cancel");
     let updateItem = {
       ...props.request, // Create the update object based on the Current Request,
       ...item, // Add in the Cancellation Reason from the React Hook From
@@ -103,6 +113,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
 
   /** Function to mark the In Processing Request as Complete */
   const performComplete = () => {
+    setUpdateType("complete");
     let updateItem = {
       ...props.request, // Create the update object based on the Current Request,
       closedOrCancelledDate: new Date(), // Add in that it occurred today
@@ -121,6 +132,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
             icon={<EditIcon />}
             shape="circular"
             size="small"
+            disabled={updateRequest.isLoading} // Disable if we are processing an update
           >
             Edit
           </Button>
@@ -130,28 +142,62 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
             icon={<CancelIcon />}
             shape="circular"
             size="small"
+            disabled={updateRequest.isLoading} // Disable if we are processing an update
           >
             Cancel Request
           </Button>
-          <Tooltip
-            content={
-              checklistItemsToComplete > 0
-                ? "Cannot be marked complete until all checklist items have been completed"
-                : "Mark this request as complete"
-            }
-            relationship={"description"}
-          >
-            <Button
-              appearance="subtle"
-              onClick={performComplete}
-              icon={<CompletedIcon />}
-              shape="circular"
-              size="small"
-              disabled={checklistItemsToComplete > 0} // Disable if there are still items to complete (or we don't have the data yet)
-            >
-              Mark Complete
-            </Button>
-          </Tooltip>
+
+          {
+            //Show a spinner if we are processing a "complete" request
+            updateType === "complete" && updateRequest.isLoading ? (
+              <Spinner size="extra-small" label="Completing..." />
+            ) : (
+              <>
+                <Tooltip
+                  content={
+                    checklistItemsToComplete > 0
+                      ? "Cannot be marked complete until all checklist items have been completed"
+                      : "Mark this request as complete"
+                  }
+                  relationship={"description"}
+                >
+                  <Button
+                    appearance="subtle"
+                    onClick={performComplete}
+                    icon={<CompletedIcon />}
+                    shape="circular"
+                    size="small"
+                    // Disable if there are still items to complete (or we don't have the data yet) or we are processing an update
+                    disabled={
+                      checklistItemsToComplete > 0 || updateRequest.isLoading
+                    }
+                  >
+                    Mark Complete
+                  </Button>
+                </Tooltip>
+                {
+                  // If the last update request type was "complete" and we ran into an error
+                  updateType === "complete" && updateRequest.isError && (
+                    <Tooltip
+                      content={
+                        updateRequest.error instanceof Error
+                          ? updateRequest.error.message
+                          : "An error occurred."
+                      }
+                      relationship="label"
+                    >
+                      <Badge
+                        size="large"
+                        appearance="ghost"
+                        color="danger"
+                        icon={<AlertSolidIcon />}
+                      />
+                    </Tooltip>
+                  )
+                }
+              </>
+            )
+          }
           <Dialog
             hidden={isCancelDialogOpen}
             modalProps={{
@@ -195,10 +241,43 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
                   </Text>
                 )}
                 <DialogFooter>
-                  <Button appearance="primary" type="submit">
-                    OK
-                  </Button>
-                  <Button appearance="secondary" onClick={hideCancelDialog}>
+                  {updateType === "cancel" && updateRequest.isLoading ? (
+                    <Button appearance="transparent">
+                      <Spinner
+                        as="div"
+                        size="extra-small"
+                        label="Cancelling..."
+                      />
+                    </Button>
+                  ) : (
+                    <>
+                      <Button appearance="primary" type="submit">
+                        OK
+                      </Button>
+                      {updateType === "cancel" && updateRequest.isError && (
+                        <Tooltip
+                          content={
+                            updateRequest.error instanceof Error
+                              ? updateRequest.error.message
+                              : "An error occurred."
+                          }
+                          relationship="label"
+                        >
+                          <Badge
+                            size="large"
+                            appearance="ghost"
+                            color="danger"
+                            icon={<AlertSolidIcon />}
+                          />
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
+                  <Button
+                    appearance="secondary"
+                    disabled={updateRequest.isLoading}
+                    onClick={hideCancelDialog}
+                  >
                     Cancel
                   </Button>
                 </DialogFooter>
