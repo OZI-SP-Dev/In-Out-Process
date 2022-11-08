@@ -16,10 +16,12 @@ import {
   FluentProvider,
   Tooltip,
   Badge,
+  Spinner,
 } from "@fluentui/react-components";
 import { Controller, useForm } from "react-hook-form";
 import {
   AlertSolidIcon,
+  CompletedIcon,
   ContactIcon,
   DropdownIcon,
 } from "@fluentui/react-icons-mdl2";
@@ -259,8 +261,20 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 Add User to Role
               </Button>
             )}
-            {addRole.isLoading && <Text>Adding...</Text>}
-            {addRole.isSuccess && <Text>Role Added Successfully</Text>}
+            {addRole.isLoading && (
+              <Spinner size="small" label="Adding role..." />
+            )}
+            {addRole.isSuccess && (
+              <Badge
+                size="extra-large"
+                appearance="ghost"
+                color="success"
+                style={{ verticalAlign: "middle" }}
+                icon={<CompletedIcon />}
+              >
+                Role added successfully
+              </Badge>
+            )}
           </div>
         </form>
       </FluentProvider>
