@@ -46,7 +46,13 @@ export const RolesByUser: React.FunctionComponent = () => {
   const [isAddPanelOpen, { setTrue: showAddPanel, setFalse: hideAddPanel }] =
     useBoolean(false);
 
-  const items = allRolesByUser?.get(selectedUser?.EMail || "") || [];
+  // The items for the DetailList -- These are the roles the user has in alphabetical order
+  const items =
+    allRolesByUser
+      ?.get(selectedUser?.EMail || "")
+      ?.sort((a, b) =>
+        a.Title.toLowerCase().localeCompare(b.Title.toLowerCase())
+      ) || [];
 
   const columns: IColumn[] = [
     {

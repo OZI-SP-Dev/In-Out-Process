@@ -45,7 +45,14 @@ export const RolesByRole: React.FunctionComponent = () => {
   const classes = useStyles();
   const { data: allRolesByType } = useAllUserRolesByRole();
   const [selectedValue, setSelectedValue] = useState<TabValue>(RoleType.ADMIN);
-  const items = allRolesByType?.get(selectedValue as RoleType) || [];
+
+  // The items for the DetailList -- These are the user who have the role in alphabetical order
+  const items =
+    allRolesByType
+      ?.get(selectedValue as RoleType)
+      ?.sort((a, b) =>
+        a.User.Title.toLowerCase().localeCompare(b.User.Title.toLowerCase())
+      ) || [];
   const [selection] = useState(new Selection());
 
   /* Boolean state for determining whether or not the AddUserRolePanel is shown */
