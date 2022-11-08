@@ -15,7 +15,11 @@ import { RoleType } from "api/RolesApi";
 import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { EditIcon, CancelIcon } from "@fluentui/react-icons-mdl2";
+import {
+  EditIcon,
+  CancelIcon,
+  CompletedIcon,
+} from "@fluentui/react-icons-mdl2";
 
 interface IInRequestComp {
   request: IInRequest;
@@ -87,6 +91,15 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
     });
   };
 
+  /** Function to mark the In Processing Request as Complete */
+  const performComplete = () => {
+    let updateItem = {
+      ...props.request, // Create the update object based on the Current Request,
+      closedOrCancelledDate: new Date(), // Add in that it occurred today
+    };
+    updateRequest.mutate(updateItem);
+  };
+
   return (
     <>
       {/* Only show the buttons to Supervisors -- and only show if it isn't Closed/Cancelled */}
@@ -110,7 +123,15 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
           >
             Cancel Request
           </Button>
-
+          <Button
+            appearance="subtle"
+            onClick={performComplete}
+            icon={<CompletedIcon />}
+            shape="circular"
+            size="small"
+          >
+            Mark Complete
+          </Button>
           <Dialog
             hidden={isCancelDialogOpen}
             modalProps={{
