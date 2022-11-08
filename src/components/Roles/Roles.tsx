@@ -12,7 +12,6 @@ import {
 import { RolesByRole } from "components/Roles/RolesByRole";
 import { RolesByUser } from "components/Roles/RolesByUser";
 import { Navigate } from "react-router-dom";
-import { AddUserRole } from "./AddUserRole";
 
 /** FluentUI Styling */
 const useStyles = makeStyles({
@@ -50,9 +49,6 @@ export const Roles: React.FunctionComponent = () => {
       </TabList>
       {selectedValue === "ByRole" && <RolesByRole />}
       {selectedValue === "ByUser" && <RolesByUser />}
-      <hr />
-      <h2 className={classes.header}>Add User to Role</h2>
-      <AddUserRole />{" "}
     </>
   );
 };

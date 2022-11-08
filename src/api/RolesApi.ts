@@ -342,7 +342,9 @@ export const useRoleManagement = (): {
         ?.find((roles) => roles.Title === submitRoleVal.Role);
       if (alreadyExists) {
         return Promise.reject(
-          `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Role}, you cannot submit a duplicate role!`
+          new Error(
+            `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Role}, you cannot submit a duplicate role!`
+          )
         );
       } else {
         if (process.env.NODE_ENV === "development") {
@@ -372,7 +374,9 @@ export const useRoleManagement = (): {
       }
     } else {
       return Promise.reject(
-        `Unable to add User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Role} becasue current roles are undefined`
+        new Error(
+          `Unable to add User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Role} becasue current roles are undefined`
+        )
       );
     }
   };
@@ -401,21 +405,6 @@ export const useRoleManagement = (): {
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(["roles"]);
-    },
-    onError: (error, variable) => {
-      if (error instanceof Error) {
-        errObj.addError(
-          `Error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}: ${error.message}`
-        );
-      } else if (typeof error === "string") {
-        errObj.addError(
-          `Error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}: ${error}`
-        );
-      } else {
-        errObj.addError(
-          `Unknown error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}`
-        );
-      }
     },
   });
 

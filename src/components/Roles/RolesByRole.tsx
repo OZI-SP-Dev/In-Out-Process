@@ -22,6 +22,8 @@ import {
   CommandBar,
   ICommandBarItemProps,
 } from "@fluentui/react";
+import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
+import { useBoolean } from "@fluentui/react-hooks";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -45,6 +47,10 @@ export const RolesByRole: React.FunctionComponent = () => {
   const [selectedValue, setSelectedValue] = useState<TabValue>(RoleType.ADMIN);
   const items = allRolesByType?.get(selectedValue as RoleType) || [];
   const [selection] = useState(new Selection());
+
+  /* Boolean state for determining whether or not the AddUserRolePanel is shown */
+  const [isAddPanelOpen, { setTrue: showAddPanel, setFalse: hideAddPanel }] =
+    useBoolean(false);
 
   // We don't want to show SUPERVISOR or EMPLOYEE roles as something to view
   const rolesToShow = Object.values(RoleType)
@@ -77,6 +83,12 @@ export const RolesByRole: React.FunctionComponent = () => {
           removeRole.mutate(spRoleEntry.Id);
         }
       },
+    },
+    {
+      key: "add",
+      text: "Add User",
+      iconProps: { iconName: "Add" },
+      onClick: showAddPanel,
     },
   ];
 
@@ -115,6 +127,12 @@ export const RolesByRole: React.FunctionComponent = () => {
           {items.length === 0 && <>No users with this role</>}
         </div>
       </div>
+      <AddUserRolePanel
+        isAddPanelOpen={isAddPanelOpen}
+        onAddCancel={hideAddPanel}
+        onAdd={hideAddPanel}
+        defaultRole={selectedValue as RoleType}
+      />
     </>
   );
 };
