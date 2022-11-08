@@ -6,6 +6,7 @@ import {
   Text,
   makeStyles,
   tokens,
+  Tooltip,
 } from "@fluentui/react-components";
 import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
@@ -20,6 +21,7 @@ import {
   CancelIcon,
   CompletedIcon,
 } from "@fluentui/react-icons-mdl2";
+import { useChecklistItems } from "api/CheckListItemApi";
 
 interface IInRequestComp {
   request: IInRequest;
@@ -50,6 +52,14 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   const classes = useStyles();
 
   const navigateTo = useNavigate();
+
+  /** Get the checklist items associated with this request */
+  const checlistItems = useChecklistItems(Number(props.request.Id));
+
+  /** Number of checklist items still needing completed.  If we don't have the info yet, default to 99 */
+  const checklistItemsToComplete = checlistItems.data
+    ? checlistItems.data.filter((item) => !item.CompletedDate).length
+    : 99;
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
@@ -123,15 +133,25 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
           >
             Cancel Request
           </Button>
-          <Button
-            appearance="subtle"
-            onClick={performComplete}
-            icon={<CompletedIcon />}
-            shape="circular"
-            size="small"
+          <Tooltip
+            content={
+              checklistItemsToComplete > 0
+                ? "Cannot be marked complete until all checklist items have been completed"
+                : "Mark this request as complete"
+            }
+            relationship={"description"}
           >
-            Mark Complete
-          </Button>
+            <Button
+              appearance="subtle"
+              onClick={performComplete}
+              icon={<CompletedIcon />}
+              shape="circular"
+              size="small"
+              disabled={checklistItemsToComplete > 0} // Disable if there are still items to complete (or we don't have the data yet)
+            >
+              Mark Complete
+            </Button>
+          </Tooltip>
           <Dialog
             hidden={isCancelDialogOpen}
             modalProps={{
