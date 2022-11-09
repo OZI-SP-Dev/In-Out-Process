@@ -1,7 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import { spWebContext } from "providers/SPWebContext";
-import { ApiError } from "api/InternalErrors";
 import { IPerson } from "api/UserApi";
+import { IItemAddResult } from "@pnp/sp/items";
+import { useError } from "hooks/useError";
 
 /** Enum used to define the different roles in the tool */
 export enum RoleType {
@@ -25,20 +32,6 @@ export enum RoleType {
   SUPERVISOR = "Supervisor",
 }
 
-export interface IUserRoles {
-  /** The User having the defined roles */
-  User: IPerson;
-  /** The Roles assigned to the User */
-  Roles: IRole[];
-}
-
-export interface IRole {
-  /** The Id of the entry in the Roles list */
-  Id: number;
-  /** The string representing the Role */
-  Role: RoleType;
-}
-
 /** The structure of records in the Roles list in SharePoint */
 interface SPRole {
   /** The Id of the entry in the Roles list  */
@@ -50,62 +43,86 @@ interface SPRole {
 }
 
 //* Format for request for adding a Role to a user */
-export interface ISubmitRole {
+interface ISubmitRole {
   /** The User to add the Role to */
   User: IPerson;
   /** The Role to add to the User */
   Role: RoleType;
 }
 
+//* Format for sending request to SP for adding a Role to a user */
 interface ISPSubmitRole {
   Id?: number;
   UserId: number;
   Title: RoleType;
 }
 
+/** Type for Map of User Roles grouped with key of Role */
+type IRolesByType = Map<RoleType, SPRole[]>;
+
+/** Type for Map of User Roles grouped with key of UserId */
+type IRolesByUser = Map<number, SPRole[]>;
+
 /** Test data for use in DEV environment -- mimics structure of Roles list in SharePoint */
-let testRoles: SPRole[] = [
-  {
-    Id: 1,
-    User: {
-      Id: 1,
-      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.ADMIN,
-  },
-  {
-    Id: 2,
-    User: {
-      Id: 2,
-      Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.IT,
-  },
-  {
-    Id: 3,
-    User: {
-      Id: 1,
-      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.IT,
-  },
-];
+let testRoles: SPRole[];
 
 /** The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint */
-let maxId: number = testRoles.length;
+let maxId: number;
+
+// Only populate the testRoles and maxId if we are in DEV
+if (process.env.NODE_ENV === "development") {
+  testRoles = [
+    {
+      Id: 1,
+      User: {
+        Id: 1,
+        Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+        EMail: "me@example.com",
+      },
+      Title: RoleType.ADMIN,
+    },
+    {
+      Id: 2,
+      User: {
+        Id: 2,
+        Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+        EMail: "me@example.com",
+      },
+      Title: RoleType.IT,
+    },
+    {
+      Id: 3,
+      User: {
+        Id: 1,
+        Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+        EMail: "me@example.com",
+      },
+      Title: RoleType.IT,
+    },
+  ];
+
+  maxId = testRoles.length;
+}
 
 /** Function used by calls in the DEV env to mimic a delay in processing
  *
  * @param milliseconds - Optional value to sleep -- Defaults to 500 if not specified
+ * @param resolveValue - Optional value to pass back as the reolved promise
  * @returns A Promise after the delayed amount of time
  */
-const sleep = (milliseconds?: number) => {
-  // Default to 500 milliseconds if no value is passed in
-  const sleepTime = milliseconds ? milliseconds : 500;
-  return new Promise((r) => setTimeout(r, sleepTime));
+const sleep = <T>(
+  milliseconds: number = 500, // Default to 500 milliseconds if no value is passed in
+  resolveValue?: T
+): Promise<T> => {
+  if (resolveValue) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(resolveValue), milliseconds);
+    });
+  } else {
+    return new Promise((resolve) => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
 };
 
 /**
@@ -113,72 +130,81 @@ const sleep = (milliseconds?: number) => {
  * belonging to the user.  One or more user's data can be passed in
  *
  * @param roles The data containing user and role
- * @returns An IUserRoles[] object grouping the roles by user(s)
+ * @returns An Map with UserId as grouping the SPRole[] by user(s)
  */
-const getIUserRoles = (roles: SPRole[]): IUserRoles[] => {
-  let userRoles: IUserRoles[] = [];
+const getIUserRoles = (roles: SPRole[]): IRolesByUser => {
+  const map: IRolesByUser = new Map<number, SPRole[]>();
   for (let role of roles) {
+    // Ensure the role on the Record actually exists in RoleType -- otherwise ignore this record
     if (Object.values(RoleType).includes(role.Title)) {
-      let i = userRoles.findIndex(
-        (userRole) => userRole.User.Id === role.User.Id
-      );
-      if (i > -1) {
-        userRoles[i].Roles.push({ Id: role.Id, Role: role.Title });
+      const key = role.User.Id;
+      const collection = map.get(key);
+      if (!collection) {
+        map.set(key, [role]);
       } else {
-        userRoles.push({
-          User: role.User,
-          Roles: [{ Id: role.Id, Role: role.Title }],
-        });
+        collection.push(role);
       }
     }
   }
-  return userRoles;
+  return map;
+};
+
+/**
+ * Take the SP Role list row data, and group it by RoleType specifying all the users
+ * belonging to that role.
+ *
+ * @param roles The data containing user and role
+ * @returns A Map grouping the SPRole[] data by RoleType
+ */
+const getIUserRolesGroup = (roles: SPRole[]): IRolesByType => {
+  const map: IRolesByType = new Map<RoleType, SPRole[]>();
+  for (let role of roles) {
+    // Ensure the role on the Record actually exists in RoleType -- otherwise ignore this record
+    if (Object.values(RoleType).includes(role.Title)) {
+      const key = role.Title;
+      const collection = map.get(key);
+      if (!collection) {
+        map.set(key, [role]);
+      } else {
+        collection.push(role);
+      }
+    }
+  }
+  return map;
+};
+
+/**
+ * Take the SP Role list row data, and turn it into a single RoleType[]
+ *
+ * @param roles The SPRole[] data from the Role list
+ * @returns A single RoleType[] object for a single user
+ */
+const getIUserRoleType = (roles: SPRole[]): RoleType[] => {
+  let userRoles: IRolesByUser = getIUserRoles(roles);
+  if (userRoles.size === 1) {
+    // Return the first (and only) item in the array
+    return Array.from(userRoles.values())[0].map((role: SPRole) => role.Title);
+  } else {
+    // If we didn't error from the API, but returned 0 or more than 1 users worth of data
+    //  then default the user to having no roles
+    return [] as RoleType[];
+  }
 };
 
 /**
  * Get all roles for all users.
  * Internal function called by react-query useQuery to get the data
  *
- * @returns An IUserRoles[] object containing all defined users and their roles
+ * @returns An Promise for SPRole[] - containing the Role records
  */
-const getAllRoles = async (): Promise<IUserRoles[]> => {
+const getAllRoles = async (): Promise<SPRole[]> => {
   if (process.env.NODE_ENV === "development") {
-    await sleep();
-    const roles = getIUserRoles(testRoles);
-    if (roles) {
-      return Promise.resolve(roles);
-    } else {
-      return Promise.reject(
-        new Error("Error occurred while trying to fetch all Roles")
-      );
-    }
+    return sleep(undefined, testRoles);
   } else {
-    try {
-      return getIUserRoles(
-        await spWebContext.web.lists
-          .getByTitle("Roles")
-          .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title")
-          .expand("User")()
-      );
-    } catch (e) {
-      console.error("Error occurred while trying to fetch all Roles");
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch all Roles: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(`Error occurred while trying to fetch all Roles: ${e}`)
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          "Unknown error occurred while trying to fetch all Roles"
-        );
-      }
-    }
+    return spWebContext.web.lists
+      .getByTitle("Roles")
+      .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+      .expand("User")();
   }
 };
 
@@ -187,61 +213,21 @@ const getAllRoles = async (): Promise<IUserRoles[]> => {
  * Internal function called by react-query useQuery to get the data
  *
  * @param userId The Id of the user whose roles are being requested
- * @returns The Roles for a given User in the form of IUserRoles,
+ * @returns The Promise of the Roles records for a given User in the form of SPRole[],
  *          may be undefined if the User does not have any roles.
  */
-const getRolesForUser = async (userId: number): Promise<IUserRoles> => {
+const getRolesForUser = async (userId: number): Promise<SPRole[]> => {
   if (process.env.NODE_ENV === "development") {
-    await sleep();
-    const response = getIUserRoles(
+    return sleep(
+      undefined,
       testRoles.filter((entry) => entry.User.Id === userId)
     );
-    if (response.length === 1) {
-      return Promise.resolve(response[0]);
-    } else {
-      // If we returned 0 or more than 1 users worth of data
-      //  then default the user to having no roles
-      return Promise.resolve({} as IUserRoles);
-    }
   } else {
-    try {
-      const response = getIUserRoles(
-        await spWebContext.web.lists
-          .getByTitle("Roles")
-          .items.filter(`User/Id eq '${userId}'`)
-          .select("Id", "User/Id", "User/Title", "User/EMail", "Title")
-          .expand("User")()
-      );
-      if (response.length === 1) {
-        return response[0];
-      } else {
-        // If we didn't error from the API, but returned 0 or more than 1 users worth of data
-        //  then default the user to having no roles
-        return Promise.resolve({} as IUserRoles);
-      }
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch Roles for User with ID ${userId}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch Roles for User with ID ${userId}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch Roles for User with ID ${userId}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to fetch Roles for User with ID ${userId}`
-        );
-      }
-    }
+    return spWebContext.web.lists
+      .getByTitle("Roles")
+      .items.filter(`User/Id eq '${userId}'`)
+      .select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+      .expand("User")();
   }
 };
 
@@ -253,6 +239,7 @@ const getRolesForUser = async (userId: number): Promise<IUserRoles> => {
  *
  */
 export const useUserRoles = (userId: number) => {
+  const errObj = useError();
   return useQuery({
     queryKey: ["roles", userId],
     queryFn: () => getRolesForUser(userId),
@@ -262,16 +249,35 @@ export const useUserRoles = (userId: number) => {
     staleTime: Infinity,
     cacheTime: Infinity,
     // Return just the RoleType[]
-    select: (data) => data.Roles.map((role) => role.Role),
+    select: getIUserRoleType,
+    onError: (err) => {
+      if (err instanceof Error) {
+        errObj.addError(
+          `Error occurred while trying to fetch Roles for User with ID ${userId}: ${err.message}`
+        );
+      } else if (typeof err === "string") {
+        errObj.addError(
+          `Error occurred while trying to fetch Roles for User with ID ${userId}: ${err}`
+        );
+      } else {
+        errObj.addError(
+          `Unknown error occurred while trying to fetch Roles for User with ID ${userId}`
+        );
+      }
+    },
   });
 };
 
 /**
  * Get the Roles of all users.
- *
- * @returns The Roles for a all in the form of the react-query results.  The data element is in the form of IUserRoles[]
+ * @param select The function to run the data through after it has been returned from the datasource
+ * @returns The Roles for a all in the form of the react-query results.  The data element type is based on the selector
  */
-export const useAllUserRoles = () => {
+const useAllUserRoles = (select: {
+  (roles: SPRole[]): IRolesByType | IRolesByUser | SPRole[];
+}) => {
+  const errObj = useError();
+
   return useQuery({
     queryKey: ["roles"],
     queryFn: () => getAllRoles(),
@@ -280,86 +286,115 @@ export const useAllUserRoles = () => {
     // have them invalidated, so it will re-query
     staleTime: Infinity,
     cacheTime: Infinity,
+    select: select,
+    onError: (err) => {
+      if (err instanceof Error) {
+        errObj.addError(
+          `Error occurred while trying to fetch all Roles: ${err.message}`
+        );
+      } else if (typeof err === "string") {
+        errObj.addError(
+          `Error occurred while trying to fetch all Roles: ${err}`
+        );
+      } else {
+        errObj.addError(
+          `Unknown error occurred while trying to fetch all Roles`
+        );
+      }
+    },
   });
 };
 
-/**
- * Submit the new role to SharePoint
- * Internal function used by the react-query useMutation
- *
- */
-const submitRole = async (submitRoleVal: ISubmitRole) => {
-  if (process.env.NODE_ENV === "development") {
-    await sleep();
-    let newRole = {
-      Id: ++maxId,
-      User: submitRoleVal.User,
-      Title: submitRoleVal.Role,
-    };
-    //Mutate testRoles as we are mimicking the data being stored in SharePoint
-    testRoles.push(newRole);
-    return newRole;
-  } else {
-    let spRequest: ISPSubmitRole = {
-      UserId: submitRoleVal.User.Id,
-      Title: submitRoleVal.Role,
-    };
-    await spWebContext.web.lists.getByTitle("Roles").items.add(spRequest);
-  }
-};
+/** Hook returning all the roles grouped by User */
+export const useAllUserRolesByUser = () =>
+  useAllUserRoles(getIUserRoles) as UseQueryResult<IRolesByUser, unknown>;
+
+/** Hook returning all the roles grouped by Role */
+export const useAllUserRolesByRole = () =>
+  useAllUserRoles(getIUserRolesGroup) as UseQueryResult<IRolesByType, unknown>;
 
 /**
- * Delete the role from SharePoint
- * Internal function used by the react-query useMutation
- *
- */
-const deleteRole = async (roleId: number) => {
-  if (process.env.NODE_ENV === "development") {
-    await sleep();
-    // Mutate the testRoles to remove it as we are mimicking the data being stored in SharePoint
-    testRoles = testRoles.filter((role) => role.Id !== roleId);
-  } else {
-    try {
-      await spWebContext.web.lists
-        .getByTitle("Roles")
-        .items.getById(roleId)
-        .delete();
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to delete Role with ID ${roleId}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to delete Role with ID ${roleId}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to delete Role with ID ${roleId}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to delete Role with ID ${roleId}`
-        );
-      }
-    }
-  }
-};
-
-/**
- * Hook that returns 2 functions to be used for Role Management
+ * Hook that returns 2 mutate functions to be used for Role Management
  *
  */
 export const useRoleManagement = (): {
-  addRole: (request: ISubmitRole) => void;
-  removeRole: (roleId: number) => void;
+  addRole: UseMutationResult<
+    SPRole | IItemAddResult,
+    unknown,
+    ISubmitRole,
+    unknown
+  >;
+  removeRole: UseMutationResult<void, unknown, number, unknown>;
 } => {
   const queryClient = useQueryClient();
-  const { data: currentRoles } = useAllUserRoles();
+  const { data: currentRolesByUser } = useAllUserRolesByUser();
+  const errObj = useError();
+
+  /**
+   * Submit the new role to SharePoint
+   * Internal function used by the react-query useMutation
+   *
+   */
+  const submitRole = async (submitRoleVal: ISubmitRole) => {
+    if (currentRolesByUser) {
+      const alreadyExists = currentRolesByUser
+        ?.get(submitRoleVal.User.Id)
+        ?.find((roles) => roles.Title === submitRoleVal.Role);
+      if (alreadyExists) {
+        return Promise.reject(
+          `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Role}, you cannot submit a duplicate role!`
+        );
+      } else {
+        if (process.env.NODE_ENV === "development") {
+          await sleep();
+          let newRole: SPRole = {
+            Id: ++maxId,
+            User: submitRoleVal.User,
+            Title: submitRoleVal.Role,
+          };
+          //Mutate testRoles as we are mimicking the data being stored in SharePoint
+          testRoles = [...testRoles, newRole];
+          return Promise.resolve(newRole);
+        } else {
+          let spRequest: ISPSubmitRole = {
+            // If the Id for the User is -1 then we need to look up the user in SharePoint, otherwise use the Id we alreay have
+            UserId:
+              submitRoleVal.User.Id === -1
+                ? (await spWebContext.web.ensureUser(submitRoleVal.User.EMail))
+                    .data.Id
+                : submitRoleVal.User.Id,
+            Title: submitRoleVal.Role,
+          };
+          return spWebContext.web.lists
+            .getByTitle("Roles")
+            .items.add(spRequest);
+        }
+      }
+    } else {
+      return Promise.reject(
+        `Unable to add User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Role} becasue current roles are undefined`
+      );
+    }
+  };
+
+  /**
+   * Delete the role from SharePoint
+   * Internal function used by the react-query useMutation
+   *
+   */
+  const deleteRole = async (roleId: number) => {
+    if (process.env.NODE_ENV === "development") {
+      await sleep();
+      // Mutate the testRoles to remove it as we are mimicking the data being stored in SharePoint
+      testRoles = testRoles.filter((role) => role.Id !== roleId);
+      return Promise.resolve();
+    } else {
+      return spWebContext.web.lists
+        .getByTitle("Roles")
+        .items.getById(roleId)
+        .delete();
+    }
+  };
 
   /** React Query Mutation used to add a Role */
   const addRoleMutation = useMutation(["roles"], submitRole, {
@@ -369,19 +404,15 @@ export const useRoleManagement = (): {
     },
     onError: (error, variable) => {
       if (error instanceof Error) {
-        throw new ApiError(
-          error,
+        errObj.addError(
           `Error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}: ${error.message}`
         );
       } else if (typeof error === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}: ${error}`
-          )
+        errObj.addError(
+          `Error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}: ${error}`
         );
       } else {
-        throw new ApiError(
-          undefined,
+        errObj.addError(
           `Unknown error occurred while trying to add ${variable.Role} Role for User ${variable.User.Title}`
         );
       }
@@ -396,65 +427,21 @@ export const useRoleManagement = (): {
     },
     onError: (error, variable) => {
       if (error instanceof Error) {
-        throw new ApiError(
-          error,
+        errObj.addError(
           `Error occurred while trying to remove role with Id ${variable}: ${error.message}`
         );
       } else if (typeof error === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to remove role with Id ${variable}: ${error}`
-          )
+        errObj.addError(
+          `Error occurred while trying to remove role with Id ${variable}: ${error}`
         );
       } else {
-        throw new ApiError(
-          undefined,
+        errObj.addError(
           `Unknown error occurred while trying to remove the role with Id ${variable}`
         );
       }
     },
   });
 
-  /**
-   * Add a Role for a User to SharePoint
-   *
-   * @param user - The User you want to add the Role to
-   * @param role - The Role you want to add for the user
-   *  */
-  const addRole = (request: ISubmitRole) => {
-    if (currentRoles) {
-      const alreadyExists = currentRoles.filter(
-        (entry) =>
-          entry.User.Id === request.User.Id &&
-          entry.Roles.find((roles) => roles.Role === request.Role)
-      );
-      if (alreadyExists?.length > 0) {
-        throw new ApiError(
-          new Error(
-            `User ${request.User.Title} already has the Role ${request.Role}, you cannot submit a duplicate role!`
-          )
-        );
-      } else {
-        const submitRoleVal: ISubmitRole = {
-          User: request.User,
-          Role: request.Role,
-        };
-
-        addRoleMutation.mutate(submitRoleVal);
-      }
-    }
-  };
-
-  /**
-   * Add a Role for a User to SharePoint
-   *
-   * @param user - The User you want to add the Role to
-   * @param role - The Role you want to add for the user
-   *  */
-  const removeRole = (roleId: number) => {
-    removeRoleMutation.mutate(roleId);
-  };
-
   // Return object of functions that can be called
-  return { addRole: addRole, removeRole: removeRole };
+  return { addRole: addRoleMutation, removeRole: removeRoleMutation };
 };
