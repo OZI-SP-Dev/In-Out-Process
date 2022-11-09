@@ -3,6 +3,8 @@ import { IRequestItem, IResponseItem } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
+const responsedelay = 500;
+
 export const handlers = [
   /**
    * Build a fake context object for PnPJS
@@ -10,6 +12,7 @@ export const handlers = [
   rest.post("/_api/contextinfo", (req, res, ctx) => {
     return res(
       ctx.status(200),
+      ctx.delay(responsedelay),
       ctx.json({
         webFullUrl: "http://localhost:3000/",
         siteFullUrl: "http://localhost:3000/",
@@ -27,9 +30,17 @@ export const handlers = [
       const { ItemId } = req.params;
       let result = requests.find((element) => element.Id === Number(ItemId));
       if (result) {
-        return res(ctx.status(200), ctx.json({ value: result }));
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: result })
+        );
       } else {
-        return res(ctx.status(404), ctx.json(notFound));
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
       }
     }
   ),
@@ -48,9 +59,17 @@ export const handlers = [
       if (index !== -1) {
         let body = await req.json();
         updateRequest(body);
-        return res(ctx.status(200), ctx.json({ value: requests[index] }));
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: requests[index] })
+        );
       } else {
-        return res(ctx.status(404), ctx.json(notFound));
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
       }
     }
   ),
@@ -90,7 +109,11 @@ export const handlers = [
         isTraveler: body.isTraveler,
       };
       requests.push(request);
-      return res(ctx.status(200), ctx.json({ value: request }));
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({ value: request })
+      );
     }
   ),
 
@@ -110,7 +133,11 @@ export const handlers = [
         default:
       }
     }
-    return res(ctx.status(200), ctx.json({ value: results }));
+    return res(
+      ctx.status(200),
+      ctx.delay(responsedelay),
+      ctx.json({ value: results })
+    );
   }),
 
   rest.get(
@@ -127,7 +154,11 @@ export const handlers = [
           );
         }
       }
-      return res(ctx.status(200), ctx.json({ value: results }));
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({ value: results })
+      );
     }
   ),
 
@@ -145,7 +176,7 @@ export const handlers = [
      * Matching group 3 finds the object
      */
     const regex = RegExp(
-      /(?:[POST|MERGE] http:\/\/localhost:3000)([A-Za-z0-9'/_:.\-()]+)(?:\sHTTP\/1\.1\saccept: application\/json\s+content-type: application\/json;charset=utf-8\s(?:if-match: \*)\s+)({.+?})/g
+      /(?:[POST|MERGE] http:\/\/localhost:3000)([A-Za-z0-9'/_:.\-()]+)(?:\sHTTP\/1\.1\saccept: application\/json\s+content-type: application\/json;charset=utf-8\s(?:if-match: \*)?\s+)({.+?})/g
     );
 
     const posts = Array.from(body.matchAll(regex), (m) => {
@@ -190,8 +221,10 @@ export const handlers = [
           if (index !== -1) {
             const item = JSON.parse(post[1]);
 
+            console.log(item);
             const newItem = {
-              ...(item.CompleteDate && { CompletedDate: item.CompleteDate }),
+              ...checklistitems[index],
+              ...(item.CompletedDate && { CompletedDate: item.CompletedDate }),
               ...(item.CompletedById && {
                 CompletedBy: {
                   Id: item.CompletedById,
@@ -200,7 +233,6 @@ export const handlers = [
                 },
               }),
               ...(item.Active && { Active: true }),
-              ...checklistitems[index],
             };
             checklistitems[index] = newItem;
           }
@@ -230,6 +262,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 
     return res(
       ctx.status(200),
+      ctx.delay(responsedelay),
       ctx.text(batchresponse),
       ctx.set(
         "Content-Type",
@@ -596,5 +629,11 @@ const updateRequest = (item: IResponseItem) => {
     requests[index].isTraveler = item.isTraveler
       ? item.isTraveler
       : requests[index].isTraveler;
+  }
+  if (item.cancelReason) {
+    requests[index].cancelReason = item.cancelReason;
+  }
+  if (item.closedOrCancelledDate) {
+    requests[index].closedOrCancelledDate = item.closedOrCancelledDate;
   }
 };
