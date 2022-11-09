@@ -21,6 +21,7 @@ import {
   Selection,
   CommandBar,
   ICommandBarItemProps,
+  IObjectWithKey,
 } from "@fluentui/react";
 import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
 import { useBoolean } from "@fluentui/react-hooks";
@@ -53,7 +54,18 @@ export const RolesByRole: React.FunctionComponent = () => {
       ?.sort((a, b) =>
         a.User.Title.toLowerCase().localeCompare(b.User.Title.toLowerCase())
       ) || [];
-  const [selection] = useState(new Selection());
+
+  /** Count of selected items in the DetailsList */
+  const [selectedCount, setSelectedCount] = useState(0);
+  /** Count of selected items in the DetailsList */
+  const [selectedItems, setSelectedItems] = useState<IObjectWithKey[]>([]);
+
+  const selection: Selection = new Selection({
+    onSelectionChanged: () => {
+      setSelectedCount(selection.getSelectedCount());
+      setSelectedItems(selection.getSelection());
+    },
+  });
 
   /* Boolean state for determining whether or not the AddUserRolePanel is shown */
   const [isAddPanelOpen, { setTrue: showAddPanel, setFalse: hideAddPanel }] =
@@ -78,26 +90,29 @@ export const RolesByRole: React.FunctionComponent = () => {
     },
   ];
 
-  const commandItems: ICommandBarItemProps[] = [
+  let commandItems: ICommandBarItemProps[] = [
     {
       key: "add",
       text: "Add User",
       iconProps: { iconName: "Add" },
       onClick: showAddPanel,
     },
-    {
+  ];
+
+  // If they have selected an item, then add a Delete button
+  if (selectedCount > 0) {
+    commandItems.push({
       key: "delete",
       text: "Delete",
       iconProps: { iconName: "Delete" },
       onClick: () => {
-        let selectedEntries = selection.getSelection();
-        for (let entry of selectedEntries) {
+        for (let entry of selectedItems) {
           let spRoleEntry = entry as SPRole;
           removeRole.mutate(spRoleEntry.Id);
         }
       },
-    },
-  ];
+    });
+  }
 
   const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setSelectedValue(data.value);

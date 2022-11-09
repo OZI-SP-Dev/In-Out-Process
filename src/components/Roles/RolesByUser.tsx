@@ -10,6 +10,7 @@ import {
   Selection,
   CommandBar,
   ICommandBarItemProps,
+  IObjectWithKey,
 } from "@fluentui/react";
 import { ContactIcon } from "@fluentui/react-icons-mdl2";
 import { Label, makeStyles, Text } from "@fluentui/react-components";
@@ -40,7 +41,17 @@ export const RolesByUser: React.FunctionComponent = () => {
   const classes = useStyles();
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [selectedUser, setSelectedUser] = useState<IPerson>();
-  const [selection] = useState(new Selection());
+  /** Count of selected items in the DetailsList */
+  const [selectedCount, setSelectedCount] = useState(0);
+  /** Count of selected items in the DetailsList */
+  const [selectedItems, setSelectedItems] = useState<IObjectWithKey[]>([]);
+
+  const selection: Selection = new Selection({
+    onSelectionChanged: () => {
+      setSelectedCount(selection.getSelectedCount());
+      setSelectedItems(selection.getSelection());
+    },
+  });
 
   /* Boolean state for determining whether or not the AddUserRolePanel is shown */
   const [isAddPanelOpen, { setTrue: showAddPanel, setFalse: hideAddPanel }] =
@@ -67,26 +78,29 @@ export const RolesByUser: React.FunctionComponent = () => {
   // Get the hook with functions to perform Role Management
   const { removeRole } = useRoleManagement();
 
-  const commandItems: ICommandBarItemProps[] = [
+  let commandItems: ICommandBarItemProps[] = [
     {
       key: "add",
       text: "Add Role",
       iconProps: { iconName: "Add" },
       onClick: showAddPanel,
     },
-    {
+  ];
+
+  // If they have selected an item, then add a Delete button
+  if (selectedCount > 0) {
+    commandItems.push({
       key: "delete",
       text: "Delete",
       iconProps: { iconName: "Delete" },
       onClick: () => {
-        let selectedEntries = selection.getSelection();
-        for (let entry of selectedEntries) {
+        for (let entry of selectedItems) {
           let spRoleEntry = entry as SPRole;
           removeRole.mutate(spRoleEntry.Id);
         }
       },
-    },
-  ];
+    });
+  }
 
   return (
     <>
