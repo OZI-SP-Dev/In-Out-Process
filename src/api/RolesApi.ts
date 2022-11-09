@@ -43,7 +43,7 @@ export interface SPRole {
 }
 
 //* Format for request for adding a Role to a user */
-interface ISubmitRole {
+export interface ISubmitRole {
   /** The User to add the Role to */
   User: IPerson;
   /** The Role to add to the User */

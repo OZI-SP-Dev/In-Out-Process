@@ -3,6 +3,7 @@ import {
   useRoleManagement,
   useAllUserRolesByUser,
   RoleType,
+  ISubmitRole,
 } from "api/RolesApi";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { IPerson } from "api/UserApi";
@@ -100,27 +101,19 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     });
 
   // Function to test adding a Role
-  const addRoleClick = (data: { user: any; role: RoleType }) => {
-    if (data.user && data.role) {
-      addRole.mutate(
-        {
-          User: data.user,
-          Role: data.role,
-        },
-        {
-          onSuccess: () => {
-            setTimeout(() => {
-              props.onAdd();
-            }, 2000);
-          },
-        }
-      );
-    }
+  const addRoleClick = (data: ISubmitRole) => {
+    addRole.mutate(data, {
+      onSuccess: () => {
+        setTimeout(() => {
+          props.onAdd();
+        }, 2000);
+      },
+    });
   };
 
   const onUserChange = (user: IPerson[]) => {
     if (user) {
-      setValue("user", user[0]);
+      setValue("User", user[0]);
       if (typeof user[0]?.EMail === "string") {
         const newItems = allRolesByUser?.get(user[0].EMail);
         if (newItems === undefined) {
@@ -132,7 +125,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
         setItems([]);
       }
     } else {
-      setValue("user", []);
+      setValue("User", []);
       setItems([]);
     }
   };
@@ -147,7 +140,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     if (props.defaultUser) {
       newUser = { ...props.defaultUser };
     }
-    reset({ user: newUser, role: newRole });
+    reset({ User: newUser, Role: newRole });
 
     addRole.reset();
   };
@@ -178,7 +171,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
               User
             </Label>
             <Controller
-              name="user"
+              name="User"
               control={control}
               rules={{
                 required:
@@ -193,9 +186,9 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 />
               )}
             />
-            {errors.user && (
+            {errors.User && (
               <Text id="userErr" className={classes.errorText}>
-                {errors.user.message}
+                {errors.User.message}
               </Text>
             )}
           </div>
@@ -211,7 +204,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
               Role
             </Label>
             <Controller
-              name="role"
+              name="Role"
               control={control}
               rules={{
                 required: "You must select a role to add to the user",
@@ -231,9 +224,9 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 />
               )}
             />
-            {errors.role && (
+            {errors.Role && (
               <Text id="roleErr" className={classes.errorText}>
-                {errors.role.message}
+                {errors.Role.message}
               </Text>
             )}
           </div>

@@ -80,6 +80,12 @@ export const RolesByRole: React.FunctionComponent = () => {
 
   const commandItems: ICommandBarItemProps[] = [
     {
+      key: "add",
+      text: "Add User",
+      iconProps: { iconName: "Add" },
+      onClick: showAddPanel,
+    },
+    {
       key: "delete",
       text: "Delete",
       iconProps: { iconName: "Delete" },
@@ -90,12 +96,6 @@ export const RolesByRole: React.FunctionComponent = () => {
           removeRole.mutate(spRoleEntry.Id);
         }
       },
-    },
-    {
-      key: "add",
-      text: "Add User",
-      iconProps: { iconName: "Add" },
-      onClick: showAddPanel,
     },
   ];
 
