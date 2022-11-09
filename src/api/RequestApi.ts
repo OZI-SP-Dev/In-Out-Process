@@ -130,25 +130,14 @@ const getMyRequests = async () => {
   if (userId === undefined) {
     return Promise.reject([]);
   } else {
-      return spWebContext.web.lists
-        .getByTitle("Items")
-        .items.filter(
-          `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
-        )
-        .select(requestedFields)
-        .expand(expandedFields)();
-    }
-  }
-};
-
-const getRequest = async (Id: number) => {
     return spWebContext.web.lists
       .getByTitle("Items")
       .items.filter(
-        `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+        `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
       )
       .select(requestedFields)
       .expand(expandedFields)();
+  }
 };
 
 const getRequest = async (Id: number) => {
