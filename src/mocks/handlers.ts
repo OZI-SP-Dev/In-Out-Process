@@ -187,12 +187,10 @@ export const handlers = [
        */
       return [m[1], m[2]];
     });
-    console.log(posts);
 
     let batchresponse = "";
     posts.forEach((post) => {
       if (post[0] === "/_api/web/lists/getByTitle('CheckListItems')/items") {
-        console.log("Create new item");
         const item = JSON.parse(post[1]);
         checklistitems.push({
           Id: nextChecklistitemId++,
@@ -212,7 +210,6 @@ export const handlers = [
         );
         if (checklistitemId) {
           const thisId = checklistitemId[1];
-          console.log("Update item", checklistitemId);
 
           let index = checklistitems.findIndex(
             (element) => element.Id === Number(thisId)
@@ -221,7 +218,6 @@ export const handlers = [
           if (index !== -1) {
             const item = JSON.parse(post[1]);
 
-            console.log(item);
             const newItem = {
               ...checklistitems[index],
               ...(item.CompletedDate && { CompletedDate: item.CompletedDate }),
@@ -578,7 +574,6 @@ const notFound = {
  * Update request
  */
 const updateRequest = (item: IResponseItem) => {
-  console.log(item);
   let index = requests.findIndex((element) => element.Id === Number(item.Id));
 
   if (index !== -1) {
