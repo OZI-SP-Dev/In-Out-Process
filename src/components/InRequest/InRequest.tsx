@@ -60,7 +60,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   /** Get the checklist items associated with this request */
   const checlistItems = useChecklistItems(Number(props.request.Id));
 
-  /** Number of checklist items still needing completed.  If we don't have the info yet, default to 99 */
+  /** Number of checklist items still needing completed.  If we don't have the info yet, default to undefined */
   const checklistItemsToComplete = checlistItems.data
     ? checlistItems.data.filter((item) => !item.CompletedDate).length
     : undefined;
