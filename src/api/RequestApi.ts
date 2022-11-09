@@ -266,7 +266,7 @@ export type IInRequest = {
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to change the types of certain objects
-type IResponseItem = Omit<
+export type IResponseItem = Omit<
   IInRequest,
   | "eta"
   | "completionDate"
@@ -283,7 +283,7 @@ type IResponseItem = Omit<
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to drop some required objects and add additional objects
-type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
+export type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
   supGovLeadId: number;
   employeeId: number;
   employeeStringId?: string;

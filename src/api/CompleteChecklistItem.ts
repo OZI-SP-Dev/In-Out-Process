@@ -47,12 +47,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
   return useMutation(
     ["checklist", item.Id],
     () => {
-      if (process.env.NODE_ENV === "development") {
-        // TODO: Find a better way to show this in nodejs dev environment
-        return Promise.resolve();
-      } else {
-        return completeCheckListItem(item, checklistItems, currentUser);
-      }
+      return completeCheckListItem(item, checklistItems, currentUser);
     },
     {
       onSuccess: () => {
