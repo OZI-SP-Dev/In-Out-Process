@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 import {
   Button,
   FluentProvider,
@@ -63,7 +63,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   /** Number of checklist items still needing completed.  If we don't have the info yet, default to 99 */
   const checklistItemsToComplete = checlistItems.data
     ? checlistItems.data.filter((item) => !item.CompletedDate).length
-    : 99;
+    : undefined;
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
   const [isEditPanelOpen, { setTrue: showEditPanel, setFalse: hideEditPanel }] =
@@ -74,11 +74,6 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
 
   /* Hook to update this request */
   const updateRequest = useUpdateRequest(props.request.Id);
-
-  /** State keepeing track of which type of update is currently processing */
-  const [updateType, setUpdateType] = useState<"cancel" | "complete" | "none">(
-    "none"
-  );
 
   /* The form inside the Cancel Dialog to collect a reason for cancellation */
   const {
@@ -93,8 +88,15 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
     { setTrue: hideCancelDialog, setFalse: showCancelDialog },
   ] = useBoolean(true);
 
+  /** The type of the most recent update.  If cancel dialog is open, we know it is a cancel, if it isn't we know it is a complete.
+   *  Note: You MUST pair this with a check of the updateRequest as this defaults to "complete" - so doesn't indicate a "complete" request
+   *   was processed without checking if updateRequest.isError, isSuccess, etc.
+   */
+  const updateType: "cancel" | "complete" = isCancelDialogOpen
+    ? "cancel"
+    : "complete";
+
   const performCancel = (item: any) => {
-    setUpdateType("cancel");
     let updateItem = {
       ...props.request, // Create the update object based on the Current Request,
       ...item, // Add in the Cancellation Reason from the React Hook From
@@ -113,7 +115,6 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
 
   /** Function to mark the In Processing Request as Complete */
   const performComplete = () => {
-    setUpdateType("complete");
     let updateItem = {
       ...props.request, // Create the update object based on the Current Request,
       closedOrCancelledDate: new Date(), // Add in that it occurred today
@@ -155,7 +156,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
               <>
                 <Tooltip
                   content={
-                    checklistItemsToComplete > 0
+                    checklistItemsToComplete === 0
                       ? "Cannot be marked complete until all checklist items have been completed"
                       : "Mark this request as complete"
                   }
@@ -169,7 +170,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
                     size="small"
                     // Disable if there are still items to complete (or we don't have the data yet) or we are processing an update
                     disabled={
-                      checklistItemsToComplete > 0 || updateRequest.isLoading
+                      checklistItemsToComplete === 0 || updateRequest.isLoading
                     }
                   >
                     Mark Complete
