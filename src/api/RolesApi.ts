@@ -6,7 +6,7 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { spWebContext } from "providers/SPWebContext";
-import { IPerson } from "api/UserApi";
+import { IPerson, useCurrentUser } from "api/UserApi";
 import { IItemAddResult } from "@pnp/sp/items";
 import { useError } from "hooks/useError";
 
@@ -216,7 +216,7 @@ const getAllRoles = async (): Promise<SPRole[]> => {
  * @returns The Promise of the Roles records for a given User in the form of SPRole[],
  *          may be undefined if the User does not have any roles.
  */
-const getRolesForUser = async (userId: number): Promise<SPRole[]> => {
+const getRolesForUser = async (userId?: number): Promise<SPRole[]> => {
   if (process.env.NODE_ENV === "development") {
     return sleep(
       undefined,
@@ -238,8 +238,14 @@ const getRolesForUser = async (userId: number): Promise<SPRole[]> => {
  * @returns The Roles for a given User in the form of the react-query results.  The data element is of type RoleType[]
  *
  */
-export const useUserRoles = (userId: number) => {
+export const useUserRoles = (userId?: number) => {
   const errObj = useError();
+  const currentUser = useCurrentUser();
+
+  if (!userId) {
+    userId = currentUser.Id;
+  }
+
   return useQuery({
     queryKey: ["roles", userId],
     queryFn: () => getRolesForUser(userId),
