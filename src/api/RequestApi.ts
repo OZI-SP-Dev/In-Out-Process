@@ -130,7 +130,9 @@ const getMyRequests = async () => {
   if (process.env.NODE_ENV === "development") {
     return Promise.resolve(
       testItems.filter(
-        (item) => item.employee?.Id === 1 || item.supGovLead.Id === 1
+        (item) =>
+          (item.employee?.Id === 1 || item.supGovLead.Id === 1) &&
+          !item.closedOrCancelledDate
       )
     );
   } else {
@@ -142,7 +144,7 @@ const getMyRequests = async () => {
       return spWebContext.web.lists
         .getByTitle("Items")
         .items.filter(
-          `supGovLead/Id eq '${userId}' or employee/Id eq '${userId}'`
+          `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
         )
         .select(requestedFields)
         .expand(expandedFields)();
