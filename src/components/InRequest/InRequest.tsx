@@ -156,7 +156,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
               <>
                 <Tooltip
                   content={
-                    checklistItemsToComplete === 0
+                    checklistItemsToComplete !== 0
                       ? "Cannot be marked complete until all checklist items have been completed"
                       : "Mark this request as complete"
                   }
@@ -170,7 +170,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
                     size="small"
                     // Disable if there are still items to complete (or we don't have the data yet) or we are processing an update
                     disabled={
-                      checklistItemsToComplete === 0 || updateRequest.isLoading
+                      checklistItemsToComplete !== 0 || updateRequest.isLoading
                     }
                   >
                     Mark Complete
