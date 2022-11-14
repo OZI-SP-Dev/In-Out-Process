@@ -1,92 +1,221 @@
-import { useContext } from "react";
+import { useMemo, useState } from "react";
 import {
-  useRoleManagement,
   RoleType,
-  useAllUserRolesByUser,
+  SPRole,
   useAllUserRolesByRole,
+  useAllUserRolesByUser,
+  useRoleManagement,
+  useUserRoles,
 } from "api/RolesApi";
-import { UserContext } from "providers/UserProvider";
-import { Button } from "@fluentui/react-components";
+import { makeStyles } from "@fluentui/react-components";
+import { Navigate } from "react-router-dom";
+import {
+  ConstrainMode,
+  DetailsList,
+  IColumn,
+  IObjectWithKey,
+  SelectionMode,
+  Selection,
+  ICommandBarItemProps,
+  CommandBar,
+} from "@fluentui/react";
+import { useBoolean } from "@fluentui/react-hooks";
+import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
+
+/** FluentUI Styling */
+const useStyles = makeStyles({
+  header: {
+    paddingLeft: "1em",
+    paddingRight: "1em",
+  },
+});
 
 export const Roles: React.FunctionComponent = () => {
-  const { data: allRolesByUser } = useAllUserRolesByUser();
-  const { data: allRolesByType } = useAllUserRolesByRole();
-  const userContext = useContext(UserContext);
+  const classes = useStyles();
 
-  // We have to turn the Map objects into Arrays to be able to read them in the JSX
-  const typeKeys = allRolesByType
-    ? Array.from(allRolesByType.keys())
-    : undefined;
-  const userKeys = allRolesByUser
-    ? Array.from(allRolesByUser.keys())
-    : undefined;
+  // Which view is selected
+  const [selectedValue, setSelectedValue] = useState<"ByRole" | "ByUser">(
+    "ByRole"
+  );
+
+  // Get the role Maps for by User and by Role
+  const { data: allRolesByUser } = useAllUserRolesByUser();
+  const { data: allRolesByRole } = useAllUserRolesByRole();
 
   // Get the hook with functions to perform Role Management
-  const { addRole, removeRole } = useRoleManagement();
+  const { removeRole } = useRoleManagement();
 
-  // Function to test adding a Role
-  const addRoleClick = (role: RoleType) => {
-    let user = userContext.user;
-    addRole.mutate({
-      User: user ? user : { Id: 1, EMail: "ADMIN", Title: "ADMIN" },
-      Role: role,
+  // Get the role of the current user
+  const userRoles = useUserRoles();
+
+  // Selected items in the DetailsList
+  const [selectedItems, setSelectedItems] = useState<IObjectWithKey[]>([]);
+
+  /* Boolean state for determining whether or not the AddUserRolePanel is shown */
+  const [isAddPanelOpen, { setTrue: showAddPanel, setFalse: hideAddPanel }] =
+    useBoolean(false);
+
+  /* State holding the current selection object used by the DetailsList */
+  const [selection] = useState(
+    new Selection({
+      onSelectionChanged: () => {
+        // When the selection changes -- update our state containing selected items
+        setSelectedItems(selection.getSelection());
+      },
+    })
+  );
+
+  /* Memoized value containing the data for DetailsList
+      that only gets updated if allRolesByRole, allRolesByUser, or selectedValue changes) */
+  const detailListData = useMemo(() => {
+    const allItems: SPRole[] = [];
+    const groups = [];
+
+    // If we are in the ByUser view
+    if (selectedValue === "ByUser") {
+      if (allRolesByUser?.values()) {
+        let itemCount = 0;
+        for (let entry of allRolesByUser?.values()) {
+          let newEntry = entry.sort((a, b) =>
+            a.Title.toLowerCase().localeCompare(b.Title.toLowerCase())
+          );
+          groups.push({
+            key: entry[0].User.Title,
+            name: "User : " + entry[0].User.Title,
+            startIndex: itemCount,
+            count: entry.length,
+            level: 0,
+          });
+          allItems.push(...newEntry);
+          itemCount += entry.length;
+        }
+        return { allItems: allItems, groups: groups };
+      }
+    } else {
+      // If we are in the ByRole view
+      if (allRolesByRole?.values()) {
+        let itemCount = 0;
+        // We don't want to show SUPERVISOR or EMPLOYEE roles as something to view
+        const rolesToShow = Object.values(RoleType)
+          .filter(
+            (item) => item !== RoleType.SUPERVISOR && item !== RoleType.EMPLOYEE
+          )
+          .sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+          });
+        for (let entry of rolesToShow) {
+          let roleEntry = allRolesByRole.get(entry);
+          let newEntry: SPRole[] = [];
+          if (roleEntry) {
+            newEntry = roleEntry.sort((a, b) =>
+              a.User.Title.toLowerCase().localeCompare(
+                b.User.Title.toLowerCase()
+              )
+            );
+          }
+          groups.push({
+            key: entry,
+            name: "Role : " + entry,
+            startIndex: itemCount,
+            count: newEntry.length,
+            level: 0,
+          });
+          allItems.push(...newEntry);
+          itemCount += newEntry.length;
+        }
+        return { allItems: allItems, groups: groups };
+      }
+    }
+  }, [allRolesByRole, allRolesByUser, selectedValue]);
+
+  let commandItems: ICommandBarItemProps[] = [
+    {
+      key: "add",
+      text: "Add User",
+      iconProps: { iconName: "Add" },
+      onClick: showAddPanel,
+    },
+  ];
+
+  // If they have selected an item, then add a Delete button
+  if (selectedItems.length > 0) {
+    commandItems.push({
+      key: "delete",
+      text: "Delete",
+      iconProps: { iconName: "Delete" },
+      onClick: () => {
+        for (let entry of selectedItems) {
+          let spRoleEntry = entry as SPRole;
+          removeRole.mutate(spRoleEntry.Id);
+        }
+      },
     });
-  };
+  }
 
-  // Function to test removing a Role
-  const removeRoleClick = (role: number) => {
-    removeRole.mutate(role);
-  };
+  const farCommandButtons: ICommandBarItemProps[] = [
+    {
+      key: "view",
+      text: selectedValue === "ByRole" ? "By Role" : "By User",
+      iconProps: { iconName: "List" },
+      subMenuProps: {
+        items: [
+          {
+            key: "byRole",
+            text: "By Role",
+            onClick: () => setSelectedValue("ByRole"),
+          },
+          {
+            key: "byUser",
+            text: "By User",
+            onClick: () => setSelectedValue("ByUser"),
+          },
+        ],
+      },
+    },
+  ];
+
+  // Ensure we have a roles object before determining whether or not to redirect
+  if (!userRoles.isFetched) {
+    return <>Loading...</>;
+  }
+
+  if (!userRoles.data?.includes(RoleType.ADMIN)) {
+    // If they are not an ADMIN, redirect to the Homepage
+    return <Navigate to="/" replace={true} />;
+  }
+
+  const columns: IColumn[] = [
+    {
+      key: "column0",
+      name: selectedValue === "ByRole" ? "User" : "Role",
+      minWidth: 100,
+      isResizable: true,
+      onRender: (item) =>
+        selectedValue === "ByRole" ? item.User.Title : item.Title,
+    },
+  ];
 
   return (
     <>
-      {/* TODO -- Replace this page with a component for Adding users -- Also with components for viewing by RoleTpye -- And Viewing by User 
-              This interface is just a placeholder for testing that RolesAPI update */}
-      Current User Roles
-      <ol>
-        {userContext.roles?.map((role) => (
-          <li key={role}>{role}</li>
-        ))}
-      </ol>
-      All Roles
-      <ol>
-        {userKeys?.map((key) => (
-          <li key={key}>
-            {allRolesByUser?.get(key)?.map((role) => role.User.Title)[0]}
-            <ol>
-              {allRolesByUser?.get(key)?.map((obj) => (
-                <li key={obj.Title}>
-                  {obj.Title}{" "}
-                  <Button onClick={() => removeRoleClick(obj.Id)}>
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ol>
-      All Roles by Role
-      <ol>
-        {typeKeys?.map((key) => (
-          <li key={key}>
-            {key}
-            <ol>
-              {allRolesByType?.get(key)?.map((obj) => (
-                <li key={obj.User.Title}>
-                  {obj.User.Title}{" "}
-                  <Button onClick={() => removeRoleClick(obj.Id)}>
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ol>
-      <Button onClick={() => addRoleClick(RoleType.ATAAPS)}>Add ATAAPS</Button>
-      <Button onClick={() => addRoleClick(RoleType.ADMIN)}>Add ADMIN</Button>
-      <Button onClick={() => addRoleClick(RoleType.FOG)}>Add FOG</Button>
+      <h2 className={classes.header}>Current Assigned Roles</h2>
+      <CommandBar
+        items={commandItems}
+        farItems={farCommandButtons}
+      ></CommandBar>
+      <DetailsList
+        items={detailListData?.allItems ? detailListData.allItems : []}
+        columns={columns}
+        selectionMode={SelectionMode.multiple}
+        constrainMode={ConstrainMode.unconstrained}
+        groups={detailListData?.groups}
+        selection={selection}
+        groupProps={{ showEmptyGroups: true }}
+      ></DetailsList>
+      <AddUserRolePanel
+        isAddPanelOpen={isAddPanelOpen}
+        onAddCancel={hideAddPanel}
+        onAdd={hideAddPanel}
+      />
     </>
   );
 };
