@@ -31,8 +31,6 @@ interface IAddUserRolePanel {
   onAddCancel?: () => void;
   isAddPanelOpen?: boolean;
   onAdd: () => void;
-  defaultUser?: IPerson;
-  defaultRole?: RoleType;
 }
 
 /* FluentUI Styling */
@@ -131,17 +129,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
   };
 
   const onOpen = () => {
-    let newRole: RoleType | undefined = undefined;
-    let newUser: IPerson | undefined = undefined;
-    //Populate the React-Hook-Form with the data
-    if (props.defaultRole) {
-      newRole = props.defaultRole;
-    }
-    if (props.defaultUser) {
-      newUser = { ...props.defaultUser };
-    }
-    reset({ User: newUser, Role: newRole });
-
+    reset();
     addRole.reset();
   };
 
