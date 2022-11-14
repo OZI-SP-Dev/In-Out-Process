@@ -58,6 +58,10 @@
   },
   "devDependencies": {
     "@types/dompurify": "^2.3.4",
-    "@types/luxon": "^2.3.2"
+    "@types/luxon": "^2.3.2",
+    "msw": "^0.47.4"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
