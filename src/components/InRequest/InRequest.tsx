@@ -156,9 +156,9 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
               <>
                 <Tooltip
                   content={
-                    checklistItemsToComplete !== 0
-                      ? "Cannot be marked complete until all checklist items have been completed"
-                      : "Mark this request as complete"
+                    checklistItemsToComplete === 0
+                      ? "Mark this request as complete"
+                      : "Cannot be marked complete until all checklist items have been completed"
                   }
                   relationship={"description"}
                 >
