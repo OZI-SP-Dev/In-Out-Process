@@ -3,6 +3,7 @@ import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { Person, useCurrentUser } from "api/UserApi";
+import { templates } from "api/CreateChecklistItems";
 
 const completeCheckListItem = (
   item: ICheckListItem,
@@ -20,16 +21,23 @@ const completeCheckListItem = (
 
   // Find additional updates
   switch (item.TemplateId) {
-    // Valid for testing only
-    // Welcome Package 1 should enable TESTING ITEM -1
-    case 1: //Testing only
+    case templates.ObtainCACGov:
+    case templates.ObtainCACCtr:
+      //Activate the myLearning task if we are completing one of the 2 different CAC tasks
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === -1) {
+        if (element.TemplateId === templates.VerifyMyLearn) {
           batch.items.getById(element.Id).update({ Active: true });
         }
       });
       break;
-
+    case templates.InstallationInProcess:
+      //Activate the Obtain CAC (Mil/Civ) task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ObtainCACGov) {
+          batch.items.getById(element.Id).update({ Active: true });
+        }
+      });
+      break;
     default:
       break;
   }
