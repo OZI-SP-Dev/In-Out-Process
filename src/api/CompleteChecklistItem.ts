@@ -61,7 +61,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
     {
       onMutate: async () => {
         const checklistItemsTemp = await queryClient.fetchQuery(
-          ["checklist", item.RequestId, "noSelect"],
+          ["checklist", item.RequestId],
           () => getCheckListItemsByRequestId(item.RequestId)
         );
         checklistItems = transformCheckListItemsFromSP(checklistItemsTemp);
