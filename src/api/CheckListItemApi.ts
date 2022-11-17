@@ -71,7 +71,7 @@ const transformCheckListItemFromSP = (
   };
 };
 
-const transformCheckListItemsFromSP = (
+export const transformCheckListItemsFromSP = (
   checklistItems: ICheckListResponseItem[]
 ): ICheckListItem[] => {
   return checklistItems.map((item) => {
@@ -83,7 +83,7 @@ const transformCheckListItemsFromSP = (
  * @param RequestId The Id of the Request to retrieve CheckListItems from SharePoint
  * @returns The ICheckListItem for the given Id
  */
-const getCheckListItemsByRequestId = async (RequestId: number) => {
+export const getCheckListItemsByRequestId = async (RequestId: number) => {
   return spWebContext.web.lists
     .getByTitle("CheckListItems")
     .items.filter("RequestId eq " + RequestId)

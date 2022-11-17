@@ -1,4 +1,8 @@
-import { ICheckListItem } from "api/CheckListItemApi";
+import {
+  getCheckListItemsByRequestId,
+  ICheckListItem,
+  transformCheckListItemsFromSP,
+} from "api/CheckListItemApi";
 import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -46,11 +50,8 @@ const completeCheckListItem = (
 
 export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const queryClient = useQueryClient();
-  const checklistItems = queryClient.getQueryData<ICheckListItem[]>([
-    "checklist",
-    item.RequestId,
-  ]);
   const currentUser = useCurrentUser();
+  let checklistItems: ICheckListItem[];
 
   return useMutation(
     ["checklist", item.Id],
@@ -58,6 +59,13 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
       return completeCheckListItem(item, checklistItems, currentUser);
     },
     {
+      onMutate: async () => {
+        const checklistItemsTemp = await queryClient.fetchQuery(
+          ["checklist", item.RequestId],
+          () => getCheckListItemsByRequestId(item.RequestId)
+        );
+        checklistItems = transformCheckListItemsFromSP(checklistItemsTemp);
+      },
       onSuccess: () => {
         return queryClient.invalidateQueries(["checklist"]);
       },
