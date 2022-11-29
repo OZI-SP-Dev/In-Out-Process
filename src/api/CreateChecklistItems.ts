@@ -15,6 +15,7 @@ export enum templates {
   DTS = 7, // TODO
   ATAAPS = 8, // TODO
   VerifyMyLearn = 9,
+  VerifyMyETMS = 10,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -107,6 +108,21 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/" target="_blank">https:/
     Description: `<div><p style="margin-top: 0px">As part of in-processing, all employees are to verify or register for an Air Force myLearning training account. This account is necessary for the completion of mandatory training requirements.</p>
 <p><a href="https://lms-jets.cce.af.mil/moodle/" target="_blank">Air Force MyLearning</a></p></div>`,
   } as ICheckListItem);
+
+  // Verify AFMC myETMS account
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Contractor
+  ) {
+    checklistItems.items.add({
+      Title: "Verify AFMC myETMS account",
+      Lead: RoleType.EMPLOYEE,
+      RequestId: request.Id,
+      TemplateId: templates.VerifyMyETMS,
+      Active: false,
+      Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    } as ICheckListItem);
+  }
 
   // GTC/DTS
   if (request.isTraveler === "yes") {
