@@ -298,6 +298,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         setValue("prevOrg", "");
                         setValue("isNewToBaseAndCenter", "");
                         setValue("isTraveler", "");
+                        setValue("isSupervisor", "");
                       } else {
                         setValue("hasExistingCAC", "");
                         setValue("CACExpiration", undefined);
@@ -789,6 +790,43 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 {errors.isTraveler && (
                   <Text id="isTravelerErr" className={classes.errorText}>
                     {errors.isTraveler.message}
+                  </Text>
+                )}
+              </div>
+            )}
+            {(empType === EMPTYPES.Civilian ||
+              empType === EMPTYPES.Military) && (
+              <div className={classes.fieldContainer}>
+                <Label
+                  htmlFor="isSupervisorId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
+                  <ToggleLeftRegular className={classes.fieldIcon} />
+                  Is the Employee filling a Supervisory position
+                </Label>
+                <Controller
+                  name="isSupervisor"
+                  control={control}
+                  rules={{
+                    required: "Selection is required",
+                  }}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      aria-describedby="isSupervisorErr"
+                      id="isSupervisorId"
+                    >
+                      <Radio key={"yes"} value={"yes"} label="Yes" />
+                      <Radio key={"no"} value={"no"} label="No" />
+                    </RadioGroup>
+                  )}
+                />
+                {errors.isSupervisor && (
+                  <Text id="isSupervisorErr" className={classes.errorText}>
+                    {errors.isSupervisor.message}
                   </Text>
                 )}
               </div>

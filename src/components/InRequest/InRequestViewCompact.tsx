@@ -194,6 +194,18 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Text>
           </div>
         )}
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="isSupervisorCVId">
+              Supervisor?
+            </Label>
+            <br />
+            <Text id="isTravelerCVId" className={classes.capitalize}>
+              {formData.isSupervisor}
+            </Text>
+          </div>
+        )}
       </div>
     </>
   );
