@@ -107,6 +107,7 @@ export const handlers = [
         //   EMail: "defaultTEST2@us.af.mil",
         // },
         isTraveler: body.isTraveler,
+        isSupervisor: body.isSupervisor,
       };
       requests.push(request);
       return res(
@@ -301,6 +302,7 @@ let requests: IResponseItem[] = [
       EMail: "defaultTEST2@us.af.mil",
     },
     isTraveler: "no",
+    isSupervisor: "no",
   },
   {
     Id: 1,
@@ -329,6 +331,7 @@ let requests: IResponseItem[] = [
       EMail: "defaultTEST2@us.af.mil",
     },
     isTraveler: "no",
+    isSupervisor: "no",
   },
   {
     Id: 3,
@@ -341,6 +344,7 @@ let requests: IResponseItem[] = [
     office: "OZIC",
     isNewCivMil: "yes",
     isTraveler: "yes",
+    isSupervisor: "no",
     prevOrg: "",
     isNewToBaseAndCenter: "yes",
     hasExistingCAC: "no",
@@ -385,6 +389,7 @@ let requests: IResponseItem[] = [
       EMail: "defaultTEST2@us.af.mil",
     },
     isTraveler: "no",
+    isSupervisor: "yes",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
     cancelReason: "Employee proceeded with new opportunity",
   },
@@ -415,6 +420,7 @@ let requests: IResponseItem[] = [
       EMail: "defaultTEST2@us.af.mil",
     },
     isTraveler: "no",
+    isSupervisor: "no",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
   },
 ];
@@ -624,6 +630,9 @@ const updateRequest = (item: IResponseItem) => {
     requests[index].isTraveler = item.isTraveler
       ? item.isTraveler
       : requests[index].isTraveler;
+    requests[index].isSupervisor = item.isSupervisor
+      ? item.isSupervisor
+      : requests[index].isSupervisor;
   }
   if (item.cancelReason) {
     requests[index].cancelReason = item.cancelReason;
