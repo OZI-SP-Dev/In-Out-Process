@@ -37,15 +37,15 @@ const createInboundChecklistItems = (request: IInRequest) => {
 </div>`,
   } as ICheckListItem);
 
-  // Installation In Processing
+  // Installation In Processing (required for new Mil/Civ)
   if (request.isNewCivMil === "yes") {
     checklistItems.items.add({
-      Title: "Installation In-processing",
+      Title: "Attend Installation In-processing",
       Lead: RoleType.EMPLOYEE,
       RequestId: request.Id,
       TemplateId: templates.InstallationInProcess,
       Active: true,
-      Description: "",
+      Description: `<div><p style="margin-top: 0px">Did you attend the 88FSS installation in-processing? </p></div>`,
     } as ICheckListItem);
   }
 
