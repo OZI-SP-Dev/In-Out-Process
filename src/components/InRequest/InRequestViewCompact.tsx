@@ -34,11 +34,11 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     switch (formData.empType) {
       case EMPTYPES.Civilian:
         displayValue =
-          "Civilian - " + (formData.isNewCivMil ? "New" : "Existing");
+          "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.Military:
         displayValue =
-          "Military - " + (formData.isNewCivMil ? "New" : "Existing");
+          "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
         break;
       case EMPTYPES.Contractor:
         displayValue = "Contractor";
@@ -100,7 +100,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Label>
             <br />
             <Text id="cacExpirationCVId" className={classes.capitalize}>
-              {formData.hasExistingCAC
+              {formData.hasExistingCAC === "yes"
                 ? formData.CACExpiration?.toLocaleDateString()
                 : "No CAC"}
             </Text>
@@ -161,7 +161,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
         </div>
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) &&
-          !formData.isNewCivMil && (
+          formData.isNewCivMil === "no" && (
             <div>
               <Label weight="semibold" htmlFor="prevOrgCVId">
                 Previous Organization
@@ -178,7 +178,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Label>
             <br />
             <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
-              {formData.isNewToBaseAndCenter ? "Yes" : "No"}
+              {formData.isNewToBaseAndCenter}
             </Text>
           </div>
         )}
@@ -189,8 +189,8 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
               Requires Travel Ability?
             </Label>
             <br />
-            <Text id="isTravelerCVId">
-              {formData.isTraveler ? "Yes" : "No"}
+            <Text id="isTravelerCVId" className={classes.capitalize}>
+              {formData.isTraveler}
             </Text>
           </div>
         )}
@@ -201,7 +201,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
               Supervisor?
             </Label>
             <br />
-            <Text id="isTravelerCVId" className={classes.capitalize}>
+            <Text id="isSupervisorCVId" className={classes.capitalize}>
               {formData.isSupervisor}
             </Text>
           </div>
