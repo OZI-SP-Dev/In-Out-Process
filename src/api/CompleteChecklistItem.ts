@@ -36,7 +36,39 @@ const completeCheckListItem = (
           batch.items.getById(element.Id).update({ Active: true });
         }
       });
-
+      break;
+    case templates.VerifyMyETMS:
+      let myLearnTask = checklistItems?.find(
+        (item) => item.TemplateId === templates.VerifyMyLearn
+      );
+      if (myLearnTask?.CompletedBy) {
+        checklistItems?.forEach((element) => {
+          if (element.TemplateId === templates.MandatoryTraining) {
+            batch.items.getById(element.Id).update({ Active: true });
+          }
+        });
+      }
+      break;
+    case templates.VerifyMyLearn:
+      let myETMSTask = checklistItems?.find(
+        (item) => item.TemplateId === templates.VerifyMyETMS
+      );
+      if (myETMSTask) {
+        if (myETMSTask.CompletedBy) {
+          checklistItems?.forEach((element) => {
+            if (element.TemplateId === templates.MandatoryTraining) {
+              batch.items.getById(element.Id).update({ Active: true });
+            }
+          });
+        }
+      } // If we can't find the myETMS task, it is because it wasn't required (ex CTR), so it is safe to activate the mandatory training
+      else {
+        checklistItems?.forEach((element) => {
+          if (element.TemplateId === templates.MandatoryTraining) {
+            batch.items.getById(element.Id).update({ Active: true });
+          }
+        });
+      }
       break;
     case templates.InstallationInProcess:
       //Activate the Obtain CAC (Mil/Civ) task
