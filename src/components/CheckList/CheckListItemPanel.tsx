@@ -4,10 +4,19 @@ import { Label, Text, makeStyles } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
-import { sanitize } from "dompurify";
+import DOMPurify, { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
+
+DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+  if (node.tagName === "A") {
+    // Set all links in the Description to be opened in a new tab
+    node.setAttribute("target", "_blank");
+    // Reduce security/performance issues associated with opening in a new tab
+    node.setAttribute("rel", "noreferer");
+  }
+});
 
 const useStyles = makeStyles({
   detailContainer: { display: "block" },

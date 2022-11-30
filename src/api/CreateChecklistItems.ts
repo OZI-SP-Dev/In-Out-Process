@@ -33,8 +33,8 @@ const createInboundChecklistItems = (request: IInRequest) => {
     TemplateId: templates.IA_Training,
     Active: true,
     Description: `<div><p style="margin-top: 0px">Information Assurance (IA) Training is an annual requirement. It is accomplished by completing the Cyber Awareness Challenge. It is mandatory that each employee be current in this training. Below are links to both a public (non-CAC) method for obtaining IA Training as well as myLearning for those with CACs. <b>Supervisors should provide non-CAC new employees with appropriate public website (item #1 below) so employee may complete training prior to installation in-processing.</b> If you have previously taken IA Training as a government employee and would like to check your training currency, go to Air Force myLearning below and view your training transcript.</p> 
-<p>1) No CAC - <a href="https://public.cyber.mil/training/cyber-awareness-challenge/" target="_blank">https://public.cyber.mil/training/cyber-awareness-challenge/</a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Upon completing the Cyber Awareness Challenge, download the completion certificate as a PDF, and send it to your supervisor and to the AFLCMC/OZI Enterprise Tech Team &lt;<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>&gt;</p> 
-<p>2) CAC - Air Force myLearning (<a href="https://lms-jets.cce.af.mil/moodle/" target="_blank">https://lms-jets.cce.af.mil/moodle/</a>)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Once within the website, click on the Total Force Awareness Training Button, then scroll down to the Cyber Awareness Challenge and select the training.</p>
+<p>1) No CAC - <a href="https://public.cyber.mil/training/cyber-awareness-challenge/">https://public.cyber.mil/training/cyber-awareness-challenge/</a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Upon completing the Cyber Awareness Challenge, download the completion certificate as a PDF, and send it to your supervisor and to the AFLCMC/OZI Enterprise Tech Team &lt;<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>&gt;</p> 
+<p>2) CAC - Air Force myLearning (<a href="https://lms-jets.cce.af.mil/moodle/">https://lms-jets.cce.af.mil/moodle/</a>)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Once within the website, click on the Total Force Awareness Training Button, then scroll down to the Cyber Awareness Challenge and select the training.</p>
 </div>`,
   } as ICheckListItem);
 
@@ -69,10 +69,10 @@ To schedule your CAC appointment see the following announcement:</p>
 Transition Timeframe: <br/>
 -Beginning Nov 1, 2022, 60 day out appointments (Jan 1, 2023 and beyond) will be released on Setmore.<br />
 -Weekly appointments will continue to be released on RAPIDS until Dec 27, 2022, from which all appointments will need to be booked on Setmore</p>
-<p>Customers can continue to self-book services online 24/7 via our website, <a href="https://www.wrightpattfss.com/military-personnel" target="_blank">https://www.wrightpattfss.com/military-personnel</a>; or
+<p>Customers can continue to self-book services online 24/7 via our website, <a href="https://www.wrightpattfss.com/military-personnel">https://www.wrightpattfss.com/military-personnel</a>; or
 customers can access Setmore/RAPIDS sites directly at the following links:<br/>
-Setmore: <a href="https://88fss.setmore.com/88fss" target="_blank">https://88fss.setmore.com/88fss</a><br/>
-RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/" target="_blank">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
+Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88fss</a><br/>
+RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
     } as ICheckListItem);
   }
 
@@ -92,10 +92,10 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/" target="_blank">https:/
 Transition Timeframe: <br/>
 -Beginning Nov 1, 2022, 60 day out appointments (Jan 1, 2023 and beyond) will be released on Setmore.<br />
 -Weekly appointments will continue to be released on RAPIDS until Dec 27, 2022, from which all appointments will need to be booked on Setmore</p>
-<p>Customers can continue to self-book services online 24/7 via our website, <a href="https://www.wrightpattfss.com/military-personnel" target="_blank">https://www.wrightpattfss.com/military-personnel</a>; or
+<p>Customers can continue to self-book services online 24/7 via our website, <a href="https://www.wrightpattfss.com/military-personnel">https://www.wrightpattfss.com/military-personnel</a>; or
 customers can access Setmore/RAPIDS sites directly at the following links:<br/>
-Setmore: <a href="https://88fss.setmore.com/88fss" target="_blank">https://88fss.setmore.com/88fss</a><br/>
-RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/" target="_blank">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
+Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88fss</a><br/>
+RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
     } as ICheckListItem);
   }
 
@@ -107,7 +107,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/" target="_blank">https:/
     TemplateId: templates.VerifyMyLearn,
     Active: false,
     Description: `<div><p style="margin-top: 0px">As part of in-processing, all employees are to verify or register for an Air Force myLearning training account. This account is necessary for the completion of mandatory training requirements.</p>
-<p><a href="https://lms-jets.cce.af.mil/moodle/" target="_blank">Air Force MyLearning</a></p></div>`,
+<p><a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
   } as ICheckListItem);
 
   // Verify AFMC myETMS account
