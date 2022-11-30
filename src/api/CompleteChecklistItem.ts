@@ -8,14 +8,32 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { Person, useCurrentUser } from "api/UserApi";
 import { templates } from "api/CreateChecklistItems";
+import { useEmail } from "hooks/useEmail";
+import { RoleType } from "api/RolesApi";
 
 const completeCheckListItem = (
   item: ICheckListItem,
-  checklistItems: ICheckListItem[] | undefined,
-  currentUser: Person
+  checklistItems: ICheckListItem[],
+  currentUser: Person,
+  sendActivationEmails: (
+    activatedTasksByRole: Map<RoleType, ICheckListItem[]>,
+    allChecklistItems: ICheckListItem[],
+    completedChecklistItemId: number
+  ) => Promise<void[]>
 ) => {
   const [batchedSP, execute] = spWebContext.batched();
   const batch = batchedSP.web.lists.getByTitle("CheckListItems");
+  let activatedTasksByRole: Map<RoleType, ICheckListItem[]> = new Map();
+
+  const addChecklistItemActivated = (item: ICheckListItem) => {
+    const leadItems = activatedTasksByRole.get(item.Lead);
+    if (leadItems) {
+      leadItems.push(item);
+    } else {
+      activatedTasksByRole.set(item.Lead, [item]);
+    }
+    batch.items.getById(item.Id).update({ Active: true });
+  };
 
   // Always add the current update to the batch
   batch.items.getById(item.Id).update({
@@ -30,7 +48,7 @@ const completeCheckListItem = (
       //Activate the myLearning and myETMS tasks if we are completing one of the 2 different CAC tasks
       checklistItems?.forEach((element) => {
         if (element.TemplateId === templates.VerifyMyLearn) {
-          batch.items.getById(element.Id).update({ Active: true });
+          addChecklistItemActivated(element);
         }
         if (element.TemplateId === templates.VerifyMyETMS) {
           batch.items.getById(element.Id).update({ Active: true });
@@ -74,12 +92,17 @@ const completeCheckListItem = (
       //Activate the Obtain CAC (Mil/Civ) task
       checklistItems?.forEach((element) => {
         if (element.TemplateId === templates.ObtainCACGov) {
-          batch.items.getById(element.Id).update({ Active: true });
+          addChecklistItemActivated(element);
         }
       });
       break;
     default:
       break;
+  }
+
+  // If we activated any checklist items, then send out appropriate notifications
+  if (activatedTasksByRole.size > 0) {
+    sendActivationEmails(activatedTasksByRole, checklistItems, item.Id);
   }
   return execute();
 };
@@ -87,12 +110,18 @@ const completeCheckListItem = (
 export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const queryClient = useQueryClient();
   const currentUser = useCurrentUser();
+  const email = useEmail();
   let checklistItems: ICheckListItem[];
 
   return useMutation(
     ["checklist", item.Id],
     () => {
-      return completeCheckListItem(item, checklistItems, currentUser);
+      return completeCheckListItem(
+        item,
+        checklistItems,
+        currentUser,
+        email.sendActivationEmails
+      );
     },
     {
       onMutate: async () => {
