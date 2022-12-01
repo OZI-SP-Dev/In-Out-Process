@@ -51,7 +51,7 @@ const completeCheckListItem = (
           addChecklistItemActivated(element);
         }
         if (element.TemplateId === templates.VerifyMyETMS) {
-          batch.items.getById(element.Id).update({ Active: true });
+          addChecklistItemActivated(element);
         }
       });
       break;
@@ -62,7 +62,7 @@ const completeCheckListItem = (
       if (myLearnTask?.CompletedBy) {
         checklistItems?.forEach((element) => {
           if (element.TemplateId === templates.MandatoryTraining) {
-            batch.items.getById(element.Id).update({ Active: true });
+            addChecklistItemActivated(element);
           }
         });
       }
@@ -75,7 +75,7 @@ const completeCheckListItem = (
         if (myETMSTask.CompletedBy) {
           checklistItems?.forEach((element) => {
             if (element.TemplateId === templates.MandatoryTraining) {
-              batch.items.getById(element.Id).update({ Active: true });
+              addChecklistItemActivated(element);
             }
           });
         }
@@ -83,7 +83,7 @@ const completeCheckListItem = (
       else {
         checklistItems?.forEach((element) => {
           if (element.TemplateId === templates.MandatoryTraining) {
-            batch.items.getById(element.Id).update({ Active: true });
+            addChecklistItemActivated(element);
           }
         });
       }
