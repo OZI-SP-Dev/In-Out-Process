@@ -27,12 +27,48 @@ const completeCheckListItem = (
   switch (item.TemplateId) {
     case templates.ObtainCACGov:
     case templates.ObtainCACCtr:
-      //Activate the myLearning task if we are completing one of the 2 different CAC tasks
+      //Activate the myLearning and myETMS tasks if we are completing one of the 2 different CAC tasks
       checklistItems?.forEach((element) => {
         if (element.TemplateId === templates.VerifyMyLearn) {
           batch.items.getById(element.Id).update({ Active: true });
         }
+        if (element.TemplateId === templates.VerifyMyETMS) {
+          batch.items.getById(element.Id).update({ Active: true });
+        }
       });
+      break;
+    case templates.VerifyMyETMS:
+      let myLearnTask = checklistItems?.find(
+        (item) => item.TemplateId === templates.VerifyMyLearn
+      );
+      if (myLearnTask?.CompletedBy) {
+        checklistItems?.forEach((element) => {
+          if (element.TemplateId === templates.MandatoryTraining) {
+            batch.items.getById(element.Id).update({ Active: true });
+          }
+        });
+      }
+      break;
+    case templates.VerifyMyLearn:
+      let myETMSTask = checklistItems?.find(
+        (item) => item.TemplateId === templates.VerifyMyETMS
+      );
+      if (myETMSTask) {
+        if (myETMSTask.CompletedBy) {
+          checklistItems?.forEach((element) => {
+            if (element.TemplateId === templates.MandatoryTraining) {
+              batch.items.getById(element.Id).update({ Active: true });
+            }
+          });
+        }
+      } // If we can't find the myETMS task, it is because it wasn't required (ex CTR), so it is safe to activate the mandatory training
+      else {
+        checklistItems?.forEach((element) => {
+          if (element.TemplateId === templates.MandatoryTraining) {
+            batch.items.getById(element.Id).update({ Active: true });
+          }
+        });
+      }
       break;
     case templates.InstallationInProcess:
       //Activate the Obtain CAC (Mil/Civ) task
