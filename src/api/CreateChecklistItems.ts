@@ -18,6 +18,7 @@ export enum templates {
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
   PhoneSetup = 12,
+  OrientationVideos = 13,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -157,6 +158,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.PhoneSetup,
     Active: false,
     Description: `<p style="margin-top: 0px">See the following link for phone set up instructions: <a href="https://www.tsf.wpafb.af.mil/Doc/Getting%20Started%20with%20the%20UC%20Client.pdf">Getting started with the UC Client</a></p>`,
+  } as ICheckListItem);
+
+  // Watch Orientation Videos (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "View orientation videos",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.OrientationVideos,
+    Active: false,
+    Description: `<p style="margin-top: 0px">The orientation videos may be found within the following document: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Websites.docx">New Employee Websites.docx</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS
