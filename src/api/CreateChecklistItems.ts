@@ -19,6 +19,7 @@ export enum templates {
   MandatoryTraining = 11,
   PhoneSetup = 12,
   OrientationVideos = 13,
+  Bookmarks = 14,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -168,6 +169,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.OrientationVideos,
     Active: false,
     Description: `<p style="margin-top: 0px">The orientation videos may be found within the following document: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Websites.docx">New Employee Websites.docx</a></p>`,
+  } as ICheckListItem);
+
+  // Bookmark SharePoint/Websites (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "Bookmark key SharePoint / Website URLs",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.Bookmarks,
+    Active: false,
+    Description: `<p style="margin-top: 0px">Bookmark the links located in the document located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Websites.docx">New Employee Websites.docx</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS

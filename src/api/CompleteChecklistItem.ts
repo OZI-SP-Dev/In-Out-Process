@@ -59,6 +59,9 @@ const completeCheckListItem = (
         if (element.TemplateId === templates.OrientationVideos) {
           addChecklistItemActivated(element);
         }
+        if (element.TemplateId === templates.Bookmarks) {
+          addChecklistItemActivated(element);
+        }
       });
       break;
     case templates.VerifyMyETMS:
