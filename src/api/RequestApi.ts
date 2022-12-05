@@ -11,7 +11,9 @@ declare var _spPageContextInfo: any;
  * conversions and drop SharePoint added data that is not needed, and will
  * cause update errors
  */
-const transformInRequestFromSP = (request: IResponseItem): IInRequest => {
+export const transformInRequestFromSP = (
+  request: IResponseItem
+): IInRequest => {
   return {
     Id: request.Id,
     empName: request.empName,
@@ -142,7 +144,7 @@ const getMyRequests = async () => {
   }
 };
 
-const getRequest = async (Id: number) => {
+export const getRequest = async (Id: number) => {
   return spWebContext.web.lists
     .getByTitle("Items")
     .items.getById(Id)
