@@ -22,13 +22,21 @@ export const Home: FunctionComponent = (props) => {
           </AccordionHeader>
           <AccordionPanel>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum
+              XP-OZ is updating and automating the on-boarding checklists, with
+              goal to eliminate paper copies and make it easier to track the
+              status of the employees that are in-processing or out-processing
+              in the directorate. The on-boarding tool will be accessible to new
+              employees to the government, employees rotating into XP-OZ from
+              other AFLCMC directorates and support contractors. This tool was
+              developed by AFLCMC/XP-OZI and utilizes SharePoint to accomplish
+              and track the employee's progress. The SharePoint site will be
+              accessible to new employees, their supervisors and different
+              section points of contact. The main in-processing sections include
+              Information Technology (computer and access to AFNet), Automated
+              Time Attendance and Production System (ATAAPs), Defense Travel
+              System (DTS) and the Government Travel Card (GTC). The goal is to
+              on-board all employees (new and rotating) and support contractors
+              into XP-OZ within 5 workdays.
             </p>
           </AccordionPanel>
         </AccordionItem>
@@ -38,13 +46,17 @@ export const Home: FunctionComponent = (props) => {
           </AccordionHeader>
           <AccordionPanel>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum
+              This tool will allow the supervisor and employee to be able to
+              track the status of the employee's on-boarding versus continuously
+              asking the new employee if their checklist is complete. When
+              informed of an incoming or outgoing employee with AFLCMC/XP-OZ,
+              the supervisor will open a record to initiate the process. Each
+              section in the automated process will require assigned leads to
+              ensure the respective sections are completed and then acknowledge
+              when completed. The supervisor will select the add record button
+              and then input the information requested. Saving the file will
+              initiate the respective in-out processing and inform the leads via
+              email of a section they must complete with the employee.
             </p>
           </AccordionPanel>
         </AccordionItem>
