@@ -47,22 +47,14 @@ const completeCheckListItem = (
     case templates.ObtainCACCtr:
       //Activate several tasks if we are completing one of the 2 different CAC tasks
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.VerifyMyLearn) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.VerifyMyETMS) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.PhoneSetup) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.OrientationVideos) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.Bookmarks) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.NewcomerBrief) {
+        if (
+          element.TemplateId === templates.VerifyMyLearn ||
+          element.TemplateId === templates.VerifyMyETMS ||
+          element.TemplateId === templates.PhoneSetup ||
+          element.TemplateId === templates.OrientationVideos ||
+          element.TemplateId === templates.Bookmarks ||
+          element.TemplateId === templates.NewcomerBrief
+        ) {
           addChecklistItemActivated(element);
         }
       });
