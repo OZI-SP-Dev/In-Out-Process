@@ -17,6 +17,7 @@ export enum templates {
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
+  PhoneSetup = 12,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -146,6 +147,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
  <tr><td>Controlled Unclassified Information (CUI) Training (ZZZ2021CUI)</td><td>Annual</td></tr>
  <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
 </table></div>`,
+  } as ICheckListItem);
+
+  // Set up phone system (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "Set up phone system",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.PhoneSetup,
+    Active: false,
+    Description: `<p style="margin-top: 0px">See the following link for phone set up instructions: <a href="https://www.tsf.wpafb.af.mil/Doc/Getting%20Started%20with%20the%20UC%20Client.pdf">Getting started with the UC Client</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS
