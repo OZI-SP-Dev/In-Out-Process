@@ -62,6 +62,9 @@ const completeCheckListItem = (
         if (element.TemplateId === templates.Bookmarks) {
           addChecklistItemActivated(element);
         }
+        if (element.TemplateId === templates.NewcomerBrief) {
+          addChecklistItemActivated(element);
+        }
       });
       break;
     case templates.VerifyMyETMS:
