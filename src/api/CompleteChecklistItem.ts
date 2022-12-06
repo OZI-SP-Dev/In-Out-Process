@@ -45,12 +45,16 @@ const completeCheckListItem = (
   switch (item.TemplateId) {
     case templates.ObtainCACGov:
     case templates.ObtainCACCtr:
-      //Activate the myLearning and myETMS tasks if we are completing one of the 2 different CAC tasks
+      //Activate several tasks if we are completing one of the 2 different CAC tasks
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.VerifyMyLearn) {
-          addChecklistItemActivated(element);
-        }
-        if (element.TemplateId === templates.VerifyMyETMS) {
+        if (
+          element.TemplateId === templates.VerifyMyLearn ||
+          element.TemplateId === templates.VerifyMyETMS ||
+          element.TemplateId === templates.PhoneSetup ||
+          element.TemplateId === templates.OrientationVideos ||
+          element.TemplateId === templates.Bookmarks ||
+          element.TemplateId === templates.NewcomerBrief
+        ) {
           addChecklistItemActivated(element);
         }
       });

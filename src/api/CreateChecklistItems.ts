@@ -17,6 +17,10 @@ export enum templates {
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
+  PhoneSetup = 12,
+  OrientationVideos = 13,
+  Bookmarks = 14,
+  NewcomerBrief = 15,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -146,6 +150,46 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
  <tr><td>Controlled Unclassified Information (CUI) Training (ZZZ2021CUI)</td><td>Annual</td></tr>
  <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
 </table></div>`,
+  } as ICheckListItem);
+
+  // Set up phone system (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "Set up phone system",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.PhoneSetup,
+    Active: false,
+    Description: `<p style="margin-top: 0px">See the following link for phone set up instructions: <a href="https://www.tsf.wpafb.af.mil/Doc/Getting%20Started%20with%20the%20UC%20Client.pdf">Getting started with the UC Client</a></p>`,
+  } as ICheckListItem);
+
+  // Watch Orientation Videos (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "View orientation videos",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.OrientationVideos,
+    Active: false,
+    Description: `<p style="margin-top: 0px">The orientation videos may be found within the following document: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Websites.docx">New Employee Websites.docx</a></p>`,
+  } as ICheckListItem);
+
+  // Bookmark SharePoint/Websites (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "Bookmark key SharePoint / Website URLs",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.Bookmarks,
+    Active: false,
+    Description: `<p style="margin-top: 0px">Bookmark the links located in the document located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Websites.docx">New Employee Websites.docx</a></p>`,
+  } as ICheckListItem);
+
+  // Newcomer Breifing (all Employees) -- requires user to have CAC first
+  checklistItems.items.add({
+    Title: "Review directorate newcomer brief",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.NewcomerBrief,
+    Active: false,
+    Description: `<p style="margin-top: 0px">Review directorate newcomer brief located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/AFLCMC%20-%20XP-OZ%20Overview.pptx">AFLCMC - XP-OZ Overview.pptx</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS
