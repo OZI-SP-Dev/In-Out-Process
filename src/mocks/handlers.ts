@@ -1,5 +1,6 @@
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
+import { RoleType, SPRole } from "api/RolesApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
@@ -17,6 +18,35 @@ export const handlers = [
         webFullUrl: "http://localhost:3000/",
         siteFullUrl: "http://localhost:3000/",
         formDigestValue: "value",
+      })
+    );
+  }),
+
+  /**
+   * Build a fake ensure user function
+   * Currently will ALWYAS return Brenda Wedding
+   * To update this, we'll need to track users and user ID's
+   */
+  rest.post("/_api/web/ensureuser", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.delay(responsedelay),
+      ctx.json({
+        Id: 14,
+        IsHiddenInUI: false,
+        LoginName: "i:0#.f|membership|brenda.wedding@us.af.mil",
+        Title: "WEDDING, BRENDA K NH-04 USAF AFMC AFLCMC/OZIC",
+        PrincipalType: 1,
+        Email: "brenda.wedding@us.af.mil",
+        Expiration: "",
+        IsEmailAuthenticationGuestUser: false,
+        IsShareByEmailGuestUser: false,
+        IsSiteAdmin: false,
+        UserId: {
+          NameId: "1003000099a500ad",
+          NameIdIssuer: "urn:federation:microsoftonline",
+        },
+        UserPrincipalName: "brenda.wedding@us.af.mil",
       })
     );
   }),
@@ -269,6 +299,128 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       ctx.set("request-id", "6b5975a0-40d3-0000-1598-09882fca4612")
     );
   }),
+
+  /**
+   * Get all Roles
+   */
+  rest.get("/_api/web/lists/getByTitle\\('Roles')/items", (req, res, ctx) => {
+    let results = structuredClone(testRoles);
+    return res(
+      ctx.status(200),
+      ctx.delay(responsedelay),
+      ctx.json({ value: results })
+    );
+  }),
+
+  /**
+   * Get a specific Role
+   */
+  rest.get(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let result = requests.find((element) => element.Id === Number(ItemId));
+      if (result) {
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: result })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
+
+  /**
+   * Delete a Role
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let index = testRoles.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+      if (index !== -1) {
+        //let body = await req.json();
+        testRoles.splice(index, 1);
+        console.log(testRoles);
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay)
+          //ctx.json({ value: requests[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
+
+  /**
+   * Add a user to a Role
+   * Currently that user will ALWYAS be Brenda Wedding
+   * To update this, we'll need to track users and user ID's
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items",
+    async (req, res, ctx) => {
+      let body = await req.json();
+      let role = {
+        Id: ++maxRoleId,
+        User: {
+          Id: body.UserId,
+          Title: "WEDDING, BRENDA K NH-04 USAF AFMC AFLCMC/OZIC",
+          EMail: "brenda.wedding@us.af.mil",
+        },
+        Title: body.Title,
+      };
+
+      testRoles.push(role);
+      alert(JSON.stringify(testRoles));
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({ value: role }) //This may not be correct, but I can't verify in Chrome dev tools and GPUpdate isn't fixing it
+      );
+    }
+  ),
+
+  /**
+   * Delete a User Role
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let index = testRoles.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+      if (index !== -1) {
+        testRoles.splice(index, 1);
+        console.log(testRoles);
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay)
+          //ctx.json({ value: requests[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
 ];
 
 /**
@@ -641,3 +793,41 @@ const updateRequest = (item: IResponseItem) => {
     requests[index].closedOrCancelledDate = item.closedOrCancelledDate;
   }
 };
+
+/**
+ * Default sample data roles
+ */
+let testRoles: SPRole[] = [
+  {
+    Id: 1,
+    User: {
+      Id: 1,
+      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.ADMIN,
+  },
+  {
+    Id: 2,
+    User: {
+      Id: 2,
+      Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.IT,
+  },
+  {
+    Id: 3,
+    User: {
+      Id: 1,
+      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.IT,
+  },
+];
+
+/**
+ * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
+ */
+let maxRoleId = testRoles.length;

@@ -63,68 +63,6 @@ type IRolesByType = Map<RoleType, SPRole[]>;
 /** Type for Map of User Roles grouped with key of UserId */
 type IRolesByUser = Map<string, SPRole[]>;
 
-/** Test data for use in DEV environment -- mimics structure of Roles list in SharePoint */
-let testRoles: SPRole[];
-
-/** The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint */
-let maxId: number;
-
-// Only populate the testRoles and maxId if we are in DEV
-if (process.env.NODE_ENV === "development") {
-  testRoles = [
-    {
-      Id: 1,
-      User: {
-        Id: 1,
-        Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-        EMail: "me@example.com",
-      },
-      Title: RoleType.ADMIN,
-    },
-    {
-      Id: 2,
-      User: {
-        Id: 2,
-        Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
-        EMail: "me@example.com",
-      },
-      Title: RoleType.IT,
-    },
-    {
-      Id: 3,
-      User: {
-        Id: 1,
-        Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-        EMail: "me@example.com",
-      },
-      Title: RoleType.IT,
-    },
-  ];
-
-  maxId = testRoles.length;
-}
-
-/** Function used by calls in the DEV env to mimic a delay in processing
- *
- * @param milliseconds - Optional value to sleep -- Defaults to 500 if not specified
- * @param resolveValue - Optional value to pass back as the reolved promise
- * @returns A Promise after the delayed amount of time
- */
-const sleep = <T>(
-  milliseconds: number = 500, // Default to 500 milliseconds if no value is passed in
-  resolveValue?: T
-): Promise<T> => {
-  if (resolveValue) {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(resolveValue), milliseconds);
-    });
-  } else {
-    return new Promise((resolve) => {
-      setTimeout(resolve, milliseconds);
-    });
-  }
-};
-
 /**
  * Take the SP Role list row data, and group it by user specifying all roles
  * belonging to the user.  One or more user's data can be passed in
@@ -198,14 +136,10 @@ const getIUserRoleType = (roles: SPRole[]): RoleType[] => {
  * @returns An Promise for SPRole[] - containing the Role records
  */
 const getAllRoles = async (): Promise<SPRole[]> => {
-  if (process.env.NODE_ENV === "development") {
-    return sleep(undefined, testRoles);
-  } else {
-    return spWebContext.web.lists
-      .getByTitle("Roles")
-      .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title")
-      .expand("User")();
-  }
+  return spWebContext.web.lists
+    .getByTitle("Roles")
+    .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+    .expand("User")();
 };
 
 /**
@@ -217,18 +151,11 @@ const getAllRoles = async (): Promise<SPRole[]> => {
  *          may be undefined if the User does not have any roles.
  */
 const getRolesForUser = async (userId?: number): Promise<SPRole[]> => {
-  if (process.env.NODE_ENV === "development") {
-    return sleep(
-      undefined,
-      testRoles.filter((entry) => entry.User.Id === userId)
-    );
-  } else {
-    return spWebContext.web.lists
-      .getByTitle("Roles")
-      .items.filter(`User/Id eq '${userId}'`)
-      .select("Id", "User/Id", "User/Title", "User/EMail", "Title")
-      .expand("User")();
-  }
+  return spWebContext.web.lists
+    .getByTitle("Roles")
+    .items.filter(`User/Id eq '${userId}'`)
+    .select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+    .expand("User")();
 };
 
 /**
@@ -353,30 +280,16 @@ export const useRoleManagement = (): {
           )
         );
       } else {
-        if (process.env.NODE_ENV === "development") {
-          await sleep();
-          let newRole: SPRole = {
-            Id: ++maxId,
-            User: submitRoleVal.User,
-            Title: submitRoleVal.Role,
-          };
-          //Mutate testRoles as we are mimicking the data being stored in SharePoint
-          testRoles = [...testRoles, newRole];
-          return Promise.resolve(newRole);
-        } else {
-          let spRequest: ISPSubmitRole = {
-            // If the Id for the User is -1 then we need to look up the user in SharePoint, otherwise use the Id we alreay have
-            UserId:
-              submitRoleVal.User.Id === -1
-                ? (await spWebContext.web.ensureUser(submitRoleVal.User.EMail))
-                    .data.Id
-                : submitRoleVal.User.Id,
-            Title: submitRoleVal.Role,
-          };
-          return spWebContext.web.lists
-            .getByTitle("Roles")
-            .items.add(spRequest);
-        }
+        let spRequest: ISPSubmitRole = {
+          // If the Id for the User is -1 then we need to look up the user in SharePoint, otherwise use the Id we alreay have
+          UserId:
+            submitRoleVal.User.Id === -1
+              ? (await spWebContext.web.ensureUser(submitRoleVal.User.EMail))
+                  .data.Id
+              : submitRoleVal.User.Id,
+          Title: submitRoleVal.Role,
+        };
+        return spWebContext.web.lists.getByTitle("Roles").items.add(spRequest);
       }
     } else {
       return Promise.reject(
@@ -393,17 +306,10 @@ export const useRoleManagement = (): {
    *
    */
   const deleteRole = async (roleId: number) => {
-    if (process.env.NODE_ENV === "development") {
-      await sleep();
-      // Mutate the testRoles to remove it as we are mimicking the data being stored in SharePoint
-      testRoles = testRoles.filter((role) => role.Id !== roleId);
-      return Promise.resolve();
-    } else {
-      return spWebContext.web.lists
-        .getByTitle("Roles")
-        .items.getById(roleId)
-        .delete();
-    }
+    return spWebContext.web.lists
+      .getByTitle("Roles")
+      .items.getById(roleId)
+      .delete();
   };
 
   /** React Query Mutation used to add a Role */
