@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EmailApiConfig } from "api/EmailApi";
+import { EmailApi } from "api/EmailApi";
 import { EmailError } from "api/InternalErrors";
 import {
   getRequest,
@@ -33,7 +33,7 @@ export function useEmail(): IEmailSender {
   const { data: allRolesByRole } = useAllUserRolesByRole();
   const queryClient = useQueryClient();
 
-  const emailApi = EmailApiConfig.getApi();
+  const emailApi = new EmailApi();
   const error = useError();
 
   const sendEmail = async (

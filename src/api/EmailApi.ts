@@ -53,30 +53,3 @@ export class EmailApi implements IEmailApi {
     }
   }
 }
-
-export class EmailApiDev implements IEmailApi {
-  siteUrl: string = "localhost";
-
-  sleep() {
-    return new Promise((r) => setTimeout(r, 500));
-  }
-
-  async sendEmail(): Promise<void> {
-    await this.sleep();
-    //Empty as there isn't really anything to do for it in dev.
-  }
-}
-
-export class EmailApiConfig {
-  private static emailApi: IEmailApi;
-
-  static getApi(): IEmailApi {
-    if (!this.emailApi) {
-      this.emailApi =
-        process.env.NODE_ENV === "development"
-          ? new EmailApiDev()
-          : new EmailApi();
-    }
-    return this.emailApi;
-  }
-}
