@@ -117,28 +117,3 @@ export class UserApi implements IUserApi {
     }
   };
 }
-
-export class UserApiDev implements IUserApi {
-  sleep() {
-    return new Promise((r) => setTimeout(r, 500));
-  }
-
-  getUserId = async () => {
-    await this.sleep();
-    return 1;
-  };
-}
-
-export class UserApiConfig {
-  private static userApi: IUserApi;
-
-  static getApi(): IUserApi {
-    if (!this.userApi) {
-      this.userApi =
-        process.env.NODE_ENV === "development"
-          ? new UserApiDev()
-          : new UserApi();
-    }
-    return this.userApi;
-  }
-}
