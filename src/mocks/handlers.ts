@@ -55,11 +55,8 @@ export const handlers = [
    * Build emails API
    */
   rest.post("/_api/web/lists/getByTitle\\('Emails')/items", (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.delay(responsedelay)
-      //ctx.json({})
-    );
+    console.log("Sending email!");
+    return res(ctx.status(200), ctx.delay(responsedelay));
   }),
 
   /**
