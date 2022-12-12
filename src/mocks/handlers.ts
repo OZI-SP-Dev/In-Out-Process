@@ -27,26 +27,28 @@ export const handlers = [
    * Currently will ALWYAS return Brenda Wedding
    * To update this, we'll need to track users and user ID's
    */
-  rest.post("/_api/web/ensureuser", (req, res, ctx) => {
+  rest.post("/_api/web/ensureuser", async (req, res, ctx) => {
+    let body = await req.json();
+    let email: string = body.logonName;
+    let title = email.replace("@localhost", "");
+
+    let user = testUsers.find((element) => element.EMail === body.logonName);
+    if (!user) {
+      user = {
+        Id: getHash(title),
+        Title: title,
+        EMail: email,
+      };
+      testUsers.push(user);
+    }
+
     return res(
       ctx.status(200),
       ctx.delay(responsedelay),
       ctx.json({
-        Id: 14,
-        IsHiddenInUI: false,
-        LoginName: "i:0#.f|membership|brenda.wedding@us.af.mil",
-        Title: "WEDDING, BRENDA K NH-04 USAF AFMC AFLCMC/OZIC",
-        PrincipalType: 1,
-        Email: "brenda.wedding@us.af.mil",
-        Expiration: "",
-        IsEmailAuthenticationGuestUser: false,
-        IsShareByEmailGuestUser: false,
-        IsSiteAdmin: false,
-        UserId: {
-          NameId: "1003000099a500ad",
-          NameIdIssuer: "urn:federation:microsoftonline",
-        },
-        UserPrincipalName: "brenda.wedding@us.af.mil",
+        Id: user.Id,
+        Title: user.Title,
+        Email: user.EMail,
       })
     );
   }),
@@ -362,18 +364,19 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
     "/_api/web/lists/getByTitle\\('Roles')/items",
     async (req, res, ctx) => {
       let body = await req.json();
-      let role: SPRole = {
-        Id: ++maxRoleId,
-        User: {
-          Id: body.UserId,
-          Title: "WEDDING, BRENDA K NH-04 USAF AFMC AFLCMC/OZIC",
-          EMail: "brenda.wedding@us.af.mil",
-        },
-        Title: body.Title,
-      };
+      let user = testUsers.find((element) => element.Id === body.UserId);
 
-      testRoles.push(role);
-      return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
+      if (user) {
+        let role: SPRole = {
+          Id: ++maxRoleId,
+          User: { ...user },
+          Title: body.Title,
+        };
+
+        testRoles.push(role);
+        return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
+      }
+      return res(ctx.status(400), ctx.delay(responsedelay));
     }
   ),
 
@@ -777,6 +780,22 @@ const updateRequest = (item: IResponseItem) => {
 };
 
 /**
+ * Users table
+ */
+let testUsers = [
+  {
+    Id: 1,
+    Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+    EMail: "me@example.com",
+  },
+  {
+    Id: 2,
+    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+    EMail: "me@example.com",
+  },
+];
+
+/**
  * Default sample data roles
  */
 let testRoles: SPRole[] = [
@@ -813,3 +832,16 @@ let testRoles: SPRole[] = [
  * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
  */
 let maxRoleId = testRoles.length;
+
+let getHash = function (toHash: string) {
+  let hash = 0;
+
+  if (toHash.length !== 0) {
+    for (let i = 0; i < toHash.length; i++) {
+      let chr = toHash.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit int
+    }
+  }
+  return hash;
+};
