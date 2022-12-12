@@ -315,7 +315,16 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
    * Get all Roles
    */
   rest.get("/_api/web/lists/getByTitle\\('Roles')/items", (req, res, ctx) => {
+    const filter = req.url.searchParams.get("$filter");
     let results = structuredClone(testRoles);
+    if (filter) {
+      const UserId = filter.match(/User\/Id eq '(.+?)'/);
+      if (UserId) {
+        results = results.filter(
+          (item: SPRole) => item.User.Id === Number(UserId[1])
+        );
+      }
+    }
     return res(
       ctx.status(200),
       ctx.delay(responsedelay),
@@ -348,35 +357,6 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
   ),
 
   /**
-   * Delete a Role
-   */
-  rest.post(
-    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
-    async (req, res, ctx) => {
-      const { ItemId } = req.params;
-      let index = testRoles.findIndex(
-        (element) => element.Id === Number(ItemId)
-      );
-      if (index !== -1) {
-        //let body = await req.json();
-        testRoles.splice(index, 1);
-        console.log(testRoles);
-        return res(
-          ctx.status(200),
-          ctx.delay(responsedelay)
-          //ctx.json({ value: requests[index] })
-        );
-      } else {
-        return res(
-          ctx.status(404),
-          ctx.delay(responsedelay),
-          ctx.json(notFound)
-        );
-      }
-    }
-  ),
-
-  /**
    * Add a user to a Role
    * Currently that user will ALWYAS be Brenda Wedding
    * To update this, we'll need to track users and user ID's
@@ -385,7 +365,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
     "/_api/web/lists/getByTitle\\('Roles')/items",
     async (req, res, ctx) => {
       let body = await req.json();
-      let role = {
+      let role: SPRole = {
         Id: ++maxRoleId,
         User: {
           Id: body.UserId,
@@ -396,12 +376,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       };
 
       testRoles.push(role);
-      alert(JSON.stringify(testRoles));
-      return res(
-        ctx.status(200),
-        ctx.delay(responsedelay),
-        ctx.json({ value: role }) //This may not be correct, but I can't verify in Chrome dev tools and GPUpdate isn't fixing it
-      );
+      return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
     }
   ),
 
@@ -417,7 +392,6 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       );
       if (index !== -1) {
         testRoles.splice(index, 1);
-        console.log(testRoles);
         return res(
           ctx.status(200),
           ctx.delay(responsedelay)
