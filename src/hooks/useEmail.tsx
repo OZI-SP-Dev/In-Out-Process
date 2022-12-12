@@ -118,6 +118,7 @@ As a reminder the following item(s) are still awaiting your action:
       }
 
       let to = leadUsers;
+      let cc = [request.supGovLead];
       let subject = `In Process: New checklist item(s) available for ${request.empName}`;
       let body = `The following checklist item(s) are now available to be completed:
   ${items.map((item) => item.Title).join("<br/>")}
@@ -125,7 +126,7 @@ ${outstandingMessage}
 
 To view this request and take action follow the below link:
   ${emailApi.siteUrl}/app/index.aspx#/item/${request.Id}`;
-      allEmailPromises.push(sendEmail(to, subject, body));
+      allEmailPromises.push(sendEmail(to, subject, body, cc));
     }
     return Promise.all(allEmailPromises);
   };
