@@ -358,8 +358,6 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 
   /**
    * Add a user to a Role
-   * Currently that user will ALWYAS be Brenda Wedding
-   * To update this, we'll need to track users and user ID's
    */
   rest.post(
     "/_api/web/lists/getByTitle\\('Roles')/items",
@@ -723,7 +721,7 @@ const updateRequest = (item: IRequestItem) => {
     (element) => element.Id === Number(item.supGovLeadId)
   );
   let employee = testUsers.find(
-    (element) => element.Id === Number(item.supGovLeadId)
+    (element) => element.Id === Number(item.employeeId)
   );
 
   if (index !== -1) {
