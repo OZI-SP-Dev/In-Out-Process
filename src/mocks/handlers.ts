@@ -1,5 +1,6 @@
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
+import { RoleType, SPRole } from "api/RolesApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
@@ -19,6 +20,44 @@ export const handlers = [
         formDigestValue: "value",
       })
     );
+  }),
+
+  /**
+   * Build a fake ensure user function
+   * Currently will ALWYAS return Brenda Wedding
+   * To update this, we'll need to track users and user ID's
+   */
+  rest.post("/_api/web/ensureuser", async (req, res, ctx) => {
+    let body = await req.json();
+    let email: string = body.logonName;
+    let title = email.replace("@localhost", "");
+
+    let user = testUsers.find((element) => element.EMail === body.logonName);
+    if (!user) {
+      user = {
+        Id: getHash(title),
+        Title: title,
+        EMail: email,
+      };
+      testUsers.push(user);
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.delay(responsedelay),
+      ctx.json({
+        Id: user.Id,
+        Title: user.Title,
+        Email: user.EMail,
+      })
+    );
+  }),
+
+  /**
+   * Build emails API
+   */
+  rest.post("/_api/web/lists/getByTitle\\('Emails')/items", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.delay(responsedelay));
   }),
 
   /**
@@ -79,42 +118,44 @@ export const handlers = [
     "/_api/web/lists/getByTitle\\('Items')/items",
     async (req, res, ctx) => {
       let body = (await req.json()) as IRequestItem;
-
-      let request: IResponseItem = {
-        Id: nextRequestId++,
-        empName: body.empName,
-        empType: body.empType,
-        gradeRank: body.gradeRank,
-        MPCN: body.MPCN,
-        SAR: body.SAR,
-        workLocation: body.workLocation,
-        office: body.office,
-        isNewCivMil: body.isNewCivMil,
-        prevOrg: body.prevOrg,
-        isNewToBaseAndCenter: body.isNewToBaseAndCenter,
-        hasExistingCAC: body.hasExistingCAC,
-        CACExpiration: body.CACExpiration,
-        eta: body.eta,
-        completionDate: body.completionDate,
-        supGovLead: {
-          Id: 1,
-          Title: "Default User",
-          EMail: "defaultTEST@us.af.mil",
-        },
-        // employee: {
-        //   Id: 2,
-        //   Title: "Default User 2",
-        //   EMail: "defaultTEST2@us.af.mil",
-        // },
-        isTraveler: body.isTraveler,
-        isSupervisor: body.isSupervisor,
-      };
-      requests.push(request);
-      return res(
-        ctx.status(200),
-        ctx.delay(responsedelay),
-        ctx.json({ value: request })
+      let supervisor = testUsers.find(
+        (element) => element.Id === Number(body.supGovLeadId)
       );
+      let employee = testUsers.find(
+        (element) => element.Id === Number(body.employeeId)
+      );
+      if (supervisor) {
+        let request: IResponseItem = {
+          Id: nextRequestId++,
+          empName: body.empName,
+          empType: body.empType,
+          gradeRank: body.gradeRank,
+          MPCN: body.MPCN,
+          SAR: body.SAR,
+          workLocation: body.workLocation,
+          office: body.office,
+          isNewCivMil: body.isNewCivMil,
+          prevOrg: body.prevOrg,
+          isNewToBaseAndCenter: body.isNewToBaseAndCenter,
+          hasExistingCAC: body.hasExistingCAC,
+          CACExpiration: body.CACExpiration,
+          eta: body.eta,
+          completionDate: body.completionDate,
+          supGovLead: { ...supervisor },
+          isTraveler: body.isTraveler,
+          isSupervisor: body.isSupervisor,
+        };
+        if (employee) {
+          request.employee = { ...employee };
+        }
+        requests.push(request);
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: request })
+        );
+      }
+      return res(ctx.status(400), ctx.delay(responsedelay));
     }
   ),
 
@@ -269,6 +310,101 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       ctx.set("request-id", "6b5975a0-40d3-0000-1598-09882fca4612")
     );
   }),
+
+  /**
+   * Get all Roles
+   */
+  rest.get("/_api/web/lists/getByTitle\\('Roles')/items", (req, res, ctx) => {
+    const filter = req.url.searchParams.get("$filter");
+    let results = structuredClone(testRoles);
+    if (filter) {
+      const UserId = filter.match(/User\/Id eq '(.+?)'/);
+      if (UserId) {
+        results = results.filter(
+          (item: SPRole) => item.User.Id === Number(UserId[1])
+        );
+      }
+    }
+    return res(
+      ctx.status(200),
+      ctx.delay(responsedelay),
+      ctx.json({ value: results })
+    );
+  }),
+
+  /**
+   * Get a specific Role
+   */
+  rest.get(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let result = requests.find((element) => element.Id === Number(ItemId));
+      if (result) {
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: result })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
+
+  /**
+   * Add a user to a Role
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items",
+    async (req, res, ctx) => {
+      let body = await req.json();
+      let user = testUsers.find((element) => element.Id === body.UserId);
+
+      if (user) {
+        let role: SPRole = {
+          Id: ++maxRoleId,
+          User: { ...user },
+          Title: body.Title,
+        };
+
+        testRoles.push(role);
+        return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
+      }
+      return res(ctx.status(400), ctx.delay(responsedelay));
+    }
+  ),
+
+  /**
+   * Delete a User Role
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let index = testRoles.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+      if (index !== -1) {
+        testRoles.splice(index, 1);
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay)
+          //ctx.json({ value: requests[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
 ];
 
 /**
@@ -579,8 +715,14 @@ const notFound = {
 /**
  * Update request
  */
-const updateRequest = (item: IResponseItem) => {
+const updateRequest = (item: IRequestItem) => {
   let index = requests.findIndex((element) => element.Id === Number(item.Id));
+  let supervisor = testUsers.find(
+    (element) => element.Id === Number(item.supGovLeadId)
+  );
+  let employee = testUsers.find(
+    (element) => element.Id === Number(item.employeeId)
+  );
 
   if (index !== -1) {
     requests[index].empName = item.empName
@@ -617,16 +759,6 @@ const updateRequest = (item: IResponseItem) => {
     requests[index].completionDate = item.completionDate
       ? item.completionDate
       : requests[index].completionDate;
-    // supGovLead: {
-    //   Id: 1,
-    //   Title: "Default User",
-    //   EMail: "defaultTEST@us.af.mil",
-    // },
-    // employee: {
-    //   Id: 2,
-    //   Title: "Default User 2",
-    //   EMail: "defaultTEST2@us.af.mil",
-    // },
     requests[index].isTraveler = item.isTraveler
       ? item.isTraveler
       : requests[index].isTraveler;
@@ -634,10 +766,86 @@ const updateRequest = (item: IResponseItem) => {
       ? item.isSupervisor
       : requests[index].isSupervisor;
   }
+
+  if (supervisor) {
+    requests[index].supGovLead = { ...supervisor };
+  }
+
+  if (employee) {
+    requests[index].employee = { ...employee };
+  }
+
   if (item.cancelReason) {
     requests[index].cancelReason = item.cancelReason;
   }
   if (item.closedOrCancelledDate) {
     requests[index].closedOrCancelledDate = item.closedOrCancelledDate;
   }
+};
+
+/**
+ * Users table
+ */
+let testUsers = [
+  {
+    Id: 1,
+    Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+    EMail: "me@example.com",
+  },
+  {
+    Id: 2,
+    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+    EMail: "me@example.com",
+  },
+];
+
+/**
+ * Default sample data roles
+ */
+let testRoles: SPRole[] = [
+  {
+    Id: 1,
+    User: {
+      Id: 1,
+      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.ADMIN,
+  },
+  {
+    Id: 2,
+    User: {
+      Id: 2,
+      Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.IT,
+  },
+  {
+    Id: 3,
+    User: {
+      Id: 1,
+      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
+      EMail: "me@example.com",
+    },
+    Title: RoleType.IT,
+  },
+];
+
+/**
+ * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
+ */
+let maxRoleId = testRoles.length;
+
+let getHash = function (toHash: string) {
+  let hash = 0;
+
+  if (toHash.length !== 0) {
+    for (let i = 0; i < toHash.length; i++) {
+      let chr = toHash.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit int
+    }
+  }
+  return hash;
 };
