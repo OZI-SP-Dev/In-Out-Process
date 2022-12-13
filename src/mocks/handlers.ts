@@ -57,7 +57,6 @@ export const handlers = [
    * Build emails API
    */
   rest.post("/_api/web/lists/getByTitle\\('Emails')/items", (req, res, ctx) => {
-    console.log("Sending email!");
     return res(ctx.status(200), ctx.delay(responsedelay));
   }),
 
@@ -119,42 +118,44 @@ export const handlers = [
     "/_api/web/lists/getByTitle\\('Items')/items",
     async (req, res, ctx) => {
       let body = (await req.json()) as IRequestItem;
-
-      let request: IResponseItem = {
-        Id: nextRequestId++,
-        empName: body.empName,
-        empType: body.empType,
-        gradeRank: body.gradeRank,
-        MPCN: body.MPCN,
-        SAR: body.SAR,
-        workLocation: body.workLocation,
-        office: body.office,
-        isNewCivMil: body.isNewCivMil,
-        prevOrg: body.prevOrg,
-        isNewToBaseAndCenter: body.isNewToBaseAndCenter,
-        hasExistingCAC: body.hasExistingCAC,
-        CACExpiration: body.CACExpiration,
-        eta: body.eta,
-        completionDate: body.completionDate,
-        supGovLead: {
-          Id: 1,
-          Title: "Default User",
-          EMail: "defaultTEST@us.af.mil",
-        },
-        // employee: {
-        //   Id: 2,
-        //   Title: "Default User 2",
-        //   EMail: "defaultTEST2@us.af.mil",
-        // },
-        isTraveler: body.isTraveler,
-        isSupervisor: body.isSupervisor,
-      };
-      requests.push(request);
-      return res(
-        ctx.status(200),
-        ctx.delay(responsedelay),
-        ctx.json({ value: request })
+      let supervisor = testUsers.find(
+        (element) => element.Id === Number(body.supGovLeadId)
       );
+      let employee = testUsers.find(
+        (element) => element.Id === Number(body.employeeId)
+      );
+      if (supervisor) {
+        let request: IResponseItem = {
+          Id: nextRequestId++,
+          empName: body.empName,
+          empType: body.empType,
+          gradeRank: body.gradeRank,
+          MPCN: body.MPCN,
+          SAR: body.SAR,
+          workLocation: body.workLocation,
+          office: body.office,
+          isNewCivMil: body.isNewCivMil,
+          prevOrg: body.prevOrg,
+          isNewToBaseAndCenter: body.isNewToBaseAndCenter,
+          hasExistingCAC: body.hasExistingCAC,
+          CACExpiration: body.CACExpiration,
+          eta: body.eta,
+          completionDate: body.completionDate,
+          supGovLead: { ...supervisor },
+          isTraveler: body.isTraveler,
+          isSupervisor: body.isSupervisor,
+        };
+        if (employee) {
+          request.employee = { ...employee };
+        }
+        requests.push(request);
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: request })
+        );
+      }
+      return res(ctx.status(400), ctx.delay(responsedelay));
     }
   ),
 
@@ -716,8 +717,14 @@ const notFound = {
 /**
  * Update request
  */
-const updateRequest = (item: IResponseItem) => {
+const updateRequest = (item: IRequestItem) => {
   let index = requests.findIndex((element) => element.Id === Number(item.Id));
+  let supervisor = testUsers.find(
+    (element) => element.Id === Number(item.supGovLeadId)
+  );
+  let employee = testUsers.find(
+    (element) => element.Id === Number(item.supGovLeadId)
+  );
 
   if (index !== -1) {
     requests[index].empName = item.empName
@@ -754,16 +761,6 @@ const updateRequest = (item: IResponseItem) => {
     requests[index].completionDate = item.completionDate
       ? item.completionDate
       : requests[index].completionDate;
-    // supGovLead: {
-    //   Id: 1,
-    //   Title: "Default User",
-    //   EMail: "defaultTEST@us.af.mil",
-    // },
-    // employee: {
-    //   Id: 2,
-    //   Title: "Default User 2",
-    //   EMail: "defaultTEST2@us.af.mil",
-    // },
     requests[index].isTraveler = item.isTraveler
       ? item.isTraveler
       : requests[index].isTraveler;
@@ -771,6 +768,15 @@ const updateRequest = (item: IResponseItem) => {
       ? item.isSupervisor
       : requests[index].isSupervisor;
   }
+
+  if (supervisor) {
+    requests[index].supGovLead = { ...supervisor };
+  }
+
+  if (employee) {
+    requests[index].employee = { ...employee };
+  }
+
   if (item.cancelReason) {
     requests[index].cancelReason = item.cancelReason;
   }
