@@ -548,10 +548,8 @@ export const InRequestNewForm = () => {
               selectedItems={value}
               updatePeople={(items) => {
                 if (items?.[0]) {
-                  setValue("empName", items[0].text);
                   onChange(items[0]);
                 } else {
-                  setValue("empName", "");
                   onChange([]);
                 }
               }}
