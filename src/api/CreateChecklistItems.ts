@@ -25,6 +25,7 @@ export enum templates {
   ConfirmMandatoryTraining = 17,
   ConfirmMyLearn = 18,
   ConfirmMyETMS = 19,
+  UnitOrientation = 20,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -241,6 +242,31 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.NewcomerBrief,
     Active: false,
     Description: `<p style="margin-top: 0px">Review directorate newcomer brief located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/AFLCMC%20-%20XP-OZ%20Overview.pptx">AFLCMC - XP-OZ Overview.pptx</a></p>`,
+  } as ICheckListItem);
+
+  // Unit orientation conducted (all Employees)
+  checklistItems.items.add({
+    Title: "Unit orientation conducted",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.UnitOrientation,
+    Active: true,
+    Description: `<p style="margin-top: 0px">Please ensure employee are briefed in the following key areas:
+<ul>
+<li>Explain the unit Chain of Command</li>
+<li>Explain the role of the CSF and OSF, if applicable (ref: AFMCI 36-2645)</li>
+<li>Explain the unit mission and how it fits into the Center’s mission</li>
+<li>Explain your role and responsibilities and expectations within the unit.</li>
+<li>Discuss staff meeting schedules, unit organization activities and social opportunities</li>
+<li>Introductions and tour of office</li>
+<li>Introduce new employee to co-workers</li>
+<li>Introduce to other key personnel/POCs in org (i.e., training manager, GTC POC, DTS POC, safety manager)</li>
+<li>If new employee is a supervisor, introduce him/her to direct reports</li>
+<li>Tour of work area, restrooms, break areas, conference rooms, points of interest on base</li>
+<li>Discuss organizational chart and key personnel in the unit (e.g., Commander/Director, Unit Training Monitor, Personnel Liaison, Security Manager, DTS/GPC representative, Safety Representative, Admin POC)</li>
+<li>Obtain recall roster information</li>
+<li>Discuss welcome package / reference guide</li>
+</ul></p>`,
   } as ICheckListItem);
 
   // GTC/DTS
