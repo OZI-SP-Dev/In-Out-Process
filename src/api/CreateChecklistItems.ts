@@ -21,6 +21,7 @@ export enum templates {
   OrientationVideos = 13,
   Bookmarks = 14,
   NewcomerBrief = 15,
+  SupervisorTraining = 16,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -151,6 +152,18 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
  <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
 </table></div>`,
   } as ICheckListItem);
+
+  // Supervisor training (Supervisory positions only)
+  if (request.isSupervisor === "yes") {
+    checklistItems.items.add({
+      Title: "Complete supervisor training",
+      Lead: RoleType.EMPLOYEE,
+      RequestId: request.Id,
+      TemplateId: templates.SupervisorTraining,
+      Active: true,
+      Description: `<div><p style="margin-top: 0px">Please look for Air University to provide guidance (online training link) for the completion of all appropriate supervisor training requirements.</p></div>`,
+    } as ICheckListItem);
+  }
 
   // Set up phone system (all Employees) -- requires user to have CAC first
   checklistItems.items.add({
