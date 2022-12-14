@@ -24,6 +24,7 @@ export enum templates {
   SupervisorTraining = 16,
   ConfirmMandatoryTraining = 17,
   ConfirmMyLearn = 18,
+  ConfirmMyETMS = 19,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -137,6 +138,21 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       Lead: RoleType.EMPLOYEE,
       RequestId: request.Id,
       TemplateId: templates.VerifyMyETMS,
+      Active: false,
+      Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    } as ICheckListItem);
+  }
+
+  // Confirm AFMC myETMS account
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Military
+  ) {
+    checklistItems.items.add({
+      Title: "Confirm AFMC myETMS account",
+      Lead: RoleType.SUPERVISOR,
+      RequestId: request.Id,
+      TemplateId: templates.ConfirmMyETMS,
       Active: false,
       Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
     } as ICheckListItem);

@@ -60,6 +60,15 @@ const completeCheckListItem = (
       });
       break;
     case templates.VerifyMyETMS:
+      // Activate the Confirm AFMC myETMS account task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMyETMS) {
+          addChecklistItemActivated(element);
+        }
+      });
+
+      // Determine if this checklist item has a Verify Air Force myLearning account task
+      //   if it does, then only activate Mandatory Training task if it is completed
       let myLearnTask = checklistItems?.find(
         (item) => item.TemplateId === templates.VerifyMyLearn
       );
