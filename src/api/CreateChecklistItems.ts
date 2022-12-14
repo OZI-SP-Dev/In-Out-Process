@@ -26,6 +26,7 @@ export enum templates {
   ConfirmMyLearn = 18,
   ConfirmMyETMS = 19,
   UnitOrientation = 20,
+  Brief971Folder = 21,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -267,6 +268,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <li>Obtain recall roster information</li>
 <li>Discuss welcome package / reference guide</li>
 </ul></p>`,
+  } as ICheckListItem);
+
+  // Create & brief 971 folder
+  checklistItems.items.add({
+    Title: "Create & brief 971 folder",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.Brief971Folder,
+    Active: true,
+    Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);
 
   // GTC/DTS
