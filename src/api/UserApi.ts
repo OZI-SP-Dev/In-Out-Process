@@ -57,9 +57,9 @@ export const useCurrentUser = () => {
   if (process.env.NODE_ENV === "development") {
     currentUser = new Person({
       Id: 1,
-      Title: "Default User",
-      EMail: "me@example.com",
-      imageUrl: TestImages.personaMale,
+      Title: "Barb Akew",
+      EMail: "Barb Akew@localhost",
+      imageUrl: TestImages.personaFemale,
     });
   } else {
     currentUser = new Person(

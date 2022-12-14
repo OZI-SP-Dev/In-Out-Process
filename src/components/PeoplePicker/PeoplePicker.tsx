@@ -5,11 +5,27 @@ import {
   IBasePickerSuggestionsProps,
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
-import { people } from "@fluentui/example-data";
+import { people, TestImages } from "@fluentui/example-data";
 import { spWebContext } from "providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
 
 // TODO: Add a way to show as input needed/corrected
+
+const peopleWithDevUsers = [
+  ...people,
+  new Person({
+    Id: 1,
+    Title: "Barb Akew",
+    EMail: "Barb Akew@localhost",
+    imageUrl: TestImages.personaFemale,
+  }),
+  new Person({
+    Id: 2,
+    Title: "Chris P. Bacon",
+    EMail: "Chirs P. Bacon@localhost",
+    imageUrl: TestImages.personaMale,
+  }),
+];
 
 const suggestionProps: IBasePickerSuggestionsProps = {
   suggestionsHeaderText: "Suggested People",
@@ -125,7 +141,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   };
 
   const filterPersonasByText = (filterText: string): IPersonaProps[] => {
-    return people.filter((item) =>
+    return peopleWithDevUsers.filter((item) =>
       doesTextStartWith(item.text as string, filterText)
     );
   };

@@ -1,10 +1,53 @@
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
+import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
 const responsedelay = 500;
+
+/**
+ * Users table
+ */
+let testUsers: IPerson[] = [
+  {
+    Id: 1,
+    Title: "Barb Akew",
+    EMail: "Barb Akew@localhost",
+  },
+  {
+    Id: 2,
+    Title: "Chris P. Bacon",
+    EMail: "Chris P. Bacon@localhost",
+  },
+];
+
+/**
+ * Default sample data roles
+ */
+let testRoles: SPRole[] = [
+  {
+    Id: 1,
+    User: { ...testUsers[0] },
+    Title: RoleType.ADMIN,
+  },
+  {
+    Id: 2,
+    User: { ...testUsers[1] },
+    Title: RoleType.IT,
+  },
+  {
+    Id: 3,
+    User: { ...testUsers[0] },
+    Title: RoleType.IT,
+  },
+];
+
+/**
+ * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
+ */
+let maxRoleId = testRoles.length;
 
 export const handlers = [
   /**
@@ -427,16 +470,8 @@ let requests: IResponseItem[] = [
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
-    supGovLead: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
-    },
-    employee: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
-    },
+    supGovLead: { ...testUsers[0] },
+    employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
   },
@@ -456,22 +491,14 @@ let requests: IResponseItem[] = [
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
-    supGovLead: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
-    },
-    employee: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
-    },
+    supGovLead: { ...testUsers[0] },
+    employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
   },
   {
     Id: 3,
-    empName: "Default User",
+    empName: testUsers[0].Title,
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-12",
     MPCN: 1233217,
@@ -487,16 +514,8 @@ let requests: IResponseItem[] = [
     CACExpiration: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
-    supGovLead: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
-    },
-    employee: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
-    },
+    supGovLead: { ...testUsers[1] },
+    employee: { ...testUsers[0] },
   },
   {
     Id: 5,
@@ -514,16 +533,8 @@ let requests: IResponseItem[] = [
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
-    supGovLead: {
-      Id: 1,
-      Title: "Default User",
-      EMail: "defaultTEST@us.af.mil",
-    },
-    employee: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
-    },
+    supGovLead: { ...testUsers[0] },
+    employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "yes",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
@@ -545,16 +556,8 @@ let requests: IResponseItem[] = [
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
-    supGovLead: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST@us.af.mil",
-    },
-    employee: {
-      Id: 3,
-      Title: "Default User 3",
-      EMail: "defaultTEST2@us.af.mil",
-    },
+    supGovLead: { ...testUsers[1] },
+    employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
@@ -573,11 +576,7 @@ let checklistitems: ICheckListResponseItem[] = [
       "<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span> <span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>",
     Lead: "Admin",
     CompletedDate: "2022-09-15",
-    CompletedBy: {
-      Id: 2,
-      Title: "Default User 2",
-      EMail: "defaultTEST2@us.af.mil",
-    },
+    CompletedBy: { ...testUsers[1] },
     RequestId: 1,
     TemplateId: -1,
     Active: true,
@@ -782,60 +781,6 @@ const updateRequest = (item: IRequestItem) => {
     requests[index].closedOrCancelledDate = item.closedOrCancelledDate;
   }
 };
-
-/**
- * Users table
- */
-let testUsers = [
-  {
-    Id: 1,
-    Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-    EMail: "me@example.com",
-  },
-  {
-    Id: 2,
-    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
-    EMail: "me@example.com",
-  },
-];
-
-/**
- * Default sample data roles
- */
-let testRoles: SPRole[] = [
-  {
-    Id: 1,
-    User: {
-      Id: 1,
-      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.ADMIN,
-  },
-  {
-    Id: 2,
-    User: {
-      Id: 2,
-      Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.IT,
-  },
-  {
-    Id: 3,
-    User: {
-      Id: 1,
-      Title: "FORREST, GREGORY M CTR USAF AFMC AFLCMC/OZIC",
-      EMail: "me@example.com",
-    },
-    Title: RoleType.IT,
-  },
-];
-
-/**
- * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
- */
-let maxRoleId = testRoles.length;
 
 let getHash = function (toHash: string) {
   let hash = 0;
