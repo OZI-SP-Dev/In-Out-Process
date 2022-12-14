@@ -22,6 +22,7 @@ export enum templates {
   Bookmarks = 14,
   NewcomerBrief = 15,
   SupervisorTraining = 16,
+  ConfirmMandatoryTraining = 17,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -151,6 +152,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
  <tr><td>Controlled Unclassified Information (CUI) Training (ZZZ2021CUI)</td><td>Annual</td></tr>
  <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
 </table></div>`,
+  } as ICheckListItem);
+
+  // Confirm Mandatory training (all employees)
+  checklistItems.items.add({
+    Title: "Confirm mandatory training complete",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.ConfirmMandatoryTraining,
+    Active: false,
+    Description: `<div><p style="margin-top: 0px">None</p></div>`,
   } as ICheckListItem);
 
   // Supervisor training (Supervisory positions only)

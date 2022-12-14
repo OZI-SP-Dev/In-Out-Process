@@ -100,6 +100,14 @@ const completeCheckListItem = (
         }
       });
       break;
+    case templates.MandatoryTraining:
+      //Activate the Confirm mandatory training task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMandatoryTraining) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
     default:
       break;
   }
