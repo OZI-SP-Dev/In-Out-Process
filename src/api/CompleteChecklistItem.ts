@@ -72,6 +72,11 @@ const completeCheckListItem = (
       }
       break;
     case templates.VerifyMyLearn:
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMyLearn) {
+          addChecklistItemActivated(element);
+        }
+      });
       let myETMSTask = checklistItems?.find(
         (item) => item.TemplateId === templates.VerifyMyETMS
       );

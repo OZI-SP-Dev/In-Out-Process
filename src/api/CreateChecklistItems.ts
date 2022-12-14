@@ -23,6 +23,7 @@ export enum templates {
   NewcomerBrief = 15,
   SupervisorTraining = 16,
   ConfirmMandatoryTraining = 17,
+  ConfirmMyLearn = 18,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -114,6 +115,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Active: false,
     Description: `<div><p style="margin-top: 0px">As part of in-processing, all employees are to verify or register for an Air Force myLearning training account. This account is necessary for the completion of mandatory training requirements.</p>
 <p><a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
+  } as ICheckListItem);
+
+  // Confirm Air Force myLearning account
+  checklistItems.items.add({
+    Title: " Confirm Air Force myLearning account",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.ConfirmMyLearn,
+    Active: false,
+    Description: `<div><p style="margin-top: 0px">Click here for link to Air Force myLearning account: <a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
   } as ICheckListItem);
 
   // Verify AFMC myETMS account
