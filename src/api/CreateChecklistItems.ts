@@ -27,6 +27,7 @@ export enum templates {
   ConfirmMyETMS = 19,
   UnitOrientation = 20,
   Brief971Folder = 21,
+  SignedPerformContribPlan = 22,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -277,6 +278,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     RequestId: request.Id,
     TemplateId: templates.Brief971Folder,
     Active: true,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Signed performance/contribution plan
+  checklistItems.items.add({
+    Title: "Signed performance/contribution plan",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SignedPerformContribPlan,
+    Active: false,
     Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);
 
