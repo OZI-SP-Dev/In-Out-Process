@@ -28,6 +28,7 @@ export enum templates {
   UnitOrientation = 20,
   Brief971Folder = 21,
   SignedPerformContribPlan = 22,
+  SignedTeleworkAgreement = 23,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -299,6 +300,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.SignedPerformContribPlan,
     Active: false,
     Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Signed telework agreement
+  checklistItems.items.add({
+    Title: "Signed telework agreement",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SignedTeleworkAgreement,
+    Active: false,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Telework%20Agreement%20Form%20dd2946.pdf">Telework Agreement Form DD2946</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS

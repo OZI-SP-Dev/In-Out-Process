@@ -54,7 +54,8 @@ const completeCheckListItem = (
           element.TemplateId === templates.OrientationVideos ||
           element.TemplateId === templates.Bookmarks ||
           element.TemplateId === templates.NewcomerBrief ||
-          element.TemplateId === templates.SignedPerformContribPlan
+          element.TemplateId === templates.SignedPerformContribPlan ||
+          element.TemplateId === templates.SignedTeleworkAgreement
         ) {
           addChecklistItemActivated(element);
         }
