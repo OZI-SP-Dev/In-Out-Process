@@ -6,7 +6,7 @@ import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
 
 export enum templates {
-  WelcomePackage = 1, // TODO
+  WelcomePackage = 1,
   IA_Training = 2,
   ObtainCACGov = 3,
   ObtainCACCtr = 4,
@@ -34,6 +34,16 @@ const createInboundChecklistItems = (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();
 
   const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  // Welcome Package -- required for all inbounds
+  checklistItems.items.add({
+    Title: "Send Welcome Package/Reference Guide",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.WelcomePackage,
+    Active: true,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Reference%20Guide.docx">Send Welcome Package/Reference Guide</a></p>`,
+  } as ICheckListItem);
 
   // IA Training
   // Required for all inbounds
