@@ -124,6 +124,14 @@ const completeCheckListItem = (
         }
       });
       break;
+    case templates.SignedTeleworkAgreement:
+      //Activate the Telework status entered in WHAT task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.TeleworkAddedToWHAT) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
     default:
       break;
   }
