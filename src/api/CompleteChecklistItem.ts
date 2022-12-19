@@ -53,13 +53,25 @@ const completeCheckListItem = (
           element.TemplateId === templates.PhoneSetup ||
           element.TemplateId === templates.OrientationVideos ||
           element.TemplateId === templates.Bookmarks ||
-          element.TemplateId === templates.NewcomerBrief
+          element.TemplateId === templates.NewcomerBrief ||
+          element.TemplateId === templates.SignedPerformContribPlan ||
+          element.TemplateId === templates.SignedTeleworkAgreement ||
+          element.TemplateId === templates.SupervisorCoord2875
         ) {
           addChecklistItemActivated(element);
         }
       });
       break;
     case templates.VerifyMyETMS:
+      // Activate the Confirm AFMC myETMS account task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMyETMS) {
+          addChecklistItemActivated(element);
+        }
+      });
+
+      // Determine if this checklist item has a Verify Air Force myLearning account task
+      //   if it does, then only activate Mandatory Training task if it is completed
       let myLearnTask = checklistItems?.find(
         (item) => item.TemplateId === templates.VerifyMyLearn
       );
@@ -72,6 +84,11 @@ const completeCheckListItem = (
       }
       break;
     case templates.VerifyMyLearn:
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMyLearn) {
+          addChecklistItemActivated(element);
+        }
+      });
       let myETMSTask = checklistItems?.find(
         (item) => item.TemplateId === templates.VerifyMyETMS
       );
@@ -96,6 +113,30 @@ const completeCheckListItem = (
       //Activate the Obtain CAC (Mil/Civ) task
       checklistItems?.forEach((element) => {
         if (element.TemplateId === templates.ObtainCACGov) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.MandatoryTraining:
+      //Activate the Confirm mandatory training task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmMandatoryTraining) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.SignedTeleworkAgreement:
+      //Activate the Telework status entered in WHAT task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.TeleworkAddedToWHAT) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.SupervisorCoord2875:
+      //Activate the Security Coordination of 2875 task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.SecurityCoord2875) {
           addChecklistItemActivated(element);
         }
       });

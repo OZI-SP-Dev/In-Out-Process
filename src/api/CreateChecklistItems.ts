@@ -6,7 +6,7 @@ import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
 
 export enum templates {
-  WelcomePackage = 1, // TODO
+  WelcomePackage = 1,
   IA_Training = 2,
   ObtainCACGov = 3,
   ObtainCACCtr = 4,
@@ -21,12 +21,33 @@ export enum templates {
   OrientationVideos = 13,
   Bookmarks = 14,
   NewcomerBrief = 15,
+  SupervisorTraining = 16,
+  ConfirmMandatoryTraining = 17,
+  ConfirmMyLearn = 18,
+  ConfirmMyETMS = 19,
+  UnitOrientation = 20,
+  Brief971Folder = 21,
+  SignedPerformContribPlan = 22,
+  SignedTeleworkAgreement = 23,
+  TeleworkAddedToWHAT = 24,
+  SupervisorCoord2875 = 25,
+  SecurityCoord2875 = 26,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();
 
   const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  // Welcome Package -- required for all inbounds
+  checklistItems.items.add({
+    Title: "Send Welcome Package/Reference Guide",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.WelcomePackage,
+    Active: true,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Reference%20Guide.docx">Send Welcome Package/Reference Guide</a></p>`,
+  } as ICheckListItem);
 
   // IA Training
   // Required for all inbounds
@@ -103,6 +124,26 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     } as ICheckListItem);
   }
 
+  // Supervisor Coordination of 2875 -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Supervisor Coordination of 2875",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SupervisorCoord2875,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Security Coordination of 2875 -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Security Coordination of 2875",
+    Lead: RoleType.SECURITY,
+    RequestId: request.Id,
+    TemplateId: templates.SecurityCoord2875,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
   // Verify Air Force myLearning account
   checklistItems.items.add({
     Title: "Verify Air Force myLearning account",
@@ -112,6 +153,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Active: false,
     Description: `<div><p style="margin-top: 0px">As part of in-processing, all employees are to verify or register for an Air Force myLearning training account. This account is necessary for the completion of mandatory training requirements.</p>
 <p><a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
+  } as ICheckListItem);
+
+  // Confirm Air Force myLearning account
+  checklistItems.items.add({
+    Title: " Confirm Air Force myLearning account",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.ConfirmMyLearn,
+    Active: false,
+    Description: `<div><p style="margin-top: 0px">Click here for link to Air Force myLearning account: <a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
   } as ICheckListItem);
 
   // Verify AFMC myETMS account
@@ -124,6 +175,21 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       Lead: RoleType.EMPLOYEE,
       RequestId: request.Id,
       TemplateId: templates.VerifyMyETMS,
+      Active: false,
+      Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    } as ICheckListItem);
+  }
+
+  // Confirm AFMC myETMS account
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Military
+  ) {
+    checklistItems.items.add({
+      Title: "Confirm AFMC myETMS account",
+      Lead: RoleType.SUPERVISOR,
+      RequestId: request.Id,
+      TemplateId: templates.ConfirmMyETMS,
       Active: false,
       Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
     } as ICheckListItem);
@@ -151,6 +217,28 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
  <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
 </table></div>`,
   } as ICheckListItem);
+
+  // Confirm Mandatory training (all employees)
+  checklistItems.items.add({
+    Title: "Confirm mandatory training complete",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.ConfirmMandatoryTraining,
+    Active: false,
+    Description: `<div><p style="margin-top: 0px">None</p></div>`,
+  } as ICheckListItem);
+
+  // Supervisor training (Supervisory positions only)
+  if (request.isSupervisor === "yes") {
+    checklistItems.items.add({
+      Title: "Complete supervisor training",
+      Lead: RoleType.EMPLOYEE,
+      RequestId: request.Id,
+      TemplateId: templates.SupervisorTraining,
+      Active: true,
+      Description: `<div><p style="margin-top: 0px">Please look for Air University to provide guidance (online training link) for the completion of all appropriate supervisor training requirements.</p></div>`,
+    } as ICheckListItem);
+  }
 
   // Set up phone system (all Employees) -- requires user to have CAC first
   checklistItems.items.add({
@@ -190,6 +278,71 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.NewcomerBrief,
     Active: false,
     Description: `<p style="margin-top: 0px">Review directorate newcomer brief located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/AFLCMC%20-%20XP-OZ%20Overview.pptx">AFLCMC - XP-OZ Overview.pptx</a></p>`,
+  } as ICheckListItem);
+
+  // Unit orientation conducted (all Employees)
+  checklistItems.items.add({
+    Title: "Unit orientation conducted",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.UnitOrientation,
+    Active: true,
+    Description: `<p style="margin-top: 0px">Please ensure employee are briefed in the following key areas:
+<ul>
+<li>Explain the unit Chain of Command</li>
+<li>Explain the role of the CSF and OSF, if applicable (ref: AFMCI 36-2645)</li>
+<li>Explain the unit mission and how it fits into the Center’s mission</li>
+<li>Explain your role and responsibilities and expectations within the unit.</li>
+<li>Discuss staff meeting schedules, unit organization activities and social opportunities</li>
+<li>Introductions and tour of office</li>
+<li>Introduce new employee to co-workers</li>
+<li>Introduce to other key personnel/POCs in org (i.e., training manager, GTC POC, DTS POC, safety manager)</li>
+<li>If new employee is a supervisor, introduce him/her to direct reports</li>
+<li>Tour of work area, restrooms, break areas, conference rooms, points of interest on base</li>
+<li>Discuss organizational chart and key personnel in the unit (e.g., Commander/Director, Unit Training Monitor, Personnel Liaison, Security Manager, DTS/GPC representative, Safety Representative, Admin POC)</li>
+<li>Obtain recall roster information</li>
+<li>Discuss welcome package / reference guide</li>
+</ul></p>`,
+  } as ICheckListItem);
+
+  // Create & brief 971 folder
+  checklistItems.items.add({
+    Title: "Create & brief 971 folder",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.Brief971Folder,
+    Active: true,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Signed performance/contribution plan
+  checklistItems.items.add({
+    Title: "Signed performance/contribution plan",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SignedPerformContribPlan,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Signed telework agreement
+  checklistItems.items.add({
+    Title: "Signed telework agreement",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SignedTeleworkAgreement,
+    Active: false,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Telework%20Agreement%20Form%20dd2946.pdf">Telework Agreement Form DD2946</a></p>`,
+  } as ICheckListItem);
+
+  // Telework status entered in WHAT
+  checklistItems.items.add({
+    Title: "Telework status entered in WHAT",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.TeleworkAddedToWHAT,
+    Active: false,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
   } as ICheckListItem);
 
   // GTC/DTS
