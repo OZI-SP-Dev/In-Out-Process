@@ -30,6 +30,7 @@ export enum templates {
   SignedPerformContribPlan = 22,
   SignedTeleworkAgreement = 23,
   TeleworkAddedToWHAT = 24,
+  SupervisorCoord2875 = 25,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -121,6 +122,16 @@ Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88f
 RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
     } as ICheckListItem);
   }
+
+  // Supervisor Coordination of 2875 -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Supervisor Coordination of 2875",
+    Lead: RoleType.SUPERVISOR,
+    RequestId: request.Id,
+    TemplateId: templates.SupervisorCoord2875,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
 
   // Verify Air Force myLearning account
   checklistItems.items.add({
