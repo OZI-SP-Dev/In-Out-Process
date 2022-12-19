@@ -133,6 +133,14 @@ const completeCheckListItem = (
         }
       });
       break;
+    case templates.SupervisorCoord2875:
+      //Activate the Security Coordination of 2875 task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.SecurityCoord2875) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
     default:
       break;
   }
