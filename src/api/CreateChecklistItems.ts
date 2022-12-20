@@ -36,6 +36,7 @@ export enum templates {
   EquipmentIssue = 28,
   AddSecurityGroups = 29,
   BuildingAccess = 30,
+  VerifyDirectDeposit = 31,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -418,6 +419,18 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       TemplateId: templates.ATAAPS,
       Active: false,
       Description: "",
+    } as ICheckListItem);
+  }
+
+  // Verify direct deposit active - CIV only
+  if (request.empType === EMPTYPES.Civilian) {
+    checklistItems.items.add({
+      Title: "Verify direct deposit active",
+      Lead: RoleType.ATAAPS,
+      RequestId: request.Id,
+      TemplateId: templates.VerifyDirectDeposit,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
     } as ICheckListItem);
   }
 
