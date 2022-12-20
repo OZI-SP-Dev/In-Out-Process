@@ -13,7 +13,7 @@ export enum templates {
   InstallationInProcess = 5, // TODO
   GTC = 6, // TODO
   DTS = 7,
-  ATAAPS = 8, // TODO
+  ATAAPS = 8,
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
@@ -411,15 +411,15 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     } as ICheckListItem);
   }
 
-  // ATAAPS
+  // Create/Update ATAAPS account - CIV only
   if (request.empType === EMPTYPES.Civilian) {
     checklistItems.items.add({
-      Title: "ATAAPS In-processing",
+      Title: "Create/Update ATAAPS account",
       Lead: RoleType.ATAAPS,
       RequestId: request.Id,
       TemplateId: templates.ATAAPS,
       Active: false,
-      Description: "",
+      Description: `<p style="margin-top: 0px">None</p>`,
     } as ICheckListItem);
   }
 
