@@ -35,6 +35,7 @@ export enum templates {
   ProvisionAFNET = 27,
   EquipmentIssue = 28,
   AddSecurityGroups = 29,
+  BuildingAccess = 30,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -126,6 +127,16 @@ Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88f
 RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
     } as ICheckListItem);
   }
+
+  // Obtain building access -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Obtain building access",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.BuildingAccess,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
 
   // Supervisor Coordination of 2875 -- Required for all inbounds
   checklistItems.items.add({
