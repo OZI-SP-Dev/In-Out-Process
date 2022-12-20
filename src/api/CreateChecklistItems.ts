@@ -12,7 +12,7 @@ export enum templates {
   ObtainCACCtr = 4,
   InstallationInProcess = 5, // TODO
   GTC = 6, // TODO
-  DTS = 7, // TODO
+  DTS = 7,
   ATAAPS = 8, // TODO
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
@@ -442,6 +442,22 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       Lead: RoleType.ATAAPS,
       RequestId: request.Id,
       TemplateId: templates.VerifyTaxStatus,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
+    } as ICheckListItem);
+  }
+
+  // Profile created/re-assigned in DTS -- CIV/MIL with Travel required
+  if (
+    request.isTraveler === "yes" &&
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military)
+  ) {
+    checklistItems.items.add({
+      Title: "Profile created/re-assigned in DTS",
+      Lead: RoleType.DTS,
+      RequestId: request.Id,
+      TemplateId: templates.DTS,
       Active: false,
       Description: `<p style="margin-top: 0px">None</p>`,
     } as ICheckListItem);

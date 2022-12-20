@@ -59,7 +59,8 @@ const completeCheckListItem = (
           element.TemplateId === templates.SupervisorCoord2875 ||
           element.TemplateId === templates.BuildingAccess ||
           element.TemplateId === templates.VerifyDirectDeposit ||
-          element.TemplateId === templates.VerifyTaxStatus
+          element.TemplateId === templates.VerifyTaxStatus ||
+          element.TemplateId === templates.DTS
         ) {
           addChecklistItemActivated(element);
         }
