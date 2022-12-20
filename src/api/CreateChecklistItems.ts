@@ -37,6 +37,7 @@ export enum templates {
   AddSecurityGroups = 29,
   BuildingAccess = 30,
   VerifyDirectDeposit = 31,
+  VerifyTaxStatus = 32,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -429,6 +430,18 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       Lead: RoleType.ATAAPS,
       RequestId: request.Id,
       TemplateId: templates.VerifyDirectDeposit,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
+    } as ICheckListItem);
+  }
+
+  // Verify tax status accurate - CIV only
+  if (request.empType === EMPTYPES.Civilian) {
+    checklistItems.items.add({
+      Title: "Verify tax status accurate",
+      Lead: RoleType.ATAAPS,
+      RequestId: request.Id,
+      TemplateId: templates.VerifyTaxStatus,
       Active: false,
       Description: `<p style="margin-top: 0px">None</p>`,
     } as ICheckListItem);

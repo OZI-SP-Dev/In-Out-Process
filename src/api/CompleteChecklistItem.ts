@@ -58,7 +58,8 @@ const completeCheckListItem = (
           element.TemplateId === templates.SignedTeleworkAgreement ||
           element.TemplateId === templates.SupervisorCoord2875 ||
           element.TemplateId === templates.BuildingAccess ||
-          element.TemplateId === templates.VerifyDirectDeposit
+          element.TemplateId === templates.VerifyDirectDeposit ||
+          element.TemplateId === templates.VerifyTaxStatus
         ) {
           addChecklistItemActivated(element);
         }
