@@ -33,6 +33,7 @@ export enum templates {
   SupervisorCoord2875 = 25,
   SecurityCoord2875 = 26,
   ProvisionAFNET = 27,
+  EquipmentIssue = 28,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -151,6 +152,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.IT,
     RequestId: request.Id,
     TemplateId: templates.ProvisionAFNET,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Equipment Issue -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Equipment Issue",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.EquipmentIssue,
     Active: false,
     Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);

@@ -142,9 +142,12 @@ const completeCheckListItem = (
       });
       break;
     case templates.SecurityCoord2875:
-      //Activate the Provision/move AFNET account task
+      //Activate the Provision/move AFNET account and Equipment Issue tasks
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ProvisionAFNET) {
+        if (
+          element.TemplateId === templates.ProvisionAFNET ||
+          element.TemplateId === templates.EquipmentIssue
+        ) {
           addChecklistItemActivated(element);
         }
       });
