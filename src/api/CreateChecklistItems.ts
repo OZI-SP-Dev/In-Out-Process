@@ -390,26 +390,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
   } as ICheckListItem);
 
-  // GTC/DTS
-  if (request.isTraveler === "yes") {
-    checklistItems.items.add({
-      Title: "GTC In-processing",
-      Lead: RoleType.GTC,
-      RequestId: request.Id,
-      TemplateId: templates.GTC,
-      Active: true,
-      Description: "",
-    } as ICheckListItem);
-    checklistItems.items.add({
-      Title: "DTS In-processing",
-      Lead: RoleType.DTS,
-      RequestId: request.Id,
-      TemplateId: templates.DTS,
-      Active: true,
-      Description: "",
-    } as ICheckListItem);
-  }
-
   // Create/Update ATAAPS account - CIV only
   if (request.empType === EMPTYPES.Civilian) {
     checklistItems.items.add({
