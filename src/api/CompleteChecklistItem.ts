@@ -152,6 +152,14 @@ const completeCheckListItem = (
         }
       });
       break;
+    case templates.ProvisionAFNET:
+      //Activate the Add to security groups task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.AddSecurityGroups) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
     default:
       break;
   }

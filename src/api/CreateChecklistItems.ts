@@ -34,6 +34,7 @@ export enum templates {
   SecurityCoord2875 = 26,
   ProvisionAFNET = 27,
   EquipmentIssue = 28,
+  AddSecurityGroups = 29,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -162,6 +163,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.IT,
     RequestId: request.Id,
     TemplateId: templates.EquipmentIssue,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Add to security groups -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Add to security groups",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.AddSecurityGroups,
     Active: false,
     Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);
