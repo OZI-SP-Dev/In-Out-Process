@@ -32,6 +32,7 @@ export enum templates {
   TeleworkAddedToWHAT = 24,
   SupervisorCoord2875 = 25,
   SecurityCoord2875 = 26,
+  ProvisionAFNET = 27,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -140,6 +141,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.SECURITY,
     RequestId: request.Id,
     TemplateId: templates.SecurityCoord2875,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Provision/move AFNET account -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Provision/move AFNET account",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.ProvisionAFNET,
     Active: false,
     Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);
