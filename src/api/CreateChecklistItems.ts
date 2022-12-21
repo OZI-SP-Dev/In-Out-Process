@@ -10,10 +10,10 @@ export enum templates {
   IA_Training = 2,
   ObtainCACGov = 3,
   ObtainCACCtr = 4,
-  InstallationInProcess = 5, // TODO
+  InstallationInProcess = 5,
   GTC = 6, // TODO
-  DTS = 7, // TODO
-  ATAAPS = 8, // TODO
+  DTS = 7,
+  ATAAPS = 8,
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
@@ -32,6 +32,12 @@ export enum templates {
   TeleworkAddedToWHAT = 24,
   SupervisorCoord2875 = 25,
   SecurityCoord2875 = 26,
+  ProvisionAFNET = 27,
+  EquipmentIssue = 28,
+  AddSecurityGroups = 29,
+  BuildingAccess = 30,
+  VerifyDirectDeposit = 31,
+  VerifyTaxStatus = 32,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -49,8 +55,7 @@ const createInboundChecklistItems = (request: IInRequest) => {
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Reference%20Guide.docx">Send Welcome Package/Reference Guide</a></p>`,
   } as ICheckListItem);
 
-  // IA Training
-  // Required for all inbounds
+  // IA Training -- Required for all inbounds
   checklistItems.items.add({
     Title: "IA Training Complete",
     Lead: RoleType.EMPLOYEE,
@@ -124,6 +129,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     } as ICheckListItem);
   }
 
+  // Obtain building access -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Obtain building access",
+    Lead: RoleType.EMPLOYEE,
+    RequestId: request.Id,
+    TemplateId: templates.BuildingAccess,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
   // Supervisor Coordination of 2875 -- Required for all inbounds
   checklistItems.items.add({
     Title: "Supervisor Coordination of 2875",
@@ -144,6 +159,36 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
   } as ICheckListItem);
 
+  // Provision/move AFNET account -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Provision/move AFNET account",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.ProvisionAFNET,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Equipment Issue -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Equipment Issue",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.EquipmentIssue,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
+  // Add to security groups -- Required for all inbounds
+  checklistItems.items.add({
+    Title: "Add to security groups",
+    Lead: RoleType.IT,
+    RequestId: request.Id,
+    TemplateId: templates.AddSecurityGroups,
+    Active: false,
+    Description: `<p style="margin-top: 0px">None</p>`,
+  } as ICheckListItem);
+
   // Verify Air Force myLearning account
   checklistItems.items.add({
     Title: "Verify Air Force myLearning account",
@@ -157,7 +202,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 
   // Confirm Air Force myLearning account
   checklistItems.items.add({
-    Title: " Confirm Air Force myLearning account",
+    Title: "Confirm Air Force myLearning account",
     Lead: RoleType.SUPERVISOR,
     RequestId: request.Id,
     TemplateId: templates.ConfirmMyLearn,
@@ -165,7 +210,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<div><p style="margin-top: 0px">Click here for link to Air Force myLearning account: <a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
   } as ICheckListItem);
 
-  // Verify AFMC myETMS account
+  // Verify AFMC myETMS account - CIV/MIL only
   if (
     request.empType === EMPTYPES.Civilian ||
     request.empType === EMPTYPES.Military
@@ -180,7 +225,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     } as ICheckListItem);
   }
 
-  // Confirm AFMC myETMS account
+  // Confirm AFMC myETMS account - CIV/MIL Only
   if (
     request.empType === EMPTYPES.Civilian ||
     request.empType === EMPTYPES.Military
@@ -345,35 +390,55 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
   } as ICheckListItem);
 
-  // GTC/DTS
-  if (request.isTraveler === "yes") {
-    checklistItems.items.add({
-      Title: "GTC In-processing",
-      Lead: RoleType.GTC,
-      RequestId: request.Id,
-      TemplateId: templates.GTC,
-      Active: true,
-      Description: "",
-    } as ICheckListItem);
-    checklistItems.items.add({
-      Title: "DTS In-processing",
-      Lead: RoleType.DTS,
-      RequestId: request.Id,
-      TemplateId: templates.DTS,
-      Active: true,
-      Description: "",
-    } as ICheckListItem);
-  }
-
-  // ATAAPS
+  // Create/Update ATAAPS account - CIV only
   if (request.empType === EMPTYPES.Civilian) {
     checklistItems.items.add({
-      Title: "ATAAPS In-processing",
+      Title: "Create/Update ATAAPS account",
       Lead: RoleType.ATAAPS,
       RequestId: request.Id,
       TemplateId: templates.ATAAPS,
       Active: false,
-      Description: "",
+      Description: `<p style="margin-top: 0px">None</p>`,
+    } as ICheckListItem);
+  }
+
+  // Verify direct deposit active - CIV only
+  if (request.empType === EMPTYPES.Civilian) {
+    checklistItems.items.add({
+      Title: "Verify direct deposit active",
+      Lead: RoleType.ATAAPS,
+      RequestId: request.Id,
+      TemplateId: templates.VerifyDirectDeposit,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
+    } as ICheckListItem);
+  }
+
+  // Verify tax status accurate - CIV only
+  if (request.empType === EMPTYPES.Civilian) {
+    checklistItems.items.add({
+      Title: "Verify tax status accurate",
+      Lead: RoleType.ATAAPS,
+      RequestId: request.Id,
+      TemplateId: templates.VerifyTaxStatus,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
+    } as ICheckListItem);
+  }
+
+  // Profile created/re-assigned in DTS -- CIV/MIL with Travel required
+  if (
+    request.isTraveler === "yes" &&
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military)
+  ) {
+    checklistItems.items.add({
+      Title: "Profile created/re-assigned in DTS",
+      Lead: RoleType.DTS,
+      RequestId: request.Id,
+      TemplateId: templates.DTS,
+      Active: false,
+      Description: `<p style="margin-top: 0px">None</p>`,
     } as ICheckListItem);
   }
 

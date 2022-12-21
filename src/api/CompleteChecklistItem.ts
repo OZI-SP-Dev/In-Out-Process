@@ -56,7 +56,12 @@ const completeCheckListItem = (
           element.TemplateId === templates.NewcomerBrief ||
           element.TemplateId === templates.SignedPerformContribPlan ||
           element.TemplateId === templates.SignedTeleworkAgreement ||
-          element.TemplateId === templates.SupervisorCoord2875
+          element.TemplateId === templates.SupervisorCoord2875 ||
+          element.TemplateId === templates.BuildingAccess ||
+          element.TemplateId === templates.VerifyDirectDeposit ||
+          element.TemplateId === templates.VerifyTaxStatus ||
+          element.TemplateId === templates.DTS ||
+          element.TemplateId === templates.ATAAPS
         ) {
           addChecklistItemActivated(element);
         }
@@ -137,6 +142,25 @@ const completeCheckListItem = (
       //Activate the Security Coordination of 2875 task
       checklistItems?.forEach((element) => {
         if (element.TemplateId === templates.SecurityCoord2875) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.SecurityCoord2875:
+      //Activate the Provision/move AFNET account and Equipment Issue tasks
+      checklistItems?.forEach((element) => {
+        if (
+          element.TemplateId === templates.ProvisionAFNET ||
+          element.TemplateId === templates.EquipmentIssue
+        ) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.ProvisionAFNET:
+      //Activate the Add to security groups task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.AddSecurityGroups) {
           addChecklistItemActivated(element);
         }
       });
