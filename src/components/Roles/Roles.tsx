@@ -1,11 +1,10 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   RoleType,
   SPRole,
   useAllUserRolesByRole,
   useAllUserRolesByUser,
   useRoleManagement,
-  useUserRoles,
 } from "api/RolesApi";
 import { makeStyles } from "@fluentui/react-components";
 import { Navigate } from "react-router-dom";
@@ -21,6 +20,7 @@ import {
 } from "@fluentui/react";
 import { useBoolean } from "@fluentui/react-hooks";
 import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
+import { UserContext } from "providers/UserProvider";
 
 /** FluentUI Styling */
 const useStyles = makeStyles({
@@ -46,7 +46,7 @@ export const Roles: React.FunctionComponent = () => {
   const { removeRole } = useRoleManagement();
 
   // Get the role of the current user
-  const userRoles = useUserRoles();
+  const userRoles = useContext(UserContext).roles;
 
   // Selected items in the DetailsList
   const [selectedItems, setSelectedItems] = useState<IObjectWithKey[]>([]);
@@ -175,11 +175,11 @@ export const Roles: React.FunctionComponent = () => {
   ];
 
   // Ensure we have a roles object before determining whether or not to redirect
-  if (!userRoles.isFetched) {
+  if (!userRoles) {
     return <>Loading...</>;
   }
 
-  if (!userRoles.data?.includes(RoleType.ADMIN)) {
+  if (!userRoles.includes(RoleType.ADMIN)) {
     // If they are not an ADMIN, redirect to the Homepage
     return <Navigate to="/" replace={true} />;
   }

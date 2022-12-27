@@ -6,10 +6,12 @@ import {
 import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { Person, useCurrentUser } from "api/UserApi";
+import { Person } from "api/UserApi";
 import { templates } from "api/CreateChecklistItems";
 import { useEmail } from "hooks/useEmail";
 import { RoleType } from "api/RolesApi";
+import { useContext } from "react";
+import { UserContext } from "providers/UserProvider";
 
 const completeCheckListItem = (
   item: ICheckListItem,
@@ -178,7 +180,7 @@ const completeCheckListItem = (
 
 export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const queryClient = useQueryClient();
-  const currentUser = useCurrentUser();
+  const currentUser = useContext(UserContext).user;
   const email = useEmail();
   let checklistItems: ICheckListItem[];
 
