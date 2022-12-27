@@ -309,8 +309,12 @@ export const handlers = [
               ...(item.CompletedById && {
                 CompletedBy: {
                   Id: item.CompletedById,
-                  Title: "Default User " + item.CompletedById,
-                  EMail: "defaultTEST@us.af.mil",
+                  Title: testUsers.find(
+                    (user) => user.Id === item.CompletedById
+                  )?.Title,
+                  EMail: testUsers.find(
+                    (user) => user.Id === item.CompletedById
+                  )?.EMail,
                 },
               }),
               ...(item.Active && { Active: true }),
