@@ -15,21 +15,6 @@ export class InternalError implements Error {
   }
 }
 
-export class ApiError extends InternalError {
-  name: string = "ApiError";
-
-  constructor(e?: Error, message?: string) {
-    super(
-      e,
-      message
-        ? message
-        : e
-        ? e.message
-        : "An unknown error occurred while communicating with SharePoint!"
-    );
-  }
-}
-
 export class EmailError extends InternalError {
   name: string = "EmailError";
 
