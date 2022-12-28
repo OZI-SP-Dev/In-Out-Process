@@ -99,7 +99,8 @@ const getOpenCheckListItems = async () => {
     .getByTitle("CheckListItems")
     .items.filter("CompletedDate eq null")
     .select(requestedFields)
-    .expand(expandedFields)();
+    .expand(expandedFields)
+    .top(5000)();
 };
 
 /**

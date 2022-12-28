@@ -150,7 +150,8 @@ const getRequests = async () => {
   return spWebContext.web.lists
     .getByTitle("Items")
     .items.select(requestedFields)
-    .expand(expandedFields)();
+    .expand(expandedFields)
+    .top(5000)();
 };
 
 // Exported hooks for working with requests
