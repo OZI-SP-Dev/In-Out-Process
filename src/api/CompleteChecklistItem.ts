@@ -168,6 +168,14 @@ const completeCheckListItem = (
         }
       });
       break;
+    case templates.SecurityTraining:
+      //Activate the Confirm security training complete task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmSecurityTraining) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
     default:
       break;
   }

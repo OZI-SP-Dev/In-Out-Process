@@ -39,6 +39,7 @@ export enum templates {
   VerifyDirectDeposit = 31,
   VerifyTaxStatus = 32,
   SecurityTraining = 33,
+  ConfirmSecurityTraining = 34,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -199,6 +200,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Active: false,
     Description: `<p style="margin-top: 0px">Review the Mandatory initial training slides and ensure you complete the survey at the end to receive credit</p>
     <p>The slides can be found at <a href="https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true">https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true</p>`,
+  } as ICheckListItem);
+
+  // Confirm security training complete
+  checklistItems.items.add({
+    Title: "Confirm security training complete",
+    Lead: RoleType.SECURITY,
+    RequestId: request.Id,
+    TemplateId: templates.ConfirmSecurityTraining,
+    Active: false,
+    Description: `<p style="margin-top: 0px">Confirm member has taken required initial security training by reviewing survey results </p>`,
   } as ICheckListItem);
 
   // Verify Air Force myLearning account
