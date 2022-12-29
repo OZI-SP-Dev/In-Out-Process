@@ -19,7 +19,7 @@ const queryClient = new QueryClient();
 
 ReactDOM.render(
   <StrictMode>
-    <QueryClientProvider client={queryClient} contextSharing={true}>
+    <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>
   </StrictMode>,
