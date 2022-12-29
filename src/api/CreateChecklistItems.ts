@@ -40,6 +40,7 @@ export enum templates {
   VerifyTaxStatus = 32,
   SecurityTraining = 33,
   ConfirmSecurityTraining = 34,
+  SecurityRequirements = 35,
 }
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -449,6 +450,17 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     } as ICheckListItem);
   }
 
+  // Security requirements & access
+  checklistItems.items.add({
+    Title: "Security requirements & access",
+    Lead: RoleType.SECURITY,
+    RequestId: request.Id,
+    TemplateId: templates.SecurityRequirements,
+    Active: false,
+    Description: `<p style="margin-top: 0px">Review the members, Security Access Requirement (SAR) Code, Position Sensitivity Code, and Clearance Eligibility and update appropriate access level</p>
+      <p>Establish a servicing or owning relationship with the member in the Defense Information System for Security (DISS)</p>`,
+  } as ICheckListItem);
+
   // Profile created/re-assigned in DTS -- CIV/MIL with Travel required
   if (
     request.isTraveler === "yes" &&
@@ -466,7 +478,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
   }
 
   // Training In-processing
-  // Security In-processing
   // Supervisor In-processing
   // ETT In-processing
 

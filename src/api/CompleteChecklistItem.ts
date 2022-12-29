@@ -61,7 +61,8 @@ const completeCheckListItem = (
           element.TemplateId === templates.VerifyDirectDeposit ||
           element.TemplateId === templates.VerifyTaxStatus ||
           element.TemplateId === templates.DTS ||
-          element.TemplateId === templates.ATAAPS
+          element.TemplateId === templates.ATAAPS ||
+          element.TemplateId === templates.SecurityRequirements
         ) {
           addChecklistItemActivated(element);
         }
