@@ -159,7 +159,7 @@ const getRequests = async () => {
 export const useMyRequests = () => {
   const userId = useContext(UserContext).user.Id;
   return useQuery({
-    queryKey: ["requests", userId],
+    queryKey: ["requests", "user" + userId],
     queryFn: () => getMyRequests(userId),
     select: transformInRequestsFromSP,
   });
