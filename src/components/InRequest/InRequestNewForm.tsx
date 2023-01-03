@@ -4,7 +4,7 @@ import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
 import { EMPTYPES } from "constants/EmpTypes";
-import { WORKLOCATIONS } from "constants/WorkLocations";
+import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
 import {
   makeStyles,
   Button,
@@ -69,6 +69,28 @@ const useStyles = makeStyles({
   },
 });
 
+type IRHFIPerson = {
+  Id: number;
+  Title: string;
+  EMail: string;
+  text: string;
+  imageUrl?: string;
+};
+
+// Create a type to handle the IInRequest type within React Hook Form (RHF)
+// This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
+type IRHFInRequest = Omit<
+  IInRequest,
+  "empType" | "workLocation" | "supGovLead" | "employee"
+> & {
+  /* Allowthese to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
+  empType: EMPTYPES | "";
+  workLocation: worklocation | "";
+  /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
+  supGovLead: IRHFIPerson;
+  employee: IRHFIPerson;
+};
+
 export const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useContext(UserContext).user;
@@ -85,7 +107,8 @@ export const InRequestNewForm = () => {
     formState: { errors },
     watch,
     setValue,
-  } = useForm<any>();
+    register,
+  } = useForm<IRHFInRequest>();
 
   // Set up watches
   const empType = watch("empType");
@@ -116,9 +139,9 @@ export const InRequestNewForm = () => {
     } else return new Date();
   }, [eta]);
 
-  const createNewRequest = (data: IInRequest) => {
-    email.sendInRequestSubmitEmail(data);
-    addRequest.mutate(data, {
+  const createNewRequest = (data: IRHFInRequest) => {
+    email.sendInRequestSubmitEmail(data as IInRequest);
+    addRequest.mutate(data as IInRequest, {
       onSuccess: (newData) => {
         addTasks.mutate(newData.data, {
           onSuccess: () => {
@@ -149,7 +172,7 @@ export const InRequestNewForm = () => {
               aria-describedby="employeeErr"
               selectedItems={value}
               updatePeople={(items) => {
-                if (items?.[0]) {
+                if (items?.[0]?.text) {
                   setValue("empName", items[0].text);
                   onChange(items[0]);
                 } else {
@@ -180,6 +203,7 @@ export const InRequestNewForm = () => {
         <Controller
           name="empName"
           control={control}
+          defaultValue={""}
           rules={{
             required: "Employee Name is required",
             pattern: {
@@ -190,7 +214,6 @@ export const InRequestNewForm = () => {
           render={({ field }) => (
             <Input
               {...field}
-              key={employee?.text ? employee.text : "empName"}
               disabled={employee?.text ? true : false}
               aria-describedby="empNameErr"
               id="empNameId"
@@ -218,6 +241,7 @@ export const InRequestNewForm = () => {
         <Controller
           name="empType"
           control={control}
+          defaultValue={""}
           rules={{
             required: "Employee Type is required",
           }}
@@ -270,6 +294,7 @@ export const InRequestNewForm = () => {
         <Controller
           name="gradeRank"
           control={control}
+          defaultValue={""}
           rules={{
             required:
               empType !== EMPTYPES.Contractor ? "Grade/Rank is required" : "",
@@ -309,19 +334,16 @@ export const InRequestNewForm = () => {
           <NumberFieldIcon className={classes.fieldIcon} />
           MPCN
         </Label>
-        <Controller
-          name="MPCN"
-          control={control}
-          rules={{
+        <Input
+          {...register("MPCN", {
             required: "MPCN is required",
             pattern: {
               value: /^\d{7}$/i,
               message: "MPCN must be 7 digits",
             },
-          }}
-          render={({ field }) => (
-            <Input {...field} aria-describedby="MPCNErr" id="MPCNId" />
-          )}
+          })}
+          aria-describedby="MPCNErr"
+          id="MPCNId"
         />
         {errors.MPCN && (
           <Text id="MPCNErr" className={classes.errorText}>
@@ -343,19 +365,16 @@ export const InRequestNewForm = () => {
           <NumberFieldIcon className={classes.fieldIcon} />
           SAR
         </Label>
-        <Controller
-          name="SAR"
-          control={control}
-          rules={{
+        <Input
+          {...register("SAR", {
             required: "SAR is required",
             pattern: {
               value: /^\d$/i,
               message: "SAR must be 1 digit",
             },
-          }}
-          render={({ field }) => (
-            <Input {...field} aria-describedby="SARErr" id="SARId" />
-          )}
+          })}
+          aria-describedby="SARErr"
+          id="SARId"
         />
         {errors.SAR && (
           <Text id="SARErr" className={classes.errorText}>
@@ -380,6 +399,7 @@ export const InRequestNewForm = () => {
         <Controller
           name="workLocation"
           control={control}
+          defaultValue={""}
           rules={{
             required: "Selection is required",
           }}
@@ -579,6 +599,7 @@ export const InRequestNewForm = () => {
             <Controller
               name="isNewCivMil"
               control={control}
+              defaultValue={""}
               rules={{
                 required: "Selection is required",
               }}
@@ -621,6 +642,7 @@ export const InRequestNewForm = () => {
               <Controller
                 name="prevOrg"
                 control={control}
+                defaultValue={""}
                 rules={{
                   required: "Previous Organization is required",
                 }}
@@ -656,6 +678,7 @@ export const InRequestNewForm = () => {
           <Controller
             name="isNewToBaseAndCenter"
             control={control}
+            defaultValue={""}
             rules={{
               required: "Selection is required",
             }}
@@ -692,6 +715,7 @@ export const InRequestNewForm = () => {
           <Controller
             name="isTraveler"
             control={control}
+            defaultValue={""}
             rules={{
               required: "Selection is required",
             }}
@@ -765,6 +789,7 @@ export const InRequestNewForm = () => {
             <Controller
               name="hasExistingCAC"
               control={control}
+              defaultValue=""
               rules={{
                 required: "Selection is required",
               }}
