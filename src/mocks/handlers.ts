@@ -1,4 +1,4 @@
-import { people } from "@fluentui/example-data";
+import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
@@ -84,9 +84,15 @@ let testRoles: SPRole[] = [
  */
 let maxRoleId = testRoles.length;
 
-// user defined type guard
-function isTestUser(user: any): user is IPerson {
-  return user.Title ? true : false;
+/**
+ * Custom type guard to determine if it is an IPerson or FluentUI example data user
+ * @param userObj The IPerson array of people entries
+ * @returns A boolean on whether this is an IPerson object type
+ */
+function isIPerson(
+  userObj: IPerson | (IExampleExtendedPersonaProps & { key: string | number })
+): userObj is IPerson {
+  return "Title" in userObj ? true : false; // If it has a Title prop, then assume it is an IPerson (testUser)
 }
 
 export const handlers = [
@@ -170,11 +176,11 @@ export const handlers = [
       // Add any users from our testUsers data to the top, and the FluentUI data to the bottom of the results
       const retValue = [...users, ...peopleUsers].map((user) => {
         // Hardcode some return values and dynamically populate others
-        const email = isTestUser(user)
+        const email = isIPerson(user)
           ? user.EMail
           : (user.text ? user.text : "DEFAULT") + "@localhost";
 
-        const title = isTestUser(user)
+        const title = isIPerson(user)
           ? user.Title
           : user.text
           ? user.text
