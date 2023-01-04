@@ -1,3 +1,4 @@
+import { people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
@@ -49,6 +50,11 @@ let testRoles: SPRole[] = [
  */
 let maxRoleId = testRoles.length;
 
+// user defined type guard
+function isTestUser(user: any): user is IPerson {
+  return user.Title ? true : false;
+}
+
 export const handlers = [
   /**
    * Build a fake context object for PnPJS
@@ -95,6 +101,80 @@ export const handlers = [
       })
     );
   }),
+
+  /**
+   * Build a fake ClientPeoplePickerSearchUser function to emulate GAL lookup for the PeoplePicker
+   */
+  rest.post(
+    "/_api/sp.ui.applicationpages.clientpeoplepickerwebserviceinterface.clientpeoplepickersearchuser",
+    async (req, res, ctx) => {
+      let body = await req.json();
+      // Get the QueryString from the request
+      // Ignore all the other parameters for now, and assume it is
+      //  to just look up a standard user accoutn
+      let queryString: string = body.queryParams.QueryString;
+
+      // Find matches from the FluentUI example data
+      const peopleUsers = people.filter(
+        (person) =>
+          person.text?.toLowerCase().includes(queryString.toLowerCase()) &&
+          !testUsers.find((testUser) => testUser.Title === person.text) // Exclude any that are also defined in testUsers
+      );
+
+      // Find matches from the predefined (and added on the fly) testUsers
+      const users = testUsers
+        .filter((person) =>
+          person.Title.toLowerCase().includes(queryString.toLowerCase())
+        )
+        .sort(
+          (
+            a,
+            b // Sort our testUsers alphabetially
+          ) => a.Title.localeCompare(b.Title)
+        );
+
+      // Add any users from our testUsers data to the top, and the FluentUI data to the bottom of the results
+      const retValue = [...users, ...peopleUsers].map((user) => {
+        // Hardcode some return values and dynamically populate others
+        const email = isTestUser(user)
+          ? user.EMail
+          : (user.text ? user.text : "DEFAULT") + "@localhost";
+
+        const title = isTestUser(user)
+          ? user.Title
+          : user.text
+          ? user.text
+          : "DEFAULT";
+        return {
+          Key: `i:0#.f|membership|${email}`,
+          DisplayText: title,
+          IsResolved: true,
+          Description: email,
+          EntityType: "User",
+          EntityData: {
+            IsAltSecIdPresent: "False",
+            UserKey: `i:0h.f|membership|${title}@live.com`, //"i:0h.f|membership|abcdefghijklmnop@live.com",
+            Title: "Test User Job Title",
+            Email: email,
+            MobilePhone: "",
+            ObjectId: title, //"a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+            Department: "AFMC",
+          },
+          MultipleMatches: [],
+          ProviderName: "Tenant",
+          ProviderDisplayName: "Tenant",
+        };
+      });
+
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({
+          value: JSON.stringify(retValue),
+        })
+      );
+    }
+  ),
 
   /**
    * Build emails API
