@@ -14,13 +14,48 @@ const responsedelay = 500;
 let testUsers: IPerson[] = [
   {
     Id: 1,
-    Title: "Barb Akew",
+    Title: "Barb Akew (All)",
     EMail: "Barb Akew@localhost",
   },
   {
     Id: 2,
-    Title: "Chris P. Bacon",
+    Title: "Chris P. Bacon (IT)",
     EMail: "Chris P. Bacon@localhost",
+  },
+  {
+    Id: 3,
+    Title: "Cole Slaw (ATAAPS)",
+    EMail: "Cole Slaw@localhost",
+  },
+  {
+    Id: 4,
+    Title: "Patty O'Table (FOG)",
+    EMail: "Patty O'Table@localhost",
+  },
+  {
+    Id: 5,
+    Title: "Chip N. Dip (DTS)",
+    EMail: "Chip N. Dip@localhost",
+  },
+  {
+    Id: 6,
+    Title: "Walter Mellon (GTC)",
+    EMail: "Walter Mellon@localhost",
+  },
+  {
+    Id: 7,
+    Title: "Herb Alty (Security)",
+    EMail: "Herb Alty@localhost",
+  },
+  {
+    Id: 8,
+    Title: "Saul Sage (Regular User)",
+    EMail: "Saul Sagey@localhost",
+  },
+  {
+    Id: 9,
+    Title: "Des Urt (Regular User)",
+    EMail: "Des Urt@localhost",
   },
 ];
 
@@ -28,21 +63,20 @@ let testUsers: IPerson[] = [
  * Default sample data roles
  */
 let testRoles: SPRole[] = [
-  {
-    Id: 1,
-    User: { ...testUsers[0] },
-    Title: RoleType.ADMIN,
-  },
-  {
-    Id: 2,
-    User: { ...testUsers[1] },
-    Title: RoleType.IT,
-  },
-  {
-    Id: 3,
-    User: { ...testUsers[0] },
-    Title: RoleType.IT,
-  },
+  /* All Roles for Barb Akew */
+  { Id: 1, User: { ...testUsers[0] }, Title: RoleType.ADMIN },
+  { Id: 2, User: { ...testUsers[0] }, Title: RoleType.IT },
+  { Id: 3, User: { ...testUsers[0] }, Title: RoleType.ATAAPS },
+  { Id: 4, User: { ...testUsers[0] }, Title: RoleType.FOG },
+  { Id: 5, User: { ...testUsers[0] }, Title: RoleType.DTS },
+  { Id: 6, User: { ...testUsers[0] }, Title: RoleType.GTC },
+  { Id: 7, User: { ...testUsers[0] }, Title: RoleType.SECURITY },
+  { Id: 8, User: { ...testUsers[1] }, Title: RoleType.IT }, // IT for Chris P. Bacon
+  { Id: 9, User: { ...testUsers[2] }, Title: RoleType.ATAAPS }, // ATAAPS for Cole Slaw
+  { Id: 10, User: { ...testUsers[3] }, Title: RoleType.FOG }, // FOG for Patty O'Table
+  { Id: 11, User: { ...testUsers[4] }, Title: RoleType.DTS }, // DTS for Chip N. Dip
+  { Id: 12, User: { ...testUsers[5] }, Title: RoleType.GTC }, // GTC for Walter Mellon@localhost
+  { Id: 13, User: { ...testUsers[6] }, Title: RoleType.SECURITY }, // SECURITY for Herb Alty
 ];
 
 /**
