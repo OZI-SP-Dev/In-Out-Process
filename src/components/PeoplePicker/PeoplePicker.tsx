@@ -5,27 +5,10 @@ import {
   IBasePickerSuggestionsProps,
   NormalPeoplePicker,
 } from "@fluentui/react/lib/Pickers";
-import { people, TestImages } from "@fluentui/example-data";
 import { spWebContext } from "providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
 
 // TODO: Add a way to show as input needed/corrected
-
-const peopleWithDevUsers = [
-  ...people,
-  new Person({
-    Id: 1,
-    Title: "Barb Akew",
-    EMail: "Barb Akew@localhost",
-    imageUrl: TestImages.personaFemale,
-  }),
-  new Person({
-    Id: 2,
-    Title: "Chris P. Bacon",
-    EMail: "Chirs P. Bacon@localhost",
-    imageUrl: TestImages.personaMale,
-  }),
-];
 
 const suggestionProps: IBasePickerSuggestionsProps = {
   suggestionsHeaderText: "Suggested People",
@@ -63,46 +46,30 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
     currentPersonas?: IPersonaProps[],
     limitResults?: number,
     selectedPersonas?: IPersonaProps[] | undefined
-    //): IPersonaProps[] | Promise<IPersonaProps[]>  => {
   ): Promise<IPersonaProps[]> => {
     if (filterText) {
-      let filteredPersonas: IPersonaProps[]; //| Promise<IPersonaProps[]>;
-      if (process.env.NODE_ENV === "development") {
-        const results = await filterPersonasByText(filterText);
-        let newPersonas: IPerson[] = [];
-        // Handle DEV a little different than PROD -- as props like the image URL can't be built the same
-        results.forEach((person: IPersonaProps) => {
-          newPersonas.push({
-            ...person,
-            Id: -1,
-            Title: person.text ? person.text : "DEFAULT",
-            EMail: person.text
-              ? person.text + "@localhost"
-              : "DEFAULT@localhost",
-          });
-        });
-        filteredPersonas = [...newPersonas];
-      } else {
-        const results =
-          await spWebContext.profiles.clientPeoplePickerSearchUser({
-            AllowEmailAddresses: false,
-            AllowMultipleEntities: false,
-            MaximumEntitySuggestions: limitResults ? limitResults : 25,
-            QueryString: filterText,
-            PrincipalSource: 15, // PrincipalSource.All -- Cannot use the enum directly from PnPJS due to it being an ambient enum
-            PrincipalType: 1, // PrincipalType.User -- Cannot use the enum directly from PnPJS due to it being an ambient enum
-          });
-        let newPersonas: IPersonaProps[] = [];
-        results.forEach((person: IPeoplePickerEntity) => {
-          const persona: IPersonaProps = new Person({
-            Id: -1,
-            Title: person.DisplayText,
-            EMail: person.EntityData.Email ? person.EntityData.Email : "",
-          });
-          newPersonas.push(persona);
-        });
+      let filteredPersonas: IPersonaProps[];
 
-        /* No Cache Support Yet 
+      const results = await spWebContext.profiles.clientPeoplePickerSearchUser({
+        AllowEmailAddresses: false,
+        AllowMultipleEntities: false,
+        MaximumEntitySuggestions: limitResults ? limitResults : 25,
+        QueryString: filterText,
+        PrincipalSource: 15, // PrincipalSource.All -- Cannot use the enum directly from PnPJS due to it being an ambient enum
+        PrincipalType: 1, // PrincipalType.User -- Cannot use the enum directly from PnPJS due to it being an ambient enum
+      });
+
+      let newPersonas: IPersonaProps[] = [];
+      results.forEach((person: IPeoplePickerEntity) => {
+        const persona: IPersonaProps = new Person({
+          Id: -1,
+          Title: person.DisplayText,
+          EMail: person.EntityData.Email ? person.EntityData.Email : "",
+        });
+        newPersonas.push(persona);
+      });
+
+      /* No Cache Support Yet 
         // Create list of matching cached suggestions
         let cachedResults = cachedPeople
           .getCachedPeople()
@@ -119,9 +86,8 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
         filteredPersonas = [...cachedResults, ...newPersonas];
         */
 
-        //TODO: Remove this and utilize cache
-        filteredPersonas = [...newPersonas];
-      }
+      //TODO: Remove this and utilize cache
+      filteredPersonas = [...newPersonas];
 
       // If people were already selected, then do not list them as possible additions
       if (currentPersonas && filteredPersonas) {
@@ -134,25 +100,9 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
       filteredPersonas = limitResults
         ? filteredPersonas.slice(0, limitResults)
         : filteredPersonas;
-      return filterPromise(filteredPersonas);
+      return filteredPersonas;
     } else {
       return [];
-    }
-  };
-
-  const filterPersonasByText = (filterText: string): IPersonaProps[] => {
-    return peopleWithDevUsers.filter((item) =>
-      doesTextStartWith(item.text as string, filterText)
-    );
-  };
-
-  const filterPromise = (
-    personasToReturn: IPersonaProps[]
-  ): IPersonaProps[] | Promise<IPersonaProps[]> => {
-    if (process.env.NODE_ENV === "development") {
-      return convertResultsToPromise(personasToReturn);
-    } else {
-      return personasToReturn;
     }
   };
 
@@ -188,10 +138,6 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   );
 };
 
-function doesTextStartWith(text: string, filterText: string): boolean {
-  return text.toLowerCase().indexOf(filterText.toLowerCase()) === 0;
-}
-
 function removeDuplicates(
   personas: IPersonaProps[],
   possibleDupes: IPersonaProps[]
@@ -209,15 +155,6 @@ function listContainsPersona(
     return false;
   }
   return personas.filter((item) => item.text === persona.text).length > 0;
-}
-
-// This function is used in development to set a 1 second delay on the results from the PeoplePicker to simulate an API call to SharePoint
-function convertResultsToPromise(
-  results: IPersonaProps[]
-): Promise<IPersonaProps[]> {
-  return new Promise<IPersonaProps[]>((resolve, reject) =>
-    setTimeout(() => resolve(results), 1000)
-  );
 }
 
 function getTextFromItem(persona: IPersonaProps): string {

@@ -1,3 +1,4 @@
+import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { IRequestItem, IResponseItem } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
@@ -13,13 +14,48 @@ const responsedelay = 500;
 let testUsers: IPerson[] = [
   {
     Id: 1,
-    Title: "Barb Akew",
+    Title: "Barb Akew (All)",
     EMail: "Barb Akew@localhost",
   },
   {
     Id: 2,
-    Title: "Chris P. Bacon",
+    Title: "Chris P. Bacon (IT)",
     EMail: "Chris P. Bacon@localhost",
+  },
+  {
+    Id: 3,
+    Title: "Cole Slaw (ATAAPS)",
+    EMail: "Cole Slaw@localhost",
+  },
+  {
+    Id: 4,
+    Title: "Patty O'Table (FOG)",
+    EMail: "Patty O'Table@localhost",
+  },
+  {
+    Id: 5,
+    Title: "Chip N. Dip (DTS)",
+    EMail: "Chip N. Dip@localhost",
+  },
+  {
+    Id: 6,
+    Title: "Walter Mellon (GTC)",
+    EMail: "Walter Mellon@localhost",
+  },
+  {
+    Id: 7,
+    Title: "Herb Alty (Security)",
+    EMail: "Herb Alty@localhost",
+  },
+  {
+    Id: 8,
+    Title: "Saul Sage (Regular User)",
+    EMail: "Saul Sagey@localhost",
+  },
+  {
+    Id: 9,
+    Title: "Des Urt (Regular User)",
+    EMail: "Des Urt@localhost",
   },
 ];
 
@@ -27,27 +63,37 @@ let testUsers: IPerson[] = [
  * Default sample data roles
  */
 let testRoles: SPRole[] = [
-  {
-    Id: 1,
-    User: { ...testUsers[0] },
-    Title: RoleType.ADMIN,
-  },
-  {
-    Id: 2,
-    User: { ...testUsers[1] },
-    Title: RoleType.IT,
-  },
-  {
-    Id: 3,
-    User: { ...testUsers[0] },
-    Title: RoleType.IT,
-  },
+  /* All Roles for Barb Akew */
+  { Id: 1, User: { ...testUsers[0] }, Title: RoleType.ADMIN },
+  { Id: 2, User: { ...testUsers[0] }, Title: RoleType.IT },
+  { Id: 3, User: { ...testUsers[0] }, Title: RoleType.ATAAPS },
+  { Id: 4, User: { ...testUsers[0] }, Title: RoleType.FOG },
+  { Id: 5, User: { ...testUsers[0] }, Title: RoleType.DTS },
+  { Id: 6, User: { ...testUsers[0] }, Title: RoleType.GTC },
+  { Id: 7, User: { ...testUsers[0] }, Title: RoleType.SECURITY },
+  { Id: 8, User: { ...testUsers[1] }, Title: RoleType.IT }, // IT for Chris P. Bacon
+  { Id: 9, User: { ...testUsers[2] }, Title: RoleType.ATAAPS }, // ATAAPS for Cole Slaw
+  { Id: 10, User: { ...testUsers[3] }, Title: RoleType.FOG }, // FOG for Patty O'Table
+  { Id: 11, User: { ...testUsers[4] }, Title: RoleType.DTS }, // DTS for Chip N. Dip
+  { Id: 12, User: { ...testUsers[5] }, Title: RoleType.GTC }, // GTC for Walter Mellon@localhost
+  { Id: 13, User: { ...testUsers[6] }, Title: RoleType.SECURITY }, // SECURITY for Herb Alty
 ];
 
 /**
  * The maxId of records in testRoles -- used for appending new roles in DEV env to mimic SharePoint
  */
 let maxRoleId = testRoles.length;
+
+/**
+ * Custom type guard to determine if it is an IPerson or FluentUI example data user
+ * @param userObj The IPerson array of people entries
+ * @returns A boolean on whether this is an IPerson object type
+ */
+function isIPerson(
+  userObj: IPerson | (IExampleExtendedPersonaProps & { key: string | number })
+): userObj is IPerson {
+  return "Title" in userObj ? true : false; // If it has a Title prop, then assume it is an IPerson (testUser)
+}
 
 export const handlers = [
   /**
@@ -95,6 +141,80 @@ export const handlers = [
       })
     );
   }),
+
+  /**
+   * Build a fake ClientPeoplePickerSearchUser function to emulate GAL lookup for the PeoplePicker
+   */
+  rest.post(
+    "/_api/sp.ui.applicationpages.clientpeoplepickerwebserviceinterface.clientpeoplepickersearchuser",
+    async (req, res, ctx) => {
+      let body = await req.json();
+      // Get the QueryString from the request
+      // Ignore all the other parameters for now, and assume it is
+      //  to just look up a standard user accoutn
+      let queryString: string = body.queryParams.QueryString;
+
+      // Find matches from the FluentUI example data
+      const peopleUsers = people.filter(
+        (person) =>
+          person.text?.toLowerCase().includes(queryString.toLowerCase()) &&
+          !testUsers.find((testUser) => testUser.Title === person.text) // Exclude any that are also defined in testUsers
+      );
+
+      // Find matches from the predefined (and added on the fly) testUsers
+      const users = testUsers
+        .filter((person) =>
+          person.Title.toLowerCase().includes(queryString.toLowerCase())
+        )
+        .sort(
+          (
+            a,
+            b // Sort our testUsers alphabetially
+          ) => a.Title.localeCompare(b.Title)
+        );
+
+      // Add any users from our testUsers data to the top, and the FluentUI data to the bottom of the results
+      const retValue = [...users, ...peopleUsers].map((user) => {
+        // Hardcode some return values and dynamically populate others
+        const email = isIPerson(user)
+          ? user.EMail
+          : (user.text ? user.text : "DEFAULT") + "@localhost";
+
+        const title = isIPerson(user)
+          ? user.Title
+          : user.text
+          ? user.text
+          : "DEFAULT";
+        return {
+          Key: `i:0#.f|membership|${email}`,
+          DisplayText: title,
+          IsResolved: true,
+          Description: email,
+          EntityType: "User",
+          EntityData: {
+            IsAltSecIdPresent: "False",
+            UserKey: `i:0h.f|membership|${title}@live.com`, //"i:0h.f|membership|abcdefghijklmnop@live.com",
+            Title: "Test User Job Title",
+            Email: email,
+            MobilePhone: "",
+            ObjectId: title, //"a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+            Department: "AFMC",
+          },
+          MultipleMatches: [],
+          ProviderName: "Tenant",
+          ProviderDisplayName: "Tenant",
+        };
+      });
+
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({
+          value: JSON.stringify(retValue),
+        })
+      );
+    }
+  ),
 
   /**
    * Build emails API
@@ -207,16 +327,28 @@ export const handlers = [
     const filter = req.url.searchParams.get("$filter");
     let results = structuredClone(requests);
     if (filter) {
-      //filter the results
-      switch (filter) {
-        case "supGovLead/Id eq '1' or employee/Id eq '1'":
-          results = results.filter(
-            (item: IResponseItem) =>
-              item.supGovLead.Id === 1 || item.employee?.Id === 1
-          );
-          break;
-        default:
+      // Filter for My Requests
+      const myRequestFilter = filter.match(
+        /\(supGovLead\/Id eq '(-?\d+)' or employee\/Id eq '(-?\d+)'\) and closedOrCancelledDate eq null/
+      );
+
+      // If the filter was for My Requests
+      if (myRequestFilter) {
+        results = results.filter(
+          (item: IResponseItem) =>
+            (item.supGovLead.Id.toString() === myRequestFilter[2] ||
+              item.employee?.Id.toString() === myRequestFilter[1]) &&
+            !item.closedOrCancelledDate
+        );
+      } else {
+        // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.body(`No Mock created for this filter string - ${filter}`)
+        );
       }
+      console.log(myRequestFilter);
     }
     return res(
       ctx.status(200),
@@ -231,11 +363,25 @@ export const handlers = [
       const filter = req.url.searchParams.get("$filter");
       let results = structuredClone(checklistitems);
       if (filter) {
+        // Filter for checklist items for a specific request
         const RequestId = filter.match(/RequestId eq (.+?)/);
+        // Filter for open checklist items
+        const CompletedDate = filter.match(/CompletedDate eq null/);
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
               item.RequestId === Number(RequestId[1])
+          );
+        } else if (CompletedDate) {
+          results = results.filter(
+            (item: ICheckListResponseItem) => !item.CompletedDate
+          );
+        } else {
+          // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+          return res(
+            ctx.status(500),
+            ctx.delay(responsedelay),
+            ctx.body(`No Mock created for this filter string - ${filter}`)
           );
         }
       }
@@ -369,6 +515,13 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       if (UserId) {
         results = results.filter(
           (item: SPRole) => item.User.Id === Number(UserId[1])
+        );
+      } else {
+        // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.body(`No Mock created for this filter string - ${filter}`)
         );
       }
     }
