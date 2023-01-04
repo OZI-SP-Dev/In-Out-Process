@@ -327,16 +327,28 @@ export const handlers = [
     const filter = req.url.searchParams.get("$filter");
     let results = structuredClone(requests);
     if (filter) {
-      //filter the results
-      switch (filter) {
-        case "supGovLead/Id eq '1' or employee/Id eq '1'":
-          results = results.filter(
-            (item: IResponseItem) =>
-              item.supGovLead.Id === 1 || item.employee?.Id === 1
-          );
-          break;
-        default:
+      // Filter for My Requests
+      const myRequestFilter = filter.match(
+        /\(supGovLead\/Id eq '(-?\d+)' or employee\/Id eq '(-?\d+)'\) and closedOrCancelledDate eq null/
+      );
+
+      // If the filter was for My Requests
+      if (myRequestFilter) {
+        results = results.filter(
+          (item: IResponseItem) =>
+            (item.supGovLead.Id.toString() === myRequestFilter[2] ||
+              item.employee?.Id.toString() === myRequestFilter[1]) &&
+            !item.closedOrCancelledDate
+        );
+      } else {
+        // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.body(`No Mock created for this filter string - ${filter}`)
+        );
       }
+      console.log(myRequestFilter);
     }
     return res(
       ctx.status(200),
@@ -351,11 +363,25 @@ export const handlers = [
       const filter = req.url.searchParams.get("$filter");
       let results = structuredClone(checklistitems);
       if (filter) {
+        // Filter for checklist items for a specific request
         const RequestId = filter.match(/RequestId eq (.+?)/);
+        // Filter for open checklist items
+        const CompletedDate = filter.match(/CompletedDate eq null/);
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
               item.RequestId === Number(RequestId[1])
+          );
+        } else if (CompletedDate) {
+          results = results.filter(
+            (item: ICheckListResponseItem) => !item.CompletedDate
+          );
+        } else {
+          // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+          return res(
+            ctx.status(500),
+            ctx.delay(responsedelay),
+            ctx.body(`No Mock created for this filter string - ${filter}`)
           );
         }
       }
@@ -489,6 +515,13 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       if (UserId) {
         results = results.filter(
           (item: SPRole) => item.User.Id === Number(UserId[1])
+        );
+      } else {
+        // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.body(`No Mock created for this filter string - ${filter}`)
         );
       }
     }
