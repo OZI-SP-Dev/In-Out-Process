@@ -6,9 +6,11 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { spWebContext } from "providers/SPWebContext";
-import { IPerson, useCurrentUser } from "api/UserApi";
+import { IPerson } from "api/UserApi";
 import { IItemAddResult } from "@pnp/sp/items";
 import { useError } from "hooks/useError";
+import { useContext } from "react";
+import { UserContext } from "providers/UserProvider";
 
 /** Enum used to define the different roles in the tool */
 export enum RoleType {
@@ -167,7 +169,7 @@ const getRolesForUser = async (userId?: number): Promise<SPRole[]> => {
  */
 export const useUserRoles = (userId?: number) => {
   const errObj = useError();
-  const currentUser = useCurrentUser();
+  const currentUser = useContext(UserContext).user;
 
   if (!userId) {
     userId = currentUser.Id;

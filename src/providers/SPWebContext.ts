@@ -4,9 +4,7 @@ import "@pnp/sp/lists/web";
 import "@pnp/sp/items/list";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/profiles";
-
-// Possible future import
-//import "@pnp/sp/batching";
+import "@pnp/sp/batching";
 
 declare var _spPageContextInfo: any;
 

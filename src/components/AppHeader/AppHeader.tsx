@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
 import { RoleType } from "api/RolesApi";
+import { ImpersonationForm } from "components/AppHeader/ImpersonationForm";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -76,7 +77,7 @@ export const AppHeader: FunctionComponent<any> = (props) => {
             </Link>
           )
         }
-        <Popover>
+        <Popover trapFocus={true} closeOnScroll={true} withArrow={true}>
           <PopoverTrigger>
             <Tooltip
               relationship="description"
@@ -96,6 +97,13 @@ export const AppHeader: FunctionComponent<any> = (props) => {
                 <li key={role}>{role}</li>
               ))}
             </ul>
+            {
+              //Only load the Impersonation Form if we are in NodeJS or a TEST environment
+              (process.env.NODE_ENV === "development" ||
+                process.env.REACT_APP_TEST_SYS === "true") && (
+                <ImpersonationForm></ImpersonationForm>
+              )
+            }
           </PopoverSurface>
         </Popover>
       </div>

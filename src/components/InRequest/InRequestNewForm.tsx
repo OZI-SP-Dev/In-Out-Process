@@ -1,5 +1,5 @@
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
@@ -15,7 +15,6 @@ import {
   RadioGroup,
   tokens,
 } from "@fluentui/react-components";
-import { useCurrentUser } from "api/UserApi";
 import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
@@ -29,6 +28,7 @@ import {
   ContactIcon,
 } from "@fluentui/react-icons-mdl2";
 import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
+import { UserContext } from "providers/UserProvider";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -71,7 +71,7 @@ const useStyles = makeStyles({
 
 export const InRequestNewForm = () => {
   const classes = useStyles();
-  const currentUser = useCurrentUser();
+  const currentUser = useContext(UserContext).user;
   const email = useEmail();
   const addRequest = useAddRequest();
   const addTasks = useAddTasks();
