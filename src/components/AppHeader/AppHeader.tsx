@@ -85,7 +85,12 @@ export const AppHeader: FunctionComponent<any> = (props) => {
             >
               <Avatar
                 className={classes.navAvatar}
-                image={{ src: userContext.user?.imageUrl }}
+                image={
+                  // If we don't have an imageUrl such as when Impersonating, just show Initials
+                  userContext.user?.imageUrl
+                    ? { src: userContext.user?.imageUrl }
+                    : undefined
+                }
                 name={userContext.user?.Title}
                 size={32}
               ></Avatar>
