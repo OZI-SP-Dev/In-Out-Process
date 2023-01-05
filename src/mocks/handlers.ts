@@ -348,7 +348,6 @@ export const handlers = [
           ctx.body(`No Mock created for this filter string - ${filter}`)
         );
       }
-      console.log(myRequestFilter);
     }
     return res(
       ctx.status(200),
