@@ -1,12 +1,5 @@
 import { IPersonaProps } from "@fluentui/react";
-import { spWebContext } from "providers/SPWebContext";
-import { ApiError } from "api/InternalErrors";
 import { TestImages } from "@fluentui/example-data";
-import "@pnp/sp/webs";
-import "@pnp/sp/lists";
-import "@pnp/sp/items";
-import "@pnp/sp/batching";
-import "@pnp/sp/site-users/web";
 
 declare var _spPageContextInfo: any;
 
@@ -74,46 +67,3 @@ export const useCurrentUser = () => {
 
   return currentUser;
 };
-
-export interface IUserApi {
-  /**
-   * Get the Id of the user with the email given
-   *
-   * @param email The email of the user
-   *
-   * @returns The Id of the user with the supplied email
-   */
-  getUserId: (email: string) => Promise<number>;
-}
-
-export class UserApi implements IUserApi {
-  private currentUser?: IPerson;
-
-  getUserId = async (email: string) => {
-    try {
-      return email ? (await spWebContext.web.ensureUser(email)).data.Id : -1;
-    } catch (e) {
-      console.error(
-        `Error occurred while trying to fetch user with Email ${email}`
-      );
-      console.error(e);
-      if (e instanceof Error) {
-        throw new ApiError(
-          e,
-          `Error occurred while trying to fetch user with Email ${email}: ${e.message}`
-        );
-      } else if (typeof e === "string") {
-        throw new ApiError(
-          new Error(
-            `Error occurred while trying to fetch user with Email ${email}: ${e}`
-          )
-        );
-      } else {
-        throw new ApiError(
-          undefined,
-          `Unknown error occurred while trying to fetch user with Email ${email}`
-        );
-      }
-    }
-  };
-}

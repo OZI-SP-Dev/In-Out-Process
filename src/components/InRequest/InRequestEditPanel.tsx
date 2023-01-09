@@ -894,7 +894,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       }}
                       render={({ field: { value, onChange } }) => (
                         <DatePicker
-                          id="arrivalDateId"
+                          id="CACExpirationId"
                           placeholder="Select CAC expiration date"
                           ariaLabel="Select CAC expiration date"
                           aria-describedby="etaErr"

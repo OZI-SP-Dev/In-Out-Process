@@ -3,8 +3,8 @@ import { worklocation } from "constants/WorkLocations";
 import { IPerson, Person } from "api/UserApi";
 import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-declare var _spPageContextInfo: any;
+import { UserContext } from "providers/UserProvider";
+import { useContext } from "react";
 
 /**
  * Directly map the incoming request to the IResponseItem to perform type
@@ -128,20 +128,14 @@ const requestedFields =
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
-const getMyRequests = async () => {
-  const userId =
-    process.env.NODE_ENV === "development" ? 1 : _spPageContextInfo?.userId;
-  if (userId === undefined) {
-    return Promise.reject([]);
-  } else {
-    return spWebContext.web.lists
-      .getByTitle("Items")
-      .items.filter(
-        `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
-      )
-      .select(requestedFields)
-      .expand(expandedFields)();
-  }
+const getMyRequests = async (userId: number) => {
+  return spWebContext.web.lists
+    .getByTitle("Items")
+    .items.filter(
+      `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
+    )
+    .select(requestedFields)
+    .expand(expandedFields)();
 };
 
 export const getRequest = async (Id: number) => {
@@ -156,13 +150,17 @@ const getRequests = async () => {
   return spWebContext.web.lists
     .getByTitle("Items")
     .items.select(requestedFields)
-    .expand(expandedFields)();
+    .expand(expandedFields)
+    .top(5000)();
 };
 
 // Exported hooks for working with requests
 
 export const useMyRequests = () => {
-  return useQuery(["requests", "currentUser"], getMyRequests, {
+  const userId = useContext(UserContext).user.Id;
+  return useQuery({
+    queryKey: ["requests", "user" + userId],
+    queryFn: () => getMyRequests(userId),
     select: transformInRequestsFromSP,
   });
 };
