@@ -63,7 +63,8 @@ const completeCheckListItem = (
           element.TemplateId === templates.VerifyDirectDeposit ||
           element.TemplateId === templates.VerifyTaxStatus ||
           element.TemplateId === templates.DTS ||
-          element.TemplateId === templates.ATAAPS
+          element.TemplateId === templates.ATAAPS ||
+          element.TemplateId === templates.SecurityRequirements
         ) {
           addChecklistItemActivated(element);
         }
@@ -160,9 +161,20 @@ const completeCheckListItem = (
       });
       break;
     case templates.ProvisionAFNET:
-      //Activate the Add to security groups task
+      //Activate the Add to security groups and Complete security training tasks
       checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.AddSecurityGroups) {
+        if (
+          element.TemplateId === templates.AddSecurityGroups ||
+          element.TemplateId === templates.SecurityTraining
+        ) {
+          addChecklistItemActivated(element);
+        }
+      });
+      break;
+    case templates.SecurityTraining:
+      //Activate the Confirm security training complete task
+      checklistItems?.forEach((element) => {
+        if (element.TemplateId === templates.ConfirmSecurityTraining) {
           addChecklistItemActivated(element);
         }
       });
