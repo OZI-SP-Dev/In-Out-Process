@@ -13,6 +13,126 @@ import { RoleType } from "api/RolesApi";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
 
+/** The list of tasks and their prerequisite tasks */
+export const templatePreqs = [
+  //  WelcomePackage -- No Prerequisites
+  //  IA_Training -- No Prerequisites
+  {
+    templId: templates.ObtainCACGov,
+    preReqs: [templates.InstallationInProcess],
+  },
+  //  ObtainCACCtr -- No Prerequisites
+  //  InstallationInProcess -- No Prerequisites
+  //  GTC -- No Prerequisites
+  {
+    templId: templates.DTS,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.ATAAPS,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.VerifyMyLearn,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.VerifyMyETMS,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.MandatoryTraining,
+    preReqs: [templates.VerifyMyETMS, templates.VerifyMyLearn],
+  },
+  {
+    templId: templates.PhoneSetup,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.OrientationVideos,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.Bookmarks,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.NewcomerBrief,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  //  SupervisorTraining -- No Prerequisites
+  {
+    templId: templates.ConfirmMandatoryTraining,
+    preReqs: [templates.MandatoryTraining],
+  },
+  {
+    templId: templates.ConfirmMyLearn,
+    preReqs: [templates.VerifyMyLearn],
+  },
+  {
+    templId: templates.ConfirmMyETMS,
+    preReqs: [templates.VerifyMyETMS],
+  },
+  //  UnitOrientation -- No Prerequisites
+  //  Brief971Folder -- No Prerequisites
+  {
+    templId: templates.SignedPerformContribPlan,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.SignedTeleworkAgreement,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.TeleworkAddedToWHAT,
+    preReqs: [templates.SignedTeleworkAgreement],
+  },
+  {
+    templId: templates.SupervisorCoord2875,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.SecurityCoord2875,
+    preReqs: [templates.SupervisorCoord2875],
+  },
+  {
+    templId: templates.ProvisionAFNET,
+    preReqs: [templates.SecurityCoord2875],
+  },
+  {
+    templId: templates.EquipmentIssue,
+    preReqs: [templates.SecurityCoord2875],
+  },
+  {
+    templId: templates.AddSecurityGroups,
+    preReqs: [templates.ProvisionAFNET],
+  },
+  {
+    templId: templates.BuildingAccess,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.VerifyDirectDeposit,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.VerifyTaxStatus,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    templId: templates.SecurityTraining,
+    preReqs: [templates.ProvisionAFNET],
+  },
+  {
+    templId: templates.ConfirmSecurityTraining,
+    preReqs: [templates.SecurityTraining],
+  },
+  {
+    templId: templates.SecurityRequirements,
+    preReqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+];
+
 const completeCheckListItem = (
   item: ICheckListItem,
   checklistItems: ICheckListItem[],
@@ -43,145 +163,30 @@ const completeCheckListItem = (
     CompletedDate: DateTime.now().toISODate(),
   });
 
-  // Find additional updates
-  switch (item.TemplateId) {
-    case templates.ObtainCACGov:
-    case templates.ObtainCACCtr:
-      //Activate several tasks if we are completing one of the 2 different CAC tasks
-      checklistItems?.forEach((element) => {
-        if (
-          element.TemplateId === templates.VerifyMyLearn ||
-          element.TemplateId === templates.VerifyMyETMS ||
-          element.TemplateId === templates.PhoneSetup ||
-          element.TemplateId === templates.OrientationVideos ||
-          element.TemplateId === templates.Bookmarks ||
-          element.TemplateId === templates.NewcomerBrief ||
-          element.TemplateId === templates.SignedPerformContribPlan ||
-          element.TemplateId === templates.SignedTeleworkAgreement ||
-          element.TemplateId === templates.SupervisorCoord2875 ||
-          element.TemplateId === templates.BuildingAccess ||
-          element.TemplateId === templates.VerifyDirectDeposit ||
-          element.TemplateId === templates.VerifyTaxStatus ||
-          element.TemplateId === templates.DTS ||
-          element.TemplateId === templates.ATAAPS ||
-          element.TemplateId === templates.SecurityRequirements
-        ) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.VerifyMyETMS:
-      // Activate the Confirm AFMC myETMS account task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ConfirmMyETMS) {
-          addChecklistItemActivated(element);
-        }
-      });
+  // Locate those items that have this item as a prereq
+  const preqs = templatePreqs.filter((templ) =>
+    templ.preReqs.includes(item.TemplateId)
+  );
 
-      // Determine if this checklist item has a Verify Air Force myLearning account task
-      //   if it does, then only activate Mandatory Training task if it is completed
-      let myLearnTask = checklistItems?.find(
-        (item) => item.TemplateId === templates.VerifyMyLearn
+  // If we found some, examine each to see if we met all the prereqs for that item
+  preqs.forEach((rule) => {
+    const needCompleting = checklistItems.filter(
+      (item2) =>
+        item.TemplateId !== item2.TemplateId && // Ensure we aren't looking at the item we just completed
+        rule.preReqs.includes(item2.TemplateId) && // Is this item part of the prereqs for this particular item to become active
+        !item2.CompletedBy // If it is, and it isn't completed, then flag we have an item that still needs completed for this item
+    );
+
+    // If this item has no more more prereqs, then add it to the list to become activated
+    if (needCompleting.length === 0) {
+      const item = checklistItems.find(
+        (item) => rule.templId === item.TemplateId
       );
-      if (myLearnTask?.CompletedBy) {
-        checklistItems?.forEach((element) => {
-          if (element.TemplateId === templates.MandatoryTraining) {
-            addChecklistItemActivated(element);
-          }
-        });
+      if (item) {
+        addChecklistItemActivated(item);
       }
-      break;
-    case templates.VerifyMyLearn:
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ConfirmMyLearn) {
-          addChecklistItemActivated(element);
-        }
-      });
-      let myETMSTask = checklistItems?.find(
-        (item) => item.TemplateId === templates.VerifyMyETMS
-      );
-      if (myETMSTask) {
-        if (myETMSTask.CompletedBy) {
-          checklistItems?.forEach((element) => {
-            if (element.TemplateId === templates.MandatoryTraining) {
-              addChecklistItemActivated(element);
-            }
-          });
-        }
-      } // If we can't find the myETMS task, it is because it wasn't required (ex CTR), so it is safe to activate the mandatory training
-      else {
-        checklistItems?.forEach((element) => {
-          if (element.TemplateId === templates.MandatoryTraining) {
-            addChecklistItemActivated(element);
-          }
-        });
-      }
-      break;
-    case templates.InstallationInProcess:
-      //Activate the Obtain CAC (Mil/Civ) task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ObtainCACGov) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.MandatoryTraining:
-      //Activate the Confirm mandatory training task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ConfirmMandatoryTraining) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.SignedTeleworkAgreement:
-      //Activate the Telework status entered in WHAT task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.TeleworkAddedToWHAT) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.SupervisorCoord2875:
-      //Activate the Security Coordination of 2875 task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.SecurityCoord2875) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.SecurityCoord2875:
-      //Activate the Provision/move AFNET account and Equipment Issue tasks
-      checklistItems?.forEach((element) => {
-        if (
-          element.TemplateId === templates.ProvisionAFNET ||
-          element.TemplateId === templates.EquipmentIssue
-        ) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.ProvisionAFNET:
-      //Activate the Add to security groups and Complete security training tasks
-      checklistItems?.forEach((element) => {
-        if (
-          element.TemplateId === templates.AddSecurityGroups ||
-          element.TemplateId === templates.SecurityTraining
-        ) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    case templates.SecurityTraining:
-      //Activate the Confirm security training complete task
-      checklistItems?.forEach((element) => {
-        if (element.TemplateId === templates.ConfirmSecurityTraining) {
-          addChecklistItemActivated(element);
-        }
-      });
-      break;
-    default:
-      break;
-  }
+    }
+  });
 
   // If we activated any checklist items, then send out appropriate notifications
   if (activatedTasksByRole.size > 0) {
