@@ -41,6 +41,7 @@ enum templates {
   SecurityTraining = 33,
   ConfirmSecurityTraining = 34,
   SecurityRequirements = 35,
+  InitiateTASS = 36,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -352,6 +353,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       <p>Establish a servicing or owning relationship with the member in the Defense Information System for Security (DISS)</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
+  {
+    Title: "Initiate Trusted Associate Sponsorship System (TASS Form 1)",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.InitiateTASS,
+    Description: `<p style="margin-top: 0px">Send a TASS Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p> 
+      <p>You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -392,6 +401,11 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Installation In Processing (required for new Mil/Civ)
   if (request.isNewCivMil === "yes") {
     addChecklistItem(templates.InstallationInProcess);
+  }
+
+  // Initiate Trusted Associate Sponsorship System (TASS Form 1) -- CTR Only
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.InitiateTASS);
   }
 
   // Obtain/Transfer CAC (Mil/Civ)
