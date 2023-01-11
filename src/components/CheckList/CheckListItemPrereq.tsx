@@ -1,7 +1,7 @@
 import { Badge } from "@fluentui/react-components";
 import { CompletedIcon } from "@fluentui/react-icons-mdl2";
 import { ICheckListItem, useChecklistItems } from "api/CheckListItemApi";
-import { templatePreqs } from "api/CompleteChecklistItem";
+import { checklistTemplates } from "api/CreateChecklistItems";
 
 interface CheckListItemPrereqProps {
   checklistItem: ICheckListItem;
@@ -16,14 +16,14 @@ export const CheckListItemPrereq = ({
 
   if (checklistItems.data) {
     // Locate the current checklist item's template
-    const thisTemp = templatePreqs.find(
-      (templ) => templ.templId === checklistItem.TemplateId
+    const thisTemp = checklistTemplates.find(
+      (templ) => templ.TemplateId === checklistItem.TemplateId
     );
 
     // If we have prereqs, then set the prereqItems to those Checklist Items
-    if (thisTemp && thisTemp.preReqs.length > 0) {
+    if (thisTemp && thisTemp.Prereqs.length > 0) {
       prereqItems = checklistItems.data.filter((item) =>
-        thisTemp.preReqs.includes(item.TemplateId)
+        thisTemp.Prereqs.includes(item.TemplateId)
       );
     }
   } else {
