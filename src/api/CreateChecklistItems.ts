@@ -257,7 +257,8 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Signed performance/contribution plan",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.SignedPerformContribPlan,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px">Provide the new employee with a copy of applicable position documents (e.g., Position Description, Core Doc, Performance/Contribution Plan, Position Requirements Document)</p>
+<p>Reminder: Performance plans must be completed within 60 days of assignment</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
