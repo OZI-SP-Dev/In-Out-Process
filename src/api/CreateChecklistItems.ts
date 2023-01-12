@@ -151,20 +151,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Complete mandatory training",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.MandatoryTraining,
-    Description: `<div><p style="margin-top: 0px">The table below provides a course list of mandatory training for all employees. Employee status can be found for these courses in MyLearning and MyETMS. Course enrollment will be accomplished via MyLearning. Please confirm all training requirements are met prior to completing this checklist item.</p>
-    <p><a href="https://lms-jets.cce.af.mil/moodle/course/index.php?categoryid=173">myLearning - Total Force Awareness Training (TFAT)</a><br/>
-    <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">myETMS - Training Requirements</a></p>
-<b><u>Mandatory Training Courses</u></b>
-<table valign=top border=1 cellspacing=0 cellpadding=0 width=0 style="border-collapse:collapse; border: 1px solid blue; vertical-align: top">
- <tr><td width="60%" align=center style="background:blue"><b><span style="color:white">Course Title</span></b></td><td width="40%" align=center style="background:blue"><b><span style="color:white">Frequency</span></b></td></tr>
- <tr><td>DAF-Operations Security Awareness Training (OPSEC)</td><td>Annual</td></tr>
- <tr><td>TFAT - Cyber Awareness Challenge (ZZ133098)</td><td>Annual</td></tr>
- <tr><td>Force Protection (ZZ133079)</td><td>Annual</td></tr>
- <tr><td>2022 Annual Ethics Training</td><td>Annual</td></tr>
- <tr><td>Notification and Federal Employee Antidiscrimination and Retaliation Act (No FEAR) Training V1.0</td><td>Initial training within 90 calendar days of the new employees' appointment; then every 24 months</td></tr>
- <tr><td>Controlled Unclassified Information (CUI) Training (ZZZ2021CUI)</td><td>Annual</td></tr>
- <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
-</table></div>`,
+    Description: `<p style="margin-top: 0px">For a list of mandatory training requirements, please find the document titled "Mandatory Training" at the following link: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Mandatory%20Training.docx">Mandatory Training.docx</a></p>`,
     Prereqs: [templates.VerifyMyETMS, templates.VerifyMyLearn],
   },
   {
