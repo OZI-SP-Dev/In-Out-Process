@@ -352,7 +352,8 @@ export const InRequestNewForm = () => {
           </Text>
         )}
         <Text weight="regular" size={200} className={classes.fieldDescription}>
-          The MPCN is a 7 digit number located on the UMD
+          If you do not know the MPCN, please reference the UMD or contact your
+          HR liaison.
         </Text>
       </div>
       <div className={classes.fieldContainer}>
@@ -383,7 +384,8 @@ export const InRequestNewForm = () => {
           </Text>
         )}
         <Text weight="regular" size={200} className={classes.fieldDescription}>
-          The SAR is a 1 digit number located on the UMD
+          If you do not know the SAR, please reference the UMD or contact your
+          HR liaison.
         </Text>
       </div>
       <div className={classes.fieldContainer}>
