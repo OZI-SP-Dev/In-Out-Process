@@ -29,6 +29,7 @@ import {
 } from "@fluentui/react-icons-mdl2";
 import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 import { UserContext } from "providers/UserProvider";
+import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -383,6 +384,49 @@ export const InRequestNewForm = () => {
         )}
         <Text weight="regular" size={200} className={classes.fieldDescription}>
           The SAR is a 1 digit number located on the UMD
+        </Text>
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          htmlFor="sensitivityCodeId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <DropdownIcon className={classes.fieldIcon} />
+          Position Sensitivity Code
+        </Label>
+        <Controller
+          name="sensitivityCode"
+          control={control}
+          rules={{
+            required: "Position Sensitivity Code is required",
+          }}
+          render={({ field: { onBlur, onChange, value } }) => (
+            <ComboBox
+              id="sensitivityCodeId"
+              aria-describedby="sensitivityCodeErr"
+              autoComplete="on"
+              selectedKey={value}
+              onChange={(_, option) => {
+                if (option?.key) {
+                  onChange(option.key);
+                }
+              }}
+              onBlur={onBlur}
+              options={SENSITIVITY_CODES}
+            />
+          )}
+        />
+        {errors.sensitivityCode && (
+          <Text id="sensitivityCode" className={classes.errorText}>
+            {errors.sensitivityCode.message}
+          </Text>
+        )}
+        <Text weight="regular" size={200} className={classes.fieldDescription}>
+          If you do not know the code, please reference the position documents
+          or contact your HR liason.
         </Text>
       </div>
       <div className={classes.fieldContainer}>

@@ -3,6 +3,7 @@ import { EMPTYPES } from "constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
 import { IInRequest } from "api/RequestApi";
 import { MessageBar, MessageBarType } from "@fluentui/react";
+import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -26,7 +27,10 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
 ) => {
   const classes = useStyles();
   const formData: IInRequest = props.formData;
-
+  const codeEntry = SENSITIVITY_CODES.find(
+    (code) => code.key === formData.sensitivityCode
+  );
+  const sensitivityCode = codeEntry ? codeEntry.text : "";
   // Function used to display the Employee Type in a shortened format.
   // If it is a Civilian add New/Existing after depending on the selection
   const displayEmpType = (): string => {
@@ -128,6 +132,13 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </Label>
           <br />
           <Text id="SARCVId">{formData.SAR}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="SARCVId">
+            Position Sensitivity Code
+          </Label>
+          <br />
+          <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
         </div>
         <div>
           <Label weight="semibold" htmlFor="arrivalDateCVId">
