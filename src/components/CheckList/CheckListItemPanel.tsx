@@ -8,6 +8,7 @@ import DOMPurify, { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
+import { CheckListItemPrereq } from "./CheckListItemPrereq";
 
 DOMPurify.addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
@@ -120,6 +121,21 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
                 <CheckListItemButton checklistItem={props.item} />
               )}
           </div>
+          {/* Only show the Prerequisite section if the Request is Active, and the Checklist Item is NOT Active */}
+          {props.request.status === "Active" && !props.item.Active && (
+            <div className={classes.fieldContainer}>
+              <Label
+                htmlFor="panelCompletion"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+              >
+                <InfoIcon className={classes.fieldIcon} />
+                Prerequisites
+              </Label>
+              <CheckListItemPrereq checklistItem={props.item} />
+            </div>
+          )}
         </div>
       </FluentProvider>
     </Panel>
