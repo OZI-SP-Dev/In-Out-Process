@@ -11,7 +11,7 @@ enum templates {
   ObtainCACGov = 3,
   ObtainCACCtr = 4,
   InstallationInProcess = 5,
-  GTC = 6, // TODO
+  GTC = 6,
   DTS = 7,
   ATAAPS = 8,
   VerifyMyLearn = 9,
@@ -121,7 +121,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<div><p style="margin-top: 0px">Did you attend the 88FSS installation in-processing? </p></div>`,
     Prereqs: [],
   },
-  //  GTC -- TODO -- Not yet created
+  {
+    Title: "Confirm travel card action (activate/transfer) complete",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTC,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.CoordGTCApplUpdate],
+  },
   {
     Title: "Profile created/re-assigned in DTS",
     Lead: RoleType.DTS,
@@ -571,13 +577,14 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Security requirements & access
   addChecklistItem(templates.SecurityRequirements);
 
-  // Coord GTC and Profile created/re-assigned in DTS -- CIV/MIL with Travel required
+  // Add the tasks related to travel -- CIV/MIL with Travel required
   if (
     request.isTraveler === "yes" &&
     (request.empType === EMPTYPES.Civilian ||
       request.empType === EMPTYPES.Military)
   ) {
     addChecklistItem(templates.CoordGTCApplUpdate);
+    addChecklistItem(templates.GTC);
     addChecklistItem(templates.DTS);
   }
 
