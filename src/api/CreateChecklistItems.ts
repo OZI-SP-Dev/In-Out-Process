@@ -44,6 +44,7 @@ enum templates {
   InitiateTASS = 36,
   CoordinateTASS = 37,
   SignedNDA = 38,
+  SCIBilletNomination = 39,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -366,6 +367,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <p><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/SF312-NDA.pdf">SF312.NDA.pdf</a></p>`,
     Prereqs: [templates.ObtainCACGov],
   },
+  {
+    Title: "SCI Billet Nomination",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SCIBilletNomination,
+    Description: `<p style="margin-top: 0px">Verify member's Security Access.  Requirement (SAR) Code is a 5 and their Position Sensitivity is a 4 - Special Sensitive</p>
+<p>If verified, initiate the billet nomination process and work with the respective Special Security Office to have the member indoc'd </p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -399,6 +408,10 @@ const createInboundChecklistItems = (request: IInRequest) => {
 
   // Welcome Package -- required for all inbounds
   addChecklistItem(templates.WelcomePackage);
+
+  // SCI Billet Nomination - Only if SAR = 5 and sensitivityCode = 4 (Special Sensitive)
+  if (request.SAR === 5 && request.sensitivityCode === 4)
+    addChecklistItem(templates.SCIBilletNomination);
 
   // IA Training -- Required for all inbounds
   addChecklistItem(templates.IA_Training);

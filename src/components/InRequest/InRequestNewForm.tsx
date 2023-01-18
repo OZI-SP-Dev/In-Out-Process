@@ -374,8 +374,10 @@ export const InRequestNewForm = () => {
               value: /^\d$/i,
               message: "SAR must be 1 digit",
             },
+            valueAsNumber: true,
           })}
           aria-describedby="SARErr"
+          type="number"
           id="SARId"
         />
         {errors.SAR && (

@@ -93,6 +93,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     watch,
     reset,
     setValue,
+    register,
   } = useForm<any>();
   const updateRequest = useUpdateRequest(props.data.Id);
 
@@ -415,19 +416,18 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 <NumberFieldIcon className={classes.fieldIcon} />
                 SAR
               </Label>
-              <Controller
-                name="SAR"
-                control={control}
-                rules={{
+              <Input
+                {...register("SAR", {
                   required: "SAR is required",
                   pattern: {
                     value: /^\d$/i,
                     message: "SAR must be 1 digit",
                   },
-                }}
-                render={({ field }) => (
-                  <Input {...field} aria-describedby="SARErr" id="SARId" />
-                )}
+                  valueAsNumber: true,
+                })}
+                aria-describedby="SARErr"
+                type="number"
+                id="SARId"
               />
               {errors.SAR && (
                 <Text id="SARErr" className={classes.errorText}>
