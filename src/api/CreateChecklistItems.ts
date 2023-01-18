@@ -43,6 +43,7 @@ enum templates {
   SecurityRequirements = 35,
   InitiateTASS = 36,
   CoordinateTASS = 37,
+  SignedNDA = 38,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -357,6 +358,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [templates.InitiateTASS],
   },
+  {
+    Title: "Signed Non-Disclosure Agreement (SF312)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.SignedNDA,
+    Description: `<p style="margin-top: 0px">f you are brand new to the government, or had a two-year break in service, schedule a time with your supervisor to sign an NDA (SF312) (link below) Download the form in order to obtain a fillable copy. Once signed, return the SF312 to the Consolidated Security Office workflow at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
+<p><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/SF312-NDA.pdf">SF312.NDA.pdf</a></p>`,
+    Prereqs: [templates.ObtainCACGov],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -435,6 +444,9 @@ const createInboundChecklistItems = (request: IInRequest) => {
 
   // Add to security groups -- Required for all inbounds
   addChecklistItem(templates.AddSecurityGroups);
+
+  // Signed Non-Disclosure Agreement (SF312) - Civ/Mil Only
+  addChecklistItem(templates.SignedNDA);
 
   // Complete security training
   addChecklistItem(templates.SecurityTraining);
