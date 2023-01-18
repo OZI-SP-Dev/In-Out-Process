@@ -42,6 +42,7 @@ enum templates {
   ConfirmSecurityTraining = 34,
   SecurityRequirements = 35,
   InitiateTASS = 36,
+  CoordinateTASS = 37,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -349,6 +350,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       <p>You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>`,
     Prereqs: [],
   },
+  {
+    Title: "Coordinate Trusted Associate Sponsorship System (TASS Form 1)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.CoordinateTASS,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.InitiateTASS],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -391,9 +399,10 @@ const createInboundChecklistItems = (request: IInRequest) => {
     addChecklistItem(templates.InstallationInProcess);
   }
 
-  // Initiate Trusted Associate Sponsorship System (TASS Form 1) -- CTR Only
+  // Initiate and Coordinate Trusted Associate Sponsorship System (TASS Form 1) tasks -- CTR Only
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.InitiateTASS);
+    addChecklistItem(templates.CoordinateTASS);
   }
 
   // Obtain/Transfer CAC (Mil/Civ)
