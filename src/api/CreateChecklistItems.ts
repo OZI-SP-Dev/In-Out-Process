@@ -45,6 +45,7 @@ enum templates {
   CoordinateTASS = 37,
   SignedNDA = 38,
   SCIBilletNomination = 39,
+  CoordGTCApplUpdate = 40,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -375,6 +376,31 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <p>If verified, initiate the billet nomination process and work with the respective Special Security Office to have the member indoc'd </p>`,
     Prereqs: [],
   },
+  {
+    Title: "Coordinate travel card application/update",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.CoordGTCApplUpdate,
+    Description: `<p style="margin-top: 0px"><b><u>For Civilian and Military who have an existing Government Travel Card (GTC)</u></b></p>
+<p>Provide your Agency/Organization Program Coordinator (AOPC) with the following information/documentation:</p>
+<ul><li>Travel card account number</li>
+<li>Statement of Understanding</li>
+<ul><li>Must be less than three years old or you should complete a new one (see link below)</li></ul>
+<li>GTC Training Cert (less than three years old)</li>
+<ul><li>Must be less than three years old or you should complete a new one (see link below)</li></ul>
+</ul>
+<p><b><u>Civilian or Military with no existing Government Travel Card (GTC) - Need new account</u></b></p>
+<ol><li>Does member need a standard or restricted card?</li>
+<ol type="a"><li>There are two types of IBAs, Standard and Restricted. Standard cards are issued to individuals with a FICO credit score above 659. The default limits are $7,500 for credit, $250 for cash, and $250 for retail purchases. Restricted cards are issued to individuals with a FICO credit score below 660 or those who do not want their credit pulled (i.e. in the process of buying a house)</li></ol>
+<li>Member completes training and Statement of Understanding (signed by member's supervisor)</li>
+<li>Send training cert, SOU, and type of card desired to <a href="mailto:aflcmc.xp1@us.af.mil">aflcmc.xp1@us.af.mil</a></li></ol>
+<p><b><u>INSTRUCTIONS TO COMPLETE GTC TRAINING AND STATEMENT OF UNDERSTANDING (SOU):</u></b></p>
+<p><a href="https://usaf.dps.mil//sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Government%20Travel%20Card%20(GTC)/INSTRUCTIONS%20TO%20COMPLETE%20GTC%20TRAINING%20AND%20STATEMENT%20OF%20UNDERSTANDING%20(SOU).docx">Click here</a> to access the instructions</p>
+<p>The following outlines the steps in the card application process:</p>
+<ol><li>Member sends training cert, SOU, and type of card desired to <a href="mailto:aflcmc.xp1@us.af.mil">aflcmc.xp1@us.af.mil</a></li>
+<li>Unit AOPC initiates application</li><li>Member completes application</li><li>Supervisor approves application</li><li>Unit AOPC approves application</li><li>Citibank processes application</li><li>Card arrives via mail approx. 2 weeks</li><li>Activate Card</li><li>Report to AOPC card has been received and activated</li></ol>
+</p>`,
+    Prereqs: [templates.ObtainCACGov],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -545,12 +571,13 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Security requirements & access
   addChecklistItem(templates.SecurityRequirements);
 
-  // Profile created/re-assigned in DTS -- CIV/MIL with Travel required
+  // Coord GTC and Profile created/re-assigned in DTS -- CIV/MIL with Travel required
   if (
     request.isTraveler === "yes" &&
     (request.empType === EMPTYPES.Civilian ||
       request.empType === EMPTYPES.Military)
   ) {
+    addChecklistItem(templates.CoordGTCApplUpdate);
     addChecklistItem(templates.DTS);
   }
 
