@@ -109,7 +109,7 @@ Transition Timeframe: <br/>
 customers can access Setmore/RAPIDS sites directly at the following links:<br/>
 Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88fss</a><br/>
 RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
-    Prereqs: [],
+    Prereqs: [templates.CoordinateTASS],
   },
   {
     Title: "Attend Installation In-processing",
