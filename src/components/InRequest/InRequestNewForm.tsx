@@ -18,7 +18,7 @@ import {
 import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
-import { useEmail } from "hooks/useEmail";
+import { useSendInRequestSubmitEmail } from "api/EmailApi";
 import { useNavigate } from "react-router-dom";
 import {
   TextFieldIcon,
@@ -95,7 +95,7 @@ type IRHFInRequest = Omit<
 export const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useContext(UserContext).user;
-  const email = useEmail();
+  const { mutate: sendInRequestSubmitEmail } = useSendInRequestSubmitEmail();
   const addRequest = useAddRequest();
   const addTasks = useAddTasks();
   const navigate = useNavigate();
@@ -141,7 +141,7 @@ export const InRequestNewForm = () => {
   }, [eta]);
 
   const createNewRequest = (data: IRHFInRequest) => {
-    email.sendInRequestSubmitEmail(data as IInRequest);
+    sendInRequestSubmitEmail(data as IInRequest);
     addRequest.mutate(data as IInRequest, {
       onSuccess: (newData) => {
         addTasks.mutate(newData.data, {
