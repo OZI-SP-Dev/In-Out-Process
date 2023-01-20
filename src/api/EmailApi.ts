@@ -99,9 +99,9 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 
       if (oustandingItems.length > 0) {
         // If we have outstanding items, then populate to include in message
-        outstandingMessage = `<br/>As a reminder the following item(s) are still awaiting your action: <br/>  ${oustandingItems
-          .map((item) => item.Title)
-          .join("<br/>")}`;
+        outstandingMessage = `<br/>As a reminder the following item(s) are still awaiting your action:<ul>${oustandingItems
+          .map((item) => `<li>${item.Title}</li>`)
+          .join("")}</ul>`;
       }
 
       // Populate leadUsers based on the users in that Role
@@ -122,17 +122,17 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
           }
       }
 
+      const linkURL = `${webUrl}/app/index.aspx#/item/${request.Id}`;
+
       const newEmail: IEmail = {
         to: leadUsers,
         cc: [request.supGovLead],
         subject: `In Process: New checklist item(s) available for ${request.empName}`,
-        body: `The following checklist item(s) are now available to be completed:<br/>${items
-          .map((item) => item.Title)
+        body: `The following checklist item(s) are now available to be completed:<ul>${items
+          .map((item) => `<li>${item.Title}</li>`)
           .join(
-            "<br/>"
-          )}${outstandingMessage}<br/>To view this request and take action follow the below link:<br/>${webUrl}/app/index.aspx#/item/${
-          request.Id
-        }`,
+            ""
+          )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
       };
 
       batch.items.add(transformInRequestToSP(newEmail));
