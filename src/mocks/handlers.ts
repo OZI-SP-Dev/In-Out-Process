@@ -295,6 +295,7 @@ export const handlers = [
           gradeRank: body.gradeRank,
           MPCN: body.MPCN,
           SAR: body.SAR,
+          sensitivityCode: body.sensitivityCode,
           workLocation: body.workLocation,
           office: body.office,
           isNewCivMil: body.isNewCivMil,
@@ -617,6 +618,7 @@ let requests: IResponseItem[] = [
     gradeRank: "GS-11",
     MPCN: 1234567,
     SAR: 5,
+    sensitivityCode: 4,
     workLocation: "remote",
     office: "OZIC",
     isNewCivMil: "yes",
@@ -638,6 +640,7 @@ let requests: IResponseItem[] = [
     gradeRank: "GS-13",
     MPCN: 7654321,
     SAR: 6,
+    sensitivityCode: 3,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: "no",
@@ -659,6 +662,7 @@ let requests: IResponseItem[] = [
     gradeRank: "GS-12",
     MPCN: 1233217,
     SAR: 6,
+    sensitivityCode: 3,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: "yes",
@@ -680,6 +684,7 @@ let requests: IResponseItem[] = [
     gradeRank: "GS-13",
     MPCN: 7654321,
     SAR: 6,
+    sensitivityCode: 2,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: "no",
@@ -703,6 +708,7 @@ let requests: IResponseItem[] = [
     gradeRank: "GS-13",
     MPCN: 7654321,
     SAR: 6,
+    sensitivityCode: 3,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: "no",
@@ -891,6 +897,9 @@ const updateRequest = (item: IRequestItem) => {
       : requests[index].gradeRank;
     requests[index].MPCN = item.MPCN ? item.MPCN : requests[index].MPCN;
     requests[index].SAR = item.SAR ? item.SAR : requests[index].SAR;
+    requests[index].sensitivityCode = item.sensitivityCode
+      ? item.sensitivityCode
+      : requests[index].sensitivityCode;
     requests[index].workLocation = item.workLocation
       ? item.workLocation
       : requests[index].workLocation;

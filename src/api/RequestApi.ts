@@ -21,6 +21,7 @@ export const transformInRequestFromSP = (
     gradeRank: request.gradeRank,
     MPCN: request.MPCN,
     SAR: request.SAR,
+    sensitivityCode: request.sensitivityCode,
     workLocation: request.workLocation,
     office: request.office,
     isNewCivMil: request.isNewCivMil,
@@ -83,6 +84,7 @@ const transformInRequestToSP = async (
     gradeRank: request.gradeRank,
     MPCN: request.MPCN,
     SAR: request.SAR,
+    sensitivityCode: request.sensitivityCode,
     workLocation: request.workLocation,
     office: request.office,
     isNewCivMil: request.isNewCivMil,
@@ -124,7 +126,7 @@ const transformInRequestToSP = async (
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,workLocation,isNewCivMil,isTraveler,isSupervisor,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
+  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,isNewCivMil,isTraveler,isSupervisor,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -234,6 +236,8 @@ export type IInRequest = {
   MPCN: number;
   /** Required - The Employee's SAR from the UMD */
   SAR: number;
+  /** Required - The Employee's Sensitivity Code from the PD */
+  sensitivityCode: number;
   /** Required - Possible values are 'local' and 'remote'  */
   workLocation: worklocation;
   /** Required - The Employee's Office */
