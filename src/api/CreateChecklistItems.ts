@@ -11,7 +11,7 @@ enum templates {
   ObtainCACGov = 3,
   ObtainCACCtr = 4,
   InstallationInProcess = 5,
-  GTC = 6, // TODO
+  GTC = 6,
   DTS = 7,
   ATAAPS = 8,
   VerifyMyLearn = 9,
@@ -41,6 +41,11 @@ enum templates {
   SecurityTraining = 33,
   ConfirmSecurityTraining = 34,
   SecurityRequirements = 35,
+  InitiateTASS = 36,
+  CoordinateTASS = 37,
+  SignedNDA = 38,
+  SCIBilletNomination = 39,
+  CoordGTCApplUpdate = 40,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -107,7 +112,7 @@ Transition Timeframe: <br/>
 customers can access Setmore/RAPIDS sites directly at the following links:<br/>
 Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88fss</a><br/>
 RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
-    Prereqs: [],
+    Prereqs: [templates.CoordinateTASS],
   },
   {
     Title: "Attend Installation In-processing",
@@ -116,13 +121,19 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<div><p style="margin-top: 0px">Did you attend the 88FSS installation in-processing? </p></div>`,
     Prereqs: [],
   },
-  //  GTC -- TODO -- Not yet created
+  {
+    Title: "Confirm travel card action (activate/transfer) complete",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTC,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.CoordGTCApplUpdate],
+  },
   {
     Title: "Profile created/re-assigned in DTS",
     Lead: RoleType.DTS,
     TemplateId: templates.DTS,
     Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+    Prereqs: [templates.GTC],
   },
   {
     Title: "Create/Update ATAAPS account",
@@ -150,20 +161,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Complete mandatory training",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.MandatoryTraining,
-    Description: `<div><p style="margin-top: 0px">The table below provides a course list of mandatory training for all employees. Employee status can be found for these courses in MyLearning and MyETMS. Course enrollment will be accomplished via MyLearning. Please confirm all training requirements are met prior to completing this checklist item.</p>
-    <p><a href="https://lms-jets.cce.af.mil/moodle/course/index.php?categoryid=173">myLearning - Total Force Awareness Training (TFAT)</a><br/>
-    <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">myETMS - Training Requirements</a></p>
-<b><u>Mandatory Training Courses</u></b>
-<table valign=top border=1 cellspacing=0 cellpadding=0 width=0 style="border-collapse:collapse; border: 1px solid blue; vertical-align: top">
- <tr><td width="60%" align=center style="background:blue"><b><span style="color:white">Course Title</span></b></td><td width="40%" align=center style="background:blue"><b><span style="color:white">Frequency</span></b></td></tr>
- <tr><td>DAF-Operations Security Awareness Training (OPSEC)</td><td>Annual</td></tr>
- <tr><td>TFAT - Cyber Awareness Challenge (ZZ133098)</td><td>Annual</td></tr>
- <tr><td>Force Protection (ZZ133079)</td><td>Annual</td></tr>
- <tr><td>2022 Annual Ethics Training</td><td>Annual</td></tr>
- <tr><td>Notification and Federal Employee Antidiscrimination and Retaliation Act (No FEAR) Training V1.0</td><td>Initial training within 90 calendar days of the new employees' appointment; then every 24 months</td></tr>
- <tr><td>Controlled Unclassified Information (CUI) Training (ZZZ2021CUI)</td><td>Annual</td></tr>
- <tr><td>Religious Freedom Training (ZZ133109)</td><td>Every 3 years</td></tr>
-</table></div>`,
+    Description: `<p style="margin-top: 0px">For a list of mandatory training requirements, please find the document titled "Mandatory Training" at the following link: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Mandatory%20Training.docx">Mandatory Training.docx</a></p>`,
     Prereqs: [templates.VerifyMyETMS, templates.VerifyMyLearn],
   },
   {
@@ -256,7 +254,8 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Signed performance/contribution plan",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.SignedPerformContribPlan,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px">Provide the new employee with a copy of applicable position documents (e.g., Position Description, Core Doc, Performance/Contribution Plan, Position Requirements Document)</p>
+<p>Reminder: Performance plans must be completed within 60 days of assignment</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
@@ -352,6 +351,62 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
       <p>Establish a servicing or owning relationship with the member in the Defense Information System for Security (DISS)</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
+  {
+    Title: "Initiate Trusted Associate Sponsorship System (TASS Form 1)",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.InitiateTASS,
+    Description: `<p style="margin-top: 0px">Send a TASS Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p> 
+      <p>You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Coordinate Trusted Associate Sponsorship System (TASS Form 1)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.CoordinateTASS,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.InitiateTASS],
+  },
+  {
+    Title: "Signed Non-Disclosure Agreement (SF312)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.SignedNDA,
+    Description: `<p style="margin-top: 0px">If you are brand new to the government, or had a two-year break in service, schedule a time with your supervisor to sign an NDA (SF312) (link below) Download the form in order to obtain a fillable copy. Once signed, return the SF312 to the Consolidated Security Office workflow at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
+<p><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/SF312-NDA.pdf">SF312.NDA.pdf</a></p>`,
+    Prereqs: [templates.ObtainCACGov],
+  },
+  {
+    Title: "SCI Billet Nomination",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SCIBilletNomination,
+    Description: `<p style="margin-top: 0px">Verify member's Security Access.  Requirement (SAR) Code is a 5 and their Position Sensitivity is a 4 - Special Sensitive</p>
+<p>If verified, initiate the billet nomination process and work with the respective Special Security Office to have the member indoc'd </p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Coordinate travel card application/update",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.CoordGTCApplUpdate,
+    Description: `<p style="margin-top: 0px"><b><u>For Civilian and Military who have an existing Government Travel Card (GTC)</u></b></p>
+<p>Provide your Agency/Organization Program Coordinator (AOPC) with the following information/documentation:</p>
+<ul><li>Travel card account number</li>
+<li>Statement of Understanding</li>
+<ul><li>Must be less than three years old or you should complete a new one (see link below)</li></ul>
+<li>GTC Training Cert (less than three years old)</li>
+<ul><li>Must be less than three years old or you should complete a new one (see link below)</li></ul>
+</ul>
+<p><b><u>Civilian or Military with no existing Government Travel Card (GTC) - Need new account</u></b></p>
+<ol><li>Does member need a standard or restricted card?</li>
+<ol type="a"><li>There are two types of IBAs, Standard and Restricted. Standard cards are issued to individuals with a FICO credit score above 659. The default limits are $7,500 for credit, $250 for cash, and $250 for retail purchases. Restricted cards are issued to individuals with a FICO credit score below 660 or those who do not want their credit pulled (i.e. in the process of buying a house)</li></ol>
+<li>Member completes training and Statement of Understanding (signed by member's supervisor)</li>
+<li>Send training cert, SOU, and type of card desired to <a href="mailto:aflcmc.xp1@us.af.mil">aflcmc.xp1@us.af.mil</a></li></ol>
+<p><b><u>INSTRUCTIONS TO COMPLETE GTC TRAINING AND STATEMENT OF UNDERSTANDING (SOU):</u></b></p>
+<p><a href="https://usaf.dps.mil//sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Government%20Travel%20Card%20(GTC)/INSTRUCTIONS%20TO%20COMPLETE%20GTC%20TRAINING%20AND%20STATEMENT%20OF%20UNDERSTANDING%20(SOU).docx">Click here</a> to access the instructions</p>
+<p>The following outlines the steps in the card application process:</p>
+<ol><li>Member sends training cert, SOU, and type of card desired to <a href="mailto:aflcmc.xp1@us.af.mil">aflcmc.xp1@us.af.mil</a></li>
+<li>Unit AOPC initiates application</li><li>Member completes application</li><li>Supervisor approves application</li><li>Unit AOPC approves application</li><li>Citibank processes application</li><li>Card arrives via mail approx. 2 weeks</li><li>Activate Card</li><li>Report to AOPC card has been received and activated</li></ol>
+</p>`,
+    Prereqs: [templates.ObtainCACGov],
+  },
 ];
 
 const createInboundChecklistItems = (request: IInRequest) => {
@@ -386,12 +441,22 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Welcome Package -- required for all inbounds
   addChecklistItem(templates.WelcomePackage);
 
+  // SCI Billet Nomination - Only if SAR = 5 and sensitivityCode = 4 (Special Sensitive)
+  if (request.SAR === 5 && request.sensitivityCode === 4)
+    addChecklistItem(templates.SCIBilletNomination);
+
   // IA Training -- Required for all inbounds
   addChecklistItem(templates.IA_Training);
 
   // Installation In Processing (required for new Mil/Civ)
   if (request.isNewCivMil === "yes") {
     addChecklistItem(templates.InstallationInProcess);
+  }
+
+  // Initiate and Coordinate Trusted Associate Sponsorship System (TASS Form 1) tasks -- CTR Only
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.InitiateTASS);
+    addChecklistItem(templates.CoordinateTASS);
   }
 
   // Obtain/Transfer CAC (Mil/Civ)
@@ -424,6 +489,9 @@ const createInboundChecklistItems = (request: IInRequest) => {
 
   // Add to security groups -- Required for all inbounds
   addChecklistItem(templates.AddSecurityGroups);
+
+  // Signed Non-Disclosure Agreement (SF312) - Civ/Mil Only
+  addChecklistItem(templates.SignedNDA);
 
   // Complete security training
   addChecklistItem(templates.SecurityTraining);
@@ -509,12 +577,14 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Security requirements & access
   addChecklistItem(templates.SecurityRequirements);
 
-  // Profile created/re-assigned in DTS -- CIV/MIL with Travel required
+  // Add the tasks related to travel -- CIV/MIL with Travel required
   if (
     request.isTraveler === "yes" &&
     (request.empType === EMPTYPES.Civilian ||
       request.empType === EMPTYPES.Military)
   ) {
+    addChecklistItem(templates.CoordGTCApplUpdate);
+    addChecklistItem(templates.GTC);
     addChecklistItem(templates.DTS);
   }
 
