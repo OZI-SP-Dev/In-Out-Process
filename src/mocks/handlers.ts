@@ -421,7 +421,11 @@ export const handlers = [
 
     let batchresponse = "";
     posts.forEach((post) => {
-      if (post[0] === "/_api/web/lists/getByTitle('CheckListItems')/items") {
+      if (post[0] === "/_api/web/lists/getByTitle('Emails')/items") {
+        // Do nothing as we don't actually need to track Emails
+      } else if (
+        post[0] === "/_api/web/lists/getByTitle('CheckListItems')/items"
+      ) {
         const item = JSON.parse(post[1]);
         checklistitems.push({
           Id: nextChecklistitemId++,
@@ -471,6 +475,7 @@ export const handlers = [
       }
     });
 
+    // TODO -- Actually update the repsonse for Emails, but for now just return the CheckList item data since we aren't doing anythign with it
     // Count the number of POST (change) requests in the batch
     const count = posts.length;
     const batch = `--batchresponse_88fbf8e7-8616-4c32-96c8-cedd3323460b
