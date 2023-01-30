@@ -364,7 +364,7 @@ export const handlers = [
       let results = structuredClone(checklistitems);
       if (filter) {
         // Filter for checklist items for a specific request
-        const RequestId = filter.match(/RequestId eq (.+)/);
+        const RequestId = filter.match(/RequestId eq (.+?)/);
         // Filter for open checklist items
         const CompletedDate = filter.match(/CompletedDate eq null/);
         // Filter for Roles
