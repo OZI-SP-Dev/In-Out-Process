@@ -364,9 +364,11 @@ export const handlers = [
       let results = structuredClone(checklistitems);
       if (filter) {
         // Filter for checklist items for a specific request
-        const RequestId = filter.match(/RequestId eq (.+?)/);
+        const RequestId = filter.match(/RequestId eq (.+)/);
         // Filter for open checklist items
         const CompletedDate = filter.match(/CompletedDate eq null/);
+        // Filter for Roles
+        const filterRoles = [...filter.matchAll(/(?:Lead eq )(\w+)/g)];
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
@@ -375,6 +377,15 @@ export const handlers = [
         } else if (CompletedDate) {
           results = results.filter(
             (item: ICheckListResponseItem) => !item.CompletedDate
+          );
+        } else if (filterRoles) {
+          // Create an array of the roles we want to filter for
+          let roles: string[] = [];
+          // Initialize the array from the regex array
+          filterRoles.forEach((item) => roles.push(item[1]));
+          // Filter the results array so it only includes items where the Lead's role is in our roles array
+          results = results.filter((item: ICheckListResponseItem) =>
+            roles.includes(item.Lead)
           );
         } else {
           // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted

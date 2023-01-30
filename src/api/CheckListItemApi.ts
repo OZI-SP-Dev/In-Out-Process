@@ -104,6 +104,29 @@ const getOpenCheckListItems = async () => {
 };
 
 /**
+ * Gets open and completed checklist items for current user's roles
+ * Currently unable to filter specifically for where user is the Supervisor or Employee
+ * @returns ICheckListItems
+ */
+const getMyCheckListItems = async (user: Person, roles: RoleType[]) => {
+  // Currently returns data for all items where Lead is superivor or employee
+  // Module using this function then filters for the correct supervisor/employee
+  let filter = "Lead eq Supervisor or Lead eq Employee";
+
+  roles.forEach((role) => {
+    filter += " or Lead eq " + role;
+  });
+
+  return spWebContext.web.lists
+    .getByTitle("CheckListItems")
+    .items.orderBy("Created", false)
+    .filter(filter)
+    .select(requestedFields)
+    .expand(expandedFields)
+    .top(5000)();
+};
+
+/**
  * Gets the checklist items associated with the RequestId
  *
  * @param RequestId The Id of the parent request to retrieve from SharePoint
@@ -125,6 +148,17 @@ export const useOpenChecklistItems = () => {
   return useQuery({
     queryKey: ["checklist"],
     queryFn: () => getOpenCheckListItems(),
+    select: transformCheckListItemsFromSP,
+  });
+};
+
+/**
+ * Gets all checklist items for the current user
+ */
+export const useMyChecklistItems = (user: Person, roles: RoleType[]) => {
+  return useQuery({
+    queryKey: ["myChecklist"],
+    queryFn: () => getMyCheckListItems(user, roles),
     select: transformCheckListItemsFromSP,
   });
 };
