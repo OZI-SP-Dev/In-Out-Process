@@ -111,10 +111,10 @@ const getOpenCheckListItems = async () => {
 const getMyCheckListItems = async (user: Person, roles: RoleType[]) => {
   // Currently returns data for all items where Lead is superivor or employee
   // Module using this function then filters for the correct supervisor/employee
-  let filter = "Lead eq Supervisor or Lead eq Employee";
+  let filter = "Lead eq 'Supervisor' or Lead eq 'Employee'";
 
   roles.forEach((role) => {
-    filter += " or Lead eq " + role;
+    filter += " or Lead eq '" + role + "'";
   });
 
   return spWebContext.web.lists
@@ -157,7 +157,7 @@ export const useOpenChecklistItems = () => {
  */
 export const useMyChecklistItems = (user: Person, roles: RoleType[]) => {
   return useQuery({
-    queryKey: ["myChecklist"],
+    queryKey: ["myChecklist", user, roles],
     queryFn: () => getMyCheckListItems(user, roles),
     select: transformCheckListItemsFromSP,
   });

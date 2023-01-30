@@ -368,7 +368,7 @@ export const handlers = [
         // Filter for open checklist items
         const CompletedDate = filter.match(/CompletedDate eq null/);
         // Filter for Roles
-        const filterRoles = [...filter.matchAll(/(?:Lead eq )(\w+)/g)];
+        const filterRoles = [...filter.matchAll(/(?:Lead eq ')(\w+)(?:')/g)];
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
