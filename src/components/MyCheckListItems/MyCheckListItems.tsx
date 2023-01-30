@@ -7,11 +7,7 @@ import {
   Toggle,
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
-import {
-  ICheckListItem,
-  useOpenChecklistItems,
-  useMyChecklistItems,
-} from "api/CheckListItemApi";
+import { ICheckListItem, useMyChecklistItems } from "api/CheckListItemApi";
 import { IInRequest, useRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
@@ -44,16 +40,6 @@ export const MyCheckListItems = () => {
   /** The user from UserContext */
   const user = useContext(UserContext);
 
-  /** Hook to get the CheckListItems that don't have a Completion Date  */
-  const { data: checklistItems } = useOpenChecklistItems();
-
-  /** Hook to get current user's CheckListItems, even completed ones */
-  const { data: allChecklistItems } = useMyChecklistItems(
-    user.user,
-    user.roles || []
-  );
-  // const allChecklistItems = undefined;
-
   /** Hook to get the requests */
   const { data: requests } = useRequests();
 
@@ -76,22 +62,25 @@ export const MyCheckListItems = () => {
 
   const [showingCompleted, setShowingCompleted] = useState(false);
 
+  /** Hook to get current user's CheckListItems, even completed ones */
+  const { data: checklistItems } = useMyChecklistItems(
+    user.user,
+    user.roles || [],
+    showingCompleted
+  );
+
   /** The current user's CheckListItems */
   let myCheckListItems: ICheckListItemLookup[] | undefined;
 
-  const currentChecklistItems = showingCompleted
-    ? allChecklistItems
-    : checklistItems;
-
   // Ensure we have all the data we need to correctly determine which items to show
-  if (currentChecklistItems && requests && user?.user && user?.roles) {
+  if (checklistItems && requests && user?.user && user?.roles) {
     // Create an object where we can quickly reference the Request based on the Id
     const requestLookup = new Map(
       requests.map((request) => [request.Id, request])
     );
 
     // Create an object containg both the CheckList item and the reference to the Request
-    myCheckListItems = currentChecklistItems.map((item) => {
+    myCheckListItems = checklistItems.map((item) => {
       let retItem: ICheckListItemLookup = {
         ...item,
         request: requestLookup.get(item.RequestId),

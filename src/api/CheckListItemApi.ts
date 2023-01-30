@@ -155,10 +155,17 @@ export const useOpenChecklistItems = () => {
 /**
  * Gets all checklist items for the current user
  */
-export const useMyChecklistItems = (user: Person, roles: RoleType[]) => {
+export const useMyChecklistItems = (
+  user: Person,
+  roles: RoleType[],
+  fetchCompleted: boolean
+) => {
   return useQuery({
-    queryKey: ["myChecklist", user, roles],
-    queryFn: () => getMyCheckListItems(user, roles),
+    queryKey: fetchCompleted ? ["myChecklist", user, roles] : ["checklist"],
+    queryFn: () =>
+      fetchCompleted
+        ? getMyCheckListItems(user, roles)
+        : getOpenCheckListItems(),
     select: transformCheckListItemsFromSP,
   });
 };
