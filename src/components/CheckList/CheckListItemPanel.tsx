@@ -8,7 +8,8 @@ import DOMPurify, { sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
-import { CheckListItemPrereq } from "./CheckListItemPrereq";
+import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
+import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
 
 DOMPurify.addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
@@ -136,6 +137,23 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
               <CheckListItemPrereq checklistItem={props.item} />
             </div>
           )}
+          {/* Only show the Reactivate section if the Request is Active, and the Checklist Item is Completed, and the User is the Lead  */}
+          {props.request.status === "Active" &&
+            props.item.CompletedBy &&
+            props.roles?.includes(props.item.Lead) && (
+              <div className={classes.fieldContainer}>
+                <Label
+                  htmlFor="reactivationButton"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                >
+                  <InfoIcon className={classes.fieldIcon} />
+                  Reactivate Checklist Item
+                </Label>
+                <CheckListItemReactivateButton checklistItem={props.item} />
+              </div>
+            )}
         </div>
       </FluentProvider>
     </Panel>

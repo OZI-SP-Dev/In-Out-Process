@@ -407,6 +407,53 @@ export const handlers = [
     }
   ),
 
+  /**
+   * Update ChecklistItem
+   * We know we're updating an item because an ItemId is included
+   * Most updates happen via batch (creation/completion/activation) -- This handles reactivating
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('ChecklistItems')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let index = checklistitems.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+      if (index !== -1) {
+        let body = await req.json();
+
+        // If we have a CompletedByStringId of "" and a CompletedById of -1 then we are clearing the CompletedBy field
+        if (body.CompletedByStringId === "" && body.CompletedById === -1) {
+          // Drop the CompletedByStringId and CompletedById fields, and set CompletedBy to null
+          body = {
+            ...body,
+            CompletedByStringId: undefined,
+            CompletedById: undefined,
+            CompletedBy: null,
+          };
+        }
+
+        // Pass along any other updates, such as CompletedDate
+        const updatedItem = { ...checklistitems[index], ...body };
+
+        // Update the ChecklistItems data with our updated record
+        checklistitems[index] = updatedItem;
+
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: checklistitems[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
+
   // Handle $batch requests
   // TODO: actually parse the batch request and update our items as needed
   rest.post("/_api/$batch", async (req, res, ctx) => {
