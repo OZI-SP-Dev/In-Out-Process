@@ -369,6 +369,9 @@ export const handlers = [
         const CompletedDate = filter.match(/CompletedDate eq null/);
         // Filter for Roles
         const filterRoles = [...filter.matchAll(/(?:Lead eq ')(\w+)(?:')/g)];
+        let roles: string[] = []; // Array of roles we want to filter for
+        filterRoles.forEach((item) => roles.push(item[1])); // initialize roles from regex array
+
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
@@ -378,12 +381,12 @@ export const handlers = [
           results = results.filter(
             (item: ICheckListResponseItem) => !item.CompletedDate
           );
+          if (filterRoles) {
+            results = results.filter((item: ICheckListResponseItem) =>
+              roles.includes(item.Lead)
+            );
+          }
         } else if (filterRoles) {
-          // Create an array of the roles we want to filter for
-          let roles: string[] = [];
-          // Initialize the array from the regex array
-          filterRoles.forEach((item) => roles.push(item[1]));
-          // Filter the results array so it only includes items where the Lead's role is in our roles array
           results = results.filter((item: ICheckListResponseItem) =>
             roles.includes(item.Lead)
           );

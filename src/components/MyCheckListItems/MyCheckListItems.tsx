@@ -64,7 +64,6 @@ export const MyCheckListItems = () => {
 
   /** Hook to get current user's CheckListItems, even completed ones */
   const { data: checklistItems } = useMyChecklistItems(
-    user.user,
     user.roles || [],
     showingCompleted
   );
