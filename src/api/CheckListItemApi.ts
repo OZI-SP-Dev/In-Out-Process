@@ -91,13 +91,35 @@ export const getCheckListItemsByRequestId = async (RequestId: number) => {
     .expand(expandedFields)();
 };
 
-/** Internal functions that actually do the fetching
- * @returns The ICheckListItems that are Open (do not have a completeion date) -- TODO -- Cancelled??
+/**
+ * Gets checklist items for current user's roles
+ * Currently unable to filter specifically for where user is the Supervisor or Employee
+ * Module using this function then filters for the correct supervisor/employee
+ * @returns ICheckListItems
  */
-const getOpenCheckListItems = async () => {
+const getMyCheckListItems = async (
+  roles: RoleType[] | undefined,
+  fetchCompleted: boolean
+) => {
+  let filter = "";
+  if (!fetchCompleted) {
+    filter = "CompletedDate eq null and ";
+  }
+  filter += "(Lead eq 'Supervisor' or Lead eq 'Employee'";
+
+  // Add role filters
+  if (roles) {
+    roles.forEach((role) => {
+      filter += " or Lead eq '" + role + "'";
+    });
+  }
+
+  // Close out filter
+  filter += ")";
+
   return spWebContext.web.lists
     .getByTitle("CheckListItems")
-    .items.filter("CompletedDate eq null")
+    .items.filter(filter)
     .select(requestedFields)
     .expand(expandedFields)
     .top(5000)();
@@ -117,14 +139,15 @@ export const useChecklistItems = (RequestId: number) => {
 };
 
 /**
- * Gets the open checklist items -- right now this is determined by the Completion Date being empty -- but this is NOT accurate b/c of Cancelled Requests
- * TODO -- Update how cancelled checklist items are handled
- *
+ * Gets all checklist items for the current user
  */
-export const useOpenChecklistItems = () => {
+export const useMyChecklistItems = (
+  roles: RoleType[] | undefined,
+  fetchCompleted: boolean
+) => {
   return useQuery({
-    queryKey: ["checklist"],
-    queryFn: () => getOpenCheckListItems(),
+    queryKey: ["myChecklist", roles, fetchCompleted],
+    queryFn: () => getMyCheckListItems(roles, fetchCompleted),
     select: transformCheckListItemsFromSP,
   });
 };

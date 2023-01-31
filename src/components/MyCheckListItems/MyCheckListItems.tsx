@@ -4,9 +4,10 @@ import {
   IGroup,
   SelectionMode,
   ShimmeredDetailsList,
+  Toggle,
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
-import { ICheckListItem, useOpenChecklistItems } from "api/CheckListItemApi";
+import { ICheckListItem, useMyChecklistItems } from "api/CheckListItemApi";
 import { IInRequest, useRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
@@ -39,9 +40,6 @@ export const MyCheckListItems = () => {
   /** The user from UserContext */
   const user = useContext(UserContext);
 
-  /** Hook to get the CheckListItems that don't have a Completion Date  */
-  const { data: checklistItems } = useOpenChecklistItems();
-
   /** Hook to get the requests */
   const { data: requests } = useRequests();
 
@@ -60,6 +58,14 @@ export const MyCheckListItems = () => {
       prevVal[curVal] = true;
       return prevVal;
     }, {} as groupcollapse)
+  );
+
+  const [showingCompleted, setShowingCompleted] = useState(false);
+
+  /** Hook to get current user's CheckListItems, even completed ones */
+  const { data: checklistItems } = useMyChecklistItems(
+    user.roles || [],
+    showingCompleted
   );
 
   /** The current user's CheckListItems */
@@ -161,7 +167,13 @@ export const MyCheckListItems = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
-      onRender: (item) => <CheckListItemButton checklistItem={item} />,
+      onRender: (item) => {
+        if (item.CompletedDate) {
+          return item.CompletedDate.toLocaleString();
+        } else {
+          return <CheckListItemButton checklistItem={item} />;
+        }
+      },
     },
     {
       key: "empName",
@@ -206,6 +218,13 @@ export const MyCheckListItems = () => {
       <div className={classes.myCheckListItemsHeader}>
         <h1>My CheckList Items</h1>
       </div>
+      <Toggle
+        className={classes.myCheckListItemsHeader}
+        label="Toggle to show/hide completed items"
+        onChange={() => setShowingCompleted(!showingCompleted)}
+        onText="Showing all items"
+        offText="Showing open items"
+      />
       <ShimmeredDetailsList
         setKey="Id"
         items={myCheckListItems || []}
