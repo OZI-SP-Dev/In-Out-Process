@@ -1,8 +1,19 @@
 import { ICheckListItem } from "api/CheckListItemApi";
-import { Button, Tooltip, Spinner, Badge } from "@fluentui/react-components";
+import {
+  Button,
+  Tooltip,
+  Spinner,
+  Badge,
+  Dialog,
+  DialogTitle,
+  DialogSurface,
+  DialogContent,
+  DialogActions,
+} from "@fluentui/react-components";
 import { useReactivateChecklistItem } from "api/ReactivateChecklistItem";
 import { AlertSolidIcon } from "@fluentui/react-icons-mdl2";
-import { useIsMutating } from "@tanstack/react-query";
+import { useBoolean } from "@fluentui/react-hooks";
+import { DialogFooter } from "@fluentui/react";
 
 interface CheckListItemReactivateButtonProps {
   checklistItem: ICheckListItem;
@@ -12,50 +23,71 @@ export const CheckListItemReactivateButton = ({
   checklistItem,
 }: CheckListItemReactivateButtonProps) => {
   const reactivateCheckListItem = useReactivateChecklistItem(checklistItem);
-  const isMutating = useIsMutating({
-    mutationKey: ["checklist", checklistItem.Id],
-  });
 
-  // Because this button may be clicked, then the panel changed to another completed task
-  // we cannot use .isLoading because will be true if ANY item is currently using this mutation
-  // by using useIsMutating we can look for a specific mutation key
-  if (isMutating > 0) {
-    return (
-      <Spinner
-        style={{ justifyContent: "flex-start" }}
-        size="small"
-        label="Reactivating..."
-      />
-    );
-  }
+  /* Show the Reactivate Dialog or not */
+  const [
+    isReactivateDialogOpen,
+    { setTrue: showReactivateDialog, setFalse: hideReactivateDialog },
+  ] = useBoolean(false);
 
   return (
     <>
       <Button
         name="reactivationButton"
         appearance="secondary"
-        onClick={() => reactivateCheckListItem.mutate()}
+        onClick={showReactivateDialog}
       >
         Reactivate
       </Button>
-      {reactivateCheckListItem.isError && (
-        <Tooltip
-          content={
-            reactivateCheckListItem.error instanceof Error
-              ? reactivateCheckListItem.error.message
-              : "An error occurred."
-          }
-          relationship="label"
-        >
-          <Badge
-            size="extra-large"
-            appearance="ghost"
-            color="danger"
-            style={{ verticalAlign: "middle" }}
-            icon={<AlertSolidIcon />}
-          />
-        </Tooltip>
-      )}
+      <Dialog open={isReactivateDialogOpen} modalType="modal">
+        <DialogSurface>
+          <DialogTitle>Reactivate Checklist Item?</DialogTitle>
+          <DialogContent>
+            Are you sure you want to reactivate this checklist item, which
+            clears when and by whom it was completed, requiring it to be
+            recompleted?
+          </DialogContent>
+          <DialogFooter>
+            <DialogActions>
+              {!reactivateCheckListItem.isLoading ? (
+                <Button
+                  appearance="secondary"
+                  onClick={() => reactivateCheckListItem.mutate()}
+                >
+                  Yes, reactivate
+                </Button>
+              ) : (
+                <Spinner
+                  style={{ justifyContent: "flex-start" }}
+                  size="small"
+                  label="Reactivating..."
+                />
+              )}
+              {reactivateCheckListItem.isError && (
+                <Tooltip
+                  content={
+                    reactivateCheckListItem.error instanceof Error
+                      ? reactivateCheckListItem.error.message
+                      : "An error occurred."
+                  }
+                  relationship="label"
+                >
+                  <Badge
+                    size="extra-large"
+                    appearance="ghost"
+                    color="danger"
+                    style={{ verticalAlign: "middle" }}
+                    icon={<AlertSolidIcon />}
+                  />
+                </Tooltip>
+              )}
+              <Button appearance="primary" onClick={hideReactivateDialog}>
+                No, take me back safely
+              </Button>
+            </DialogActions>
+          </DialogFooter>
+        </DialogSurface>
+      </Dialog>
     </>
   );
 };
