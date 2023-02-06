@@ -93,7 +93,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     watch,
     reset,
     setValue,
-    getValues,
     register,
   } = useForm<any>();
   const updateRequest = useUpdateRequest(props.data.Id);
@@ -103,13 +102,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const eta = watch("eta");
   const employee = watch("employee");
 
-  // Get values of fields that can't be changed so that UI can render based on them
-  const [empType, isNewCivMil] = getValues(["empType", "isNewCivMil"]);
-
   const compProps = props;
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
-    switch (empType) {
+    switch (props.data.empType) {
       case EMPTYPES.Civilian:
         return [...GS_GRADES, ...NH_GRADES];
       case EMPTYPES.Military:
@@ -119,7 +115,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       default:
         return [];
     }
-  }, [empType]);
+  }, [props.data.empType]);
 
   const minCompletionDate: Date = useMemo(() => {
     // Set the minimumn completion date to be 14 days from the estimated arrival
@@ -317,7 +313,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 control={control}
                 rules={{
                   required:
-                    empType !== EMPTYPES.Contractor
+                    props.data.empType !== EMPTYPES.Contractor
                       ? "Grade/Rank is required"
                       : "",
                 }}
@@ -335,7 +331,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     onBlur={onBlur}
                     options={gradeRankOptions}
                     dropdownWidth={100}
-                    disabled={empType === EMPTYPES.Contractor}
+                    disabled={props.data.empType === EMPTYPES.Contractor}
                   />
                 )}
               />
@@ -643,8 +639,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 </Text>
               )}
             </div>
-            {(empType === EMPTYPES.Civilian ||
-              empType === EMPTYPES.Military) && (
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
               <>
                 <div className={classes.fieldContainer}>
                   <Label
@@ -656,7 +652,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   >
                     <ToggleLeftRegular className={classes.fieldIcon} />
                     Is Employee a New Air Force{" "}
-                    {empType === EMPTYPES.Civilian ? "Civilian" : "Military"}?
+                    {props.data.empType === EMPTYPES.Civilian
+                      ? "Civilian"
+                      : "Military"}
+                    ?
                   </Label>
                   <Controller
                     name="isNewCivMil"
@@ -674,7 +673,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     )}
                   />
                 </div>
-                {isNewCivMil === "no" && (
+                {props.data.isNewCivMil === "no" && (
                   <div className={classes.fieldContainer}>
                     <Label
                       htmlFor="prevOrgId"
@@ -709,8 +708,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 )}
               </>
             )}
-            {(empType === EMPTYPES.Civilian ||
-              empType === EMPTYPES.Military) && (
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
               <div className={classes.fieldContainer}>
                 <Label
                   htmlFor="newToBaseAndCenterId"
@@ -749,8 +748,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 )}
               </div>
             )}
-            {(empType === EMPTYPES.Civilian ||
-              empType === EMPTYPES.Military) && (
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
               <div className={classes.fieldContainer}>
                 <Label
                   htmlFor="isTravelerId"
@@ -779,8 +778,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 />
               </div>
             )}
-            {(empType === EMPTYPES.Civilian ||
-              empType === EMPTYPES.Military) && (
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
               <div className={classes.fieldContainer}>
                 <Label
                   htmlFor="isSupervisorId"
@@ -809,7 +808,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 />
               </div>
             )}
-            {empType === EMPTYPES.Contractor && (
+            {props.data.empType === EMPTYPES.Contractor && (
               <>
                 <div className={classes.fieldContainer}>
                   <Label
