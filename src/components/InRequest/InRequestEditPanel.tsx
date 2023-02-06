@@ -93,16 +93,18 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     watch,
     reset,
     setValue,
+    getValues,
     register,
   } = useForm<any>();
   const updateRequest = useUpdateRequest(props.data.Id);
 
   // Setup watches
-  const empType = watch("empType");
-  const isNewCivMil = watch("isNewCivMil");
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
   const employee = watch("employee");
+
+  // Get values of fields that can't be changed so that UI can render based on them
+  const [empType, isNewCivMil] = getValues(["empType", "isNewCivMil"]);
 
   const compProps = props;
 
@@ -284,30 +286,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="empType"
                 control={control}
-                rules={{
-                  required: "Employee Type is required",
-                }}
-                render={({ field: { onBlur, onChange, value } }) => (
+                render={({ field }) => (
                   <RadioGroup
+                    {...field}
                     id="empTypeId"
-                    onBlur={onBlur}
-                    value={value}
-                    onChange={(e, option) => {
-                      /* If they change employee type, clear out the related fields */
-                      setValue("gradeRank", "");
-                      if (option.value === EMPTYPES.Contractor) {
-                        setValue("isNewCivMil", "");
-                        setValue("prevOrg", "");
-                        setValue("isNewToBaseAndCenter", "");
-                        setValue("isTraveler", "");
-                        setValue("isSupervisor", "");
-                      } else {
-                        setValue("hasExistingCAC", "");
-                        setValue("CACExpiration", undefined);
-                      }
-                      onChange(e, option);
-                    }}
                     aria-describedby="empTypeErr"
+                    disabled={true}
                     layout="horizontal"
                   >
                     {Object.values(EMPTYPES).map((key) => {
@@ -316,11 +300,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   </RadioGroup>
                 )}
               />
-              {errors.empType && (
-                <Text id="empTypeErr" className={classes.errorText}>
-                  {errors.empType.message}
-                </Text>
-              )}
             </div>
             <div className={classes.fieldContainer}>
               <Label
@@ -418,22 +397,13 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               </Label>
               <Input
                 {...register("SAR", {
-                  required: "SAR is required",
-                  pattern: {
-                    value: /^\d$/i,
-                    message: "SAR must be 1 digit",
-                  },
                   valueAsNumber: true,
                 })}
                 aria-describedby="SARErr"
                 type="number"
                 id="SARId"
+                disabled={true}
               />
-              {errors.SAR && (
-                <Text id="SARErr" className={classes.errorText}>
-                  {errors.SAR.message}
-                </Text>
-              )}
               <Text
                 weight="regular"
                 size={200}
@@ -457,30 +427,16 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="sensitivityCode"
                 control={control}
-                rules={{
-                  required: "Position SensitivityCode is required",
-                }}
-                render={({ field: { onBlur, onChange, value } }) => (
+                render={({ field: { value } }) => (
                   <ComboBox
                     id="sensitivityCodeId"
                     aria-describedby="sensitivityCodeErr"
-                    autoComplete="on"
                     selectedKey={value}
-                    onChange={(_, option) => {
-                      if (option?.key) {
-                        onChange(option.key);
-                      }
-                    }}
-                    onBlur={onBlur}
                     options={SENSITIVITY_CODES}
+                    disabled={true}
                   />
                 )}
               />
-              {errors.sensitivityCode && (
-                <Text id="sensitivityCodeErr" className={classes.errorText}>
-                  {errors.sensitivityCode.message}
-                </Text>
-              )}
               <Text
                 weight="regular"
                 size={200}
@@ -705,32 +661,18 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <Controller
                     name="isNewCivMil"
                     control={control}
-                    rules={{
-                      required: "Selection is required",
-                    }}
-                    render={({ field: { onBlur, onChange, value } }) => (
+                    render={({ field }) => (
                       <RadioGroup
-                        onBlur={onBlur}
-                        value={value}
-                        onChange={(e, option) => {
-                          if (option.value === "yes") {
-                            setValue("prevOrg", "");
-                          }
-                          onChange(e, option);
-                        }}
+                        {...field}
                         aria-describedby="isNewCivMilErr"
                         id="newCivId"
+                        disabled={true}
                       >
                         <Radio key={"yes"} value={"yes"} label="Yes" />
                         <Radio key={"no"} value={"no"} label="No" />
                       </RadioGroup>
                     )}
                   />
-                  {errors.isNewCivMil && (
-                    <Text id="isNewCivMilErr" className={classes.errorText}>
-                      {errors.isNewCivMil.message}
-                    </Text>
-                  )}
                 </div>
                 {isNewCivMil === "no" && (
                   <div className={classes.fieldContainer}>
@@ -823,25 +765,18 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 <Controller
                   name="isTraveler"
                   control={control}
-                  rules={{
-                    required: "Selection is required",
-                  }}
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
                       aria-describedby="isTravelerErr"
                       id="isTravelerId"
+                      disabled={true}
                     >
                       <Radio key={"yes"} value={"yes"} label="Yes" />
                       <Radio key={"no"} value={"no"} label="No" />
                     </RadioGroup>
                   )}
                 />
-                {errors.isTraveler && (
-                  <Text id="isTravelerErr" className={classes.errorText}>
-                    {errors.isTraveler.message}
-                  </Text>
-                )}
               </div>
             )}
             {(empType === EMPTYPES.Civilian ||
@@ -860,25 +795,18 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 <Controller
                   name="isSupervisor"
                   control={control}
-                  rules={{
-                    required: "Selection is required",
-                  }}
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
                       aria-describedby="isSupervisorErr"
                       id="isSupervisorId"
+                      disabled={true}
                     >
                       <Radio key={"yes"} value={"yes"} label="Yes" />
                       <Radio key={"no"} value={"no"} label="No" />
                     </RadioGroup>
                   )}
                 />
-                {errors.isSupervisor && (
-                  <Text id="isSupervisorErr" className={classes.errorText}>
-                    {errors.isSupervisor.message}
-                  </Text>
-                )}
               </div>
             )}
             {empType === EMPTYPES.Contractor && (
