@@ -949,7 +949,7 @@ export const InRequestNewForm = () => {
             /* TODO -- Replace with some fine grain error handling, so you can retry
                 just the failed piece instead of total resubmission */
             <Button appearance="primary" type="submit">
-              Rertry
+              Retry
             </Button>
           )}
           {!isSubmitting && addRequest.isError && (

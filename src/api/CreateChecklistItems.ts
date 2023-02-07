@@ -355,8 +355,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Initiate Trusted Associate Sponsorship System (TASS Form 1)",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.InitiateTASS,
-    Description: `<p style="margin-top: 0px">Send a TASS Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p> 
-      <p>You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>`,
+    Description: `<p style="margin-top: 0px">You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>
+<p>For coordination with the Security office, send the TASS Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
+<p><b>TASS Form 1 coordination instructions:</b>
+<ol><li>Applicant coordinates with Government Sponsor, COR or TA for sponsorship. Applicant completes and submits the request form to the appropriate Employment Representative, Government Sponsor, or COR. To allow for maximum use of digital signatures, request should be initiated/completed using a computer that utilizes ADOBE Acrobat reader/software.</li>
+<li>Employment Representative, Government Sponsor, COR, submits the request to the Security Manager for NACI Background check. The Security Manager digitally signs and dates the form.</li>
+<li>The Security Manager returns the form to the Employment Representative, Government Sponsor, COR for submission to the TA for TASS entry and CAC approval.</li>
+<li>TA verifies proper vetting of applicant as outlined in current DoDI 5200.46 and DoDM 1000.13. TA signs and dates the request.</li>
+<li>Applicant visits servicing DEERS/RAPIDs Office for CAC issuance.</li></ol></p>`,
     Prereqs: [],
   },
   {
