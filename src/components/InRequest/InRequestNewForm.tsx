@@ -383,10 +383,8 @@ export const InRequestNewForm = () => {
         <Input
           {...register("SAR", {
             required: "SAR is required",
-            pattern: {
-              value: /^\d$/i,
-              message: "SAR must be 1 digit",
-            },
+            min: { value: 0, message: "SAR must be 1 digit" },
+            max: { value: 9, message: "SAR must be 1 digit" },
             valueAsNumber: true,
           })}
           aria-describedby="SARErr"
