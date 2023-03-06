@@ -270,7 +270,6 @@ export const InRequestNewForm = () => {
                 if (option.value === EMPTYPES.Contractor) {
                   setValue("isNewCivMil", "");
                   setValue("prevOrg", "");
-                  setValue("isNewToBaseAndCenter", "");
                   setValue("isTraveler", "");
                   setValue("isSupervisor", "");
                 } else {
@@ -729,43 +728,6 @@ export const InRequestNewForm = () => {
             </div>
           )}
         </>
-      )}
-      {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
-        <div className={classes.fieldContainer}>
-          <Label
-            htmlFor="newToBaseAndCenterId"
-            size="small"
-            weight="semibold"
-            className={classes.fieldLabel}
-            required
-          >
-            <ToggleLeftRegular className={classes.fieldIcon} />
-            Is Employee new to WPAFB and AFLCMC?
-          </Label>
-          <Controller
-            name="isNewToBaseAndCenter"
-            control={control}
-            defaultValue={""}
-            rules={{
-              required: "Selection is required",
-            }}
-            render={({ field }) => (
-              <RadioGroup
-                {...field}
-                aria-describedby="isNewToBaseAndCenterErr"
-                id="newToBaseAndCenterId"
-              >
-                <Radio key={"yes"} value={"yes"} label="Yes" />
-                <Radio key={"no"} value={"no"} label="No" />
-              </RadioGroup>
-            )}
-          />
-          {errors.isNewToBaseAndCenter && (
-            <Text id="isNewToBaseAndCenterErr" className={classes.errorText}>
-              {errors.isNewToBaseAndCenter.message}
-            </Text>
-          )}
-        </div>
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <div className={classes.fieldContainer}>

@@ -184,18 +184,6 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) && (
           <div>
-            <Label weight="semibold" htmlFor="newToBaseAndCenterCVId">
-              Is New to WPAFB and AFLCMC?
-            </Label>
-            <br />
-            <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
-              {formData.isNewToBaseAndCenter}
-            </Text>
-          </div>
-        )}
-        {(formData.empType === EMPTYPES.Civilian ||
-          formData.empType === EMPTYPES.Military) && (
-          <div>
             <Label weight="semibold" htmlFor="isTravelerCVId">
               Requires Travel Ability?
             </Label>

@@ -300,7 +300,6 @@ export const handlers = [
           office: body.office,
           isNewCivMil: body.isNewCivMil,
           prevOrg: body.prevOrg,
-          isNewToBaseAndCenter: body.isNewToBaseAndCenter,
           hasExistingCAC: body.hasExistingCAC,
           CACExpiration: body.CACExpiration,
           eta: body.eta,
@@ -689,7 +688,6 @@ let requests: IResponseItem[] = [
     office: "OZIC",
     isNewCivMil: "yes",
     prevOrg: "",
-    isNewToBaseAndCenter: "yes",
     hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
@@ -711,7 +709,6 @@ let requests: IResponseItem[] = [
     office: "OZIC",
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: "no",
     hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
@@ -735,7 +732,6 @@ let requests: IResponseItem[] = [
     isTraveler: "yes",
     isSupervisor: "no",
     prevOrg: "",
-    isNewToBaseAndCenter: "yes",
     hasExistingCAC: "no",
     CACExpiration: "",
     eta: "2022-12-31T00:00:00.000Z",
@@ -755,7 +751,6 @@ let requests: IResponseItem[] = [
     office: "OZIC",
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: "no",
     hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
@@ -779,7 +774,6 @@ let requests: IResponseItem[] = [
     office: "OZIC",
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
-    isNewToBaseAndCenter: "no",
     hasExistingCAC: "no",
     CACExpiration: "2022-12-31T00:00:00.000Z",
     eta: "2022-12-31T00:00:00.000Z",
@@ -976,9 +970,6 @@ const updateRequest = (item: IRequestItem) => {
     requests[index].prevOrg = item.prevOrg
       ? item.prevOrg
       : requests[index].prevOrg;
-    requests[index].isNewToBaseAndCenter = item.isNewToBaseAndCenter
-      ? item.isNewToBaseAndCenter
-      : requests[index].isNewToBaseAndCenter;
     requests[index].hasExistingCAC = item.hasExistingCAC
       ? item.hasExistingCAC
       : requests[index].hasExistingCAC;
