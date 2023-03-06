@@ -258,7 +258,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     disabled={employee?.text ? true : false}
                     aria-describedby="empNameErr"
                     id="empNameId"
-                    placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
+                    placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Last, First MI'"
                   />
                 )}
               />
