@@ -704,6 +704,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         {errors.prevOrg.message}
                       </Text>
                     )}
+                    <Text
+                      weight="regular"
+                      size={200}
+                      className={classes.fieldDescription}
+                    >
+                      Entry should include Higher HQ / Directorate; examples
+                      AFRL/RD, AFLCMC/HI, SAF/AQ
+                    </Text>
                   </div>
                 )}
               </>
