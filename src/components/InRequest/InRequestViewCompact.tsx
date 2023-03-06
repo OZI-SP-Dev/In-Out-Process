@@ -11,6 +11,7 @@ const useStyles = makeStyles({
     display: "grid",
     paddingLeft: "1em",
     paddingRight: "1em",
+    columnGap: "2em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
     gridAutoRows: "minmax(50px, auto)",
   },
