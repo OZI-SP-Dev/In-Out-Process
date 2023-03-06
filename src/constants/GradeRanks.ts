@@ -25,7 +25,6 @@ export const NH_GRADES: IComboBoxOption[] = [
   { key: "NH-02", text: "NH-02" },
   { key: "NH-03", text: "NH-03" },
   { key: "NH-04", text: "NH-04" },
-  { key: "NH-05", text: "NH-05" },
 ];
 
 export const MIL_GRADES: IComboBoxOption[] = [

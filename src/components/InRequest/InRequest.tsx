@@ -127,27 +127,30 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
       {/* Only show the buttons to Supervisors -- and only show if it isn't Closed/Cancelled */}
       {isSupervisor && !props.request?.closedOrCancelledDate && (
         <div className={classes.supervisorButtonBar}>
-          <Button
-            appearance="subtle"
-            onClick={showEditPanel}
-            icon={<EditIcon />}
-            shape="circular"
-            size="small"
-            disabled={updateRequest.isLoading} // Disable if we are processing an update
-          >
-            Edit
-          </Button>
-          <Button
-            appearance="subtle"
-            onClick={showCancelDialog}
-            icon={<CancelIcon />}
-            shape="circular"
-            size="small"
-            disabled={updateRequest.isLoading} // Disable if we are processing an update
-          >
-            Cancel Request
-          </Button>
-
+          <Tooltip content={"Edit this request"} relationship={"description"}>
+            <Button
+              appearance="subtle"
+              onClick={showEditPanel}
+              icon={<EditIcon />}
+              shape="circular"
+              size="small"
+              disabled={updateRequest.isLoading} // Disable if we are processing an update
+            >
+              Edit
+            </Button>
+          </Tooltip>
+          <Tooltip content={"Cancel this request"} relationship={"description"}>
+            <Button
+              appearance="subtle"
+              onClick={showCancelDialog}
+              icon={<CancelIcon />}
+              shape="circular"
+              size="small"
+              disabled={updateRequest.isLoading} // Disable if we are processing an update
+            >
+              Cancel
+            </Button>
+          </Tooltip>
           {
             //Show a spinner if we are processing a "complete" request
             updateType === "complete" && updateRequest.isLoading ? (
@@ -157,8 +160,8 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
                 <Tooltip
                   content={
                     checklistItemsToComplete === 0
-                      ? "Mark this request as complete"
-                      : "Cannot be marked complete until all checklist items have been completed"
+                      ? "Complete this request"
+                      : "Cannot be completed until all checklist items have been completed"
                   }
                   relationship={"description"}
                 >
@@ -173,7 +176,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
                       checklistItemsToComplete !== 0 || updateRequest.isLoading
                     }
                   >
-                    Mark Complete
+                    Complete
                   </Button>
                 </Tooltip>
                 {

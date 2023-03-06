@@ -231,7 +231,7 @@ export const InRequestNewForm = () => {
               disabled={employee?.text ? true : false}
               aria-describedby="empNameErr"
               id="empNameId"
-              placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Doe, Jack E'"
+              placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Last, First MI'"
             />
           )}
         />
@@ -718,6 +718,14 @@ export const InRequestNewForm = () => {
                   {errors.prevOrg.message}
                 </Text>
               )}
+              <Text
+                weight="regular"
+                size={200}
+                className={classes.fieldDescription}
+              >
+                Entry should include Higher HQ / Directorate; examples AFRL/RD,
+                AFLCMC/HI, SAF/AQ
+              </Text>
             </div>
           )}
         </>
