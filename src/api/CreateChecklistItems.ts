@@ -447,8 +447,12 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Welcome Package -- required for all inbounds
   addChecklistItem(templates.WelcomePackage);
 
-  // SCI Billet Nomination - Only if SAR = 5 and sensitivityCode = 4 (Special Sensitive)
-  if (request.SAR === 5 && request.sensitivityCode === 4)
+  // SCI Billet Nomination - Only if CIV and SAR = 5 and sensitivityCode = 4 (Special Sensitive)
+  if (
+    request.empType === EMPTYPES.Civilian &&
+    request.SAR === 5 &&
+    request.sensitivityCode === 4
+  )
     addChecklistItem(templates.SCIBilletNomination);
 
   // IA Training -- Required for all inbounds

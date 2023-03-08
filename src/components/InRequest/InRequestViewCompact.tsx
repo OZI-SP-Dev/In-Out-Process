@@ -134,13 +134,15 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           <br />
           <Text id="SARCVId">{formData.SAR}</Text>
         </div>
-        <div>
-          <Label weight="semibold" htmlFor="SARCVId">
-            Position Sensitivity Code
-          </Label>
-          <br />
-          <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
-        </div>
+        {formData.empType === EMPTYPES.Civilian && (
+          <div>
+            <Label weight="semibold" htmlFor="SARCVId">
+              Position Sensitivity Code
+            </Label>
+            <br />
+            <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
+          </div>
+        )}
         <div>
           <Label weight="semibold" htmlFor="arrivalDateCVId">
             Estimated on-boarding date

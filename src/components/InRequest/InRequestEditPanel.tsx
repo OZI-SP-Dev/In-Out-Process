@@ -415,10 +415,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
-                required
+                required={props.data.empType === EMPTYPES.Civilian}
               >
                 <DropdownIcon className={classes.fieldIcon} />
-                Positition Sensitivity Code
+                Position Sensitivity Code
               </Label>
               <Controller
                 name="sensitivityCode"
@@ -427,7 +427,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <ComboBox
                     id="sensitivityCodeId"
                     aria-describedby="sensitivityCodeErr"
-                    selectedKey={value}
+                    selectedKey={
+                      props.data.empType === EMPTYPES.Civilian ? value : ""
+                    }
+                    placeholder={
+                      props.data.empType === EMPTYPES.Civilian ? "" : "N/A"
+                    }
                     options={SENSITIVITY_CODES}
                     disabled={true}
                   />

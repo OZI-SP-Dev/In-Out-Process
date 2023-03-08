@@ -234,8 +234,8 @@ export type IInRequest = {
   MPCN: number;
   /** Required - The Employee's SAR from the UMD */
   SAR: number;
-  /** Required - The Employee's Sensitivity Code from the PD */
-  sensitivityCode: number;
+  /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
+  sensitivityCode?: number;
   /** Required - Possible values are 'local' and 'remote'  */
   workLocation: worklocation;
   /** Required - The Employee's Office */

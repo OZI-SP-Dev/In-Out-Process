@@ -276,6 +276,11 @@ export const InRequestNewForm = () => {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
                 }
+
+                if (option.value !== EMPTYPES.Civilian) {
+                  setValue("sensitivityCode", undefined);
+                }
+
                 onChange(e, option);
               }}
               aria-describedby="empTypeErr"
@@ -406,7 +411,7 @@ export const InRequestNewForm = () => {
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
-          required
+          required={empType === EMPTYPES.Civilian}
         >
           <DropdownIcon className={classes.fieldIcon} />
           Position Sensitivity Code
@@ -415,21 +420,30 @@ export const InRequestNewForm = () => {
           name="sensitivityCode"
           control={control}
           rules={{
-            required: "Position Sensitivity Code is required",
+            required:
+              empType === EMPTYPES.Civilian
+                ? "Position Sensitivity Code is required"
+                : undefined,
           }}
           render={({ field: { onBlur, onChange, value } }) => (
             <ComboBox
               id="sensitivityCodeId"
               aria-describedby="sensitivityCodeErr"
               autoComplete="on"
-              selectedKey={value}
+              selectedKey={empType === EMPTYPES.Civilian ? value : ""}
+              placeholder={
+                !empType || empType === EMPTYPES.Civilian ? "" : "N/A"
+              }
               onChange={(_, option) => {
                 if (option?.key) {
                   onChange(option.key);
+                } else {
+                  onChange(undefined);
                 }
               }}
               onBlur={onBlur}
               options={SENSITIVITY_CODES}
+              disabled={empType !== EMPTYPES.Civilian}
             />
           )}
         />
