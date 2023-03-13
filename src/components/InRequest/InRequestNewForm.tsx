@@ -270,13 +270,17 @@ export const InRequestNewForm = () => {
                 if (option.value === EMPTYPES.Contractor) {
                   setValue("isNewCivMil", "");
                   setValue("prevOrg", "");
-                  setValue("isNewToBaseAndCenter", "");
                   setValue("isTraveler", "");
                   setValue("isSupervisor", "");
                 } else {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
                 }
+
+                if (option.value !== EMPTYPES.Civilian) {
+                  setValue("sensitivityCode", undefined);
+                }
+
                 onChange(e, option);
               }}
               aria-describedby="empTypeErr"
@@ -404,10 +408,11 @@ export const InRequestNewForm = () => {
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="sensitivityCodeId"
+          id="sensitivityCodeLabelId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
-          required
+          required={empType === EMPTYPES.Civilian}
         >
           <DropdownIcon className={classes.fieldIcon} />
           Position Sensitivity Code
@@ -416,21 +421,31 @@ export const InRequestNewForm = () => {
           name="sensitivityCode"
           control={control}
           rules={{
-            required: "Position Sensitivity Code is required",
+            required:
+              empType === EMPTYPES.Civilian
+                ? "Position Sensitivity Code is required"
+                : undefined,
           }}
           render={({ field: { onBlur, onChange, value } }) => (
             <ComboBox
               id="sensitivityCodeId"
               aria-describedby="sensitivityCodeErr"
+              aria-labelledby="sensitivityCodeLabelId"
               autoComplete="on"
-              selectedKey={value}
+              selectedKey={empType === EMPTYPES.Civilian ? value : ""}
+              placeholder={
+                !empType || empType === EMPTYPES.Civilian ? "" : "N/A"
+              }
               onChange={(_, option) => {
                 if (option?.key) {
                   onChange(option.key);
+                } else {
+                  onChange(undefined);
                 }
               }}
               onBlur={onBlur}
               options={SENSITIVITY_CODES}
+              disabled={empType !== EMPTYPES.Civilian}
             />
           )}
         />
@@ -729,43 +744,6 @@ export const InRequestNewForm = () => {
             </div>
           )}
         </>
-      )}
-      {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
-        <div className={classes.fieldContainer}>
-          <Label
-            htmlFor="newToBaseAndCenterId"
-            size="small"
-            weight="semibold"
-            className={classes.fieldLabel}
-            required
-          >
-            <ToggleLeftRegular className={classes.fieldIcon} />
-            Is Employee new to WPAFB and AFLCMC?
-          </Label>
-          <Controller
-            name="isNewToBaseAndCenter"
-            control={control}
-            defaultValue={""}
-            rules={{
-              required: "Selection is required",
-            }}
-            render={({ field }) => (
-              <RadioGroup
-                {...field}
-                aria-describedby="isNewToBaseAndCenterErr"
-                id="newToBaseAndCenterId"
-              >
-                <Radio key={"yes"} value={"yes"} label="Yes" />
-                <Radio key={"no"} value={"no"} label="No" />
-              </RadioGroup>
-            )}
-          />
-          {errors.isNewToBaseAndCenter && (
-            <Text id="isNewToBaseAndCenterErr" className={classes.errorText}>
-              {errors.isNewToBaseAndCenter.message}
-            </Text>
-          )}
-        </div>
       )}
       {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
         <div className={classes.fieldContainer}>

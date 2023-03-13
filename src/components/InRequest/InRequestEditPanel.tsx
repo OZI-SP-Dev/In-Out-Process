@@ -412,13 +412,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             <div className={classes.fieldContainer}>
               <Label
                 htmlFor="sensitivityCodeId"
+                id="sensitivityCodeLabelId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
-                required
+                required={props.data.empType === EMPTYPES.Civilian}
               >
                 <DropdownIcon className={classes.fieldIcon} />
-                Positition Sensitivity Code
+                Position Sensitivity Code
               </Label>
               <Controller
                 name="sensitivityCode"
@@ -427,7 +428,13 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <ComboBox
                     id="sensitivityCodeId"
                     aria-describedby="sensitivityCodeErr"
-                    selectedKey={value}
+                    aria-labelledby="sensitivityCodeLabelId"
+                    selectedKey={
+                      props.data.empType === EMPTYPES.Civilian ? value : ""
+                    }
+                    placeholder={
+                      props.data.empType === EMPTYPES.Civilian ? "" : "N/A"
+                    }
                     options={SENSITIVITY_CODES}
                     disabled={true}
                   />
@@ -715,46 +722,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   </div>
                 )}
               </>
-            )}
-            {(props.data.empType === EMPTYPES.Civilian ||
-              props.data.empType === EMPTYPES.Military) && (
-              <div className={classes.fieldContainer}>
-                <Label
-                  htmlFor="newToBaseAndCenterId"
-                  size="small"
-                  weight="semibold"
-                  className={classes.fieldLabel}
-                  required
-                >
-                  <ToggleLeftRegular className={classes.fieldIcon} />
-                  Is Employee new to WPAFB and AFLCMC?
-                </Label>
-                <Controller
-                  name="isNewToBaseAndCenter"
-                  control={control}
-                  rules={{
-                    required: "Selection is required",
-                  }}
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      aria-describedby="isNewToBaseAndCenterErr"
-                      id="newToBaseAndCenterId"
-                    >
-                      <Radio key={"yes"} value={"yes"} label="Yes" />
-                      <Radio key={"no"} value={"no"} label="No" />
-                    </RadioGroup>
-                  )}
-                />
-                {errors.isNewToBaseAndCenter && (
-                  <Text
-                    id="isNewToBaseAndCenterErr"
-                    className={classes.errorText}
-                  >
-                    {errors.isNewToBaseAndCenter.message}
-                  </Text>
-                )}
-              </div>
             )}
             {(props.data.empType === EMPTYPES.Civilian ||
               props.data.empType === EMPTYPES.Military) && (

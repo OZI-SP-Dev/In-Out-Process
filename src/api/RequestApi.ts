@@ -26,7 +26,6 @@ export const transformInRequestFromSP = (
     office: request.office,
     isNewCivMil: request.isNewCivMil,
     prevOrg: request.prevOrg,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
     hasExistingCAC: request.hasExistingCAC,
     CACExpiration: request.CACExpiration
       ? new Date(request.CACExpiration)
@@ -89,7 +88,6 @@ const transformInRequestToSP = async (
     office: request.office,
     isNewCivMil: request.isNewCivMil,
     prevOrg: request.prevOrg,
-    isNewToBaseAndCenter: request.isNewToBaseAndCenter,
     hasExistingCAC: request.hasExistingCAC,
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
@@ -126,7 +124,7 @@ const transformInRequestToSP = async (
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,isNewCivMil,isTraveler,isSupervisor,isNewToBaseAndCenter,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
+  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,isNewCivMil,isTraveler,isSupervisor,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -236,8 +234,8 @@ export type IInRequest = {
   MPCN: number;
   /** Required - The Employee's SAR from the UMD */
   SAR: number;
-  /** Required - The Employee's Sensitivity Code from the PD */
-  sensitivityCode: number;
+  /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
+  sensitivityCode?: number;
   /** Required - Possible values are 'local' and 'remote'  */
   workLocation: worklocation;
   /** Required - The Employee's Office */
@@ -246,8 +244,6 @@ export type IInRequest = {
   isNewCivMil: "yes" | "no" | "";
   /** Required - The user's previous organization.  Will be '' if isNewCiv is not 'yes' */
   prevOrg: string;
-  /** Required - Can only be 'yes' | 'no' if it is a Civ/Mil. For Ctr, must be '' */
-  isNewToBaseAndCenter: "yes" | "no" | "";
   /** Required - Can only be 'yes' | 'no' if is a Ctr.  For others it will be '' */
   hasExistingCAC: "yes" | "no" | "";
   /** Optional - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */

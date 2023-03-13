@@ -53,7 +53,7 @@ export const AppHeader: FunctionComponent<any> = (props) => {
 
   const title =
     process.env.REACT_APP_TEST_SYS === "true" ||
-    process.env.NODE_ENV === "development"
+    process.env.NODE_ENV !== "production"
       ? "In-Out-Process TEST"
       : "In-Out-Process";
 
@@ -104,7 +104,7 @@ export const AppHeader: FunctionComponent<any> = (props) => {
             </ul>
             {
               //Only load the Impersonation Form if we are in NodeJS or a TEST environment
-              (process.env.NODE_ENV === "development" ||
+              (process.env.NODE_ENV !== "production" ||
                 process.env.REACT_APP_TEST_SYS === "true") && (
                 <ImpersonationForm></ImpersonationForm>
               )

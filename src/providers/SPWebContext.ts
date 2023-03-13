@@ -9,7 +9,7 @@ import "@pnp/sp/batching";
 declare var _spPageContextInfo: any;
 
 export const webUrl =
-  process.env.NODE_ENV === "development"
+  process.env.NODE_ENV !== "production"
     ? "http://localhost:3000"
     : _spPageContextInfo.webAbsoluteUrl;
 export const spWebContext = spfi().using(SPBrowser({ baseUrl: webUrl }));

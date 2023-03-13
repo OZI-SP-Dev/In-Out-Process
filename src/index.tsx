@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 //  see https://github.com/microsoft/fluentui/wiki/Using-icons
 initializeIcons();
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV !== "production") {
   const { worker } = require("./mocks/browser");
   worker.start({
     onUnhandledRequest(

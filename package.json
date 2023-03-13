@@ -36,7 +36,8 @@
     "build:test": "env-cmd -f ./.env.test.json react-scripts build&&npm run mergeaspx",
     "build:prod": "react-scripts build&&npm run mergeaspx",
     "eject": "react-scripts eject",
-    "mergeaspx": "concat -o build/index.aspx build/index.aspx build/index.html"
+    "mergeaspx": "concat -o build/index.aspx build/index.aspx build/index.html",
+    "test": "env-cmd -f ./.env.test.json react-scripts test --verbose --transformIgnorePatterns \"node_modules/(?!@fluentui)/\""
   },
   "eslintConfig": {
     "extends": [

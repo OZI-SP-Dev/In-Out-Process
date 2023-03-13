@@ -11,6 +11,7 @@ const useStyles = makeStyles({
     display: "grid",
     paddingLeft: "1em",
     paddingRight: "1em",
+    columnGap: "2em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
     gridAutoRows: "minmax(50px, auto)",
   },
@@ -133,13 +134,15 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           <br />
           <Text id="SARCVId">{formData.SAR}</Text>
         </div>
-        <div>
-          <Label weight="semibold" htmlFor="SARCVId">
-            Position Sensitivity Code
-          </Label>
-          <br />
-          <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
-        </div>
+        {formData.empType === EMPTYPES.Civilian && (
+          <div>
+            <Label weight="semibold" htmlFor="SARCVId">
+              Position Sensitivity Code
+            </Label>
+            <br />
+            <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
+          </div>
+        )}
         <div>
           <Label weight="semibold" htmlFor="arrivalDateCVId">
             Estimated on-boarding date
@@ -181,18 +184,6 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
               <Text id="prevOrgCVId">{formData.prevOrg}</Text>
             </div>
           )}
-        {(formData.empType === EMPTYPES.Civilian ||
-          formData.empType === EMPTYPES.Military) && (
-          <div>
-            <Label weight="semibold" htmlFor="newToBaseAndCenterCVId">
-              Is New to WPAFB and AFLCMC?
-            </Label>
-            <br />
-            <Text id="newToBaseAndCenterCVId" className={classes.capitalize}>
-              {formData.isNewToBaseAndCenter}
-            </Text>
-          </div>
-        )}
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) && (
           <div>
