@@ -412,6 +412,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             <div className={classes.fieldContainer}>
               <Label
                 htmlFor="sensitivityCodeId"
+                id="sensitivityCodeLabelId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -427,6 +428,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <ComboBox
                     id="sensitivityCodeId"
                     aria-describedby="sensitivityCodeErr"
+                    aria-labelledby="sensitivityCodeLabelId"
                     selectedKey={
                       props.data.empType === EMPTYPES.Civilian ? value : ""
                     }

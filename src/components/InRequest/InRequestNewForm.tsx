@@ -408,6 +408,7 @@ export const InRequestNewForm = () => {
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="sensitivityCodeId"
+          id="sensitivityCodeLabelId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -429,6 +430,7 @@ export const InRequestNewForm = () => {
             <ComboBox
               id="sensitivityCodeId"
               aria-describedby="sensitivityCodeErr"
+              aria-labelledby="sensitivityCodeLabelId"
               autoComplete="on"
               selectedKey={empType === EMPTYPES.Civilian ? value : ""}
               placeholder={
