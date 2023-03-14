@@ -120,13 +120,16 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             {formData.workLocation}
           </Text>
         </div>
-        <div>
-          <Label weight="semibold" htmlFor="MPCNCVId">
-            MPCN
-          </Label>
-          <br />
-          <Text id="MPCNCVId">{formData.MPCN}</Text>
-        </div>
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="MPCNCVId">
+              MPCN
+            </Label>
+            <br />
+            <Text id="MPCNCVId">{formData.MPCN}</Text>
+          </div>
+        )}
         <div>
           <Label weight="semibold" htmlFor="SARCVId">
             SAR

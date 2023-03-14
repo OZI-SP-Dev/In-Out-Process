@@ -86,11 +86,12 @@ type IRHFIPerson = {
 // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
 type IRHFInRequest = Omit<
   IInRequest,
-  "empType" | "workLocation" | "supGovLead" | "employee"
+  "empType" | "workLocation" | "supGovLead" | "employee" | "MPCN"
 > & {
   /* Allowthese to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
+  MPCN: string;
   /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
   supGovLead: IRHFIPerson;
   employee: IRHFIPerson;
@@ -113,7 +114,11 @@ export const InRequestNewForm = () => {
     watch,
     setValue,
     register,
-  } = useForm<IRHFInRequest>();
+  } = useForm<IRHFInRequest>({
+    criteriaMode:
+      "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
+    mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
+  });
 
   // Set up watches
   const empType = watch("empType");
@@ -150,8 +155,20 @@ export const InRequestNewForm = () => {
         For email, we don't need to trap the error, so no need to mutateAsync*/
 
     try {
+      // Translate the string MPCN to an Integer
+      let mpcn: number | undefined;
+      if (
+        data.empType === EMPTYPES.Civilian ||
+        data.empType === EMPTYPES.Military
+      ) {
+        // Parsing the string should be fine, as we enforce pattern of numeric
+        mpcn = parseInt(data.MPCN);
+      }
+
+      const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
+
       // Create the Request first
-      let newRequest = await addRequest.mutateAsync(data as IInRequest);
+      let newRequest = await addRequest.mutateAsync(data2);
 
       // If successful, then Create the tasks using that new Request Id
       await addTasks.mutateAsync(newRequest.data);
@@ -272,6 +289,7 @@ export const InRequestNewForm = () => {
                   setValue("prevOrg", "");
                   setValue("isTraveler", "");
                   setValue("isSupervisor", "");
+                  setValue("MPCN", "");
                 } else {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
@@ -347,25 +365,53 @@ export const InRequestNewForm = () => {
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
-          required
+          required={
+            empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
+          }
         >
           <NumberFieldIcon className={classes.fieldIcon} />
           MPCN
         </Label>
-        <Input
-          {...register("MPCN", {
-            required: "MPCN is required",
-            pattern: {
-              value: /^\d{7}$/i,
-              message: "MPCN must be 7 digits",
+        <Controller
+          name="MPCN"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required:
+              (empType === EMPTYPES.Civilian ||
+                empType === EMPTYPES.Military) &&
+              "MPCN is required",
+            minLength: {
+              value: 7,
+              message: "MPCN cannot be less than 7 digits",
             },
-          })}
-          aria-describedby="MPCNErr"
-          id="MPCNId"
+            maxLength: {
+              value: 7,
+              message: "MPCN cannot be more than 7 digits",
+            },
+            pattern: {
+              value:
+                /^\d+$/ /* We don't want the pattern to enforce 7 numbers so we can have a unique error for non-numeric (eg letters/symbols) */,
+              message: "MPCN can only consist of numbers",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              disabled={empType === EMPTYPES.Contractor}
+              aria-describedby="MPCNErr"
+              id="MPCNId"
+              inputMode="numeric"
+              placeholder={empType === EMPTYPES.Contractor ? "N/A" : ""}
+            />
+          )}
         />
         {errors.MPCN && (
           <Text id="MPCNErr" className={classes.errorText}>
-            {errors.MPCN.message}
+            {/* Prioritize showing the error for non-numeric */
+            errors.MPCN.types?.pattern
+              ? errors.MPCN.types?.pattern
+              : errors.MPCN.message}
           </Text>
         )}
         <Text weight="regular" size={200} className={classes.fieldDescription}>
