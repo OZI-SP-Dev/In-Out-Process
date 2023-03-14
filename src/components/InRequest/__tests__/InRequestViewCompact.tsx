@@ -25,3 +25,23 @@ describe("Position Sensitivity Code", () => {
     expect(psc).not.toBeInTheDocument();
   });
 });
+
+describe("ManPower Control Number (MPCN)", () => {
+  it("is displayed for Civilian", () => {
+    render(<InRequestViewCompact formData={civRequest} />);
+    const mpcn = screen.queryByText(/mpcn/i);
+    expect(mpcn).toBeInTheDocument();
+  });
+
+  it("is not displayed for Contractor", () => {
+    render(<InRequestViewCompact formData={ctrRequest} />);
+    const mpcn = screen.queryByText(/mpcn/i);
+    expect(mpcn).not.toBeInTheDocument();
+  });
+
+  it("is displayed for Military", () => {
+    render(<InRequestViewCompact formData={milRequest} />);
+    const mpcn = screen.queryByText(/mpcn/i);
+    expect(mpcn).toBeInTheDocument();
+  });
+});

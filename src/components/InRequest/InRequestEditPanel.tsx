@@ -86,15 +86,37 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   props
 ) => {
   const classes = useStyles();
+
+  type IRHFIPerson = {
+    Id: number;
+    Title: string;
+    EMail: string;
+    text: string;
+    imageUrl?: string;
+  };
+
+  // Create a type to handle the IInRequest type within React Hook Form (RHF)
+  // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
+  type IRHFInRequest = Omit<IInRequest, "MPCN" | "supGovLead" | "employee"> & {
+    MPCN: string;
+    /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
+    supGovLead: IRHFIPerson;
+    employee: IRHFIPerson;
+  };
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
-    reset,
     setValue,
     register,
-  } = useForm<any>();
+  } = useForm<IRHFInRequest>({
+    criteriaMode:
+      "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
+    mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
+    values: props.data,
+  });
   const updateRequest = useUpdateRequest(props.data.Id);
 
   // Setup watches
@@ -126,13 +148,20 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     } else return new Date();
   }, [eta]);
 
-  const onOpen = () => {
-    //Populate the React-Hook-Form with the data
-    reset(props.data);
-  };
+  const updateThisRequest = (data: IRHFInRequest) => {
+    // Translate the string MPCN to an Integer
+    let mpcn: number | undefined;
+    if (
+      data.empType === EMPTYPES.Civilian ||
+      data.empType === EMPTYPES.Military
+    ) {
+      // Parsing the string should be fine, as we enforce pattern of numeric
+      mpcn = parseInt(data.MPCN);
+    }
 
-  const updateThisRequest = (data: IInRequest) => {
-    updateRequest.mutate(data, {
+    const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
+
+    updateRequest.mutate(data2, {
       onSuccess: () => {
         // Close the edit panel on a succesful edit
         props.onEditSave();
@@ -181,7 +210,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     <>
       <Panel
         isOpen={props.isEditPanelOpen}
-        onOpen={onOpen}
         isBlocking={true}
         onDismiss={props.onEditCancel}
         headerText="Edit Request"
@@ -213,7 +241,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     aria-describedby="employeeErr"
                     selectedItems={value}
                     updatePeople={(items) => {
-                      if (items?.[0]) {
+                      if (items?.[0]?.text) {
                         setValue("empName", items[0].text);
                         onChange(items[0]);
                       } else {
@@ -347,7 +375,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
-                required
+                required={
+                  props.data.empType === EMPTYPES.Civilian ||
+                  props.data.empType === EMPTYPES.Military
+                }
               >
                 <NumberFieldIcon className={classes.fieldIcon} />
                 MPCN
@@ -356,19 +387,45 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 name="MPCN"
                 control={control}
                 rules={{
-                  required: "MPCN is required",
+                  required:
+                    (props.data.empType === EMPTYPES.Civilian ||
+                      props.data.empType === EMPTYPES.Military) &&
+                    "MPCN is required",
+                  minLength: {
+                    value: 7,
+                    message: "MPCN cannot be less than 7 digits",
+                  },
+                  maxLength: {
+                    value: 7,
+                    message: "MPCN cannot be more than 7 digits",
+                  },
                   pattern: {
-                    value: /^\d{7}$/i,
-                    message: "MPCN must be 7 digits",
+                    value:
+                      /^\d+$/ /* We don't want the pattern to enforce 7 numbers so we can have a unique error for non-numeric (eg letters/symbols) */,
+                    message: "MPCN can only consist of numbers",
                   },
                 }}
                 render={({ field }) => (
-                  <Input {...field} aria-describedby="MPCNErr" id="MPCNId" />
+                  <Input
+                    {...field}
+                    aria-describedby="MPCNErr"
+                    placeholder={
+                      props.data.empType === EMPTYPES.Contractor ? "N/A" : ""
+                    }
+                    disabled={props.data.empType === EMPTYPES.Contractor}
+                    id="MPCNId"
+                    inputMode="numeric"
+                  />
                 )}
               />
               {errors.MPCN && (
                 <Text id="MPCNErr" className={classes.errorText}>
-                  {errors.MPCN.message}
+                  {
+                    /* Prioritize showing the error for non-numeric */
+                    errors.MPCN.types?.pattern
+                      ? errors.MPCN.types?.pattern
+                      : errors.MPCN.message
+                  }
                 </Text>
               )}
               <Text

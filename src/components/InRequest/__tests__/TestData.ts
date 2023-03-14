@@ -68,7 +68,6 @@ export const ctrRequest: IInRequest = {
   empName: testUsers[1].Title,
   empType: EMPTYPES.Contractor,
   gradeRank: "",
-  MPCN: 4321567,
   SAR: 3,
   workLocation: "local",
   office: "OZIC",

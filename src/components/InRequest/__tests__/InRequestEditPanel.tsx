@@ -62,6 +62,152 @@ const isNotApplicablePSC = async (request: IInRequest) => {
   expect(psc).toHaveValue("");
 };
 
+/** Check that ensures the ManPower Control Number (MPCN) is properly enabled */
+const isEnterableMPCN = async (request: IInRequest) => {
+  render(
+    <QueryClientProvider client={queryClient}>
+      <InRequestEditPanel
+        onEditCancel={() => {}}
+        isEditPanelOpen={true}
+        onEditSave={() => {}}
+        data={request}
+      />
+    </QueryClientProvider>
+  );
+
+  // Type in the MPCN input box
+  const mpcn = screen.getByRole("textbox", {
+    name: /mpcn/i,
+  });
+
+  // Clear the input, then type the passed in data
+  await user.clear(mpcn);
+  await user.type(mpcn, "1234567");
+
+  // Ensure value of MPCN now matches what we typed
+  expect(mpcn).toHaveValue("1234567");
+};
+
+describe("ManPower Control Number (MPCN)", () => {
+  it("is available for Civilian", async () => {
+    await isEnterableMPCN(civRequest);
+  });
+
+  it("is available for Miliary", async () => {
+    await isEnterableMPCN(milRequest);
+  });
+
+  it("is not selectable for Contractor", async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InRequestEditPanel
+          onEditCancel={() => {}}
+          isEditPanelOpen={true}
+          onEditSave={() => {}}
+          data={ctrRequest}
+        />
+      </QueryClientProvider>
+    );
+
+    // Type in the MPCN input box
+    const mpcn = screen.getByRole("textbox", {
+      name: /mpcn/i,
+    });
+    await user.type(mpcn, "1234567");
+    // Ensure value of MPCN is still ""
+    expect(mpcn).toHaveValue("");
+  });
+
+  it("displays N/A for Contractor", async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InRequestEditPanel
+          onEditCancel={() => {}}
+          isEditPanelOpen={true}
+          onEditSave={() => {}}
+          data={ctrRequest}
+        />
+      </QueryClientProvider>
+    );
+
+    // Check placeholder is N/A
+    const psc = screen.getByRole("textbox", {
+      name: /mpcn/i,
+    });
+    expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
+
+    // Check that value is "" so it is displaying the placeholder
+    expect(psc).toHaveValue("");
+  });
+
+  const shortMPCN = /mpcn cannot be less than 7 digits/i;
+  const longMPCN = /mpcn cannot be more than 7 digits/i;
+  const characterMPCN = /mpcn can only consist of numbers/i;
+
+  const validMPCN = ["1234567", "0000000"];
+
+  it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InRequestEditPanel
+          onEditCancel={() => {}}
+          isEditPanelOpen={true}
+          onEditSave={() => {}}
+          data={milRequest}
+        />
+      </QueryClientProvider>
+    );
+
+    // Clear the input, then type the passed in data
+    const mpcnFld = screen.getByRole("textbox", {
+      name: /mpcn/i,
+    });
+    await user.clear(mpcnFld);
+    await user.type(mpcnFld, mpcn ? mpcn : "");
+
+    // Ensure the error messages don't display
+    const errText = screen.queryByText(shortMPCN || longMPCN || characterMPCN);
+    expect(errText).not.toBeInTheDocument();
+  });
+
+  const invalidMPCN = [
+    { mpcn: "123", err: shortMPCN }, // Cannot be less than 7 characters
+    { mpcn: "12345678", err: longMPCN }, // Cannot be more than 7 characters
+    { mpcn: "1ab2345", err: characterMPCN }, // Cannot have alphanumeric
+    { mpcn: "1@#3456", err: characterMPCN }, // Cannot have symbols
+    { mpcn: "-1234567", err: characterMPCN }, // Cannot be a negative number
+    { mpcn: "1a23456789", err: characterMPCN }, // Alphanumeric error supercedes max length error
+    { mpcn: "1a2", err: characterMPCN }, // Alphanumeric error supercedes min length error
+  ];
+
+  it.each(invalidMPCN)(
+    "shows error on invalid values  - $mpcn",
+    async ({ mpcn, err }) => {
+      render(
+        <QueryClientProvider client={queryClient}>
+          <InRequestEditPanel
+            onEditCancel={() => {}}
+            isEditPanelOpen={true}
+            onEditSave={() => {}}
+            data={milRequest}
+          />
+        </QueryClientProvider>
+      );
+
+      // Clear the input, then type the passed in data
+      const mpcnFld = screen.getByRole("textbox", {
+        name: /mpcn/i,
+      });
+      await user.clear(mpcnFld);
+      await user.type(mpcnFld, mpcn ? mpcn : "");
+
+      // Ensure the appropriate error displays
+      const errText = screen.queryByText(err);
+      expect(errText).toBeInTheDocument();
+    }
+  );
+});
+
 // Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
 describe("Position Sensitivity Code", () => {
   it("is not selectable for Civilian", async () => {
