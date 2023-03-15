@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -13,8 +13,8 @@ import { IInRequest } from "api/RequestApi";
 const queryClient = new QueryClient();
 const user = userEvent.setup();
 
-/** Check that ensures the Position Sensitivty Code is properly disabled */
-const notSelectablePSC = async (request: IInRequest) => {
+/** Render an open InRequestEditPanel within a QueryClientProvider */
+const renderEditPanelForRequest = (request: IInRequest) => {
   render(
     <QueryClientProvider client={queryClient}>
       <InRequestEditPanel
@@ -25,6 +25,17 @@ const notSelectablePSC = async (request: IInRequest) => {
       />
     </QueryClientProvider>
   );
+};
+
+/** Search for an Input by it's Label, and ensure it is not present */
+const checkForInputNotToExist = (labelText: RegExp) => {
+  const field = screen.queryByLabelText(labelText);
+  expect(field).not.toBeInTheDocument();
+};
+
+/** Check that ensures the Position Sensitivty Code is properly disabled */
+const notSelectablePSC = async (request: IInRequest) => {
+  await renderEditPanelForRequest(request);
 
   // Click on the PSC
   const psc = screen.getByRole("combobox", {
@@ -41,16 +52,7 @@ const notSelectablePSC = async (request: IInRequest) => {
 
 /** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
 const isNotApplicablePSC = async (request: IInRequest) => {
-  render(
-    <QueryClientProvider client={queryClient}>
-      <InRequestEditPanel
-        onEditCancel={() => {}}
-        isEditPanelOpen={true}
-        onEditSave={() => {}}
-        data={ctrRequest}
-      />
-    </QueryClientProvider>
-  );
+  renderEditPanelForRequest(request);
 
   // Check placeholder is N/A
   const psc = screen.getByRole("combobox", {
@@ -64,16 +66,7 @@ const isNotApplicablePSC = async (request: IInRequest) => {
 
 /** Check that ensures the ManPower Control Number (MPCN) is properly enabled */
 const isEnterableMPCN = async (request: IInRequest) => {
-  render(
-    <QueryClientProvider client={queryClient}>
-      <InRequestEditPanel
-        onEditCancel={() => {}}
-        isEditPanelOpen={true}
-        onEditSave={() => {}}
-        data={request}
-      />
-    </QueryClientProvider>
-  );
+  renderEditPanelForRequest(request);
 
   // Type in the MPCN input box
   const mpcn = screen.getByRole("textbox", {
@@ -98,16 +91,7 @@ describe("ManPower Control Number (MPCN)", () => {
   });
 
   it("is not selectable for Contractor", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestEditPanel
-          onEditCancel={() => {}}
-          isEditPanelOpen={true}
-          onEditSave={() => {}}
-          data={ctrRequest}
-        />
-      </QueryClientProvider>
-    );
+    renderEditPanelForRequest(ctrRequest);
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
@@ -119,16 +103,7 @@ describe("ManPower Control Number (MPCN)", () => {
   });
 
   it("displays N/A for Contractor", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestEditPanel
-          onEditCancel={() => {}}
-          isEditPanelOpen={true}
-          onEditSave={() => {}}
-          data={ctrRequest}
-        />
-      </QueryClientProvider>
-    );
+    renderEditPanelForRequest(ctrRequest);
 
     // Check placeholder is N/A
     const psc = screen.getByRole("textbox", {
@@ -228,5 +203,41 @@ describe("Position Sensitivity Code", () => {
 
   it("displays N/A for Military", async () => {
     await isNotApplicablePSC(milRequest);
+  });
+});
+
+describe("Has Existing Contractor CAC", () => {
+  const hasExistingCACLabel =
+    /does the support contractor have an existing contractor cac\?/i;
+  it("is selectable for Contractors", async () => {
+    renderEditPanelForRequest(ctrRequest);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasCAC = screen.getByRole("radiogroup", {
+      name: hasExistingCACLabel,
+    });
+
+    const yesBttn = within(hasCAC).getByLabelText(/yes/i);
+    const noBttn = within(hasCAC).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is not available for Miliary", async () => {
+    renderEditPanelForRequest(milRequest);
+    checkForInputNotToExist(hasExistingCACLabel);
+  });
+
+  it("is not available for Civilians", async () => {
+    renderEditPanelForRequest(civRequest);
+    checkForInputNotToExist(hasExistingCACLabel);
   });
 });

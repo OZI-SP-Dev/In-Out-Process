@@ -845,13 +845,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 <div className={classes.fieldContainer}>
                   <Label
                     htmlFor="hasExistingCACId"
+                    id="hasExistingCACLabelId"
                     size="small"
                     weight="semibold"
                     className={classes.fieldLabel}
                     required
                   >
                     <ToggleLeftRegular className={classes.fieldIcon} />
-                    Does the Support Contractor have an Existing CAC?
+                    Does the Support Contractor have an Existing Contractor CAC?
                   </Label>
                   <Controller
                     name="hasExistingCAC"
@@ -870,6 +871,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                           onChange(e, option);
                         }}
                         aria-describedby="hasExistingCACErr"
+                        aria-labelledby="hasExistingCACLabelId"
                         id="hasExistingCACId"
                       >
                         <Radio key={"yes"} value={"yes"} label="Yes" />
