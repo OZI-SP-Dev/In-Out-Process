@@ -408,10 +408,12 @@ export const InRequestNewForm = () => {
         />
         {errors.MPCN && (
           <Text id="MPCNErr" className={classes.errorText}>
-            {/* Prioritize showing the error for non-numeric */
-            errors.MPCN.types?.pattern
-              ? errors.MPCN.types?.pattern
-              : errors.MPCN.message}
+            {
+              /* Prioritize showing the error for non-numeric */
+              errors.MPCN.types?.pattern
+                ? errors.MPCN.types?.pattern
+                : errors.MPCN.message
+            }
           </Text>
         )}
         <Text weight="regular" size={200} className={classes.fieldDescription}>
@@ -869,13 +871,14 @@ export const InRequestNewForm = () => {
           <div className={classes.fieldContainer}>
             <Label
               htmlFor="hasExistingCACId"
+              id="hasExistingCACLabelId"
               size="small"
               weight="semibold"
               className={classes.fieldLabel}
               required
             >
               <ToggleLeftRegular className={classes.fieldIcon} />
-              Does the Support Contractor have an Existing CAC?
+              Does the Support Contractor have an Existing Contractor CAC?
             </Label>
             <Controller
               name="hasExistingCAC"
@@ -895,6 +898,7 @@ export const InRequestNewForm = () => {
                     onChange(e, option);
                   }}
                   aria-describedby="hasExistingCACErr"
+                  aria-labelledby="hasExistingCACLabelId"
                   id="hasExistingCACId"
                 >
                   <Radio key={"yes"} value={"yes"} label="Yes" />
