@@ -510,6 +510,7 @@ export const InRequestNewForm = () => {
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="workLocationId"
+          id="workLocationLabelId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -529,7 +530,8 @@ export const InRequestNewForm = () => {
             <RadioGroup
               {...field}
               id="workLocationId"
-              aria-describedby="workLocationErr"
+              aria-describedby="workLocationErr workLocationDesc"
+              aria-labelledby="workLocationLabelId"
               layout="horizontal"
             >
               {WORKLOCATIONS.map((workLocation, i) => {
@@ -549,6 +551,14 @@ export const InRequestNewForm = () => {
             {errors.workLocation.message}
           </Text>
         )}
+        <Text
+          id="workLocationDesc"
+          weight="regular"
+          size={200}
+          className={classes.fieldDescription}
+        >
+          Greater than 50 miles qualifies as Remote
+        </Text>
       </div>
       <div className={classes.fieldContainer}>
         <Label

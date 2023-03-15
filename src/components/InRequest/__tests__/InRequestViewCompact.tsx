@@ -6,6 +6,7 @@ import {
   civRequest,
   milRequest,
 } from "components/InRequest/__tests__/TestData";
+import { EMPTYPES } from "constants/EmpTypes";
 
 /** Check if there is a text element matching the desired text
  * @param text The text we are looking for
@@ -72,4 +73,22 @@ describe("CAC Expiration", () => {
     render(<InRequestViewCompact formData={civRequest} />);
     expectTextToBeInTheDocument(cacLabelText, false);
   });
+});
+
+describe("Local or Remote", () => {
+  const localOrRemoteLabelText = /local or remote\?/i;
+
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, request: civRequest },
+    { empType: EMPTYPES.Contractor, request: ctrRequest },
+    { empType: EMPTYPES.Military, request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed for $empType",
+    async ({ empType, request }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(localOrRemoteLabelText, true);
+    }
+  );
 });

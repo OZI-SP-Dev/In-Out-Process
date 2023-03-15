@@ -9,6 +9,7 @@ import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
+import { EMPTYPES } from "constants/EmpTypes";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -240,4 +241,55 @@ describe("Has Existing Contractor CAC", () => {
     renderEditPanelForRequest(civRequest);
     checkForInputNotToExist(hasExistingCACLabel);
   });
+});
+
+describe("Local Or Remote", () => {
+  const localOrRemoteLabel = /local or remote\?/i;
+
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, request: civRequest },
+    { empType: EMPTYPES.Contractor, request: ctrRequest },
+    { empType: EMPTYPES.Military, request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is selectable for $empType",
+    async ({ empType, request }) => {
+      renderEditPanelForRequest(request);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      const localBttn = within(localOrRemote).getByLabelText(/local/i);
+      const remoteBttn = within(localOrRemote).getByLabelText(/remote/i);
+
+      // Click "Local" and ensure it reflects checked and that "Remote" is not
+      await user.click(localBttn);
+      expect(localBttn).toBeChecked();
+      expect(remoteBttn).not.toBeChecked();
+
+      // Click "Remote" and ensure it reflects checked and that "Local" is not
+      await user.click(remoteBttn);
+      expect(remoteBttn).toBeChecked();
+      expect(localBttn).not.toBeChecked();
+    }
+  );
+
+  it.each(employeeTypes)(
+    "displays hint text for $empType",
+    async ({ empType, request }) => {
+      renderEditPanelForRequest(request);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      expect(localOrRemote).toHaveAccessibleDescription(
+        /greater than 50 miles qualifies as remote/i
+      );
+    }
+  );
 });

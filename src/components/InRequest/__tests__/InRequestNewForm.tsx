@@ -235,3 +235,51 @@ describe("Has Existing Contractor CAC", () => {
     await checkForInputNotToExist(hasExistingCACLabel);
   });
 });
+
+describe("Local Or Remote", () => {
+  const localOrRemoteLabel = /local or remote\?/i;
+
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian },
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  it.each(employeeTypes)("is selectable for $empType", async ({ empType }) => {
+    await renderThenSelectEmpType(empType);
+
+    // Locate the RadioGroup for Local/Remote
+    const localOrRemote = screen.getByRole("radiogroup", {
+      name: localOrRemoteLabel,
+    });
+
+    const localBttn = within(localOrRemote).getByLabelText(/local/i);
+    const remoteBttn = within(localOrRemote).getByLabelText(/remote/i);
+
+    // Click "Local" and ensure it reflects checked and that "Remote" is not
+    await user.click(localBttn);
+    expect(localBttn).toBeChecked();
+    expect(remoteBttn).not.toBeChecked();
+
+    // Click "Remote" and ensure it reflects checked and that "Local" is not
+    await user.click(remoteBttn);
+    expect(remoteBttn).toBeChecked();
+    expect(localBttn).not.toBeChecked();
+  });
+
+  it.each(employeeTypes)(
+    "displays hint text for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      expect(localOrRemote).toHaveAccessibleDescription(
+        /greater than 50 miles qualifies as remote/i
+      );
+    }
+  );
+});
