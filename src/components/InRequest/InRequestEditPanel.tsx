@@ -23,12 +23,8 @@ import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
-import {
-  GS_GRADES,
-  MIL_GRADES,
-  NH_GRADES,
-  OFFICES,
-} from "constants/GradeRanks";
+import { GS_GRADES, MIL_GRADES, NH_GRADES } from "constants/GradeRanks";
+import { OFFICES } from "constants/Offices";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { IInRequest, useUpdateRequest } from "api/RequestApi";
 import {

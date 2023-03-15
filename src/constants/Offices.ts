@@ -35,6 +35,7 @@ export const OFFICES: IComboBoxOption[] = [
     itemType: SelectableOptionMenuItemType.Divider,
   },
   { key: "OZT", text: "OZT" },
+  { key: "OZT-PLM", text: "OZT-PLM" },
   {
     key: "dividerOZX",
     text: "-",
