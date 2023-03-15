@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InRequestNewForm } from "components/InRequest/InRequestNewForm";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -17,8 +17,8 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockedUsedNavigate,
 }));
 
-/** Check that ensures the Position Sensitivty Code is properly disabled */
-const notSelectablePSC = async (empType: EMPTYPES) => {
+/** Render a InRequestNewForm within a QueryClientProvider, then click on desired Employee Type Radio Button */
+const renderThenSelectEmpType = async (empType: EMPTYPES) => {
   render(
     <QueryClientProvider client={queryClient}>
       <InRequestNewForm />
@@ -28,6 +28,17 @@ const notSelectablePSC = async (empType: EMPTYPES) => {
   // Click on the appropriate empType radio button
   const empTypeOpt = screen.getByRole("radio", { name: empType });
   await user.click(empTypeOpt);
+};
+
+/** Search for an Input by it's Label, and ensure it is not present */
+const checkForInputNotToExist = (labelText: RegExp) => {
+  const field = screen.queryByLabelText(labelText);
+  expect(field).not.toBeInTheDocument();
+};
+
+/** Check that ensures the Position Sensitivty Code is properly disabled */
+const notSelectablePSC = async (empType: EMPTYPES) => {
+  await renderThenSelectEmpType(empType);
 
   // Click on the PSC
   const psc = screen.getByRole("combobox", {
@@ -44,15 +55,7 @@ const notSelectablePSC = async (empType: EMPTYPES) => {
 
 /** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
 const isNotApplicablePSC = async (empType: EMPTYPES) => {
-  render(
-    <QueryClientProvider client={queryClient}>
-      <InRequestNewForm />
-    </QueryClientProvider>
-  );
-
-  // Click on the appropriate empType radio button
-  const empTypeOpt = screen.getByRole("radio", { name: empType });
-  await user.click(empTypeOpt);
+  await renderThenSelectEmpType(empType);
 
   // Check placeholder is N/A
   const psc = screen.getByRole("combobox", {
@@ -66,16 +69,7 @@ const isNotApplicablePSC = async (empType: EMPTYPES) => {
 
 /** Check that ensures the ManPower Control Number (MPCN) is properly enabled */
 const isEnterableMPCN = async (empType: EMPTYPES) => {
-  render(
-    <QueryClientProvider client={queryClient}>
-      <InRequestNewForm />
-    </QueryClientProvider>
-  );
-
-  // Click on the "Civilian" radio button
-  const civType = screen.getByRole("radio", { name: empType });
-  await user.click(civType);
-
+  await renderThenSelectEmpType(empType);
   // Type in the MPCN input box
   const mpcn = screen.getByRole("textbox", {
     name: /mpcn/i,
@@ -96,15 +90,7 @@ describe("ManPower Control Number (MPCN)", () => {
   });
 
   it("is not selectable for Contractor", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestNewForm />
-      </QueryClientProvider>
-    );
-
-    // Click on the "Contractor" radio button
-    const ctrType = screen.getByRole("radio", { name: EMPTYPES.Contractor });
-    await user.click(ctrType);
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
@@ -117,15 +103,7 @@ describe("ManPower Control Number (MPCN)", () => {
   });
 
   it("displays N/A for Contractor", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestNewForm />
-      </QueryClientProvider>
-    );
-
-    // Click on the "Contractor" radio button
-    const empTypeOpt = screen.getByRole("radio", { name: EMPTYPES.Contractor });
-    await user.click(empTypeOpt);
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
 
     // Check placeholder is N/A
     const mpcn = screen.getByRole("textbox", {
@@ -144,15 +122,7 @@ describe("ManPower Control Number (MPCN)", () => {
   const validMPCN = ["1234567", "0000000"];
 
   it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestNewForm />
-      </QueryClientProvider>
-    );
-
-    // Click on the "Civilian" radio button
-    const civType = screen.getByRole("radio", { name: EMPTYPES.Civilian });
-    await user.click(civType);
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
 
     // Type in the MPCN input box
     const mpcnFld = screen.getByRole("textbox", {
@@ -181,15 +151,7 @@ describe("ManPower Control Number (MPCN)", () => {
   it.each(invalidMPCN)(
     "shows error on invalid values - $mpcn",
     async ({ mpcn, err }) => {
-      render(
-        <QueryClientProvider client={queryClient}>
-          <InRequestNewForm />
-        </QueryClientProvider>
-      );
-
-      // Click on the "Civilian" radio button
-      const civType = screen.getByRole("radio", { name: EMPTYPES.Civilian });
-      await user.click(civType);
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
 
       // Type in the MPCN input box
       const mpcnFld = screen.getByRole("textbox", {
@@ -206,15 +168,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
 describe("Position Sensitivity Code", () => {
   it("is available for Civilian", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <InRequestNewForm />
-      </QueryClientProvider>
-    );
-
-    // Click on the "Civilian" radio button
-    const civType = screen.getByRole("radio", { name: EMPTYPES.Civilian });
-    await user.click(civType);
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
 
     // Click on the PSC
     const psc = screen.getByRole("combobox", {
@@ -243,5 +197,41 @@ describe("Position Sensitivity Code", () => {
 
   it("displays N/A for Military", async () => {
     await isNotApplicablePSC(EMPTYPES.Military);
+  });
+});
+
+describe("Has Existing Contractor CAC", () => {
+  const hasExistingCACLabel =
+    /does the support contractor have an existing contractor cac\?/i;
+  it("is selectable for Contractors", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasCAC = screen.getByRole("radiogroup", {
+      name: hasExistingCACLabel,
+    });
+
+    const yesBttn = within(hasCAC).getByLabelText(/yes/i);
+    const noBttn = within(hasCAC).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is not available for Miliary", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Military);
+    await checkForInputNotToExist(hasExistingCACLabel);
+  });
+
+  it("is not available for Civilians", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
+    await checkForInputNotToExist(hasExistingCACLabel);
   });
 });
