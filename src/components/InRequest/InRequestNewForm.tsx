@@ -126,6 +126,7 @@ export const InRequestNewForm = () => {
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
   const employee = watch("employee");
+  const workLocation = watch("workLocation");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -560,6 +561,49 @@ export const InRequestNewForm = () => {
           Greater than 50 miles qualifies as Remote
         </Text>
       </div>
+      {
+        /* Display field for entering location if Remote */
+        workLocation === "remote" && (
+          <div className={classes.fieldContainer}>
+            <Label
+              htmlFor="workLocationDetailId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+              required
+            >
+              <TextFieldIcon className={classes.fieldIcon} />
+              Remote Location
+            </Label>
+            <Controller
+              name="workLocationDetail"
+              control={control}
+              rules={{
+                required: "Remote Location is required for Remote Employees",
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  aria-describedby="workLocationDetailErr"
+                  id="workLocationDetailId"
+                />
+              )}
+            />
+            {errors.workLocationDetail && (
+              <Text id="workLocationDetailErr" className={classes.errorText}>
+                {errors.workLocationDetail.message}
+              </Text>
+            )}
+            <Text
+              weight="regular"
+              size={200}
+              className={classes.fieldDescription}
+            >
+              City, State
+            </Text>
+          </div>
+        )
+      }
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="arrivalDateId"

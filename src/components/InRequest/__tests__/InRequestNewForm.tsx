@@ -4,6 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { InRequestNewForm } from "components/InRequest/InRequestNewForm";
 import { EMPTYPES } from "constants/EmpTypes";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import {
+  remoteLocationDataset,
+  remoteLocationOnlyDataset,
+} from "components/InRequest/__tests__/TestData";
 
 const user = userEvent.setup();
 
@@ -30,10 +34,37 @@ const renderThenSelectEmpType = async (empType: EMPTYPES) => {
   await user.click(empTypeOpt);
 };
 
-/** Search for an Input by it's Label, and ensure it is not present */
-const checkForInputNotToExist = (labelText: RegExp) => {
+/** Check if there is an input field matching the desired label
+ * @param labelText The text we are looking for
+ * @param expected Whether or not we expect it in the document or expect it NOT in the document
+ */
+const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
   const field = screen.queryByLabelText(labelText);
-  expect(field).not.toBeInTheDocument();
+
+  if (expected) {
+    expect(field).toBeInTheDocument();
+  } else {
+    expect(field).not.toBeInTheDocument();
+  }
+};
+
+/** Check for working input */
+const checkEnterableTextbox = async (
+  fieldName: RegExp,
+  text: string | undefined
+) => {
+  // Type in the input box
+  const textboxField = screen.getByRole("textbox", {
+    name: fieldName,
+  });
+
+  // We have to allow the parameter to be undefined, but we need to throw error if it was
+  expect(text).not.toBeUndefined();
+
+  await user.type(textboxField, text ? text : "");
+
+  // Ensure value now matches what we typed
+  expect(textboxField).toHaveValue(text);
 };
 
 /** Check that ensures the Position Sensitivty Code is properly disabled */
@@ -227,12 +258,12 @@ describe("Has Existing Contractor CAC", () => {
 
   it("is not available for Miliary", async () => {
     await renderThenSelectEmpType(EMPTYPES.Military);
-    await checkForInputNotToExist(hasExistingCACLabel);
+    checkForInputToExist(hasExistingCACLabel, false);
   });
 
   it("is not available for Civilians", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkForInputNotToExist(hasExistingCACLabel);
+    checkForInputToExist(hasExistingCACLabel, false);
   });
 });
 
@@ -280,6 +311,56 @@ describe("Local Or Remote", () => {
       expect(localOrRemote).toHaveAccessibleDescription(
         /greater than 50 miles qualifies as remote/i
       );
+    }
+  );
+});
+
+describe("Remote Location", () => {
+  const localOrRemoteLabel = /local or remote\?/i;
+  const remoteLocationLabel = /remote location/i;
+
+  it.each(remoteLocationDataset)(
+    "is displayed/hidden when remote/local respectively - $request.workLocation",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+
+      if (request.workLocation === "local") {
+        checkForInputToExist(remoteLocationLabel, false);
+      } else {
+        checkForInputToExist(remoteLocationLabel, true);
+      }
+    }
+  );
+
+  it.each(remoteLocationOnlyDataset)(
+    "is editable when remote - $request.workLocationDetail",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+      checkEnterableTextbox(remoteLocationLabel, request.workLocationDetail);
     }
   );
 });

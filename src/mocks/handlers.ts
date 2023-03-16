@@ -297,6 +297,7 @@ export const handlers = [
           SAR: body.SAR,
           sensitivityCode: body.sensitivityCode,
           workLocation: body.workLocation,
+          workLocationDetail: body.workLocationDetail,
           office: body.office,
           isNewCivMil: body.isNewCivMil,
           prevOrg: body.prevOrg,
@@ -685,6 +686,7 @@ let requests: IResponseItem[] = [
     SAR: 5,
     sensitivityCode: 4,
     workLocation: "remote",
+    workLocationDetail: "Orlando, FL",
     office: "OZIC",
     isNewCivMil: "yes",
     prevOrg: "",
@@ -963,6 +965,9 @@ const updateRequest = (item: IRequestItem) => {
     requests[index].workLocation = item.workLocation
       ? item.workLocation
       : requests[index].workLocation;
+    requests[index].workLocationDetail = item.workLocationDetail
+      ? item.workLocationDetail
+      : requests[index].workLocationDetail;
     requests[index].office = item.office ? item.office : requests[index].office;
     requests[index].isNewCivMil = item.isNewCivMil
       ? item.isNewCivMil

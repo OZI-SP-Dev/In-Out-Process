@@ -5,6 +5,7 @@ import {
   ctrRequest,
   civRequest,
   milRequest,
+  remoteLocationDataset,
 } from "components/InRequest/__tests__/TestData";
 import { EMPTYPES } from "constants/EmpTypes";
 
@@ -75,6 +76,7 @@ describe("CAC Expiration", () => {
   });
 });
 
+// Remote location is displayed under the 'Local or Remote' header
 describe("Local or Remote", () => {
   const localOrRemoteLabelText = /local or remote\?/i;
 
@@ -84,11 +86,26 @@ describe("Local or Remote", () => {
     { empType: EMPTYPES.Military, request: milRequest },
   ];
 
-  it.each(employeeTypes)(
-    "is displayed for $empType",
-    async ({ empType, request }) => {
+  it.each(employeeTypes)("is displayed for $empType", async ({ request }) => {
+    render(<InRequestViewCompact formData={request} />);
+    expectTextToBeInTheDocument(localOrRemoteLabelText, true);
+  });
+
+  it.each(remoteLocationDataset)(
+    "has value of 'local' or remote location - $request.workLocation",
+    ({ request }) => {
       render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(localOrRemoteLabelText, true);
+      const textElement = screen.queryByText(/local or remote\?/i);
+
+      const expectedValue =
+        request.workLocation === "local"
+          ? "local"
+          : request.workLocationDetail
+          ? request.workLocationDetail
+          : "";
+      expect(textElement).toHaveAccessibleDescription(
+        new RegExp(expectedValue, "i")
+      );
     }
   );
 });

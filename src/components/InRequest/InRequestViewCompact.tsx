@@ -112,12 +112,18 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </div>
         )}
         <div>
-          <Label weight="semibold" htmlFor="workLocationCVId">
+          <Label
+            weight="semibold"
+            htmlFor="workLocationCVId"
+            aria-describedby="workLocationCVId"
+          >
             Local or Remote?
           </Label>
           <br />
           <Text id="workLocationCVId" className={classes.capitalize}>
-            {formData.workLocation}
+            {formData.workLocation === "local"
+              ? formData.workLocation
+              : formData.workLocationDetail}
           </Text>
         </div>
         {(formData.empType === EMPTYPES.Civilian ||
