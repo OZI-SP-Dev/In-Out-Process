@@ -561,7 +561,9 @@ const createInboundChecklistItems = (request: IInRequest) => {
   addChecklistItem(templates.Brief971Folder);
 
   // Signed performance/contribution plan
-  addChecklistItem(templates.SignedPerformContribPlan);
+  if (request.empType === EMPTYPES.Civilian) {
+    addChecklistItem(templates.SignedPerformContribPlan);
+  }
 
   // Signed telework agreement
   addChecklistItem(templates.SignedTeleworkAgreement);
