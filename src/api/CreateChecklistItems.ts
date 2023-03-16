@@ -133,7 +133,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.DTS,
     TemplateId: templates.DTS,
     Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [templates.GTC],
+    Prereqs: [templates.ObtainCACGov],
   },
   {
     Title: "Create/Update ATAAPS account",
