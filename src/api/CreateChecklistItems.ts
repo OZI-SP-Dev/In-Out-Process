@@ -557,10 +557,12 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Unit orientation conducted (all Employees)
   addChecklistItem(templates.UnitOrientation);
 
-  // Create & brief 971 folder
-  addChecklistItem(templates.Brief971Folder);
+  // Create & brief 971 folder (Civilian Only)
+  if (request.empType === EMPTYPES.Civilian) {
+    addChecklistItem(templates.Brief971Folder);
+  }
 
-  // Signed performance/contribution plan
+  // Signed performance/contribution plan (Civilian Only)
   if (request.empType === EMPTYPES.Civilian) {
     addChecklistItem(templates.SignedPerformContribPlan);
   }
