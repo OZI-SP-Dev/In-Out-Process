@@ -218,7 +218,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Confirm AFMC myETMS account",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.ConfirmMyETMS,
-    Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://etmsweb.wpafb.af.mil/etmsaspx/mainx/profile.aspx?secId=-18911030">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
     Prereqs: [templates.VerifyMyETMS],
   },
   {
