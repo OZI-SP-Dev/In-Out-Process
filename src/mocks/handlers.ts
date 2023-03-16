@@ -303,6 +303,8 @@ export const handlers = [
           prevOrg: body.prevOrg,
           hasExistingCAC: body.hasExistingCAC,
           CACExpiration: body.CACExpiration,
+          contractNumber: body.contractNumber,
+          contractEndDate: body.contractEndDate,
           eta: body.eta,
           completionDate: body.completionDate,
           supGovLead: { ...supervisor },
@@ -691,7 +693,9 @@ let requests: IResponseItem[] = [
     isNewCivMil: "yes",
     prevOrg: "",
     hasExistingCAC: "no",
-    CACExpiration: "2022-12-31T00:00:00.000Z",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[0] },
@@ -712,7 +716,9 @@ let requests: IResponseItem[] = [
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
     hasExistingCAC: "no",
-    CACExpiration: "2022-12-31T00:00:00.000Z",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[0] },
@@ -736,6 +742,8 @@ let requests: IResponseItem[] = [
     prevOrg: "",
     hasExistingCAC: "no",
     CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[1] },
@@ -754,7 +762,9 @@ let requests: IResponseItem[] = [
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
     hasExistingCAC: "no",
-    CACExpiration: "2022-12-31T00:00:00.000Z",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[0] },
@@ -777,7 +787,9 @@ let requests: IResponseItem[] = [
     isNewCivMil: "no",
     prevOrg: "AFLCMC/WA",
     hasExistingCAC: "no",
-    CACExpiration: "2022-12-31T00:00:00.000Z",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[1] },
@@ -785,6 +797,26 @@ let requests: IResponseItem[] = [
     isTraveler: "no",
     isSupervisor: "no",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
+  },
+  {
+    Id: 6,
+    empName: "Tractor, Kauhn",
+    empType: EMPTYPES.Contractor,
+    gradeRank: "",
+    SAR: 6,
+    workLocation: "local",
+    office: "OZIC",
+    isNewCivMil: "no",
+    prevOrg: "AFLCMC/WA",
+    hasExistingCAC: "yes",
+    CACExpiration: "2024-12-31T05:00:00.000Z",
+    contractNumber: "F123456-7890-111-1111AAA-ABC",
+    contractEndDate: "2024-12-31T05:00:00.000Z",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: { ...testUsers[0] },
+    isTraveler: "no",
+    isSupervisor: "no",
   },
 ];
 let nextRequestId = requests.length + 1;
@@ -981,6 +1013,12 @@ const updateRequest = (item: IRequestItem) => {
     requests[index].CACExpiration = item.CACExpiration
       ? item.CACExpiration
       : requests[index].CACExpiration;
+    requests[index].contractNumber = item.contractNumber
+      ? item.contractNumber
+      : requests[index].contractNumber;
+    requests[index].contractEndDate = item.contractEndDate
+      ? item.contractEndDate
+      : requests[index].contractEndDate;
     requests[index].eta = item.eta ? item.eta : requests[index].eta;
     requests[index].completionDate = item.completionDate
       ? item.completionDate

@@ -31,6 +31,10 @@ export const transformInRequestFromSP = (
     CACExpiration: request.CACExpiration
       ? new Date(request.CACExpiration)
       : undefined,
+    contractNumber: request.contractNumber,
+    contractEndDate: request.contractEndDate
+      ? new Date(request.contractEndDate)
+      : undefined,
     eta: new Date(request.eta),
     completionDate: new Date(request.completionDate),
     supGovLead: new Person({
@@ -94,6 +98,10 @@ const transformInRequestToSP = async (
     CACExpiration: request.CACExpiration
       ? request.CACExpiration.toISOString()
       : "",
+    contractNumber: request.contractNumber,
+    contractEndDate: request.contractEndDate
+      ? request.contractEndDate.toISOString()
+      : "",
     eta: request.eta.toISOString(),
     completionDate: request.completionDate.toISOString(),
     supGovLeadId:
@@ -126,7 +134,7 @@ const transformInRequestToSP = async (
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,hasExistingCAC,CACExpiration,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
+  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,hasExistingCAC,CACExpiration,contractNumber,contractEndDate,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -252,6 +260,10 @@ export type IInRequest = {
   hasExistingCAC: "yes" | "no" | "";
   /** Optional - Can only be set if it is a Ctr. Must be '' for Civ or Mil. */
   CACExpiration?: Date;
+  /** Optional - Must be set if it is a Ctr. Must be '' for Civ or Mil */
+  contractNumber?: string;
+  /** Optional - Must be set if it is a Ctr. Must be '' for Civ or Mil */
+  contractEndDate?: Date;
   /** Required - The user's Estimated Arrival Date */
   eta: Date;
   /** Required - The Expected Completion Date - Default to 28 days from eta*/
@@ -279,6 +291,7 @@ export type IResponseItem = Omit<
   | "eta"
   | "completionDate"
   | "CACExpiration"
+  | "contractEndDate"
   | "closedOrCancelledDate"
   | "status" // Drop the status object from the type, as it is used internally and is not data from the repository
 > & {
@@ -286,6 +299,7 @@ export type IResponseItem = Omit<
   eta: string;
   completionDate: string;
   CACExpiration: string;
+  contractEndDate: string;
   closedOrCancelledDate?: string;
 };
 

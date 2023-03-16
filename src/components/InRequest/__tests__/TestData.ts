@@ -78,6 +78,8 @@ export const ctrRequest: IInRequest = {
   prevOrg: "",
   hasExistingCAC: "yes",
   CACExpiration: new Date("2024-12-31T05:00:00.000Z"),
+  contractNumber: "F123456-7890-111-1111AAA-ABC",
+  contractEndDate: new Date("2024-12-31T05:00:00.000Z"),
   eta: new Date("2023-03-13T04:00:00.000Z"),
   completionDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },

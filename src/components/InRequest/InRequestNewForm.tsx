@@ -294,6 +294,8 @@ export const InRequestNewForm = () => {
                 } else {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
+                  setValue("contractNumber", "");
+                  setValue("contractEndDate", undefined);
                 }
 
                 if (option.value !== EMPTYPES.Civilian) {
@@ -578,6 +580,7 @@ export const InRequestNewForm = () => {
             <Controller
               name="workLocationDetail"
               control={control}
+              defaultValue={""}
               rules={{
                 required: "Remote Location is required for Remote Employees",
               }}
@@ -924,6 +927,72 @@ export const InRequestNewForm = () => {
         <>
           <div className={classes.fieldContainer}>
             <Label
+              htmlFor="contractNumberId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+              required
+            >
+              <TextFieldIcon className={classes.fieldIcon} />
+              Contract Number
+            </Label>
+            <Controller
+              name="contractNumber"
+              control={control}
+              defaultValue={""}
+              rules={{
+                required: "Contract Number is required",
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  aria-describedby="contractNumberErr"
+                  id="contractNumberId"
+                />
+              )}
+            />
+            {errors.contractNumber && (
+              <Text id="contractNumberErr" className={classes.errorText}>
+                {errors.contractNumber.message}
+              </Text>
+            )}
+          </div>
+          <div className={classes.fieldContainer}>
+            <Label
+              htmlFor="contractEndDateId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+              required
+            >
+              <CalendarIcon className={classes.fieldIcon} />
+              Contract End Date
+            </Label>
+            <Controller
+              name="contractEndDate"
+              control={control}
+              rules={{
+                required: "Contract End Date is required",
+              }}
+              render={({ field: { value, onChange } }) => (
+                <DatePicker
+                  id="contractEndDateId"
+                  placeholder="Select Contract End Date"
+                  ariaLabel="Select Contract End Date"
+                  aria-describedby="contractEndDateErr"
+                  onSelectDate={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.contractEndDate && (
+              <Text id="contractEndDateErr" className={classes.errorText}>
+                {errors.contractEndDate.message}
+              </Text>
+            )}
+          </div>
+          <div className={classes.fieldContainer}>
+            <Label
               htmlFor="hasExistingCACId"
               id="hasExistingCACLabelId"
               size="small"
@@ -989,7 +1058,7 @@ export const InRequestNewForm = () => {
                     id="CACExpirationId"
                     placeholder="Select CAC expiration date"
                     ariaLabel="Select CAC expiration date"
-                    aria-describedby="etaErr"
+                    aria-describedby="CACExpirationErr"
                     onSelectDate={onChange}
                     value={value}
                   />

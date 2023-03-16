@@ -45,7 +45,10 @@ const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
 };
 
 /** Check for working input */
-const checkEnterableTextbox = async (fieldName: RegExp, text?: string) => {
+const checkEnterableTextbox = async (
+  fieldName: RegExp,
+  text?: string | undefined
+) => {
   // Type in the input box
   const textboxField = screen.getByRole("textbox", {
     name: fieldName,
@@ -54,6 +57,8 @@ const checkEnterableTextbox = async (fieldName: RegExp, text?: string) => {
   // We have to allow the parameter to be undefined, but we need to throw error if it was
   expect(text).not.toBeUndefined();
 
+  // Clear the input, then type the passed in data
+  await user.clear(textboxField);
   await user.type(textboxField, text ? text : "");
 
   // Ensure value now matches what we typed
@@ -62,7 +67,7 @@ const checkEnterableTextbox = async (fieldName: RegExp, text?: string) => {
 
 /** Check that ensures the Position Sensitivty Code is properly disabled */
 const notSelectablePSC = async (request: IInRequest) => {
-  await renderEditPanelForRequest(request);
+  renderEditPanelForRequest(request);
 
   // Click on the PSC
   const psc = screen.getByRole("combobox", {
@@ -91,30 +96,16 @@ const isNotApplicablePSC = async (request: IInRequest) => {
   expect(psc).toHaveValue("");
 };
 
-/** Check that ensures the ManPower Control Number (MPCN) is properly enabled */
-const isEnterableMPCN = async (request: IInRequest) => {
-  renderEditPanelForRequest(request);
-
-  // Type in the MPCN input box
-  const mpcn = screen.getByRole("textbox", {
-    name: /mpcn/i,
-  });
-
-  // Clear the input, then type the passed in data
-  await user.clear(mpcn);
-  await user.type(mpcn, "1234567");
-
-  // Ensure value of MPCN now matches what we typed
-  expect(mpcn).toHaveValue("1234567");
-};
-
 describe("ManPower Control Number (MPCN)", () => {
+  const mpcnLabel = /mpcn/i;
   it("is available for Civilian", async () => {
-    await isEnterableMPCN(civRequest);
+    renderEditPanelForRequest(civRequest);
+    await checkEnterableTextbox(mpcnLabel, civRequest.MPCN?.toString());
   });
 
   it("is available for Miliary", async () => {
-    await isEnterableMPCN(milRequest);
+    renderEditPanelForRequest(milRequest);
+    await checkEnterableTextbox(mpcnLabel, milRequest.MPCN?.toString());
   });
 
   it("is not selectable for Contractor", async () => {
@@ -122,7 +113,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: mpcnLabel,
     });
     await user.type(mpcn, "1234567");
     // Ensure value of MPCN is still ""
@@ -134,7 +125,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Check placeholder is N/A
     const psc = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: mpcnLabel,
     });
     expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
@@ -365,7 +356,62 @@ describe("Remote Location", () => {
 
       // Click "Local" or "Remote"
       await user.click(localOrRemoteBttn);
-      checkEnterableTextbox(remoteLocationLabel, request.workLocationDetail);
+      await checkEnterableTextbox(
+        remoteLocationLabel,
+        request.workLocationDetail
+      );
     }
   );
+});
+
+describe("Contract Number", () => {
+  const contractNumberLabel = /contract number/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contractors - $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+
+      if (request.empType === EMPTYPES.Contractor) {
+        checkForInputToExist(contractNumberLabel, true);
+      } else {
+        checkForInputToExist(contractNumberLabel, false);
+      }
+    }
+  );
+
+  it("is editable when Contractor", async () => {
+    renderEditPanelForRequest(ctrRequest);
+    await checkEnterableTextbox(contractNumberLabel, ctrRequest.contractNumber);
+  });
+});
+
+describe("Contract End Date", () => {
+  const contractEndDateLabel = /contract end date/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contractors - $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+
+      if (request.empType === EMPTYPES.Contractor) {
+        checkForInputToExist(contractEndDateLabel, true);
+      } else {
+        checkForInputToExist(contractEndDateLabel, false);
+      }
+    }
+  );
+  // TODO: Build out testing for Date Picker selection
 });
