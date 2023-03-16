@@ -5,7 +5,9 @@ import {
   ctrRequest,
   civRequest,
   milRequest,
+  remoteLocationDataset,
 } from "components/InRequest/__tests__/TestData";
+import { EMPTYPES } from "constants/EmpTypes";
 
 /** Check if there is a text element matching the desired text
  * @param text The text we are looking for
@@ -71,5 +73,102 @@ describe("CAC Expiration", () => {
   it("is not displayed for Civilians", async () => {
     render(<InRequestViewCompact formData={civRequest} />);
     expectTextToBeInTheDocument(cacLabelText, false);
+  });
+});
+
+// Remote location is displayed under the 'Local or Remote' header
+describe("Local or Remote", () => {
+  const localOrRemoteLabelText = /local or remote\?/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed for $request.empType",
+    async ({ request }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(localOrRemoteLabelText, true);
+    }
+  );
+
+  it.each(remoteLocationDataset)(
+    "has value of 'local' or remote location - $request.workLocation",
+    ({ request }) => {
+      render(<InRequestViewCompact formData={request} />);
+      const textElement = screen.queryByText(/local or remote\?/i);
+
+      const expectedValue =
+        request.workLocation === "local"
+          ? "local"
+          : request.workLocationDetail
+          ? request.workLocationDetail
+          : "";
+      expect(textElement).toHaveAccessibleDescription(
+        new RegExp(expectedValue, "i")
+      );
+    }
+  );
+});
+
+describe("Contract Number", () => {
+  const contractNumberLabelText = /contract number/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contrator - $request.empType",
+    async ({ request }) => {
+      render(<InRequestViewCompact formData={request} />);
+      if (request.empType === EMPTYPES.Contractor) {
+        expectTextToBeInTheDocument(contractNumberLabelText, true);
+      } else {
+        expectTextToBeInTheDocument(contractNumberLabelText, false);
+      }
+    }
+  );
+
+  it("has correct value displayed for Contractors", () => {
+    render(<InRequestViewCompact formData={ctrRequest} />);
+    const textElement = screen.queryByText(contractNumberLabelText);
+
+    expect(textElement).toHaveAccessibleDescription(ctrRequest.contractNumber);
+  });
+});
+
+describe("Contract End Date", () => {
+  const contractEndDateLabelText = /contract end date/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contrator - $request.empType",
+    async ({ request }) => {
+      render(<InRequestViewCompact formData={request} />);
+      if (request.empType === EMPTYPES.Contractor) {
+        expectTextToBeInTheDocument(contractEndDateLabelText, true);
+      } else {
+        expectTextToBeInTheDocument(contractEndDateLabelText, false);
+      }
+    }
+  );
+
+  it("has correct value displayed for Contractors", () => {
+    render(<InRequestViewCompact formData={ctrRequest} />);
+    const textElement = screen.queryByText(contractEndDateLabelText);
+
+    expect(textElement).toHaveAccessibleDescription(
+      ctrRequest.contractEndDate?.toLocaleDateString()
+    );
   });
 });

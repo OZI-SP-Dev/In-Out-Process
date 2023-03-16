@@ -99,25 +99,57 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </div>
         )}
         {formData.empType === EMPTYPES.Contractor && (
-          <div>
-            <Label weight="semibold" htmlFor="cacExpirationCVId">
-              CAC Expiration
-            </Label>
-            <br />
-            <Text id="cacExpirationCVId" className={classes.capitalize}>
-              {formData.hasExistingCAC === "yes"
-                ? formData.CACExpiration?.toLocaleDateString()
-                : "No CAC"}
-            </Text>
-          </div>
+          <>
+            <div>
+              <Label
+                weight="semibold"
+                htmlFor="contractNumberCVId"
+                aria-describedby="contractNumberCVId"
+              >
+                Contract Number
+              </Label>
+              <br />
+              <Text id="contractNumberCVId">{formData.contractNumber}</Text>
+            </div>
+            <div>
+              <Label
+                weight="semibold"
+                htmlFor="contractEndDateCVId"
+                aria-describedby="contractEndDateCVId"
+              >
+                Contract End Date
+              </Label>
+              <br />
+              <Text id="contractEndDateCVId">
+                {formData.contractEndDate?.toLocaleDateString()}
+              </Text>
+            </div>
+            <div>
+              <Label weight="semibold" htmlFor="cacExpirationCVId">
+                CAC Expiration
+              </Label>
+              <br />
+              <Text id="cacExpirationCVId">
+                {formData.hasExistingCAC === "yes"
+                  ? formData.CACExpiration?.toLocaleDateString()
+                  : "No CAC"}
+              </Text>
+            </div>
+          </>
         )}
         <div>
-          <Label weight="semibold" htmlFor="workLocationCVId">
+          <Label
+            weight="semibold"
+            htmlFor="workLocationCVId"
+            aria-describedby="workLocationCVId"
+          >
             Local or Remote?
           </Label>
           <br />
           <Text id="workLocationCVId" className={classes.capitalize}>
-            {formData.workLocation}
+            {formData.workLocation === "local"
+              ? formData.workLocation
+              : formData.workLocationDetail}
           </Text>
         </div>
         {(formData.empType === EMPTYPES.Civilian ||

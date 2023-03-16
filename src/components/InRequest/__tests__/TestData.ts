@@ -18,6 +18,7 @@ export const testUsers: IPerson[] = [
 ];
 
 /* Incoming military example */
+/* With Local/Remote = local */
 export const milRequest: IInRequest = {
   Id: 1,
   empName: testUsers[1].Title,
@@ -40,6 +41,7 @@ export const milRequest: IInRequest = {
 };
 
 /* Incoming civilian example */
+/* With Local/Remote = 'remote' */
 export const civRequest: IInRequest = {
   Id: 2,
   empName: testUsers[1].Title,
@@ -48,7 +50,8 @@ export const civRequest: IInRequest = {
   MPCN: 1234567,
   SAR: 5,
   sensitivityCode: 4,
-  workLocation: "local",
+  workLocation: "remote",
+  workLocationDetail: "Orlando, FL",
   office: "OZIC",
   isNewCivMil: "no",
   prevOrg: "AFLCMC/WA",
@@ -75,6 +78,8 @@ export const ctrRequest: IInRequest = {
   prevOrg: "",
   hasExistingCAC: "yes",
   CACExpiration: new Date("2024-12-31T05:00:00.000Z"),
+  contractNumber: "F123456-7890-111-1111AAA-ABC",
+  contractEndDate: new Date("2024-12-31T05:00:00.000Z"),
   eta: new Date("2023-03-13T04:00:00.000Z"),
   completionDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -83,3 +88,14 @@ export const ctrRequest: IInRequest = {
   isSupervisor: "",
   status: "Active",
 };
+
+/** Test data used by Local/Remote and Remote Location */
+export const remoteLocationDataset = [
+  { request: milRequest },
+  { request: civRequest },
+];
+
+/** Test data used by Remote Location - Filter remoteLocationDataset to only include those with "remote" */
+export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
+  (item) => item.request.workLocation === "remote"
+);

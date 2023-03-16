@@ -4,6 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { InRequestNewForm } from "components/InRequest/InRequestNewForm";
 import { EMPTYPES } from "constants/EmpTypes";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import {
+  civRequest,
+  ctrRequest,
+  milRequest,
+  remoteLocationDataset,
+  remoteLocationOnlyDataset,
+} from "components/InRequest/__tests__/TestData";
 
 const user = userEvent.setup();
 
@@ -30,10 +37,37 @@ const renderThenSelectEmpType = async (empType: EMPTYPES) => {
   await user.click(empTypeOpt);
 };
 
-/** Search for an Input by it's Label, and ensure it is not present */
-const checkForInputNotToExist = (labelText: RegExp) => {
+/** Check if there is an input field matching the desired label
+ * @param labelText The text we are looking for
+ * @param expected Whether or not we expect it in the document or expect it NOT in the document
+ */
+const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
   const field = screen.queryByLabelText(labelText);
-  expect(field).not.toBeInTheDocument();
+
+  if (expected) {
+    expect(field).toBeInTheDocument();
+  } else {
+    expect(field).not.toBeInTheDocument();
+  }
+};
+
+/** Check for working input */
+const checkEnterableTextbox = async (
+  fieldName: RegExp,
+  text: string | undefined
+) => {
+  // Type in the input box
+  const textboxField = screen.getByRole("textbox", {
+    name: fieldName,
+  });
+
+  // We have to allow the parameter to be undefined, but we need to throw error if it was
+  expect(text).not.toBeUndefined();
+
+  await user.type(textboxField, text ? text : "");
+
+  // Ensure value now matches what we typed
+  expect(textboxField).toHaveValue(text);
 };
 
 /** Check that ensures the Position Sensitivty Code is properly disabled */
@@ -67,26 +101,16 @@ const isNotApplicablePSC = async (empType: EMPTYPES) => {
   expect(psc).toHaveValue("");
 };
 
-/** Check that ensures the ManPower Control Number (MPCN) is properly enabled */
-const isEnterableMPCN = async (empType: EMPTYPES) => {
-  await renderThenSelectEmpType(empType);
-  // Type in the MPCN input box
-  const mpcn = screen.getByRole("textbox", {
-    name: /mpcn/i,
-  });
-  await user.type(mpcn, "1234567");
-
-  // Ensure value of MPCN now matches what we typed
-  expect(mpcn).toHaveValue("1234567");
-};
-
 describe("ManPower Control Number (MPCN)", () => {
+  const mpcnLabel = /mpcn/i;
   it("is available for Civilian", async () => {
-    await isEnterableMPCN(EMPTYPES.Civilian);
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
+    await checkEnterableTextbox(mpcnLabel, "1234567");
   });
 
   it("is available for Miliary", async () => {
-    await isEnterableMPCN(EMPTYPES.Military);
+    await renderThenSelectEmpType(EMPTYPES.Military);
+    await checkEnterableTextbox(mpcnLabel, "1234567");
   });
 
   it("is not selectable for Contractor", async () => {
@@ -94,7 +118,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: mpcnLabel,
     });
     await user.type(mpcn, "1234567");
 
@@ -107,7 +131,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Check placeholder is N/A
     const mpcn = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: mpcnLabel,
     });
     expect(mpcn).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
@@ -227,11 +251,164 @@ describe("Has Existing Contractor CAC", () => {
 
   it("is not available for Miliary", async () => {
     await renderThenSelectEmpType(EMPTYPES.Military);
-    await checkForInputNotToExist(hasExistingCACLabel);
+    checkForInputToExist(hasExistingCACLabel, false);
   });
 
   it("is not available for Civilians", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkForInputNotToExist(hasExistingCACLabel);
+    checkForInputToExist(hasExistingCACLabel, false);
   });
+});
+
+describe("Local Or Remote", () => {
+  const localOrRemoteLabel = /local or remote\?/i;
+
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian },
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  it.each(employeeTypes)("is selectable for $empType", async ({ empType }) => {
+    await renderThenSelectEmpType(empType);
+
+    // Locate the RadioGroup for Local/Remote
+    const localOrRemote = screen.getByRole("radiogroup", {
+      name: localOrRemoteLabel,
+    });
+
+    const localBttn = within(localOrRemote).getByLabelText(/local/i);
+    const remoteBttn = within(localOrRemote).getByLabelText(/remote/i);
+
+    // Click "Local" and ensure it reflects checked and that "Remote" is not
+    await user.click(localBttn);
+    expect(localBttn).toBeChecked();
+    expect(remoteBttn).not.toBeChecked();
+
+    // Click "Remote" and ensure it reflects checked and that "Local" is not
+    await user.click(remoteBttn);
+    expect(remoteBttn).toBeChecked();
+    expect(localBttn).not.toBeChecked();
+  });
+
+  it.each(employeeTypes)(
+    "displays hint text for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      expect(localOrRemote).toHaveAccessibleDescription(
+        /greater than 50 miles qualifies as remote/i
+      );
+    }
+  );
+});
+
+describe("Remote Location", () => {
+  const localOrRemoteLabel = /local or remote\?/i;
+  const remoteLocationLabel = /remote location/i;
+
+  it.each(remoteLocationDataset)(
+    "is displayed/hidden when remote/local respectively - $request.workLocation",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+
+      if (request.workLocation === "local") {
+        checkForInputToExist(remoteLocationLabel, false);
+      } else {
+        checkForInputToExist(remoteLocationLabel, true);
+      }
+    }
+  );
+
+  it.each(remoteLocationOnlyDataset)(
+    "is editable when remote - $request.workLocationDetail",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: localOrRemoteLabel,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+      await checkEnterableTextbox(
+        remoteLocationLabel,
+        request.workLocationDetail
+      );
+    }
+  );
+});
+
+describe("Contract Number", () => {
+  const contractNumberLabel = /contract number/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contractors - $request.empType",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      if (request.empType === EMPTYPES.Contractor) {
+        checkForInputToExist(contractNumberLabel, true);
+      } else {
+        checkForInputToExist(contractNumberLabel, false);
+      }
+    }
+  );
+
+  it("is editable when Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    await checkEnterableTextbox(contractNumberLabel, ctrRequest.contractNumber);
+  });
+});
+
+describe("Contract End Date", () => {
+  const contractEndDateLabel = /contract end date/i;
+
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+
+  it.each(employeeTypes)(
+    "is displayed only for Contractors - $request.empType",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      if (request.empType === EMPTYPES.Contractor) {
+        checkForInputToExist(contractEndDateLabel, true);
+      } else {
+        checkForInputToExist(contractEndDateLabel, false);
+      }
+    }
+  );
+  // TODO: Build out testing for Date Picker selection
 });

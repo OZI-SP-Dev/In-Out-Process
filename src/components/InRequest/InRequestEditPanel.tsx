@@ -23,12 +23,8 @@ import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
-import {
-  GS_GRADES,
-  MIL_GRADES,
-  NH_GRADES,
-  OFFICES,
-} from "constants/GradeRanks";
+import { GS_GRADES, MIL_GRADES, NH_GRADES } from "constants/GradeRanks";
+import { OFFICES } from "constants/Offices";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { IInRequest, useUpdateRequest } from "api/RequestApi";
 import {
@@ -123,6 +119,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
   const employee = watch("employee");
+  const workLocation = watch("workLocation");
 
   const compProps = props;
 
@@ -509,6 +506,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             <div className={classes.fieldContainer}>
               <Label
                 htmlFor="workLocationId"
+                id="workLocationLabelId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -527,7 +525,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <RadioGroup
                     {...field}
                     id="workLocationId"
-                    aria-describedby="workLocationErr"
+                    aria-describedby="workLocationErr workLocationDesc"
+                    aria-labelledby="workLocationLabelId"
                     layout="horizontal"
                   >
                     {WORKLOCATIONS.map((workLocation, i) => {
@@ -547,7 +546,62 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   {errors.workLocation.message}
                 </Text>
               )}
+              <Text
+                id="workLocationDesc"
+                weight="regular"
+                size={200}
+                className={classes.fieldDescription}
+              >
+                Greater than 50 miles qualifies as Remote
+              </Text>
             </div>
+            {
+              /* Display field for entering location if Remote */
+              workLocation === "remote" && (
+                <div className={classes.fieldContainer}>
+                  <Label
+                    htmlFor="workLocationDetailId"
+                    size="small"
+                    weight="semibold"
+                    className={classes.fieldLabel}
+                    required
+                  >
+                    <TextFieldIcon className={classes.fieldIcon} />
+                    Remote Location
+                  </Label>
+                  <Controller
+                    name="workLocationDetail"
+                    control={control}
+                    rules={{
+                      required:
+                        "Remote Location is required for Remote Employees",
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        aria-describedby="workLocationDetailErr"
+                        id="workLocationDetailId"
+                      />
+                    )}
+                  />
+                  {errors.workLocationDetail && (
+                    <Text
+                      id="workLocationDetailErr"
+                      className={classes.errorText}
+                    >
+                      {errors.workLocationDetail.message}
+                    </Text>
+                  )}
+                  <Text
+                    weight="regular"
+                    size={200}
+                    className={classes.fieldDescription}
+                  >
+                    City, State
+                  </Text>
+                </div>
+              )
+            }
             <div className={classes.fieldContainer}>
               <Label
                 htmlFor="arrivalDateId"
@@ -844,6 +898,71 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <>
                 <div className={classes.fieldContainer}>
                   <Label
+                    htmlFor="contractNumberId"
+                    size="small"
+                    weight="semibold"
+                    className={classes.fieldLabel}
+                    required
+                  >
+                    <TextFieldIcon className={classes.fieldIcon} />
+                    Contract Number
+                  </Label>
+                  <Controller
+                    name="contractNumber"
+                    control={control}
+                    rules={{
+                      required: "Contract Number is required",
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        aria-describedby="contractNumberErr"
+                        id="contractNumberId"
+                      />
+                    )}
+                  />
+                  {errors.contractNumber && (
+                    <Text id="contractNumberErr" className={classes.errorText}>
+                      {errors.contractNumber.message}
+                    </Text>
+                  )}
+                </div>
+                <div className={classes.fieldContainer}>
+                  <Label
+                    htmlFor="contractEndDateId"
+                    size="small"
+                    weight="semibold"
+                    className={classes.fieldLabel}
+                    required
+                  >
+                    <CalendarIcon className={classes.fieldIcon} />
+                    Contract End Date
+                  </Label>
+                  <Controller
+                    name="contractEndDate"
+                    control={control}
+                    rules={{
+                      required: "Contract End Date is required",
+                    }}
+                    render={({ field: { value, onChange } }) => (
+                      <DatePicker
+                        id="contractEndDateId"
+                        placeholder="Select Contract End Date"
+                        ariaLabel="Select Contract End Date"
+                        aria-describedby="contractEndDateErr"
+                        onSelectDate={onChange}
+                        value={value}
+                      />
+                    )}
+                  />
+                  {errors.contractEndDate && (
+                    <Text id="contractEndDateErr" className={classes.errorText}>
+                      {errors.contractEndDate.message}
+                    </Text>
+                  )}
+                </div>
+                <div className={classes.fieldContainer}>
+                  <Label
                     htmlFor="hasExistingCACId"
                     id="hasExistingCACLabelId"
                     size="small"
@@ -908,7 +1027,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                           id="CACExpirationId"
                           placeholder="Select CAC expiration date"
                           ariaLabel="Select CAC expiration date"
-                          aria-describedby="etaErr"
+                          aria-describedby="CACExpirationErr"
                           onSelectDate={onChange}
                           value={value}
                         />
