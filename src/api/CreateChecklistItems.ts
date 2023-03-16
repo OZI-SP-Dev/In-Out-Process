@@ -332,8 +332,9 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Complete security training",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.SecurityTraining,
-    Description: `<p style="margin-top: 0px">Review the Mandatory initial training slides and ensure you complete the survey at the end to receive credit</p>
-    <p>The slides can be found at <a href="https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true">https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true</p>`,
+    Description: `<p style="margin-top: 0px">To complete the mandatory security training please visit the AFLCMC Consolidated Security Office (CSO) In/Out Processing SharePoint site at the following URL:</p>
+    <p><a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx</a></p>
+    <p>The CSO Initial Security Training Briefing is found by scrolling to the bottom of the page.  Please review these training slides and complete the survey at the end to ensure you receive credit for the training.</p>`,
     Prereqs: [templates.ProvisionAFNET],
   },
   {
@@ -501,7 +502,12 @@ const createInboundChecklistItems = (request: IInRequest) => {
   addChecklistItem(templates.AddSecurityGroups);
 
   // Signed Non-Disclosure Agreement (SF312) - Civ/Mil Only
-  addChecklistItem(templates.SignedNDA);
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Military
+  ) {
+    addChecklistItem(templates.SignedNDA);
+  }
 
   // Complete security training
   addChecklistItem(templates.SecurityTraining);
