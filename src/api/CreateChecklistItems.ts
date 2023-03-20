@@ -133,7 +133,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.DTS,
     TemplateId: templates.DTS,
     Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [templates.GTC],
+    Prereqs: [templates.ObtainCACGov],
   },
   {
     Title: "Create/Update ATAAPS account",
@@ -218,7 +218,10 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Confirm AFMC myETMS account",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.ConfirmMyETMS,
-    Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    Description: `<div><p style="margin-top: 0px">To confirm employee myETMS account, supervisors can access the ETMS WEB application which is for Supervisors, Training Managers, and Education Development Specialists at the following URL: <a href="https://etmsweb.wpafb.af.mil/">https://etmsweb.wpafb.af.mil/</a><p>
+<p>Once logged into ETMS WEB, select the "View All Employees" under "Quick Searches" on the left to see all your assigned employees who have registered myETMS accounts.</p> 
+<br/>
+<p>NOTE: It is also possible to access the ETMS WEB application through your standard myETMS account by looking for the ETMS WEB icon/link.</p></div>`,
     Prereqs: [templates.VerifyMyETMS],
   },
   {
@@ -332,8 +335,9 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Complete security training",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.SecurityTraining,
-    Description: `<p style="margin-top: 0px">Review the Mandatory initial training slides and ensure you complete the survey at the end to receive credit</p>
-    <p>The slides can be found at <a href="https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true">https://usaf.dps.mil/:p:/r/teams/AFLCMCCSO/_layouts/15/Doc.aspx?sourcedoc=%7BC6E442DB-B72B-4AB6-9B80-1613F4281F48%7D&file=Initial%20CSO%20Training.pptx&action=edit&mobileredirect=true</p>`,
+    Description: `<p style="margin-top: 0px">To complete the mandatory security training please visit the AFLCMC Consolidated Security Office (CSO) In/Out Processing SharePoint site at the following URL:</p>
+    <p><a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx</a></p>
+    <p>The CSO Initial Security Training Briefing is found by scrolling to the bottom of the page.  Please review these training slides and complete the survey at the end to ensure you receive credit for the training.</p>`,
     Prereqs: [templates.ProvisionAFNET],
   },
   {
@@ -501,7 +505,12 @@ const createInboundChecklistItems = (request: IInRequest) => {
   addChecklistItem(templates.AddSecurityGroups);
 
   // Signed Non-Disclosure Agreement (SF312) - Civ/Mil Only
-  addChecklistItem(templates.SignedNDA);
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Military
+  ) {
+    addChecklistItem(templates.SignedNDA);
+  }
 
   // Complete security training
   addChecklistItem(templates.SecurityTraining);
@@ -557,11 +566,15 @@ const createInboundChecklistItems = (request: IInRequest) => {
   // Unit orientation conducted (all Employees)
   addChecklistItem(templates.UnitOrientation);
 
-  // Create & brief 971 folder
-  addChecklistItem(templates.Brief971Folder);
+  // Create & brief 971 folder (Civilian Only)
+  if (request.empType === EMPTYPES.Civilian) {
+    addChecklistItem(templates.Brief971Folder);
+  }
 
-  // Signed performance/contribution plan
-  addChecklistItem(templates.SignedPerformContribPlan);
+  // Signed performance/contribution plan (Civilian Only)
+  if (request.empType === EMPTYPES.Civilian) {
+    addChecklistItem(templates.SignedPerformContribPlan);
+  }
 
   // Signed telework agreement
   addChecklistItem(templates.SignedTeleworkAgreement);
