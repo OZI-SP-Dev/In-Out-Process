@@ -37,10 +37,15 @@ export const CheckListItemPrereq = ({
         return (
           <Badge
             size="extra-large"
+            key={item.Title}
             appearance="ghost"
+            aria-label={
+              item.Title +
+              (item.CompletedDate ? " is Complete" : " needs Completed")
+            }
             color={item.CompletedDate ? "success" : "informative"}
             style={{ verticalAlign: "middle", justifyContent: "flex-start" }}
-            icon={item.CompletedDate ? <CompletedIcon /> : ""}
+            icon={item.CompletedDate ? <CompletedIcon title="Complete" /> : ""}
             iconPosition="after"
           >
             {item.Title}
