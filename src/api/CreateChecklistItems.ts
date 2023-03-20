@@ -218,7 +218,10 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Confirm AFMC myETMS account",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.ConfirmMyETMS,
-    Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://etmsweb.wpafb.af.mil/etmsaspx/mainx/profile.aspx?secId=-18911030">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
+    Description: `<div><p style="margin-top: 0px">To confirm employee myETMS account, supervisors can access the ETMS WEB application which is for Supervisors, Training Managers, and Education Development Specialists at the following URL: <a href="https://etmsweb.wpafb.af.mil/">https://etmsweb.wpafb.af.mil/</a><p>
+<p>Once logged into ETMS WEB, select the "View All Employees" under "Quick Searches" on the left to see all your assigned employees who have registered myETMS accounts.</p> 
+<br/>
+<p>NOTE: It is also possible to access the ETMS WEB application through your standard myETMS account by looking for the ETMS WEB icon/link.</p></div>`,
     Prereqs: [templates.VerifyMyETMS],
   },
   {
