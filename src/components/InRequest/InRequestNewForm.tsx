@@ -18,11 +18,7 @@ import {
   Tooltip,
   Badge,
 } from "@fluentui/react-components";
-import {
-  IInRequest,
-  transformInRequestFromSP,
-  useAddRequest,
-} from "api/RequestApi";
+import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
 import { useSendInRequestSubmitEmail } from "api/EmailApi";
@@ -175,23 +171,17 @@ export const InRequestNewForm = () => {
       // Create the Request first
       let newRequest = await addRequest.mutateAsync(data2);
 
-      // Transform the response from SharePoint into a IInRequest object
-      // Since we don't get certain fields back from SharePoint, such as people objects, manually append those
-      newRequest.data.employee = { ...data.employee };
-      newRequest.data.supGovLead = { ...data.supGovLead };
-      let newRequestData = transformInRequestFromSP(newRequest.data);
-
       // If successful, then Create the tasks using that new Request Id
-      const newTasks = await addTasks.mutateAsync(newRequestData);
+      const newTasks = await addTasks.mutateAsync(newRequest);
 
       // If successful, then send the Email
       sendSubmitEmail.mutateAsync({
-        request: newRequestData,
+        request: newRequest,
         tasks: newTasks,
       });
 
       // If the first 2 were successful, then navigate even if email fails, as it gets added to banner
-      navigate("/item/" + newRequestData.Id);
+      navigate("/item/" + newRequest.Id);
     } catch {
       // TODO - Add some advance handling to try just recreating the tasks if it was the tasks that failed
     }

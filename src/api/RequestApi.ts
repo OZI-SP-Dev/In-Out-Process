@@ -196,9 +196,15 @@ export const useAddRequest = () => {
   return useMutation(
     ["requests"],
     async (newRequest: IInRequest) => {
-      return spWebContext.web.lists
+      const newRequestRes = await spWebContext.web.lists
         .getByTitle("Items")
         .items.add(await transformInRequestToSP(newRequest));
+
+      // Pass back the request that came to us, but add in the Id returned from SharePoint
+      let res: IInRequest = structuredClone(newRequest);
+      res.Id = newRequestRes.data.Id;
+
+      return res;
     },
     {
       onSuccess: () => {
