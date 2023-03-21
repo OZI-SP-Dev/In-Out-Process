@@ -28,14 +28,18 @@ interface IActivationObj {
 }
 
 /**
- * Turn an array of People objects into Email address list
+ * Turn an array of People objects into Email address list (removing duplicates)
  *
  * @param people The IPerson array of people entries
  * @returns A string of semicolon delimited email addresses
  */
 const getEmailAddresses = (people: IPerson[]) => {
   let emailArray = people.map((p) => p.EMail);
-  return emailArray.join(";");
+  const emailArrayNoDupes = emailArray.filter(
+    (n, i) => emailArray.indexOf(n) === i
+  );
+
+  return emailArrayNoDupes.join(";");
 };
 
 /**
@@ -48,11 +52,14 @@ const transformInRequestToSP = (email: IEmail) => {
   return {
     To: getEmailAddresses(email.to),
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
-    Subject:
+    // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
+    Subject: (
       (process.env.REACT_APP_TEST_SYS === "true" ? "TEST - " : "") +
       "In/Out Process - " +
-      email.subject,
-    Body: email.body.replace(/\n/g, "<BR>"),
+      email.subject
+    ).substring(0, 255),
+    //Adjust line breaks so they show nicely even when Outlook converts to plaintext
+    Body: email.body.replace(/\n/g, "\r\n<BR />"),
   };
 };
 
