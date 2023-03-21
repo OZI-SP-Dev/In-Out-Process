@@ -43,8 +43,8 @@ function MainLayout() {
             <AppHeader />
             <ErrorProvider>
               <ErrorNotification />
+              <Outlet />
             </ErrorProvider>
-            <Outlet />
           </ThemeProvider>
         </FluentProvider>
       </UserProvider>
