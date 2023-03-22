@@ -9,6 +9,7 @@ import {
 } from "api/RequestApi";
 import { RoleType, useAllUserRolesByRole } from "./RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
+import { IItemAddResult } from "@pnp/sp/items";
 
 /**  Definition for what is required/optional for sending an email */
 interface IEmail {
@@ -27,15 +28,34 @@ interface IActivationObj {
   /** All CheckListItems for this request */ allChecklistItems: ICheckListItem[];
 }
 
+/**  Definition for what data is needed to send the email notification that new In Processing was added */
+interface ISendInRequestSubmitEmail {
+  /** The new request */
+  request: IInRequest;
+  /** The tasks that were added to the request, so we know which Leads to contact */
+  tasks: IItemAddResult[];
+}
+
+/** An IPerson object for the BAC Support Org Box -- to be used when needing to send to that 'User' */
+const BACSupportBox: IPerson = {
+  Id: 0,
+  Title: "BAC Support",
+  EMail: "AFLCMC.XP-OZ.BACSupport@us.af.mil",
+};
+
 /**
- * Turn an array of People objects into Email address list
+ * Turn an array of People objects into Email address list (removing duplicates)
  *
  * @param people The IPerson array of people entries
  * @returns A string of semicolon delimited email addresses
  */
 const getEmailAddresses = (people: IPerson[]) => {
   let emailArray = people.map((p) => p.EMail);
-  return emailArray.join(";");
+  const emailArrayNoDupes = emailArray.filter(
+    (n, i) => emailArray.indexOf(n) === i
+  );
+
+  return emailArrayNoDupes.join(";");
 };
 
 /**
@@ -48,11 +68,14 @@ const transformInRequestToSP = (email: IEmail) => {
   return {
     To: getEmailAddresses(email.to),
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
-    Subject:
+    // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
+    Subject: (
       (process.env.REACT_APP_TEST_SYS === "true" ? "TEST - " : "") +
       "In/Out Process - " +
-      email.subject,
-    Body: email.body.replace(/\n/g, "<BR>"),
+      email.subject
+    ).substring(0, 255),
+    //Adjust line breaks so they show nicely even when Outlook converts to plaintext
+    Body: email.body.replace(/\n/g, "\r\n<BR />"),
   };
 };
 
@@ -156,20 +179,58 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 export const useSendInRequestSubmitEmail = () => {
   const errorAPI = useError();
 
+  // Get the roles defined -- and who is in them
+  const { data: allRolesByRole } = useAllUserRolesByRole();
+
   /**
    *  Send the New In Processing Request to the POCs
    *
-   * @param request The new In Processing Request
+   * @param {Object} requestInfo - Object containing the new request object and tasks object
+   * @param {string} requestInfo.request - The new In Processing Request
+   * @param {string} requestInfo.tasks - The tasks created for the new request
    * @returns A Promise from SharePoint for the email being sent
    */
-  const sendInRequestSubmitEmail = (request: IInRequest) => {
-    // TODO - Populate with whom it should actually go to rather than selected Supervisor (Card exists)
-    const newEmail: IEmail = {
-      to: [request.supGovLead],
-      subject: `In Process: ${request.empName} has been submitted`,
-      body: `A request for in-processing ${request.empName} has been submitted.
+  const sendInRequestSubmitEmail = ({
+    request,
+    tasks,
+  }: ISendInRequestSubmitEmail) => {
+    // Create a list of leads who have checklist items for this request
+    const leadsWithDupes = tasks.map((task) => task.data.Lead);
 
-    Link to request: ${webUrl}/app/index.aspx`, // TODO -- Provide a route to the item stored in SharePoint (Card exists)
+    // Remove any duplicates from the array so we can loop through and process each lead only once
+    const leads = leadsWithDupes.filter(
+      (n, i) => leadsWithDupes.indexOf(n) === i
+    );
+
+    let leadUsers: IPerson[] = [];
+
+    leads.forEach((lead) => {
+      const roleMembers = allRolesByRole?.get(lead);
+      if (roleMembers) {
+        roleMembers.forEach((role) => leadUsers.push(role.User));
+      }
+    });
+
+    // Set the toField to the list of leadUsers -- if there were no Leads, then send to BACSupportBox as this is likely an issue
+    const toField = leadUsers ? leadUsers : [BACSupportBox];
+    const ccField = [request.supGovLead];
+
+    const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
+
+    const newEmail: IEmail = {
+      to: toField,
+      cc: ccField,
+      subject: `Initial Notification for In-bound Employee: ${
+        request.empName
+      } expected arrival ${request.eta.toLocaleDateString()}`,
+      body: `In-bound employee: ${request.empName}
+Expected arrival date: ${request.eta.toLocaleDateString()}
+Owning organization and supervisor: ${request.office}, ${
+        request.supGovLead.Title
+      }
+
+To view this request and take action follow the below link:
+${linkURL}`,
     };
 
     return spWebContext.web.lists

@@ -4,6 +4,7 @@ import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
+import { IItemAddResult } from "@pnp/sp/items";
 
 enum templates {
   WelcomePackage = 1,
@@ -419,9 +420,12 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
   },
 ];
 
-const createInboundChecklistItems = (request: IInRequest) => {
+const createInboundChecklistItems = async (request: IInRequest) => {
   const [batchedSP, execute] = spWebContext.batched();
   const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  /** Hold the responses to the requests in the batch */
+  let res: IItemAddResult[] = [];
 
   /**
    * Function to call the PnPJS function to create the item
@@ -432,19 +436,24 @@ const createInboundChecklistItems = (request: IInRequest) => {
       (item2) => item2.TemplateId === templateId
     );
     if (itemTemplate) {
-      checklistItems.items.add({
-        Title: itemTemplate.Title,
-        Lead: itemTemplate.Lead,
-        RequestId: request.Id,
-        TemplateId: itemTemplate.TemplateId,
-        Active:
-          // Special case for ObtainCacGov where we set to true if they are not a new Civ/Mil as then there is no prereq
-          itemTemplate.TemplateId === templates.ObtainCACGov &&
-          request.isNewCivMil === "no"
-            ? true
-            : itemTemplate.Prereqs.length === 0,
-        Description: itemTemplate.Description,
-      } as ICheckListItem);
+      checklistItems.items
+        .add({
+          Title: itemTemplate.Title,
+          Lead: itemTemplate.Lead,
+          RequestId: request.Id,
+          TemplateId: itemTemplate.TemplateId,
+          Active:
+            // Special case for ObtainCacGov where we set to true if they are not a new Civ/Mil as then there is no prereq
+            itemTemplate.TemplateId === templates.ObtainCACGov &&
+            request.isNewCivMil === "no"
+              ? true
+              : itemTemplate.Prereqs.length === 0,
+          Description: itemTemplate.Description,
+        } as ICheckListItem)
+        .then(
+          // Add the response to the array of responses
+          (r) => res.push(r)
+        );
     }
   };
 
@@ -611,7 +620,11 @@ const createInboundChecklistItems = (request: IInRequest) => {
     addChecklistItem(templates.DTS);
   }
 
-  return execute();
+  // Wait for the responses to all come back from the batch
+  await execute();
+
+  // Reutrn the array of responses
+  return res;
 };
 
 export const useAddTasks = () => {

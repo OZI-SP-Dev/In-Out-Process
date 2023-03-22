@@ -24,6 +24,14 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockedUsedNavigate,
 }));
 
+// We're not testing sendInRequestSubmitEmail within this component -- so just mock it for now so the component will load
+const mockedUseSendInRequestSubmitEmail = jest.fn();
+
+jest.mock("api/EmailApi", () => ({
+  ...(jest.requireActual("api/EmailApi") as any),
+  useSendInRequestSubmitEmail: () => mockedUseSendInRequestSubmitEmail,
+}));
+
 /** Render a InRequestNewForm within a QueryClientProvider, then click on desired Employee Type Radio Button */
 const renderThenSelectEmpType = async (empType: EMPTYPES) => {
   render(

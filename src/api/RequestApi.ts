@@ -5,6 +5,8 @@ import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserContext } from "providers/UserProvider";
 import { useContext } from "react";
+import { useAddTasks } from "api/CreateChecklistItems";
+import { useSendInRequestSubmitEmail } from "api/EmailApi";
 
 /**
  * Directly map the incoming request to the IResponseItem to perform type
@@ -193,16 +195,31 @@ export const useRequests = () => {
 
 export const useAddRequest = () => {
   const queryClient = useQueryClient();
+  const addTasks = useAddTasks();
+  const sendInRequestSubmitEmail = useSendInRequestSubmitEmail();
   return useMutation(
     ["requests"],
     async (newRequest: IInRequest) => {
-      return spWebContext.web.lists
+      const newRequestRes = await spWebContext.web.lists
         .getByTitle("Items")
         .items.add(await transformInRequestToSP(newRequest));
+
+      // Pass back the request that came to us, but add in the Id returned from SharePoint
+      let res: IInRequest = structuredClone(newRequest);
+      res.Id = newRequestRes.data.Id;
+
+      return res;
     },
     {
-      onSuccess: () => {
+      onSuccess: async (data) => {
+        // Mark requests as needing refreshed
         queryClient.invalidateQueries(["requests"]);
+
+        // Create the tasks using that new Request Id
+        const tasks = await addTasks.mutateAsync(data);
+
+        // After the tasks have been created, generate the email notification
+        sendInRequestSubmitEmail.mutate({ request: data, tasks: tasks });
       },
     }
   );
