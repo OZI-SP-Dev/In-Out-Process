@@ -19,10 +19,8 @@ import {
   Badge,
 } from "@fluentui/react-components";
 import { IInRequest, useAddRequest } from "api/RequestApi";
-import { useAddTasks } from "api/CreateChecklistItems";
 import { useForm, Controller } from "react-hook-form";
-import { useSendInRequestSubmitEmail } from "api/EmailApi";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {
   TextFieldIcon,
   NumberFieldIcon,
@@ -100,17 +98,13 @@ type IRHFInRequest = Omit<
 export const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useContext(UserContext).user;
-  const sendSubmitEmail = useSendInRequestSubmitEmail();
   const addRequest = useAddRequest();
-  const addTasks = useAddTasks();
-  const navigate = useNavigate();
-
   // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
   //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     watch,
     setValue,
     register,
@@ -150,41 +144,24 @@ export const InRequestNewForm = () => {
     } else return new Date();
   }, [eta]);
 
+  if (addRequest.isSuccess) {
+    return <Navigate to={"/item/" + addRequest.data.Id} />;
+  }
+
   const createNewRequest = async (data: IRHFInRequest) => {
-    /* Use the mutateAsync calls for the first 2, as these will return
-        a Promise, which will get caught if it errors, and exit submitting. 
-        For email, we don't need to trap the error, so no need to mutateAsync*/
-
-    try {
-      // Translate the string MPCN to an Integer
-      let mpcn: number | undefined;
-      if (
-        data.empType === EMPTYPES.Civilian ||
-        data.empType === EMPTYPES.Military
-      ) {
-        // Parsing the string should be fine, as we enforce pattern of numeric
-        mpcn = parseInt(data.MPCN);
-      }
-
-      const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
-
-      // Create the Request first
-      let newRequest = await addRequest.mutateAsync(data2);
-
-      // If successful, then Create the tasks using that new Request Id
-      const newTasks = await addTasks.mutateAsync(newRequest);
-
-      // If successful, then send the Email
-      sendSubmitEmail.mutateAsync({
-        request: newRequest,
-        tasks: newTasks,
-      });
-
-      // If the first 2 were successful, then navigate even if email fails, as it gets added to banner
-      navigate("/item/" + newRequest.Id);
-    } catch {
-      // TODO - Add some advance handling to try just recreating the tasks if it was the tasks that failed
+    // Translate the string MPCN to an Integer
+    let mpcn: number | undefined;
+    if (
+      data.empType === EMPTYPES.Civilian ||
+      data.empType === EMPTYPES.Military
+    ) {
+      // Parsing the string should be fine, as we enforce pattern of numeric
+      mpcn = parseInt(data.MPCN);
     }
+
+    const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
+
+    addRequest.mutate(data2);
   };
 
   return (
@@ -1086,55 +1063,20 @@ export const InRequestNewForm = () => {
               label="Creating Request..."
             />
           )}
-          {addTasks.isLoading && (
-            <Spinner
-              style={{ justifyContent: "flex-start" }}
-              size="small"
-              label="Adding Checklist Items..."
-            />
-          )}
-          {sendSubmitEmail.isLoading && (
-            <Spinner
-              style={{ justifyContent: "flex-start" }}
-              size="small"
-              label="Sending Notification..."
-            />
-          )}
-          {!isSubmitting && !(addRequest.isError || addTasks.isError) && (
-            <Button appearance="primary" type="submit">
-              Create In Processing Request
-            </Button>
-          )}
-          {!isSubmitting && (addRequest.isError || addTasks.isError) && (
+          {
             /* TODO -- Replace with some fine grain error handling, so you can retry
                 just the failed piece instead of total resubmission */
-            <Button appearance="primary" type="submit">
-              Retry
-            </Button>
-          )}
-          {!isSubmitting && addRequest.isError && (
+            !addRequest.isLoading && (
+              <Button appearance="primary" type="submit">
+                {!addRequest.isError ? "Create In Processing Request" : "Retry"}
+              </Button>
+            )
+          }
+          {addRequest.isError && (
             <Tooltip
               content={
                 addRequest.error instanceof Error
                   ? addRequest.error.message
-                  : "An error occurred."
-              }
-              relationship="label"
-            >
-              <Badge
-                size="extra-large"
-                appearance="ghost"
-                color="danger"
-                style={{ verticalAlign: "middle" }}
-                icon={<AlertSolidIcon />}
-              />
-            </Tooltip>
-          )}
-          {!isSubmitting && addTasks.isError && (
-            <Tooltip
-              content={
-                addTasks.error instanceof Error
-                  ? addTasks.error.message
                   : "An error occurred."
               }
               relationship="label"
