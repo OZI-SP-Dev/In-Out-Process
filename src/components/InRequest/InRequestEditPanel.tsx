@@ -18,6 +18,7 @@ import {
   RadioGroup,
   tokens,
   makeStyles,
+  Combobox,
 } from "@fluentui/react-components";
 import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
@@ -106,7 +107,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     formState: { errors },
     watch,
     setValue,
-    register,
   } = useForm<IRHFInRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
@@ -436,7 +436,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="SARId"
+                id="SARId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -445,14 +445,22 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 <NumberFieldIcon className={classes.fieldIcon} />
                 SAR
               </Label>
-              <Input
-                {...register("SAR", {
-                  valueAsNumber: true,
-                })}
-                aria-describedby="SARErr"
-                type="number"
-                id="SARId"
-                disabled={true}
+              <Controller
+                name="SAR"
+                control={control}
+                render={({ field }) => (
+                  <Combobox
+                    selectedOptions={
+                      field.value ? [field.value.toString()] : [""]
+                    }
+                    value={field.value ? field.value.toString() : ""}
+                    aria-labelledby="SARId"
+                    disabled={true}
+                    placeholder={
+                      props.data.empType === EMPTYPES.Contractor ? "N/A" : ""
+                    }
+                  ></Combobox>
+                )}
               />
               <Text
                 weight="regular"

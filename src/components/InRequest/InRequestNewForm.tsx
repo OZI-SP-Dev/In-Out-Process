@@ -17,6 +17,8 @@ import {
   Spinner,
   Tooltip,
   Badge,
+  Combobox,
+  Option,
 } from "@fluentui/react-components";
 import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
@@ -32,6 +34,7 @@ import {
 import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 import { UserContext } from "providers/UserProvider";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import { SAR_CODES } from "constants/SARCodes";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -107,7 +110,6 @@ export const InRequestNewForm = () => {
     formState: { errors },
     watch,
     setValue,
-    register,
   } = useForm<IRHFInRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
@@ -271,6 +273,7 @@ export const InRequestNewForm = () => {
                   setValue("isTraveler", "");
                   setValue("isSupervisor", "");
                   setValue("MPCN", "");
+                  setValue("SAR", undefined);
                 } else {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
@@ -406,7 +409,7 @@ export const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="SARId"
+          id="SARId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -415,16 +418,36 @@ export const InRequestNewForm = () => {
           <NumberFieldIcon className={classes.fieldIcon} />
           SAR
         </Label>
-        <Input
-          {...register("SAR", {
-            required: "SAR is required",
-            min: { value: 0, message: "SAR must be 1 digit" },
-            max: { value: 9, message: "SAR must be 1 digit" },
-            valueAsNumber: true,
-          })}
-          aria-describedby="SARErr"
-          type="number"
-          id="SARId"
+        <Controller
+          name="SAR"
+          control={control}
+          rules={{
+            required:
+              empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
+                ? "SAR is required"
+                : undefined,
+          }}
+          render={({ field }) => (
+            <Combobox
+              selectedOptions={field.value ? [field.value.toString()] : [""]}
+              value={field.value ? field.value.toString() : ""}
+              onOptionSelect={(_event, data) => {
+                if (data.optionValue) {
+                  field.onChange(data.optionValue);
+                } else {
+                  field.onChange(null);
+                }
+              }}
+              aria-labelledby="SARId"
+              aria-describedby="SARErr"
+              disabled={empType === EMPTYPES.Contractor}
+              placeholder={empType === EMPTYPES.Contractor ? "N/A" : ""}
+            >
+              {SAR_CODES.map((code) => (
+                <Option key={code.key}>{code.text}</Option>
+              ))}
+            </Combobox>
+          )}
         />
         {errors.SAR && (
           <Text id="SARErr" className={classes.errorText}>

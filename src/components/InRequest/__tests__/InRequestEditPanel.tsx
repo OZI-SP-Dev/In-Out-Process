@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -12,6 +12,7 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
+import { SAR_CODES } from "constants/SARCodes";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -63,6 +64,39 @@ const checkEnterableTextbox = async (
 
   // Ensure value now matches what we typed
   expect(textboxField).toHaveValue(text);
+};
+
+const checkEnterableCombobox = async (
+  fieldName: RegExp,
+  text: string | undefined,
+  available: boolean
+) => {
+  // Type in the input box
+  const comboboxField = screen.getByRole("combobox", {
+    name: fieldName,
+  });
+
+  // We have to allow the parameter to be undefined, but we need to throw error if it was
+  expect(text).not.toBeUndefined();
+
+  await user.type(comboboxField, text ? text : "");
+
+  if (available) {
+    const comboboxOpt = screen.getByRole("option", {
+      name: text,
+    });
+
+    await user.click(comboboxOpt);
+
+    // Ensure value now matches what we typed
+    await waitFor(() => expect(comboboxField).toHaveValue(text));
+  } else {
+    const comboboxOpt = screen.queryByRole("option", {
+      name: text,
+    });
+    // Ensure value now matches what we typed
+    expect(comboboxOpt).not.toBeInTheDocument();
+  }
 };
 
 /** Check that ensures the Position Sensitivty Code is properly disabled */
@@ -199,6 +233,37 @@ describe("ManPower Control Number (MPCN)", () => {
       expect(errText).toBeInTheDocument();
     }
   );
+});
+
+describe("SAR", () => {
+  // SAR is currently a disabled field in Edit mode
+  const employeeTypes = [
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: false },
+    { request: milRequest, available: false },
+  ];
+  const sarLabel = /sar/i;
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(sarLabel, SAR_CODES[0].text, available);
+    }
+  );
+
+  it("displays N/A for Contractor", async () => {
+    renderEditPanelForRequest(ctrRequest);
+
+    // Check placeholder is N/A
+    const sar = screen.getByRole("combobox", {
+      name: sarLabel,
+    });
+    expect(sar).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
+
+    // Check that value is "" so it is displaying the placeholder
+    expect(sar).toHaveValue("");
+  });
 });
 
 // Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
