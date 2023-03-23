@@ -112,4 +112,8 @@ export const fieldLabels = {
     form: /mpcn/i,
     view: /mpcn/i,
   },
+  SAR: {
+    form: /sar/i,
+    view: /sar/i,
+  },
 };

@@ -239,13 +239,16 @@ describe("SAR", () => {
     { empType: EMPTYPES.Contractor, available: false },
     { empType: EMPTYPES.Military, available: true },
   ];
-  const sarLabel = /sar/i;
   const requiredSAR = /sar is required/i;
   it.each(employeeTypes)(
     "is available for $empType ($available)",
     async ({ empType, available }) => {
       await renderThenSelectEmpType(empType);
-      await checkEnterableCombobox(sarLabel, SAR_CODES[0].text, available);
+      await checkEnterableCombobox(
+        fieldLabels.SAR.form,
+        SAR_CODES[0].text,
+        available
+      );
     }
   );
 
@@ -254,7 +257,7 @@ describe("SAR", () => {
 
     // Check placeholder is N/A
     const sar = screen.getByRole("combobox", {
-      name: sarLabel,
+      name: fieldLabels.SAR.form,
     });
     expect(sar).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
@@ -266,11 +269,11 @@ describe("SAR", () => {
 
   it.each(validSAR)("no error on valid values - %s", async (sar) => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkEnterableCombobox(sarLabel, sar, true);
+    await checkEnterableCombobox(fieldLabels.SAR.form, sar, true);
 
     // Check placeholder is N/A
     const sarFld = screen.getByRole("combobox", {
-      name: sarLabel,
+      name: fieldLabels.SAR.form,
     });
 
     // No error text is displayed
@@ -286,11 +289,11 @@ describe("SAR", () => {
 
   it.each(invalidSAR)("shows error on invalid values - %s", async (sar) => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkEnterableCombobox(sarLabel, sar, false);
+    await checkEnterableCombobox(fieldLabels.SAR.form, sar, false);
 
     // Check placeholder is N/A
     const sarFld = screen.getByRole("combobox", {
-      name: sarLabel,
+      name: fieldLabels.SAR.form,
     });
 
     // Error text is displayed
@@ -531,7 +534,7 @@ describe("Requires SCI", () => {
 
     // Locate the SAR combobox
     const sar = screen.getByRole("combobox", {
-      name: /sar/i,
+      name: fieldLabels.SAR.form,
     });
 
     await user.click(sar);
@@ -563,7 +566,7 @@ describe("Requires SCI", () => {
 
       // Locate the SAR combobox
       const sarFld = screen.getByRole("combobox", {
-        name: /sar/i,
+        name: fieldLabels.SAR.form,
       });
 
       await user.click(sarFld);
@@ -591,7 +594,7 @@ describe("Requires SCI", () => {
 
       // Locate the SAR combobox
       const sarFld = screen.getByRole("combobox", {
-        name: /sar/i,
+        name: fieldLabels.SAR.form,
       });
 
       await user.click(sarFld);

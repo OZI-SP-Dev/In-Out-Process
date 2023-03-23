@@ -68,20 +68,19 @@ describe("ManPower Control Number (MPCN)", () => {
 });
 
 describe("SAR", () => {
-  const sarLabelText = /sar/i;
   it("is displayed for Civilian", () => {
     render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(sarLabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.SAR.view, true);
   });
 
   it("is not displayed for Contractor", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(sarLabelText, false);
+    expectTextToBeInTheDocument(fieldLabels.SAR.view, false);
   });
 
   it("is displayed for Military", () => {
     render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(sarLabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.SAR.view, true);
   });
 });
 

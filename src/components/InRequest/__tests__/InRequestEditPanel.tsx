@@ -253,13 +253,16 @@ describe("SAR", () => {
     { request: ctrRequest, available: false },
     { request: milRequest, available: false },
   ];
-  const sarLabel = /sar/i;
 
   it.each(employeeTypes)(
     "is available for $request.empType - $available",
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
-      await checkEnterableCombobox(sarLabel, SAR_CODES[0].text, available);
+      await checkEnterableCombobox(
+        fieldLabels.SAR.form,
+        SAR_CODES[0].text,
+        available
+      );
     }
   );
 
@@ -268,7 +271,7 @@ describe("SAR", () => {
 
     // Check placeholder is N/A
     const sar = screen.getByRole("combobox", {
-      name: sarLabel,
+      name: fieldLabels.SAR.form,
     });
     expect(sar).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
