@@ -433,7 +433,7 @@ export const InRequestNewForm = () => {
               value={field.value ? field.value.toString() : ""}
               onOptionSelect={(_event, data) => {
                 if (data.optionValue) {
-                  field.onChange(data.optionValue);
+                  field.onChange(parseInt(data.optionValue));
                 } else {
                   field.onChange(null);
                 }
