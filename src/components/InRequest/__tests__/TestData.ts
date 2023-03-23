@@ -116,4 +116,30 @@ export const fieldLabels = {
     form: /sar/i,
     view: /sar/i,
   },
+  EXISTING_CAC: {
+    form: /does the support contractor have an existing contractor cac\?/i,
+  },
+  CAC_EXPIRATION: {
+    form: /cac expiration/i,
+    view: /cac expiration/i,
+  },
+  LOCAL_OR_REMOTE: {
+    form: /local or remote\?/i,
+    view: /local or remote\?/i,
+  },
+  REMOTE_LOCATION: {
+    form: /remote location/i,
+  },
+  CONTRACT_NUMBER: {
+    form: /contract number/i,
+    view: /contract number/i,
+  },
+  CONTRACT_END_DATE: {
+    form: /contract end date/i,
+    view: /contract end date/i,
+  },
+  REQUIRES_SCI: {
+    form: /does employee require sci access\?/i,
+    view: /requires sci\?/i,
+  },
 };

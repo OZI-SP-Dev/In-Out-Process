@@ -336,14 +336,12 @@ describe("Position Sensitivity Code", () => {
 });
 
 describe("Has Existing Contractor CAC", () => {
-  const hasExistingCACLabel =
-    /does the support contractor have an existing contractor cac\?/i;
   it("is selectable for Contractors", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
 
     // Locate the RadioGroup for Existing CAC
     const hasCAC = screen.getByRole("radiogroup", {
-      name: hasExistingCACLabel,
+      name: fieldLabels.EXISTING_CAC.form,
     });
 
     const yesBttn = within(hasCAC).getByLabelText(/yes/i);
@@ -362,18 +360,16 @@ describe("Has Existing Contractor CAC", () => {
 
   it("is not available for Miliary", async () => {
     await renderThenSelectEmpType(EMPTYPES.Military);
-    checkForInputToExist(hasExistingCACLabel, false);
+    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
   });
 
   it("is not available for Civilians", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    checkForInputToExist(hasExistingCACLabel, false);
+    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
   });
 });
 
 describe("Local Or Remote", () => {
-  const localOrRemoteLabel = /local or remote\?/i;
-
   const employeeTypes = [
     { empType: EMPTYPES.Civilian },
     { empType: EMPTYPES.Contractor },
@@ -385,7 +381,7 @@ describe("Local Or Remote", () => {
 
     // Locate the RadioGroup for Local/Remote
     const localOrRemote = screen.getByRole("radiogroup", {
-      name: localOrRemoteLabel,
+      name: fieldLabels.LOCAL_OR_REMOTE.form,
     });
 
     const localBttn = within(localOrRemote).getByLabelText(/local/i);
@@ -409,7 +405,7 @@ describe("Local Or Remote", () => {
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       expect(localOrRemote).toHaveAccessibleDescription(
@@ -420,9 +416,6 @@ describe("Local Or Remote", () => {
 });
 
 describe("Remote Location", () => {
-  const localOrRemoteLabel = /local or remote\?/i;
-  const remoteLocationLabel = /remote location/i;
-
   it.each(remoteLocationDataset)(
     "is displayed/hidden when remote/local respectively - $request.workLocation",
     async ({ request }) => {
@@ -430,7 +423,7 @@ describe("Remote Location", () => {
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
@@ -441,9 +434,9 @@ describe("Remote Location", () => {
       await user.click(localOrRemoteBttn);
 
       if (request.workLocation === "local") {
-        checkForInputToExist(remoteLocationLabel, false);
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, false);
       } else {
-        checkForInputToExist(remoteLocationLabel, true);
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, true);
       }
     }
   );
@@ -455,7 +448,7 @@ describe("Remote Location", () => {
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
@@ -465,7 +458,7 @@ describe("Remote Location", () => {
       // Click "Local" or "Remote"
       await user.click(localOrRemoteBttn);
       await checkEnterableTextbox(
-        remoteLocationLabel,
+        fieldLabels.REMOTE_LOCATION.form,
         request.workLocationDetail
       );
     }
@@ -473,8 +466,6 @@ describe("Remote Location", () => {
 });
 
 describe("Contract Number", () => {
-  const contractNumberLabel = /contract number/i;
-
   const employeeTypes = [
     { request: civRequest },
     { request: ctrRequest },
@@ -487,22 +478,23 @@ describe("Contract Number", () => {
       await renderThenSelectEmpType(request.empType);
 
       if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(contractNumberLabel, true);
+        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, true);
       } else {
-        checkForInputToExist(contractNumberLabel, false);
+        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, false);
       }
     }
   );
 
   it("is editable when Contractor", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
-    await checkEnterableTextbox(contractNumberLabel, ctrRequest.contractNumber);
+    await checkEnterableTextbox(
+      fieldLabels.CONTRACT_NUMBER.form,
+      ctrRequest.contractNumber
+    );
   });
 });
 
 describe("Contract End Date", () => {
-  const contractEndDateLabel = /contract end date/i;
-
   const employeeTypes = [
     { request: civRequest },
     { request: ctrRequest },
@@ -515,9 +507,9 @@ describe("Contract End Date", () => {
       await renderThenSelectEmpType(request.empType);
 
       if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(contractEndDateLabel, true);
+        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, true);
       } else {
-        checkForInputToExist(contractEndDateLabel, false);
+        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, false);
       }
     }
   );
@@ -525,7 +517,6 @@ describe("Contract End Date", () => {
 });
 
 describe("Requires SCI", () => {
-  const requiresSCILabel = /does employee require sci access\?/i;
   const validSAR = SAR_CODES.map((code) => code.key);
   const validSARWithout5 = validSAR.filter((code) => code !== 5);
 
@@ -543,7 +534,9 @@ describe("Requires SCI", () => {
 
     await user.click(opt5);
 
-    const sci = screen.getByRole("radiogroup", { name: requiresSCILabel });
+    const sci = screen.getByRole("radiogroup", {
+      name: fieldLabels.REQUIRES_SCI.form,
+    });
 
     const yesBttn = within(sci).getByLabelText(/yes/i);
     const noBttn = within(sci).getByLabelText(/no/i);
@@ -575,7 +568,9 @@ describe("Requires SCI", () => {
 
       await user.click(opt);
 
-      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      const sci = screen.queryByRole("radiogroup", {
+        name: fieldLabels.REQUIRES_SCI.form,
+      });
       expect(sci).not.toBeInTheDocument();
     }
   );
@@ -583,7 +578,9 @@ describe("Requires SCI", () => {
   it("is not selectable for Contractor", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
 
-    const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+    const sci = screen.queryByRole("radiogroup", {
+      name: fieldLabels.REQUIRES_SCI.form,
+    });
     expect(sci).not.toBeInTheDocument();
   });
 
@@ -603,7 +600,9 @@ describe("Requires SCI", () => {
 
       await user.click(opt);
 
-      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      const sci = screen.queryByRole("radiogroup", {
+        name: fieldLabels.REQUIRES_SCI.form,
+      });
       expect(sci).not.toBeInTheDocument();
     }
   );

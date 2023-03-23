@@ -85,27 +85,24 @@ describe("SAR", () => {
 });
 
 describe("CAC Expiration", () => {
-  const cacLabelText = /cac expiration/i;
   it("is displayed for Contractors", async () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(cacLabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, true);
   });
 
   it("is not displayed for Miliary", async () => {
     render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(cacLabelText, false);
+    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, false);
   });
 
   it("is not displayed for Civilians", async () => {
     render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(cacLabelText, false);
+    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, false);
   });
 });
 
 // Remote location is displayed under the 'Local or Remote' header
 describe("Local or Remote", () => {
-  const localOrRemoteLabelText = /local or remote\?/i;
-
   const employeeTypes = [
     { request: civRequest },
     { request: ctrRequest },
@@ -116,7 +113,7 @@ describe("Local or Remote", () => {
     "is displayed for $request.empType",
     async ({ request }) => {
       render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(localOrRemoteLabelText, true);
+      expectTextToBeInTheDocument(fieldLabels.LOCAL_OR_REMOTE.view, true);
     }
   );
 
@@ -124,7 +121,7 @@ describe("Local or Remote", () => {
     "has value of 'local' or remote location - $request.workLocation",
     ({ request }) => {
       render(<InRequestViewCompact formData={request} />);
-      const textElement = screen.queryByText(/local or remote\?/i);
+      const textElement = screen.queryByText(fieldLabels.LOCAL_OR_REMOTE.view);
 
       const expectedValue =
         request.workLocation === "local"
@@ -140,8 +137,6 @@ describe("Local or Remote", () => {
 });
 
 describe("Contract Number", () => {
-  const contractNumberLabelText = /contract number/i;
-
   const employeeTypes = [
     { request: civRequest },
     { request: ctrRequest },
@@ -153,24 +148,22 @@ describe("Contract Number", () => {
     async ({ request }) => {
       render(<InRequestViewCompact formData={request} />);
       if (request.empType === EMPTYPES.Contractor) {
-        expectTextToBeInTheDocument(contractNumberLabelText, true);
+        expectTextToBeInTheDocument(fieldLabels.CONTRACT_NUMBER.view, true);
       } else {
-        expectTextToBeInTheDocument(contractNumberLabelText, false);
+        expectTextToBeInTheDocument(fieldLabels.CONTRACT_NUMBER.view, false);
       }
     }
   );
 
   it("has correct value displayed for Contractors", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    const textElement = screen.queryByText(contractNumberLabelText);
+    const textElement = screen.queryByText(fieldLabels.CONTRACT_NUMBER.view);
 
     expect(textElement).toHaveAccessibleDescription(ctrRequest.contractNumber);
   });
 });
 
 describe("Contract End Date", () => {
-  const contractEndDateLabelText = /contract end date/i;
-
   const employeeTypes = [
     { request: civRequest },
     { request: ctrRequest },
@@ -182,16 +175,16 @@ describe("Contract End Date", () => {
     async ({ request }) => {
       render(<InRequestViewCompact formData={request} />);
       if (request.empType === EMPTYPES.Contractor) {
-        expectTextToBeInTheDocument(contractEndDateLabelText, true);
+        expectTextToBeInTheDocument(fieldLabels.CONTRACT_END_DATE.view, true);
       } else {
-        expectTextToBeInTheDocument(contractEndDateLabelText, false);
+        expectTextToBeInTheDocument(fieldLabels.CONTRACT_END_DATE.view, false);
       }
     }
   );
 
   it("has correct value displayed for Contractors", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    const textElement = screen.queryByText(contractEndDateLabelText);
+    const textElement = screen.queryByText(fieldLabels.CONTRACT_END_DATE.view);
 
     expect(textElement).toHaveAccessibleDescription(
       ctrRequest.contractEndDate?.toLocaleDateString()
@@ -200,13 +193,12 @@ describe("Contract End Date", () => {
 });
 
 describe("Requires SCI", () => {
-  const requiresSCILabelText = /requires sci\?/i;
   const validSAR = SAR_CODES.map((code) => code.key);
   const validSARWithout5 = validSAR.filter((code) => code !== 5);
 
   it("is displayed for Military with SAR of 5", async () => {
     render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(requiresSCILabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, true);
   });
 
   it.each(validSARWithout5)(
@@ -214,7 +206,7 @@ describe("Requires SCI", () => {
     async (sar) => {
       const milRequestSAR = { ...milRequest, SAR: sar };
       render(<InRequestViewCompact formData={milRequestSAR} />);
-      expectTextToBeInTheDocument(requiresSCILabelText, false);
+      expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
     }
   );
 
@@ -223,13 +215,13 @@ describe("Requires SCI", () => {
     async (sar) => {
       const civRequestSAR = { ...civRequest, SAR: sar };
       render(<InRequestViewCompact formData={civRequestSAR} />);
-      expectTextToBeInTheDocument(requiresSCILabelText, false);
+      expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
     }
   );
 
   it("is not displayed for Contractors", async () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(requiresSCILabelText, false);
+    expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
   });
 
   it.each(["yes", "no"])(
@@ -240,7 +232,7 @@ describe("Requires SCI", () => {
         isSCI: isSCI as "yes" | "no" | "",
       };
       render(<InRequestViewCompact formData={milRequestSCI} />);
-      const textElement = screen.queryByText(requiresSCILabelText);
+      const textElement = screen.queryByText(fieldLabels.REQUIRES_SCI.view);
 
       expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
     }
