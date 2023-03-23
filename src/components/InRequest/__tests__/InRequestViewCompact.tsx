@@ -6,6 +6,7 @@ import {
   civRequest,
   milRequest,
   remoteLocationDataset,
+  fieldLabels,
 } from "components/InRequest/__tests__/TestData";
 import { EMPTYPES } from "constants/EmpTypes";
 import { SAR_CODES } from "constants/SARCodes";
@@ -24,20 +25,28 @@ const expectTextToBeInTheDocument = (text: RegExp, expected: boolean) => {
 };
 
 describe("Position Sensitivity Code", () => {
-  const pscLabelText = /position sensitivity code/i;
   it("is displayed for Civilian", () => {
     render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(pscLabelText, true);
+    expectTextToBeInTheDocument(
+      fieldLabels.POSITION_SENSITIVITY_CODE.view,
+      true
+    );
   });
 
   it("is not displayed for Contractor", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(pscLabelText, false);
+    expectTextToBeInTheDocument(
+      fieldLabels.POSITION_SENSITIVITY_CODE.view,
+      false
+    );
   });
 
   it("is not displayed for Military", () => {
     render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(pscLabelText, false);
+    expectTextToBeInTheDocument(
+      fieldLabels.POSITION_SENSITIVITY_CODE.view,
+      false
+    );
   });
 });
 

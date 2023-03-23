@@ -7,6 +7,7 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import {
   civRequest,
   ctrRequest,
+  fieldLabels,
   milRequest,
   remoteLocationDataset,
   remoteLocationOnlyDataset,
@@ -118,7 +119,7 @@ const notSelectablePSC = async (empType: EMPTYPES) => {
 
   // Click on the PSC
   const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
+    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
   });
   await user.click(psc);
 
@@ -135,7 +136,7 @@ const isNotApplicablePSC = async (empType: EMPTYPES) => {
 
   // Check placeholder is N/A
   const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
+    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
   });
   expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
@@ -304,7 +305,7 @@ describe("Position Sensitivity Code", () => {
 
     // Click on the PSC
     const psc = screen.getByRole("combobox", {
-      name: /position sensitivity code/i,
+      name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
     });
     await user.click(psc);
 

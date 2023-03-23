@@ -102,3 +102,10 @@ export const remoteLocationDataset = [
 export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
   (item) => item.request.workLocation === "remote"
 );
+
+export const fieldLabels = {
+  POSITION_SENSITIVITY_CODE: {
+    form: /position sensitivity code/i,
+    view: /position sensitivity code/i,
+  },
+};

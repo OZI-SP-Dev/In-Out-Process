@@ -6,6 +6,7 @@ import {
   milRequest,
   remoteLocationDataset,
   remoteLocationOnlyDataset,
+  fieldLabels,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -105,7 +106,7 @@ const notSelectablePSC = async (request: IInRequest) => {
 
   // Click on the PSC
   const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
+    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
   });
   await user.click(psc);
 
@@ -122,7 +123,7 @@ const isNotApplicablePSC = async (request: IInRequest) => {
 
   // Check placeholder is N/A
   const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
+    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
   });
   expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
