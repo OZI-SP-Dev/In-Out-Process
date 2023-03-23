@@ -1,6 +1,7 @@
 import { IInRequest } from "api/RequestApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
+import { screen } from "@testing-library/react";
 
 test("Load Test Data file", () => {});
 
@@ -142,4 +143,18 @@ export const fieldLabels = {
     form: /does employee require sci access\?/i,
     view: /requires sci\?/i,
   },
+};
+
+/** Check if there is an input field matching the desired label
+ * @param labelText The text we are looking for
+ * @param expected Whether or not we expect it in the document or expect it NOT in the document
+ */
+export const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
+  const field = screen.queryByLabelText(labelText);
+
+  if (expected) {
+    expect(field).toBeInTheDocument();
+  } else {
+    expect(field).not.toBeInTheDocument();
+  }
 };

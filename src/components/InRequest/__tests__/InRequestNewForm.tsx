@@ -11,6 +11,7 @@ import {
   milRequest,
   remoteLocationDataset,
   remoteLocationOnlyDataset,
+  checkForInputToExist,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 
@@ -45,20 +46,6 @@ const renderThenSelectEmpType = async (empType: EMPTYPES) => {
   // Click on the appropriate empType radio button
   const empTypeOpt = screen.getByRole("radio", { name: empType });
   await user.click(empTypeOpt);
-};
-
-/** Check if there is an input field matching the desired label
- * @param labelText The text we are looking for
- * @param expected Whether or not we expect it in the document or expect it NOT in the document
- */
-const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
-  const field = screen.queryByLabelText(labelText);
-
-  if (expected) {
-    expect(field).toBeInTheDocument();
-  } else {
-    expect(field).not.toBeInTheDocument();
-  }
 };
 
 /** Check for working input */

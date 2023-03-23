@@ -7,6 +7,7 @@ import {
   remoteLocationDataset,
   remoteLocationOnlyDataset,
   fieldLabels,
+  checkForInputToExist,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -30,20 +31,6 @@ const renderEditPanelForRequest = (request: IInRequest) => {
       />
     </QueryClientProvider>
   );
-};
-
-/** Check if there is an input field matching the desired label
- * @param labelText The text we are looking for
- * @param expected Whether or not we expect it in the document or expect it NOT in the document
- */
-const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
-  const field = screen.queryByLabelText(labelText);
-
-  if (expected) {
-    expect(field).toBeInTheDocument();
-  } else {
-    expect(field).not.toBeInTheDocument();
-  }
 };
 
 /** Check for working input */
