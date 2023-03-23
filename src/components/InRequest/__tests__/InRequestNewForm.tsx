@@ -145,15 +145,14 @@ const isNotApplicablePSC = async (empType: EMPTYPES) => {
 };
 
 describe("ManPower Control Number (MPCN)", () => {
-  const mpcnLabel = /mpcn/i;
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkEnterableTextbox(mpcnLabel, "1234567");
+    await checkEnterableTextbox(fieldLabels.MPCN.form, "1234567");
   });
 
   it("is available for Miliary", async () => {
     await renderThenSelectEmpType(EMPTYPES.Military);
-    await checkEnterableTextbox(mpcnLabel, "1234567");
+    await checkEnterableTextbox(fieldLabels.MPCN.form, "1234567");
   });
 
   it("is not selectable for Contractor", async () => {
@@ -161,7 +160,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
-      name: mpcnLabel,
+      name: fieldLabels.MPCN.form,
     });
     await user.type(mpcn, "1234567");
 
@@ -174,7 +173,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Check placeholder is N/A
     const mpcn = screen.getByRole("textbox", {
-      name: mpcnLabel,
+      name: fieldLabels.MPCN.form,
     });
     expect(mpcn).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
@@ -193,7 +192,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcnFld = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: fieldLabels.MPCN.form,
     });
     await user.type(mpcnFld, mpcn ? mpcn : "");
 
@@ -222,7 +221,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
       // Type in the MPCN input box
       const mpcnFld = screen.getByRole("textbox", {
-        name: /mpcn/i,
+        name: fieldLabels.MPCN.form,
       });
       await user.type(mpcnFld, mpcn ? mpcn : "");
       await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));

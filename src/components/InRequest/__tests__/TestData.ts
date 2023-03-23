@@ -108,4 +108,8 @@ export const fieldLabels = {
     form: /position sensitivity code/i,
     view: /position sensitivity code/i,
   },
+  MPCN: {
+    form: /mpcn/i,
+    view: /mpcn/i,
+  },
 };

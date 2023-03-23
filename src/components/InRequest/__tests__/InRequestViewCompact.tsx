@@ -51,20 +51,19 @@ describe("Position Sensitivity Code", () => {
 });
 
 describe("ManPower Control Number (MPCN)", () => {
-  const mpcnLabelText = /mpcn/i;
   it("is displayed for Civilian", () => {
     render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(mpcnLabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.MPCN.view, true);
   });
 
   it("is not displayed for Contractor", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(mpcnLabelText, false);
+    expectTextToBeInTheDocument(fieldLabels.MPCN.view, false);
   });
 
   it("is displayed for Military", () => {
     render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(mpcnLabelText, true);
+    expectTextToBeInTheDocument(fieldLabels.MPCN.view, true);
   });
 });
 

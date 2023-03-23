@@ -132,15 +132,20 @@ const isNotApplicablePSC = async (request: IInRequest) => {
 };
 
 describe("ManPower Control Number (MPCN)", () => {
-  const mpcnLabel = /mpcn/i;
   it("is available for Civilian", async () => {
     renderEditPanelForRequest(civRequest);
-    await checkEnterableTextbox(mpcnLabel, civRequest.MPCN?.toString());
+    await checkEnterableTextbox(
+      fieldLabels.MPCN.form,
+      civRequest.MPCN?.toString()
+    );
   });
 
   it("is available for Miliary", async () => {
     renderEditPanelForRequest(milRequest);
-    await checkEnterableTextbox(mpcnLabel, milRequest.MPCN?.toString());
+    await checkEnterableTextbox(
+      fieldLabels.MPCN.form,
+      milRequest.MPCN?.toString()
+    );
   });
 
   it("is not selectable for Contractor", async () => {
@@ -148,7 +153,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
-      name: mpcnLabel,
+      name: fieldLabels.MPCN.form,
     });
     await user.type(mpcn, "1234567");
     // Ensure value of MPCN is still ""
@@ -159,13 +164,16 @@ describe("ManPower Control Number (MPCN)", () => {
     renderEditPanelForRequest(ctrRequest);
 
     // Check placeholder is N/A
-    const psc = screen.getByRole("textbox", {
-      name: mpcnLabel,
+    const mpcnFld = screen.getByRole("textbox", {
+      name: fieldLabels.MPCN.form,
     });
-    expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
+    expect(mpcnFld).toHaveAttribute(
+      "placeholder",
+      expect.stringMatching(/N\/A/)
+    );
 
     // Check that value is "" so it is displaying the placeholder
-    expect(psc).toHaveValue("");
+    expect(mpcnFld).toHaveValue("");
   });
 
   const shortMPCN = /mpcn cannot be less than 7 digits/i;
@@ -188,7 +196,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Clear the input, then type the passed in data
     const mpcnFld = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: fieldLabels.MPCN.form,
     });
     await user.clear(mpcnFld);
     await user.type(mpcnFld, mpcn ? mpcn : "");
@@ -225,7 +233,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
       // Clear the input, then type the passed in data
       const mpcnFld = screen.getByRole("textbox", {
-        name: /mpcn/i,
+        name: fieldLabels.MPCN.form,
       });
       await user.clear(mpcnFld);
       await user.type(mpcnFld, mpcn ? mpcn : "");
