@@ -53,6 +53,7 @@ export const transformInRequestFromSP = (
       : undefined,
     isTraveler: request.isTraveler,
     isSupervisor: request.isSupervisor,
+    isSCI: request.isSCI,
     closedOrCancelledDate: request.closedOrCancelledDate
       ? new Date(request.closedOrCancelledDate)
       : undefined,
@@ -124,6 +125,7 @@ const transformInRequestToSP = async (
     employeeStringId: request.employee?.Id ? undefined : "",
     isTraveler: request.isTraveler,
     isSupervisor: request.isSupervisor,
+    isSCI: request.isSCI,
     closedOrCancelledDate: request.closedOrCancelledDate
       ? request.closedOrCancelledDate.toISOString()
       : "",
@@ -136,7 +138,7 @@ const transformInRequestToSP = async (
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,hasExistingCAC,CACExpiration,contractNumber,contractEndDate,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
+  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,isSCI,hasExistingCAC,CACExpiration,contractNumber,contractEndDate,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -293,6 +295,8 @@ export type IInRequest = {
   isTraveler: "yes" | "no" | "";
   /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
   isSupervisor: "yes" | "no" | "";
+  /** Required - Can only be 'yes' | 'no' if it is Mil. Must be '' if it is a Civ/Ctr */
+  isSCI: "yes" | "no" | "";
   /** Optional - Date Supervisor Closed or Cancelled -- If there is a cancelReason then we know it was cancelled */
   closedOrCancelledDate?: Date;
   /** Optional - The reason for why the request was cancelled */

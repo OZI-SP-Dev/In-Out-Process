@@ -310,6 +310,7 @@ export const handlers = [
           supGovLead: { ...supervisor },
           isTraveler: body.isTraveler,
           isSupervisor: body.isSupervisor,
+          isSCI: body.isSCI,
         };
         if (employee) {
           request.employee = { ...employee };
@@ -702,6 +703,7 @@ let requests: IResponseItem[] = [
     employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
+    isSCI: "",
   },
   {
     Id: 1,
@@ -725,6 +727,7 @@ let requests: IResponseItem[] = [
     employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
+    isSCI: "",
   },
   {
     Id: 3,
@@ -748,6 +751,7 @@ let requests: IResponseItem[] = [
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[1] },
     employee: { ...testUsers[0] },
+    isSCI: "",
   },
   {
     Id: 5,
@@ -771,6 +775,7 @@ let requests: IResponseItem[] = [
     employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "yes",
+    isSCI: "",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
     cancelReason: "Employee proceeded with new opportunity",
   },
@@ -796,6 +801,7 @@ let requests: IResponseItem[] = [
     employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
+    isSCI: "",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
   },
   {
@@ -816,6 +822,53 @@ let requests: IResponseItem[] = [
     supGovLead: { ...testUsers[0] },
     isTraveler: "no",
     isSupervisor: "no",
+    isSCI: "",
+  },
+  {
+    Id: 7,
+    empName: "SCI Military",
+    empType: EMPTYPES.Military,
+    gradeRank: "O-3",
+    MPCN: 1234567,
+    SAR: 5,
+    workLocation: "remote",
+    workLocationDetail: "Remote Location",
+    office: "OZIC",
+    isNewCivMil: "yes",
+    prevOrg: "",
+    hasExistingCAC: "",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: { ...testUsers[0] },
+    isTraveler: "yes",
+    isSupervisor: "yes",
+    isSCI: "yes",
+  },
+  {
+    Id: 8,
+    empName: "No SCI Military",
+    empType: EMPTYPES.Military,
+    gradeRank: "O-3",
+    MPCN: 1234567,
+    SAR: 5,
+    workLocation: "remote",
+    workLocationDetail: "Remote Location",
+    office: "OZIC",
+    isNewCivMil: "yes",
+    prevOrg: "",
+    hasExistingCAC: "",
+    CACExpiration: "",
+    contractNumber: "",
+    contractEndDate: "",
+    eta: "2022-12-31T00:00:00.000Z",
+    completionDate: "2023-01-31T00:00:00.000Z",
+    supGovLead: { ...testUsers[0] },
+    isTraveler: "yes",
+    isSupervisor: "yes",
+    isSCI: "no",
   },
 ];
 let nextRequestId = requests.length + 1;
@@ -1028,6 +1081,7 @@ const updateRequest = (item: IRequestItem) => {
     requests[index].isSupervisor = item.isSupervisor
       ? item.isSupervisor
       : requests[index].isSupervisor;
+    requests[index].isSCI = item.isSCI ? item.isSCI : requests[index].isSCI;
   }
 
   if (supervisor) {

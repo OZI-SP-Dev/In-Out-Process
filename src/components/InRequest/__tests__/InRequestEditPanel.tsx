@@ -63,7 +63,7 @@ const checkEnterableTextbox = async (
   await user.type(textboxField, text ? text : "");
 
   // Ensure value now matches what we typed
-  expect(textboxField).toHaveValue(text);
+  await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
 const checkEnterableCombobox = async (
@@ -151,7 +151,7 @@ describe("ManPower Control Number (MPCN)", () => {
     });
     await user.type(mpcn, "1234567");
     // Ensure value of MPCN is still ""
-    expect(mpcn).toHaveValue("");
+    await waitFor(() => expect(mpcn).toHaveValue(""));
   });
 
   it("displays N/A for Contractor", async () => {
@@ -191,6 +191,7 @@ describe("ManPower Control Number (MPCN)", () => {
     });
     await user.clear(mpcnFld);
     await user.type(mpcnFld, mpcn ? mpcn : "");
+    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
 
     // Ensure the error messages don't display
     const errText = screen.queryByText(shortMPCN || longMPCN || characterMPCN);
@@ -227,6 +228,7 @@ describe("ManPower Control Number (MPCN)", () => {
       });
       await user.clear(mpcnFld);
       await user.type(mpcnFld, mpcn ? mpcn : "");
+      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
 
       // Ensure the appropriate error displays
       const errText = screen.queryByText(err);
@@ -479,4 +481,52 @@ describe("Contract End Date", () => {
     }
   );
   // TODO: Build out testing for Date Picker selection
+});
+
+describe("Requires SCI", () => {
+  const requiresSCILabel = /does employee require sci access\?/i;
+  const validSAR = SAR_CODES.map((code) => code.key);
+  const validSARWithout5 = validSAR.filter((code) => code !== 5);
+
+  // Currently field is not editable -- this may change as we explore updating tasks based on changes
+  it("is disabled for Military with SAR of 5", async () => {
+    renderEditPanelForRequest(milRequest);
+
+    const sci = screen.getByRole("radiogroup", { name: requiresSCILabel });
+
+    const yesBttn = within(sci).getByRole("radio", { name: /yes/i });
+    const noBttn = within(sci).getByRole("radio", { name: /no/i });
+    expect(yesBttn).toBeDisabled();
+    expect(noBttn).toBeDisabled();
+  });
+
+  // Should not be available to Military if the SAR is a value other than 5
+  it.each(validSARWithout5)(
+    "is unavailable for Military with SAR of %s",
+    async (sar) => {
+      const milRequestSAR = { ...milRequest, SAR: sar };
+      renderEditPanelForRequest(milRequestSAR);
+
+      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      expect(sci).not.toBeInTheDocument();
+    }
+  );
+
+  it("is unavailable for Contractor", async () => {
+    renderEditPanelForRequest(ctrRequest);
+
+    const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+    expect(sci).not.toBeInTheDocument();
+  });
+
+  it.each(validSAR)(
+    "is unavailable for Civilian regardless of SAR - %s",
+    async (sar) => {
+      const civRequestSAR = { ...civRequest, SAR: sar };
+      renderEditPanelForRequest(civRequestSAR);
+
+      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      expect(sci).not.toBeInTheDocument();
+    }
+  );
 });

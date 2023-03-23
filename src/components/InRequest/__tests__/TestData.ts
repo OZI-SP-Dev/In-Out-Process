@@ -19,6 +19,7 @@ export const testUsers: IPerson[] = [
 
 /* Incoming military example */
 /* With Local/Remote = local */
+/* With SAR = 5 and isSCI = "yes" */
 export const milRequest: IInRequest = {
   Id: 1,
   empName: testUsers[1].Title,
@@ -37,6 +38,7 @@ export const milRequest: IInRequest = {
   employee: { ...testUsers[1] },
   isTraveler: "no",
   isSupervisor: "no",
+  isSCI: "yes",
   status: "Active",
 };
 
@@ -62,6 +64,7 @@ export const civRequest: IInRequest = {
   employee: { ...testUsers[1] },
   isTraveler: "yes",
   isSupervisor: "yes",
+  isSCI: "",
   status: "Active",
 };
 
@@ -85,6 +88,7 @@ export const ctrRequest: IInRequest = {
   employee: { ...testUsers[1] },
   isTraveler: "",
   isSupervisor: "",
+  isSCI: "",
   status: "Active",
 };
 

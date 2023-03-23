@@ -460,13 +460,16 @@ const createInboundChecklistItems = async (request: IInRequest) => {
   // Welcome Package -- required for all inbounds
   addChecklistItem(templates.WelcomePackage);
 
-  // SCI Billet Nomination - Only if CIV and SAR = 5 and sensitivityCode = 4 (Special Sensitive)
+  // SCI Billet Nomination - Only if CIV and SAR = 5 and sensitivityCode = 4 (Special Sensitive) OR
+  //  MIL and isSCI = "yes"
   if (
-    request.empType === EMPTYPES.Civilian &&
-    request.SAR === 5 &&
-    request.sensitivityCode === 4
-  )
+    (request.empType === EMPTYPES.Civilian &&
+      request.SAR === 5 &&
+      request.sensitivityCode === 4) ||
+    (request.empType === EMPTYPES.Military && request.isSCI === "yes")
+  ) {
     addChecklistItem(templates.SCIBilletNomination);
+  }
 
   // IA Training -- Required for all inbounds
   addChecklistItem(templates.IA_Training);

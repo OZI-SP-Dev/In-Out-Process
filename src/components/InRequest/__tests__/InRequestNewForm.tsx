@@ -76,7 +76,7 @@ const checkEnterableTextbox = async (
   await user.type(textboxField, text ? text : "");
 
   // Ensure value now matches what we typed
-  expect(textboxField).toHaveValue(text);
+  await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
 const checkEnterableCombobox = async (
@@ -165,7 +165,7 @@ describe("ManPower Control Number (MPCN)", () => {
     await user.type(mpcn, "1234567");
 
     // Ensure value of MPCN is still ""
-    expect(mpcn).toHaveValue("");
+    await waitFor(() => expect(mpcn).toHaveValue(""));
   });
 
   it("displays N/A for Contractor", async () => {
@@ -197,7 +197,7 @@ describe("ManPower Control Number (MPCN)", () => {
     await user.type(mpcnFld, mpcn ? mpcn : "");
 
     // Ensure value of MPCN now matches what we typed
-    expect(mpcnFld).toHaveValue(mpcn);
+    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
 
     // Ensure the element is Invalid or Valid depending on what we are expecting
     const errText = screen.queryByText(shortMPCN || longMPCN || characterMPCN);
@@ -224,6 +224,7 @@ describe("ManPower Control Number (MPCN)", () => {
         name: /mpcn/i,
       });
       await user.type(mpcnFld, mpcn ? mpcn : "");
+      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
 
       // Ensure the correct error message is displayed
       const errText = screen.queryByText(err);
@@ -518,4 +519,89 @@ describe("Contract End Date", () => {
     }
   );
   // TODO: Build out testing for Date Picker selection
+});
+
+describe("Requires SCI", () => {
+  const requiresSCILabel = /does employee require sci access\?/i;
+  const validSAR = SAR_CODES.map((code) => code.key);
+  const validSARWithout5 = validSAR.filter((code) => code !== 5);
+
+  it("is selectable for Military with SAR of 5", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Military);
+
+    // Locate the SAR combobox
+    const sar = screen.getByRole("combobox", {
+      name: /sar/i,
+    });
+
+    await user.click(sar);
+
+    const opt5 = await screen.findByRole("option", { name: "5" });
+
+    await user.click(opt5);
+
+    const sci = screen.getByRole("radiogroup", { name: requiresSCILabel });
+
+    const yesBttn = within(sci).getByLabelText(/yes/i);
+    const noBttn = within(sci).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it.each(validSARWithout5)(
+    "is not selectable for Military with SAR of %s",
+    async (sar) => {
+      await renderThenSelectEmpType(EMPTYPES.Military);
+
+      // Locate the SAR combobox
+      const sarFld = screen.getByRole("combobox", {
+        name: /sar/i,
+      });
+
+      await user.click(sarFld);
+
+      const opt = await screen.findByRole("option", { name: sar.toString() });
+
+      await user.click(opt);
+
+      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      expect(sci).not.toBeInTheDocument();
+    }
+  );
+
+  it("is not selectable for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+
+    const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+    expect(sci).not.toBeInTheDocument();
+  });
+
+  it.each(validSAR)(
+    "is not selectable for Civilian with SAR of %s",
+    async (sar) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Locate the SAR combobox
+      const sarFld = screen.getByRole("combobox", {
+        name: /sar/i,
+      });
+
+      await user.click(sarFld);
+
+      const opt = await screen.findByRole("option", { name: sar.toString() });
+
+      await user.click(opt);
+
+      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      expect(sci).not.toBeInTheDocument();
+    }
+  );
 });

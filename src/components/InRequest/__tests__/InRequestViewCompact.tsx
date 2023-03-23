@@ -8,6 +8,7 @@ import {
   remoteLocationDataset,
 } from "components/InRequest/__tests__/TestData";
 import { EMPTYPES } from "constants/EmpTypes";
+import { SAR_CODES } from "constants/SARCodes";
 
 /** Check if there is a text element matching the desired text
  * @param text The text we are looking for
@@ -189,4 +190,52 @@ describe("Contract End Date", () => {
       ctrRequest.contractEndDate?.toLocaleDateString()
     );
   });
+});
+
+describe("Requires SCI", () => {
+  const requiresSCILabelText = /requires sci\?/i;
+  const validSAR = SAR_CODES.map((code) => code.key);
+  const validSARWithout5 = validSAR.filter((code) => code !== 5);
+
+  it("is displayed for Military with SAR of 5", async () => {
+    render(<InRequestViewCompact formData={milRequest} />);
+    expectTextToBeInTheDocument(requiresSCILabelText, true);
+  });
+
+  it.each(validSARWithout5)(
+    "is not displayed for Military with SAR of %s",
+    async (sar) => {
+      const milRequestSAR = { ...milRequest, SAR: sar };
+      render(<InRequestViewCompact formData={milRequestSAR} />);
+      expectTextToBeInTheDocument(requiresSCILabelText, false);
+    }
+  );
+
+  it.each(validSAR)(
+    "is not displayed for Civilian with SAR of %s",
+    async (sar) => {
+      const civRequestSAR = { ...civRequest, SAR: sar };
+      render(<InRequestViewCompact formData={civRequestSAR} />);
+      expectTextToBeInTheDocument(requiresSCILabelText, false);
+    }
+  );
+
+  it("is not displayed for Contractors", async () => {
+    render(<InRequestViewCompact formData={ctrRequest} />);
+    expectTextToBeInTheDocument(requiresSCILabelText, false);
+  });
+
+  it.each(["yes", "no"])(
+    "has correct value displayed for Military with SAR of 5 - %s",
+    (isSCI) => {
+      const milRequestSCI = {
+        ...milRequest,
+        isSCI: isSCI as "yes" | "no" | "",
+      };
+      render(<InRequestViewCompact formData={milRequestSCI} />);
+      const textElement = screen.queryByText(requiresSCILabelText);
+
+      expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
+    }
+  );
 });
