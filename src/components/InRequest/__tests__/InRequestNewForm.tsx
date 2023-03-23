@@ -95,26 +95,9 @@ const checkEnterableCombobox = async (
     const comboboxOpt = screen.queryByRole("option", {
       name: text,
     });
-    // Ensure value now matches what we typed
+    // Ensure popup options don't appear
     expect(comboboxOpt).not.toBeInTheDocument();
   }
-};
-
-/** Check that ensures the Position Sensitivty Code is properly disabled */
-const notSelectablePSC = async (empType: EMPTYPES) => {
-  await renderThenSelectEmpType(empType);
-
-  // Click on the PSC
-  const psc = screen.getByRole("combobox", {
-    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
-  });
-  await user.click(psc);
-
-  //Ensure that it doesn't come up with an item to select
-  const pscOpt = screen.queryByRole("option", {
-    name: SENSITIVITY_CODES[0].text,
-  });
-  expect(pscOpt).not.toBeInTheDocument();
 };
 
 /** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
@@ -291,22 +274,20 @@ describe("SAR", () => {
 describe("Position Sensitivity Code", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
-
-    // Click on the PSC
-    const psc = screen.getByRole("combobox", {
-      name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
-    });
-    await user.click(psc);
-
-    //Ensure that it comes up with an item to select
-    const pscOpt = screen.getByRole("option", {
-      name: SENSITIVITY_CODES[0].text,
-    });
-    expect(pscOpt).toBeInTheDocument();
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      true
+    );
   });
 
   it("is not selectable for Contractor", async () => {
-    await notSelectablePSC(EMPTYPES.Contractor);
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      false
+    );
   });
 
   it("displays N/A for Contractor", async () => {
@@ -314,7 +295,12 @@ describe("Position Sensitivity Code", () => {
   });
 
   it("is not selectable for Miliary", async () => {
-    await notSelectablePSC(EMPTYPES.Military);
+    await renderThenSelectEmpType(EMPTYPES.Military);
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      false
+    );
   });
 
   it("displays N/A for Military", async () => {

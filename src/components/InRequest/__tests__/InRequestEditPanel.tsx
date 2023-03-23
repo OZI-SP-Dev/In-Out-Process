@@ -87,23 +87,6 @@ const checkEnterableCombobox = async (
   }
 };
 
-/** Check that ensures the Position Sensitivty Code is properly disabled */
-const notSelectablePSC = async (request: IInRequest) => {
-  renderEditPanelForRequest(request);
-
-  // Click on the PSC
-  const psc = screen.getByRole("combobox", {
-    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
-  });
-  await user.click(psc);
-
-  //Ensure that it doesn't come up with an item to select
-  const pscOpt = screen.queryByRole("option", {
-    name: SENSITIVITY_CODES[0].text,
-  });
-  expect(pscOpt).not.toBeInTheDocument();
-};
-
 /** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
 const isNotApplicablePSC = async (request: IInRequest) => {
   renderEditPanelForRequest(request);
@@ -270,11 +253,21 @@ describe("SAR", () => {
 // Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
 describe("Position Sensitivity Code", () => {
   it("is not selectable for Civilian", async () => {
-    await notSelectablePSC(civRequest);
+    renderEditPanelForRequest(civRequest);
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      false
+    );
   });
 
   it("is not selectable for Contractor", async () => {
-    await notSelectablePSC(ctrRequest);
+    renderEditPanelForRequest(ctrRequest);
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      false
+    );
   });
 
   it("displays N/A for Contractor", async () => {
@@ -282,7 +275,12 @@ describe("Position Sensitivity Code", () => {
   });
 
   it("is not selectable for Military", async () => {
-    await notSelectablePSC(milRequest);
+    renderEditPanelForRequest(milRequest);
+    await checkEnterableCombobox(
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
+      SENSITIVITY_CODES[0].text,
+      false
+    );
   });
 
   it("displays N/A for Military", async () => {
