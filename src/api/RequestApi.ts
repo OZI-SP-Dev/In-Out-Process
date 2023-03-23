@@ -259,8 +259,8 @@ export type IInRequest = {
   gradeRank: string;
   /** Optional - The Employee's MPCN from the UMD -- Required for CIV/MIL, others will be blank */
   MPCN?: number;
-  /** Required - The Employee's SAR from the UMD */
-  SAR: number;
+  /** Optional - The Employee's SAR from the UMD -- Required for CIV/MIL, others will be blank */
+  SAR?: number;
   /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
   sensitivityCode?: number;
   /** Required - Possible values are 'local' and 'remote'  */

@@ -803,7 +803,6 @@ let requests: IResponseItem[] = [
     empName: "Tractor, Kauhn",
     empType: EMPTYPES.Contractor,
     gradeRank: "",
-    SAR: 6,
     workLocation: "local",
     office: "OZIC",
     isNewCivMil: "no",
