@@ -902,6 +902,36 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 />
               </div>
             )}
+            {props.data.empType === EMPTYPES.Military &&
+              props.data.SAR === 5 && (
+                <div className={classes.fieldContainer}>
+                  <Label
+                    id="isSCIId"
+                    size="small"
+                    weight="semibold"
+                    className={classes.fieldLabel}
+                    required
+                  >
+                    <ToggleLeftRegular className={classes.fieldIcon} />
+                    Does employee require SCI access?
+                  </Label>
+                  <Controller
+                    name="isSCI"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup
+                        {...field}
+                        aria-describedby="isSCIErr"
+                        aria-labelledby="isSCIId"
+                        disabled={true}
+                      >
+                        <Radio key={"yes"} value={"yes"} label="Yes" />
+                        <Radio key={"no"} value={"no"} label="No" />
+                      </RadioGroup>
+                    )}
+                  />
+                </div>
+              )}
             {props.data.empType === EMPTYPES.Contractor && (
               <>
                 <div className={classes.fieldContainer}>

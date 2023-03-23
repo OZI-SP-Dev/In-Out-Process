@@ -172,6 +172,21 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             <Text id="SARCVId">{formData.SAR}</Text>
           </div>
         )}
+        {formData.empType === EMPTYPES.Military && formData.SAR === 5 && (
+          <div>
+            <Label
+              weight="semibold"
+              htmlFor="isSCICVId"
+              aria-describedby="isSCICVId"
+            >
+              Requires SCI?
+            </Label>
+            <br />
+            <Text id="isSCICVId" className={classes.capitalize}>
+              {formData.isSCI}
+            </Text>
+          </div>
+        )}
         {formData.empType === EMPTYPES.Civilian && (
           <div>
             <Label weight="semibold" htmlFor="SARCVId">

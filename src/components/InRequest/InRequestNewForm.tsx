@@ -123,6 +123,7 @@ export const InRequestNewForm = () => {
   const eta = watch("eta");
   const employee = watch("employee");
   const workLocation = watch("workLocation");
+  const SAR = watch("SAR");
 
   const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
     switch (empType) {
@@ -283,6 +284,10 @@ export const InRequestNewForm = () => {
 
                 if (option.value !== EMPTYPES.Civilian) {
                   setValue("sensitivityCode", undefined);
+                }
+
+                if (option.value !== EMPTYPES.Military) {
+                  setValue("isSCI", "");
                 }
 
                 onChange(e, option);
@@ -922,6 +927,44 @@ export const InRequestNewForm = () => {
           {errors.isSupervisor && (
             <Text id="isSupervisorErr" className={classes.errorText}>
               {errors.isSupervisor.message}
+            </Text>
+          )}
+        </div>
+      )}
+      {empType === EMPTYPES.Military && SAR === 5 && (
+        <div className={classes.fieldContainer}>
+          <Label
+            id="isSCIId"
+            size="small"
+            weight="semibold"
+            className={classes.fieldLabel}
+            required
+          >
+            <ToggleLeftRegular className={classes.fieldIcon} />
+            Does employee require SCI access?
+          </Label>
+          <Controller
+            name="isSCI"
+            control={control}
+            defaultValue={""}
+            rules={{
+              required: "Selection is required",
+            }}
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                aria-labelledby="isSCIId"
+                aria-describedby="isSCIErr"
+                id="isSCIId"
+              >
+                <Radio key={"yes"} value={"yes"} label="Yes" />
+                <Radio key={"no"} value={"no"} label="No" />
+              </RadioGroup>
+            )}
+          />
+          {errors.isSCI && (
+            <Text id="isSCIErr" className={classes.errorText}>
+              {errors.isSCI.message}
             </Text>
           )}
         </div>
