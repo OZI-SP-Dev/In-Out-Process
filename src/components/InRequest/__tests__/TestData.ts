@@ -1,7 +1,7 @@
 import { IInRequest } from "api/RequestApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
-import { screen } from "@testing-library/react";
+import { ByRoleMatcher, screen } from "@testing-library/react";
 
 test("Load Test Data file", () => {});
 
@@ -107,14 +107,17 @@ export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
 export const fieldLabels = {
   POSITION_SENSITIVITY_CODE: {
     form: /position sensitivity code/i,
+    formType: "combobox",
     view: /position sensitivity code/i,
   },
   MPCN: {
     form: /mpcn/i,
+    formType: "textbox",
     view: /mpcn/i,
   },
   SAR: {
     form: /sar/i,
+    formType: "combobox",
     view: /sar/i,
   },
   EXISTING_CAC: {
@@ -157,4 +160,17 @@ export const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
   } else {
     expect(field).not.toBeInTheDocument();
   }
+};
+
+/** Check that ensures N/A is displayed properly */
+export const isNotApplicable = (
+  fieldType: ByRoleMatcher,
+  fieldName: RegExp
+) => {
+  // Check placeholder is N/A
+  const naFld = screen.getByRole(fieldType, { name: fieldName });
+  expect(naFld).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
+
+  // Check that value is "" so it is displaying the placeholder
+  expect(naFld).toHaveValue("");
 };

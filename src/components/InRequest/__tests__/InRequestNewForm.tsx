@@ -12,6 +12,7 @@ import {
   remoteLocationDataset,
   remoteLocationOnlyDataset,
   checkForInputToExist,
+  isNotApplicable,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 
@@ -100,20 +101,6 @@ const checkEnterableCombobox = async (
   }
 };
 
-/** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
-const isNotApplicablePSC = async (empType: EMPTYPES) => {
-  await renderThenSelectEmpType(empType);
-
-  // Check placeholder is N/A
-  const psc = screen.getByRole("combobox", {
-    name: fieldLabels.POSITION_SENSITIVITY_CODE.form,
-  });
-  expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-  // Check that value is "" so it is displaying the placeholder
-  expect(psc).toHaveValue("");
-};
-
 describe("ManPower Control Number (MPCN)", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
@@ -140,15 +127,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
   it("displays N/A for Contractor", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
-
-    // Check placeholder is N/A
-    const mpcn = screen.getByRole("textbox", {
-      name: fieldLabels.MPCN.form,
-    });
-    expect(mpcn).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-    // Check that value is "" so it is displaying the placeholder
-    expect(mpcn).toHaveValue("");
+    isNotApplicable(fieldLabels.MPCN.formType, fieldLabels.MPCN.form);
   });
 
   const shortMPCN = /mpcn cannot be less than 7 digits/i;
@@ -224,15 +203,7 @@ describe("SAR", () => {
 
   it("displays N/A for Contractor", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
-
-    // Check placeholder is N/A
-    const sar = screen.getByRole("combobox", {
-      name: fieldLabels.SAR.form,
-    });
-    expect(sar).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-    // Check that value is "" so it is displaying the placeholder
-    expect(sar).toHaveValue("");
+    isNotApplicable(fieldLabels.SAR.formType, fieldLabels.SAR.form);
   });
 
   const validSAR = SAR_CODES.map((code) => code.text);
@@ -291,7 +262,11 @@ describe("Position Sensitivity Code", () => {
   });
 
   it("displays N/A for Contractor", async () => {
-    await isNotApplicablePSC(EMPTYPES.Contractor);
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    isNotApplicable(
+      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
+      fieldLabels.POSITION_SENSITIVITY_CODE.form
+    );
   });
 
   it("is not selectable for Miliary", async () => {
@@ -304,7 +279,11 @@ describe("Position Sensitivity Code", () => {
   });
 
   it("displays N/A for Military", async () => {
-    await isNotApplicablePSC(EMPTYPES.Military);
+    await renderThenSelectEmpType(EMPTYPES.Military);
+    isNotApplicable(
+      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
+      fieldLabels.POSITION_SENSITIVITY_CODE.form
+    );
   });
 });
 
