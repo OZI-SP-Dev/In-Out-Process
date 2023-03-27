@@ -8,7 +8,6 @@ import {
   remoteLocationDataset,
   fieldLabels,
 } from "components/InRequest/__tests__/TestData";
-import { EMPTYPES } from "constants/EmpTypes";
 import { SAR_CODES } from "constants/SARCodes";
 
 /** Check if there is a text element matching the desired text
@@ -24,93 +23,90 @@ const expectTextToBeInTheDocument = (text: RegExp, expected: boolean) => {
   }
 };
 
-describe("Position Sensitivity Code", () => {
-  const employeeTypes = [
-    { request: civRequest, expected: true },
-    { request: ctrRequest, expected: false },
-    { request: milRequest, expected: false },
-  ];
+const fieldsByEmployeeType = [
+  {
+    field: fieldLabels.POSITION_SENSITIVITY_CODE.view,
+    rules: [
+      // Only for Civilian
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: false },
+      { request: milRequest, expected: false },
+    ],
+  },
+  {
+    field: fieldLabels.MPCN.view,
+    rules: [
+      // Only for Civilian and Military
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: false },
+      { request: milRequest, expected: true },
+    ],
+  },
+  {
+    field: fieldLabels.SAR.view,
+    rules: [
+      // Only for Civilian and Military
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: false },
+      { request: milRequest, expected: true },
+    ],
+  },
+  {
+    field: fieldLabels.CAC_EXPIRATION.view,
+    rules: [
+      // Only for Contractors
+      { request: civRequest, expected: false },
+      { request: ctrRequest, expected: true },
+      { request: milRequest, expected: false },
+    ],
+  },
+  {
+    field: fieldLabels.CONTRACT_NUMBER.view,
+    rules:
+      // Only for Contractors
+      [
+        { request: civRequest, expected: false },
+        { request: ctrRequest, expected: true },
+        { request: milRequest, expected: false },
+      ],
+  },
+  {
+    field: fieldLabels.CONTRACT_END_DATE.view,
+    rules:
+      // Only for Contractors
+      [
+        { request: civRequest, expected: false },
+        { request: ctrRequest, expected: true },
+        { request: milRequest, expected: false },
+      ],
+  },
+  {
+    field: fieldLabels.LOCAL_OR_REMOTE.view,
+    rules:
+      // All Employee Types
+      [
+        { request: civRequest, expected: true },
+        { request: ctrRequest, expected: true },
+        { request: milRequest, expected: true },
+      ],
+  },
+];
 
-  // Should only appear on Civilian
-  it.each(employeeTypes)(
-    "is displayed for $request.empType - $expected",
-    ({ request, expected }) => {
-      render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(
-        fieldLabels.POSITION_SENSITIVITY_CODE.view,
-        expected
-      );
-    }
-  );
-});
-
-describe("ManPower Control Number (MPCN)", () => {
-  const employeeTypes = [
-    { request: civRequest, expected: true },
-    { request: ctrRequest, expected: false },
-    { request: milRequest, expected: true },
-  ];
-
-  // Should be on Civilian and Military
-  it.each(employeeTypes)(
-    "is displayed for $request.empType - $expected",
-    ({ request, expected }) => {
-      render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(fieldLabels.MPCN.view, expected);
-    }
-  );
-});
-
-describe("SAR", () => {
-  const employeeTypes = [
-    { request: civRequest, expected: true },
-    { request: ctrRequest, expected: false },
-    { request: milRequest, expected: true },
-  ];
-
-  // Should be on Civilian and Military
-  it.each(employeeTypes)(
-    "is displayed for $request.empType - $expected",
-    ({ request, expected }) => {
-      render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(fieldLabels.SAR.view, expected);
-    }
-  );
-});
-
-describe("CAC Expiration", () => {
-  const employeeTypes = [
-    { request: civRequest, expected: false },
-    { request: ctrRequest, expected: true },
-    { request: milRequest, expected: false },
-  ];
-
-  // Should only be on Contractor
-  it.each(employeeTypes)(
-    "is displayed for $request.empType - $expected",
-    async ({ request, expected }) => {
-      render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, expected);
-    }
-  );
-});
+describe.each(fieldsByEmployeeType)(
+  "Fields available based on Employee Type - $field",
+  ({ field, rules }) => {
+    it.each(rules)(
+      "is displayed for $request.empType - $expected",
+      ({ request, expected }) => {
+        render(<InRequestViewCompact formData={request} />);
+        expectTextToBeInTheDocument(field, expected);
+      }
+    );
+  }
+);
 
 // Remote location is displayed under the 'Local or Remote' header
 describe("Local or Remote", () => {
-  const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
-  ];
-
-  it.each(employeeTypes)(
-    "is displayed for $request.empType",
-    async ({ request }) => {
-      render(<InRequestViewCompact formData={request} />);
-      expectTextToBeInTheDocument(fieldLabels.LOCAL_OR_REMOTE.view, true);
-    }
-  );
-
   it.each(remoteLocationDataset)(
     "has value of 'local' or remote location - $request.workLocation",
     ({ request }) => {
@@ -131,24 +127,6 @@ describe("Local or Remote", () => {
 });
 
 describe("Contract Number", () => {
-  const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
-  ];
-
-  it.each(employeeTypes)(
-    "is displayed only for Contrator - $request.empType",
-    async ({ request }) => {
-      render(<InRequestViewCompact formData={request} />);
-      if (request.empType === EMPTYPES.Contractor) {
-        expectTextToBeInTheDocument(fieldLabels.CONTRACT_NUMBER.view, true);
-      } else {
-        expectTextToBeInTheDocument(fieldLabels.CONTRACT_NUMBER.view, false);
-      }
-    }
-  );
-
   it("has correct value displayed for Contractors", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
     const textElement = screen.queryByText(fieldLabels.CONTRACT_NUMBER.view);
@@ -158,24 +136,6 @@ describe("Contract Number", () => {
 });
 
 describe("Contract End Date", () => {
-  const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
-  ];
-
-  it.each(employeeTypes)(
-    "is displayed only for Contrator - $request.empType",
-    async ({ request }) => {
-      render(<InRequestViewCompact formData={request} />);
-      if (request.empType === EMPTYPES.Contractor) {
-        expectTextToBeInTheDocument(fieldLabels.CONTRACT_END_DATE.view, true);
-      } else {
-        expectTextToBeInTheDocument(fieldLabels.CONTRACT_END_DATE.view, false);
-      }
-    }
-  );
-
   it("has correct value displayed for Contractors", () => {
     render(<InRequestViewCompact formData={ctrRequest} />);
     const textElement = screen.queryByText(fieldLabels.CONTRACT_END_DATE.view);
