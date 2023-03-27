@@ -220,38 +220,28 @@ describe("SAR", () => {
 
 // Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
 describe("Position Sensitivity Code", () => {
-  it("is not selectable for Civilian", async () => {
-    renderEditPanelForRequest(civRequest);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      false
-    );
-  });
-
-  it("is not selectable for Contractor", async () => {
-    renderEditPanelForRequest(ctrRequest);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      false
-    );
-  });
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+  it.each(employeeTypes)(
+    "is not selectable for $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.POSITION_SENSITIVITY_CODE.form,
+        SENSITIVITY_CODES[0].text,
+        false
+      );
+    }
+  );
 
   it("displays N/A for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
     isNotApplicable(
       fieldLabels.POSITION_SENSITIVITY_CODE.formType,
       fieldLabels.POSITION_SENSITIVITY_CODE.form
-    );
-  });
-
-  it("is not selectable for Military", async () => {
-    renderEditPanelForRequest(milRequest);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      false
     );
   });
 
@@ -300,14 +290,14 @@ describe("Has Existing Contractor CAC", () => {
 
 describe("Local Or Remote", () => {
   const employeeTypes = [
-    { empType: EMPTYPES.Civilian, request: civRequest },
-    { empType: EMPTYPES.Contractor, request: ctrRequest },
-    { empType: EMPTYPES.Military, request: milRequest },
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
   ];
 
   it.each(employeeTypes)(
-    "is selectable for $empType",
-    async ({ empType, request }) => {
+    "is selectable for $request.empType",
+    async ({ request }) => {
       renderEditPanelForRequest(request);
 
       // Locate the RadioGroup for Local/Remote
@@ -331,8 +321,8 @@ describe("Local Or Remote", () => {
   );
 
   it.each(employeeTypes)(
-    "displays hint text for $empType",
-    async ({ empType, request }) => {
+    "displays hint text for $request.empType",
+    async ({ request }) => {
       renderEditPanelForRequest(request);
 
       // Locate the RadioGroup for Local/Remote
@@ -399,21 +389,17 @@ describe("Remote Location", () => {
 
 describe("Contract Number", () => {
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
+  // Should only be available to Contractors
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       renderEditPanelForRequest(request);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, true);
-      } else {
-        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, available);
     }
   );
 
@@ -428,21 +414,17 @@ describe("Contract Number", () => {
 
 describe("Contract End Date", () => {
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
+  // Should only be available to Contractors
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       renderEditPanelForRequest(request);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, true);
-      } else {
-        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, available);
     }
   );
   // TODO: Build out testing for Date Picker selection

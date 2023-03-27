@@ -25,80 +25,74 @@ const expectTextToBeInTheDocument = (text: RegExp, expected: boolean) => {
 };
 
 describe("Position Sensitivity Code", () => {
-  it("is displayed for Civilian", () => {
-    render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(
-      fieldLabels.POSITION_SENSITIVITY_CODE.view,
-      true
-    );
-  });
+  const employeeTypes = [
+    { request: civRequest, expected: true },
+    { request: ctrRequest, expected: false },
+    { request: milRequest, expected: false },
+  ];
 
-  it("is not displayed for Contractor", () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(
-      fieldLabels.POSITION_SENSITIVITY_CODE.view,
-      false
-    );
-  });
-
-  it("is not displayed for Military", () => {
-    render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(
-      fieldLabels.POSITION_SENSITIVITY_CODE.view,
-      false
-    );
-  });
+  // Should only appear on Civilian
+  it.each(employeeTypes)(
+    "is displayed for $request.empType - $expected",
+    ({ request, expected }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(
+        fieldLabels.POSITION_SENSITIVITY_CODE.view,
+        expected
+      );
+    }
+  );
 });
 
 describe("ManPower Control Number (MPCN)", () => {
-  it("is displayed for Civilian", () => {
-    render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.MPCN.view, true);
-  });
+  const employeeTypes = [
+    { request: civRequest, expected: true },
+    { request: ctrRequest, expected: false },
+    { request: milRequest, expected: true },
+  ];
 
-  it("is not displayed for Contractor", () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.MPCN.view, false);
-  });
-
-  it("is displayed for Military", () => {
-    render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.MPCN.view, true);
-  });
+  // Should be on Civilian and Military
+  it.each(employeeTypes)(
+    "is displayed for $request.empType - $expected",
+    ({ request, expected }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(fieldLabels.MPCN.view, expected);
+    }
+  );
 });
 
 describe("SAR", () => {
-  it("is displayed for Civilian", () => {
-    render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.SAR.view, true);
-  });
+  const employeeTypes = [
+    { request: civRequest, expected: true },
+    { request: ctrRequest, expected: false },
+    { request: milRequest, expected: true },
+  ];
 
-  it("is not displayed for Contractor", () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.SAR.view, false);
-  });
-
-  it("is displayed for Military", () => {
-    render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.SAR.view, true);
-  });
+  // Should be on Civilian and Military
+  it.each(employeeTypes)(
+    "is displayed for $request.empType - $expected",
+    ({ request, expected }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(fieldLabels.SAR.view, expected);
+    }
+  );
 });
 
 describe("CAC Expiration", () => {
-  it("is displayed for Contractors", async () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, true);
-  });
+  const employeeTypes = [
+    { request: civRequest, expected: false },
+    { request: ctrRequest, expected: true },
+    { request: milRequest, expected: false },
+  ];
 
-  it("is not displayed for Miliary", async () => {
-    render(<InRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, false);
-  });
-
-  it("is not displayed for Civilians", async () => {
-    render(<InRequestViewCompact formData={civRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, false);
-  });
+  // Should only be on Contractor
+  it.each(employeeTypes)(
+    "is displayed for $request.empType - $expected",
+    async ({ request, expected }) => {
+      render(<InRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(fieldLabels.CAC_EXPIRATION.view, expected);
+    }
+  );
 });
 
 // Remote location is displayed under the 'Local or Remote' header

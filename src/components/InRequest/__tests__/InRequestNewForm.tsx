@@ -243,38 +243,30 @@ describe("SAR", () => {
 });
 
 describe("Position Sensitivity Code", () => {
-  it("is available for Civilian", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Civilian);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      true
-    );
-  });
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, available: true },
+    { empType: EMPTYPES.Contractor, available: false },
+    { empType: EMPTYPES.Military, available: false },
+  ];
 
-  it("is not selectable for Contractor", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Contractor);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      false
-    );
-  });
+  // Avaialable only to Civilian
+  it.each(employeeTypes)(
+    "is available for $empType - $available",
+    async ({ empType, available }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableCombobox(
+        fieldLabels.POSITION_SENSITIVITY_CODE.form,
+        SENSITIVITY_CODES[0].text,
+        available
+      );
+    }
+  );
 
   it("displays N/A for Contractor", async () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
     isNotApplicable(
       fieldLabels.POSITION_SENSITIVITY_CODE.formType,
       fieldLabels.POSITION_SENSITIVITY_CODE.form
-    );
-  });
-
-  it("is not selectable for Miliary", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Military);
-    await checkEnterableCombobox(
-      fieldLabels.POSITION_SENSITIVITY_CODE.form,
-      SENSITIVITY_CODES[0].text,
-      false
     );
   });
 
@@ -419,21 +411,16 @@ describe("Remote Location", () => {
 
 describe("Contract Number", () => {
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       await renderThenSelectEmpType(request.empType);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, true);
-      } else {
-        checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, available);
     }
   );
 
@@ -448,21 +435,16 @@ describe("Contract Number", () => {
 
 describe("Contract End Date", () => {
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       await renderThenSelectEmpType(request.empType);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, true);
-      } else {
-        checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, available);
     }
   );
   // TODO: Build out testing for Date Picker selection
