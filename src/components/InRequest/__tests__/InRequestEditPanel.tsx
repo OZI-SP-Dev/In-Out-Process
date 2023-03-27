@@ -6,6 +6,9 @@ import {
   milRequest,
   remoteLocationDataset,
   remoteLocationOnlyDataset,
+  fieldLabels,
+  checkForInputToExist,
+  isNotApplicable,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -29,20 +32,6 @@ const renderEditPanelForRequest = (request: IInRequest) => {
       />
     </QueryClientProvider>
   );
-};
-
-/** Check if there is an input field matching the desired label
- * @param labelText The text we are looking for
- * @param expected Whether or not we expect it in the document or expect it NOT in the document
- */
-const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
-  const field = screen.queryByLabelText(labelText);
-
-  if (expected) {
-    expect(field).toBeInTheDocument();
-  } else {
-    expect(field).not.toBeInTheDocument();
-  }
 };
 
 /** Check for working input */
@@ -99,47 +88,21 @@ const checkEnterableCombobox = async (
   }
 };
 
-/** Check that ensures the Position Sensitivty Code is properly disabled */
-const notSelectablePSC = async (request: IInRequest) => {
-  renderEditPanelForRequest(request);
-
-  // Click on the PSC
-  const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
-  });
-  await user.click(psc);
-
-  //Ensure that it doesn't come up with an item to select
-  const pscOpt = screen.queryByRole("option", {
-    name: SENSITIVITY_CODES[0].text,
-  });
-  expect(pscOpt).not.toBeInTheDocument();
-};
-
-/** Check that ensures N/A is displayed properly when Position Sensitivity Code is N/A */
-const isNotApplicablePSC = async (request: IInRequest) => {
-  renderEditPanelForRequest(request);
-
-  // Check placeholder is N/A
-  const psc = screen.getByRole("combobox", {
-    name: /position sensitivity code/i,
-  });
-  expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-  // Check that value is "" so it is displaying the placeholder
-  expect(psc).toHaveValue("");
-};
-
 describe("ManPower Control Number (MPCN)", () => {
-  const mpcnLabel = /mpcn/i;
   it("is available for Civilian", async () => {
     renderEditPanelForRequest(civRequest);
-    await checkEnterableTextbox(mpcnLabel, civRequest.MPCN?.toString());
+    await checkEnterableTextbox(
+      fieldLabels.MPCN.form,
+      civRequest.MPCN?.toString()
+    );
   });
 
   it("is available for Miliary", async () => {
     renderEditPanelForRequest(milRequest);
-    await checkEnterableTextbox(mpcnLabel, milRequest.MPCN?.toString());
+    await checkEnterableTextbox(
+      fieldLabels.MPCN.form,
+      milRequest.MPCN?.toString()
+    );
   });
 
   it("is not selectable for Contractor", async () => {
@@ -147,7 +110,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Type in the MPCN input box
     const mpcn = screen.getByRole("textbox", {
-      name: mpcnLabel,
+      name: fieldLabels.MPCN.form,
     });
     await user.type(mpcn, "1234567");
     // Ensure value of MPCN is still ""
@@ -156,15 +119,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
   it("displays N/A for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
-
-    // Check placeholder is N/A
-    const psc = screen.getByRole("textbox", {
-      name: mpcnLabel,
-    });
-    expect(psc).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-    // Check that value is "" so it is displaying the placeholder
-    expect(psc).toHaveValue("");
+    isNotApplicable(fieldLabels.MPCN.formType, fieldLabels.MPCN.form);
   });
 
   const shortMPCN = /mpcn cannot be less than 7 digits/i;
@@ -187,7 +142,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
     // Clear the input, then type the passed in data
     const mpcnFld = screen.getByRole("textbox", {
-      name: /mpcn/i,
+      name: fieldLabels.MPCN.form,
     });
     await user.clear(mpcnFld);
     await user.type(mpcnFld, mpcn ? mpcn : "");
@@ -224,7 +179,7 @@ describe("ManPower Control Number (MPCN)", () => {
 
       // Clear the input, then type the passed in data
       const mpcnFld = screen.getByRole("textbox", {
-        name: /mpcn/i,
+        name: fieldLabels.MPCN.form,
       });
       await user.clear(mpcnFld);
       await user.type(mpcnFld, mpcn ? mpcn : "");
@@ -244,62 +199,68 @@ describe("SAR", () => {
     { request: ctrRequest, available: false },
     { request: milRequest, available: false },
   ];
-  const sarLabel = /sar/i;
 
   it.each(employeeTypes)(
     "is available for $request.empType - $available",
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
-      await checkEnterableCombobox(sarLabel, SAR_CODES[0].text, available);
+      await checkEnterableCombobox(
+        fieldLabels.SAR.form,
+        SAR_CODES[0].text,
+        available
+      );
     }
   );
 
   it("displays N/A for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
-
-    // Check placeholder is N/A
-    const sar = screen.getByRole("combobox", {
-      name: sarLabel,
-    });
-    expect(sar).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
-
-    // Check that value is "" so it is displaying the placeholder
-    expect(sar).toHaveValue("");
+    isNotApplicable(fieldLabels.SAR.formType, fieldLabels.SAR.form);
   });
 });
 
 // Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
 describe("Position Sensitivity Code", () => {
-  it("is not selectable for Civilian", async () => {
-    await notSelectablePSC(civRequest);
-  });
-
-  it("is not selectable for Contractor", async () => {
-    await notSelectablePSC(ctrRequest);
-  });
+  const employeeTypes = [
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
+  ];
+  it.each(employeeTypes)(
+    "is not selectable for $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.POSITION_SENSITIVITY_CODE.form,
+        SENSITIVITY_CODES[0].text,
+        false
+      );
+    }
+  );
 
   it("displays N/A for Contractor", async () => {
-    await isNotApplicablePSC(ctrRequest);
-  });
-
-  it("is not selectable for Military", async () => {
-    await notSelectablePSC(milRequest);
+    renderEditPanelForRequest(ctrRequest);
+    isNotApplicable(
+      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
+      fieldLabels.POSITION_SENSITIVITY_CODE.form
+    );
   });
 
   it("displays N/A for Military", async () => {
-    await isNotApplicablePSC(milRequest);
+    renderEditPanelForRequest(milRequest);
+    isNotApplicable(
+      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
+      fieldLabels.POSITION_SENSITIVITY_CODE.form
+    );
   });
 });
 
 describe("Has Existing Contractor CAC", () => {
-  const hasExistingCACLabel =
-    /does the support contractor have an existing contractor cac\?/i;
   it("is selectable for Contractors", async () => {
     renderEditPanelForRequest(ctrRequest);
 
     // Locate the RadioGroup for Existing CAC
     const hasCAC = screen.getByRole("radiogroup", {
-      name: hasExistingCACLabel,
+      name: fieldLabels.EXISTING_CAC.form,
     });
 
     const yesBttn = within(hasCAC).getByLabelText(/yes/i);
@@ -318,32 +279,30 @@ describe("Has Existing Contractor CAC", () => {
 
   it("is not available for Miliary", async () => {
     renderEditPanelForRequest(milRequest);
-    checkForInputToExist(hasExistingCACLabel, false);
+    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
   });
 
   it("is not available for Civilians", async () => {
     renderEditPanelForRequest(civRequest);
-    checkForInputToExist(hasExistingCACLabel, false);
+    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
   });
 });
 
 describe("Local Or Remote", () => {
-  const localOrRemoteLabel = /local or remote\?/i;
-
   const employeeTypes = [
-    { empType: EMPTYPES.Civilian, request: civRequest },
-    { empType: EMPTYPES.Contractor, request: ctrRequest },
-    { empType: EMPTYPES.Military, request: milRequest },
+    { request: civRequest },
+    { request: ctrRequest },
+    { request: milRequest },
   ];
 
   it.each(employeeTypes)(
-    "is selectable for $empType",
-    async ({ empType, request }) => {
+    "is selectable for $request.empType",
+    async ({ request }) => {
       renderEditPanelForRequest(request);
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       const localBttn = within(localOrRemote).getByLabelText(/local/i);
@@ -362,13 +321,13 @@ describe("Local Or Remote", () => {
   );
 
   it.each(employeeTypes)(
-    "displays hint text for $empType",
-    async ({ empType, request }) => {
+    "displays hint text for $request.empType",
+    async ({ request }) => {
       renderEditPanelForRequest(request);
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       expect(localOrRemote).toHaveAccessibleDescription(
@@ -379,9 +338,6 @@ describe("Local Or Remote", () => {
 });
 
 describe("Remote Location", () => {
-  const localOrRemoteLabel = /local or remote\?/i;
-  const remoteLocationLabel = /remote location/i;
-
   it.each(remoteLocationDataset)(
     "is displayed/hidden when remote/local respectively - $request.workLocation",
     async ({ request }) => {
@@ -389,7 +345,7 @@ describe("Remote Location", () => {
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
@@ -400,9 +356,9 @@ describe("Remote Location", () => {
       await user.click(localOrRemoteBttn);
 
       if (request.workLocation === "local") {
-        checkForInputToExist(remoteLocationLabel, false);
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, false);
       } else {
-        checkForInputToExist(remoteLocationLabel, true);
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, true);
       }
     }
   );
@@ -414,7 +370,7 @@ describe("Remote Location", () => {
 
       // Locate the RadioGroup for Local/Remote
       const localOrRemote = screen.getByRole("radiogroup", {
-        name: localOrRemoteLabel,
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
       });
 
       const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
@@ -424,7 +380,7 @@ describe("Remote Location", () => {
       // Click "Local" or "Remote"
       await user.click(localOrRemoteBttn);
       await checkEnterableTextbox(
-        remoteLocationLabel,
+        fieldLabels.REMOTE_LOCATION.form,
         request.workLocationDetail
       );
     }
@@ -432,59 +388,49 @@ describe("Remote Location", () => {
 });
 
 describe("Contract Number", () => {
-  const contractNumberLabel = /contract number/i;
-
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
+  // Should only be available to Contractors
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       renderEditPanelForRequest(request);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(contractNumberLabel, true);
-      } else {
-        checkForInputToExist(contractNumberLabel, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, available);
     }
   );
 
   it("is editable when Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
-    await checkEnterableTextbox(contractNumberLabel, ctrRequest.contractNumber);
+    await checkEnterableTextbox(
+      fieldLabels.CONTRACT_NUMBER.form,
+      ctrRequest.contractNumber
+    );
   });
 });
 
 describe("Contract End Date", () => {
-  const contractEndDateLabel = /contract end date/i;
-
   const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: false },
   ];
 
+  // Should only be available to Contractors
   it.each(employeeTypes)(
-    "is displayed only for Contractors - $request.empType",
-    async ({ request }) => {
+    "is displayed for $request.empType - $available",
+    async ({ request, available }) => {
       renderEditPanelForRequest(request);
-
-      if (request.empType === EMPTYPES.Contractor) {
-        checkForInputToExist(contractEndDateLabel, true);
-      } else {
-        checkForInputToExist(contractEndDateLabel, false);
-      }
+      checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, available);
     }
   );
   // TODO: Build out testing for Date Picker selection
 });
 
 describe("Requires SCI", () => {
-  const requiresSCILabel = /does employee require sci access\?/i;
   const validSAR = SAR_CODES.map((code) => code.key);
   const validSARWithout5 = validSAR.filter((code) => code !== 5);
 
@@ -492,7 +438,9 @@ describe("Requires SCI", () => {
   it("is disabled for Military with SAR of 5", async () => {
     renderEditPanelForRequest(milRequest);
 
-    const sci = screen.getByRole("radiogroup", { name: requiresSCILabel });
+    const sci = screen.getByRole("radiogroup", {
+      name: fieldLabels.REQUIRES_SCI.form,
+    });
 
     const yesBttn = within(sci).getByRole("radio", { name: /yes/i });
     const noBttn = within(sci).getByRole("radio", { name: /no/i });
@@ -507,7 +455,9 @@ describe("Requires SCI", () => {
       const milRequestSAR = { ...milRequest, SAR: sar };
       renderEditPanelForRequest(milRequestSAR);
 
-      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      const sci = screen.queryByRole("radiogroup", {
+        name: fieldLabels.REQUIRES_SCI.form,
+      });
       expect(sci).not.toBeInTheDocument();
     }
   );
@@ -515,7 +465,9 @@ describe("Requires SCI", () => {
   it("is unavailable for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
 
-    const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+    const sci = screen.queryByRole("radiogroup", {
+      name: fieldLabels.REQUIRES_SCI.form,
+    });
     expect(sci).not.toBeInTheDocument();
   });
 
@@ -525,7 +477,9 @@ describe("Requires SCI", () => {
       const civRequestSAR = { ...civRequest, SAR: sar };
       renderEditPanelForRequest(civRequestSAR);
 
-      const sci = screen.queryByRole("radiogroup", { name: requiresSCILabel });
+      const sci = screen.queryByRole("radiogroup", {
+        name: fieldLabels.REQUIRES_SCI.form,
+      });
       expect(sci).not.toBeInTheDocument();
     }
   );

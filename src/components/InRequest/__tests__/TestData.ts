@@ -1,6 +1,7 @@
 import { IInRequest } from "api/RequestApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
+import { ByRoleMatcher, screen } from "@testing-library/react";
 
 test("Load Test Data file", () => {});
 
@@ -102,3 +103,74 @@ export const remoteLocationDataset = [
 export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
   (item) => item.request.workLocation === "remote"
 );
+
+export const fieldLabels = {
+  POSITION_SENSITIVITY_CODE: {
+    form: /position sensitivity code/i,
+    formType: "combobox",
+    view: /position sensitivity code/i,
+  },
+  MPCN: {
+    form: /mpcn/i,
+    formType: "textbox",
+    view: /mpcn/i,
+  },
+  SAR: {
+    form: /sar/i,
+    formType: "combobox",
+    view: /sar/i,
+  },
+  EXISTING_CAC: {
+    form: /does the support contractor have an existing contractor cac\?/i,
+  },
+  CAC_EXPIRATION: {
+    form: /cac expiration/i,
+    view: /cac expiration/i,
+  },
+  LOCAL_OR_REMOTE: {
+    form: /local or remote\?/i,
+    view: /local or remote\?/i,
+  },
+  REMOTE_LOCATION: {
+    form: /remote location/i,
+  },
+  CONTRACT_NUMBER: {
+    form: /contract number/i,
+    view: /contract number/i,
+  },
+  CONTRACT_END_DATE: {
+    form: /contract end date/i,
+    view: /contract end date/i,
+  },
+  REQUIRES_SCI: {
+    form: /does employee require sci access\?/i,
+    view: /requires sci\?/i,
+  },
+};
+
+/** Check if there is an input field matching the desired label
+ * @param labelText The text we are looking for
+ * @param expected Whether or not we expect it in the document or expect it NOT in the document
+ */
+export const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
+  const field = screen.queryByLabelText(labelText);
+
+  if (expected) {
+    expect(field).toBeInTheDocument();
+  } else {
+    expect(field).not.toBeInTheDocument();
+  }
+};
+
+/** Check that ensures N/A is displayed properly */
+export const isNotApplicable = (
+  fieldType: ByRoleMatcher,
+  fieldName: RegExp
+) => {
+  // Check placeholder is N/A
+  const naFld = screen.getByRole(fieldType, { name: fieldName });
+  expect(naFld).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
+
+  // Check that value is "" so it is displaying the placeholder
+  expect(naFld).toHaveValue("");
+};
