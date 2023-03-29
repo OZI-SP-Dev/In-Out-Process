@@ -260,7 +260,7 @@ export const handlers = [
       );
       if (index !== -1) {
         let body = await req.json();
-        updateRequest(body);
+        updateRequest(Number(ItemId), body);
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
@@ -1021,9 +1021,11 @@ const notFound = {
 
 /**
  * Update request
+ * @param id - The id of the request from the URL request
+ * @param item - The fields to update on the request
  */
-const updateRequest = (item: IRequestItem) => {
-  let index = requests.findIndex((element) => element.Id === Number(item.Id));
+const updateRequest = (id: number, item: IRequestItem) => {
+  let index = requests.findIndex((element) => element.Id === id);
   let supervisor = testUsers.find(
     (element) => element.Id === Number(item.supGovLeadId)
   );
