@@ -13,7 +13,7 @@ import {
 import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { useBoolean } from "@fluentui/react-hooks";
-import { IInRequest, useUpdateRequest } from "api/RequestApi";
+import { IInRequest, useCancelRequest, useUpdateRequest } from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
 import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
 import { useForm, Controller } from "react-hook-form";
@@ -58,11 +58,11 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   const navigateTo = useNavigate();
 
   /** Get the checklist items associated with this request */
-  const checlistItems = useChecklistItems(Number(props.request.Id));
+  const checklistItems = useChecklistItems(Number(props.request.Id));
 
   /** Number of checklist items still needing completed.  If we don't have the info yet, default to undefined */
-  const checklistItemsToComplete = checlistItems.data
-    ? checlistItems.data.filter((item) => !item.CompletedDate).length
+  const checklistItemsToComplete = checklistItems.data
+    ? checklistItems.data.filter((item) => !item.CompletedDate).length
     : undefined;
 
   /* Boolean state for determining whether or not the Edit Panel is shown */
@@ -74,6 +74,9 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
 
   /* Hook to update this request */
   const updateRequest = useUpdateRequest(props.request.Id);
+
+  /* Hook to cancel this request */
+  const cancelRequest = useCancelRequest(props.request.Id);
 
   /* The form inside the Cancel Dialog to collect a reason for cancellation */
   const {
@@ -97,20 +100,26 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
     : "complete";
 
   const performCancel = (item: any) => {
-    let updateItem = {
-      ...props.request, // Create the update object based on the Current Request,
-      ...item, // Add in the Cancellation Reason from the React Hook From
-      closedOrCancelledDate: new Date(), // Add in that it occurred today
-    };
-
-    updateRequest.mutate(updateItem, {
-      onSuccess: () => {
-        // Close the cancel reason prompt
-        hideCancelDialog();
-        // Return the user to the Homepage
-        navigateTo("/");
-      },
-    });
+    if (checklistItems.data) {
+      cancelRequest.mutate(
+        {
+          request: props.request,
+          tasks: checklistItems.data,
+          reason: item.cancelReason,
+        },
+        {
+          onSuccess: () => {
+            // Close the cancel reason prompt
+            hideCancelDialog();
+            // Return the user to the Homepage
+            navigateTo("/");
+          },
+        }
+      );
+    } else {
+      // This shouldn't be reachable, as the Cancel button is disabled if there is no data, but if it is, then present message to user
+      window.alert("Something has gone wrong.  Please refresh and try again.");
+    }
   };
 
   /** Function to mark the In Processing Request as Complete */
@@ -146,7 +155,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
               icon={<CancelIcon />}
               shape="circular"
               size="small"
-              disabled={updateRequest.isLoading} // Disable if we are processing an update
+              disabled={updateRequest.isLoading || checklistItems.isLoading} // Disable if we are processing an update or don't have checklist item data yet
             >
               Cancel
             </Button>

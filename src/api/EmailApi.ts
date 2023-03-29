@@ -36,12 +36,15 @@ interface ISendInRequestSubmitEmail {
   tasks: IItemAddResult[];
 }
 
-/** An IPerson object for the BAC Support Org Box -- to be used when needing to send to that 'User' */
-const BACSupportBox: IPerson = {
-  Id: 0,
-  Title: "BAC Support",
-  EMail: "AFLCMC.XP-OZ.BACSupport@us.af.mil",
-};
+/**  Definition for what data is needed to send the email notification that the In Processing was cancelled */
+interface ISendInRequestCancelEmail {
+  /** The request */
+  request: IInRequest;
+  /** The tasks, so we know which Leads to contact */
+  tasks: ICheckListItem[];
+  /** The reason the request was cancelled */
+  reason: string;
+}
 
 /**
  * Turn an array of People objects into Email address list (removing duplicates)
@@ -65,8 +68,17 @@ const getEmailAddresses = (people: IPerson[]) => {
  * @returns The object fields translated to SharePoint fields
  */
 const transformInRequestToSP = (email: IEmail) => {
+  let toAddresses: string;
+
+  // If the email is not being sent TO anyone, then there is a potential issue.  Send to the BAC Support box
+  if (email.to.length === 0) {
+    toAddresses = "AFLCMC.XP-OZ.BACSupport@us.af.mil;";
+  } else {
+    toAddresses = getEmailAddresses(email.to);
+  }
+
   return {
-    To: getEmailAddresses(email.to),
+    To: toAddresses,
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
     // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
     Subject: (
@@ -211,8 +223,7 @@ export const useSendInRequestSubmitEmail = () => {
       }
     });
 
-    // Set the toField to the list of leadUsers -- if there were no Leads, then send to BACSupportBox as this is likely an issue
-    const toField = leadUsers ? leadUsers : [BACSupportBox];
+    const toField = leadUsers;
     const ccField = [request.supGovLead];
 
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
@@ -242,6 +253,73 @@ ${linkURL}`,
     onError: (error) => {
       const errPrefix =
         "Error occurred while trying to send Email Notification.  Please ensure those whom need to be informed of the request are. ";
+      if (error instanceof Error) {
+        errorAPI.addError(errPrefix + error.message);
+      } else {
+        errorAPI.addError(errPrefix + "Unkown error");
+      }
+    },
+  });
+};
+
+export const useSendInRequestCancelEmail = () => {
+  const errorAPI = useError();
+
+  // Get the roles defined -- and who is in them
+  const { data: allRolesByRole } = useAllUserRolesByRole();
+
+  /**
+   *  Send the In Processing Request Cancellation to the POCs
+   *
+   * @param {Object} cancelInfo - Object containing the new request object and tasks object
+   * @param {IInRequest} cancelInfo.request - The In Processing Request
+   * @param {ICheckListItem[]} cancelInfo.tasks - The tasks associated with the request
+   * @param {string} cancelInfo.reason - The reason for the cancellation
+   * @returns A Promise from SharePoint for the email being sent
+   */
+  const sendInRequestCancelEmail = ({
+    request,
+    tasks,
+    reason,
+  }: ISendInRequestCancelEmail) => {
+    // Create a list of leads who have checklist items for this request
+    const leadsWithDupes = tasks.map((task) => task.Lead);
+
+    // Remove any duplicates from the array so we can loop through and process each lead only once
+    const leads = leadsWithDupes.filter(
+      (n, i) => leadsWithDupes.indexOf(n) === i
+    );
+
+    let leadUsers: IPerson[] = [];
+
+    leads.forEach((lead) => {
+      const roleMembers = allRolesByRole?.get(lead);
+      if (roleMembers) {
+        roleMembers.forEach((role) => leadUsers.push(role.User));
+      }
+    });
+
+    const toField = leadUsers;
+    const ccField = [request.supGovLead];
+
+    const newEmail: IEmail = {
+      to: toField,
+      cc: ccField,
+      subject: `In-processing for ${request.empName} has been cancelled`,
+      body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
+The request has been cancelled for the following reason:
+${reason}`,
+    };
+
+    return spWebContext.web.lists
+      .getByTitle("Emails")
+      .items.add(transformInRequestToSP(newEmail));
+  };
+
+  return useMutation(["requests"], sendInRequestCancelEmail, {
+    onError: (error) => {
+      const errPrefix =
+        "Error occurred while trying to send Email Notification.  Please ensure those whom need to be informed the request was cancelled are.";
       if (error instanceof Error) {
         errorAPI.addError(errPrefix + error.message);
       } else {

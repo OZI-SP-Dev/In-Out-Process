@@ -6,7 +6,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserContext } from "providers/UserProvider";
 import { useContext } from "react";
 import { useAddTasks } from "api/CreateChecklistItems";
-import { useSendInRequestSubmitEmail } from "api/EmailApi";
+import {
+  useSendInRequestCancelEmail,
+  useSendInRequestSubmitEmail,
+} from "api/EmailApi";
+import { ICheckListItem } from "api/CheckListItemApi";
+
+/**  Definition for what data is needed to peform the cancellation (including to send email) */
+interface IInRequestCancel {
+  /** The request */
+  request: IInRequest;
+  /** The tasks, so we know which Leads to contact */
+  tasks: ICheckListItem[];
+  /** The reason the rquest was cancelled */
+  reason: string;
+}
 
 /**
  * Directly map the incoming request to the IResponseItem to perform type
@@ -240,6 +254,38 @@ export const useUpdateRequest = (Id: number) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["requests", Id]);
+      },
+    }
+  );
+};
+
+export const useCancelRequest = (Id: number) => {
+  const queryClient = useQueryClient();
+  const sendInRequestCancelEmail = useSendInRequestCancelEmail();
+  return useMutation(
+    ["requests", Id],
+    async (cancelInfo: IInRequestCancel) => {
+      const now = new Date();
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.getById(Id)
+        .update({
+          // Set it to be cancelled today
+          closedOrCancelledDate: now.toISOString(),
+          // Populate the reason it was cancelled
+          cancelReason: cancelInfo.reason,
+        });
+    },
+    {
+      onSuccess: (_data, variable) => {
+        queryClient.invalidateQueries(["requests", Id]);
+
+        // Generate the email notification
+        sendInRequestCancelEmail.mutate({
+          request: variable.request,
+          tasks: variable.tasks,
+          reason: variable.reason,
+        });
       },
     }
   );
