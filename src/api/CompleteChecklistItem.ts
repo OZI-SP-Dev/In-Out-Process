@@ -7,7 +7,10 @@ import { spWebContext } from "providers/SPWebContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { checklistTemplates } from "api/CreateChecklistItems";
-import { useSendActivationEmails } from "api/EmailApi";
+import {
+  useSendActivationEmails,
+  useSendInRequestVerifyCompleteEmail,
+} from "api/EmailApi";
 import { RoleType } from "api/RolesApi";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
@@ -16,6 +19,8 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const queryClient = useQueryClient();
   const currentUser = useContext(UserContext).user;
   const { mutate: sendActivationEmails } = useSendActivationEmails(item.Id);
+  const { mutate: sendInRequestVerifyCompleteEmail } =
+    useSendInRequestVerifyCompleteEmail(item.RequestId);
 
   let checklistItems: ICheckListItem[];
 
@@ -78,6 +83,18 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
         activatedChecklistItems: activatedTasksByRole,
         allChecklistItems: checklistItems,
       });
+    } else {
+      // If we didn't activate any, is it the last item?
+      const needCompleted = checklistItems.filter(
+        (item2) =>
+          item.TemplateId !== item2.TemplateId && // Ensure we aren't looking at the item we just completed
+          !item2.CompletedBy // If it isn't completed, then flag we have an item that still needs completed for this request
+      );
+
+      // If there are not any checklist items remaining, then send the notification
+      if (needCompleted.length === 0) {
+        sendInRequestVerifyCompleteEmail();
+      }
     }
     return execute();
   };
