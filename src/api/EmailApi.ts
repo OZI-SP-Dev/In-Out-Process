@@ -328,3 +328,38 @@ ${reason}`,
     },
   });
 };
+
+export const useSendInRequestCompleteEmail = () => {
+  const errorAPI = useError();
+
+  /**
+   *  Send the In Processing Request Complete Notification to the Employee
+   *
+   * @param {IInRequest} request - The In Processing Request
+   * @returns A Promise from SharePoint for the email being sent
+   */
+  const sendInRequestCompleteEmail = (request: IInRequest) => {
+    const toField: IPerson[] = request.employee ? [request.employee] : [];
+    const newEmail: IEmail = {
+      to: toField,
+      subject: `In-processing for ${request.empName} is now closed`,
+      body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
+    };
+
+    return spWebContext.web.lists
+      .getByTitle("Emails")
+      .items.add(transformInRequestToSP(newEmail));
+  };
+
+  return useMutation(["requests"], sendInRequestCompleteEmail, {
+    onError: (error) => {
+      const errPrefix =
+        "Error occurred while trying to send Email Notification.  Please ensure the Employee knows the In Processing Request is now complete.";
+      if (error instanceof Error) {
+        errorAPI.addError(errPrefix + error.message);
+      } else {
+        errorAPI.addError(errPrefix + "Unkown error");
+      }
+    },
+  });
+};

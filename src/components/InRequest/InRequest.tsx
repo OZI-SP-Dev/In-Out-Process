@@ -13,7 +13,12 @@ import {
 import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { useBoolean } from "@fluentui/react-hooks";
-import { IInRequest, useCancelRequest, useUpdateRequest } from "api/RequestApi";
+import {
+  IInRequest,
+  useCancelRequest,
+  useCompleteRequest,
+  useUpdateRequest,
+} from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
 import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
 import { useForm, Controller } from "react-hook-form";
@@ -78,6 +83,9 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
   /* Hook to cancel this request */
   const cancelRequest = useCancelRequest(props.request.Id);
 
+  /* Hook to complete this request */
+  const completeRequest = useCompleteRequest(props.request.Id);
+
   /* The form inside the Cancel Dialog to collect a reason for cancellation */
   const {
     control,
@@ -124,11 +132,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
 
   /** Function to mark the In Processing Request as Complete */
   const performComplete = () => {
-    let updateItem = {
-      ...props.request, // Create the update object based on the Current Request,
-      closedOrCancelledDate: new Date(), // Add in that it occurred today
-    };
-    updateRequest.mutate(updateItem);
+    completeRequest.mutate(props.request);
   };
 
   return (
