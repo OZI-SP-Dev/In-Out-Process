@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
 import { SAR_CODES } from "constants/SARCodes";
 import { EMPTYPES } from "constants/EmpTypes";
+import { OFFICES } from "constants/Offices";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -588,4 +589,24 @@ describe("Grade/Rank", () => {
       fieldLabels.GRADE_RANK.form
     );
   });
+});
+
+describe("Office", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.OFFICE.form,
+        OFFICES[0].text,
+        available
+      );
+    }
+  );
 });

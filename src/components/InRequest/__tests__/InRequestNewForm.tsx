@@ -17,6 +17,7 @@ import {
   lengthTest,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
+import { OFFICES } from "constants/Offices";
 
 const user = userEvent.setup();
 
@@ -661,4 +662,25 @@ describe("Grade/Rank", () => {
       fieldLabels.GRADE_RANK.form
     );
   });
+});
+
+describe("Office", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, available: true },
+    { empType: EMPTYPES.Contractor, available: true },
+    { empType: EMPTYPES.Military, available: true },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType - $available",
+    async ({ empType, available }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableCombobox(
+        fieldLabels.OFFICE.form,
+        OFFICES[0].text,
+        available
+      );
+    }
+  );
 });

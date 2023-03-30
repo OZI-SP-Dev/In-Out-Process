@@ -130,6 +130,10 @@ export const fieldLabels = {
     formType: "combobox",
     view: /sar/i,
   },
+  OFFICE: {
+    form: /office/i,
+    view: /office/i,
+  },
   EXISTING_CAC: {
     form: /does the support contractor have an existing contractor cac\?/i,
   },

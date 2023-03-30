@@ -718,7 +718,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="officeId"
+                id="officeId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -730,24 +730,30 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="office"
                 control={control}
+                defaultValue={""}
                 rules={{
                   required: "Office is required",
                 }}
                 render={({ field: { onBlur, onChange, value } }) => (
-                  <ComboBox
-                    id="officeId"
+                  <Combobox
                     aria-describedby="officeErr"
+                    aria-labelledby="officeId"
                     autoComplete="on"
-                    selectedKey={value}
-                    onChange={(_, option) => {
-                      if (option?.key) {
-                        onChange(option.key);
+                    listbox={{ className: classes.listBox }}
+                    value={value}
+                    onOptionSelect={(_, option) => {
+                      if (option.optionValue) {
+                        onChange(option.optionValue);
                       }
                     }}
                     onBlur={onBlur}
-                    options={OFFICES}
-                    dropdownWidth={100}
-                  />
+                  >
+                    {OFFICES.map(({ key, text }) => (
+                      <Option key={key} value={key}>
+                        {text}
+                      </Option>
+                    ))}
+                  </Combobox>
                 )}
               />
               {errors.office && (
