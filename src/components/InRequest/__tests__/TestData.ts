@@ -45,6 +45,7 @@ export const milRequest: IInRequest = {
 
 /* Incoming civilian example */
 /* With Local/Remote = 'remote' */
+/* With isNewCivMil = 'no' */
 export const civRequest: IInRequest = {
   Id: 2,
   empName: testUsers[1].Title,
@@ -105,6 +106,10 @@ export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
 );
 
 export const fieldLabels = {
+  EMPLOYEE_NAME: {
+    form: /employee name/i,
+    lengthError: /name cannot be longer than 100 characters/i,
+  },
   POSITION_SENSITIVITY_CODE: {
     form: /position sensitivity code/i,
     formType: "combobox",
@@ -133,10 +138,12 @@ export const fieldLabels = {
   },
   REMOTE_LOCATION: {
     form: /remote location/i,
+    lengthError: /remote location cannot be longer than 100 characters/i,
   },
   CONTRACT_NUMBER: {
     form: /contract number/i,
     view: /contract number/i,
+    lengthError: /contract number cannot be longer than 100 characters/i,
   },
   CONTRACT_END_DATE: {
     form: /contract end date/i,
@@ -145,6 +152,13 @@ export const fieldLabels = {
   REQUIRES_SCI: {
     form: /does employee require sci access\?/i,
     view: /requires sci\?/i,
+  },
+  NEW_CIVMIL: {
+    form: /is employee a new air force (civilian|military)\?/i,
+  },
+  PREVIOUS_ORG: {
+    form: /previous organization/i,
+    lengthError: /previous organization cannot be longer than 100 characters/i,
   },
 };
 
@@ -174,3 +188,35 @@ export const isNotApplicable = (
   // Check that value is "" so it is displaying the placeholder
   expect(naFld).toHaveValue("");
 };
+
+/** Check that ensures error message is displayed if expected
+ * @param field The field obtained by Jest
+ * @param errMessage The error message we are checking for
+ * @param expected Whether we expect the error to be in the Document or not
+ */
+export const checkForErrorMessage = (
+  field: HTMLElement,
+  errMessage: RegExp,
+  expected: boolean
+) => {
+  if (expected) {
+    expect(field).toHaveAccessibleDescription(errMessage);
+  } else {
+    expect(field).not.toHaveAccessibleDescription(errMessage);
+  }
+};
+
+// Used internally to genrate strings of various length
+const lorem =
+  "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sunt facilis provident omnis voluptates beatae ipsam earum porro maiores amet sed, libero laborum quasi delectus esse magni harum, et, impedit placeat.";
+
+/** Array of testStrings used to test length */
+export const lengthTest = [
+  { testString: lorem.substring(0, 200) },
+  { testString: lorem.substring(0, 150) },
+  { testString: lorem.substring(0, 101) },
+  { testString: lorem.substring(0, 100) },
+  { testString: lorem.substring(0, 99) },
+  { testString: lorem.substring(0, 50) },
+  { testString: lorem.substring(0, 2) },
+];

@@ -13,6 +13,8 @@ import {
   remoteLocationOnlyDataset,
   checkForInputToExist,
   isNotApplicable,
+  checkForErrorMessage,
+  lengthTest,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 
@@ -407,6 +409,33 @@ describe("Remote Location", () => {
       );
     }
   );
+
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Locate the RadioGroup for Local/Remote and select Remote so Remote Location field appears
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
+      });
+      const remoteBttn = within(localOrRemote).getByRole("radio", {
+        name: /remote/i,
+      });
+      await user.click(remoteBttn);
+
+      await checkEnterableTextbox(fieldLabels.REMOTE_LOCATION.form, testString);
+
+      const remLocFld = screen.getByRole("textbox", {
+        name: fieldLabels.REMOTE_LOCATION.form,
+      });
+      checkForErrorMessage(
+        remLocFld,
+        fieldLabels.REMOTE_LOCATION.lengthError,
+        testString.length > 100
+      );
+    }
+  );
 });
 
 describe("Contract Number", () => {
@@ -431,6 +460,23 @@ describe("Contract Number", () => {
       ctrRequest.contractNumber
     );
   });
+
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Contractor);
+      await checkEnterableTextbox(fieldLabels.CONTRACT_NUMBER.form, testString);
+
+      const ctrNumberFld = screen.getByRole("textbox", {
+        name: fieldLabels.CONTRACT_NUMBER.form,
+      });
+      checkForErrorMessage(
+        ctrNumberFld,
+        fieldLabels.CONTRACT_NUMBER.lengthError,
+        testString.length > 100
+      );
+    }
+  );
 });
 
 describe("Contract End Date", () => {
@@ -538,6 +584,53 @@ describe("Requires SCI", () => {
         name: fieldLabels.REQUIRES_SCI.form,
       });
       expect(sci).not.toBeInTheDocument();
+    }
+  );
+});
+
+describe("Employee Name", () => {
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+      await checkEnterableTextbox(fieldLabels.EMPLOYEE_NAME.form, testString);
+
+      const empNameFld = screen.getByRole("textbox", {
+        name: fieldLabels.EMPLOYEE_NAME.form,
+      });
+      checkForErrorMessage(
+        empNameFld,
+        fieldLabels.EMPLOYEE_NAME.lengthError,
+        testString.length > 100
+      );
+    }
+  );
+});
+
+describe("Previous Org", () => {
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Must select that Employee is not a new Civilian for the Previous Org to appear
+      const newCiv = screen.getByRole("radiogroup", {
+        name: fieldLabels.NEW_CIVMIL.form,
+      });
+      const noBttn = within(newCiv).getByLabelText(/no/i);
+      await user.click(noBttn);
+
+      await checkEnterableTextbox(fieldLabels.PREVIOUS_ORG.form, testString);
+
+      const prevOrgFld = screen.getByRole("textbox", {
+        name: fieldLabels.PREVIOUS_ORG.form,
+      });
+
+      checkForErrorMessage(
+        prevOrgFld,
+        fieldLabels.PREVIOUS_ORG.lengthError,
+        testString.length > 100
+      );
     }
   );
 });

@@ -271,6 +271,10 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 control={control}
                 rules={{
                   required: "Employee Name is required",
+                  maxLength: {
+                    value: 100,
+                    message: "Name cannot be longer than 100 characters",
+                  },
                   pattern: {
                     value: /\S/i,
                     message: "Employee Name is required",
@@ -568,7 +572,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               workLocation === "remote" && (
                 <div className={classes.fieldContainer}>
                   <Label
-                    htmlFor="workLocationDetailId"
+                    id="workLocationDetailId"
                     size="small"
                     weight="semibold"
                     className={classes.fieldLabel}
@@ -583,12 +587,17 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     rules={{
                       required:
                         "Remote Location is required for Remote Employees",
+                      maxLength: {
+                        value: 100,
+                        message:
+                          "Remote Location cannot be longer than 100 characters",
+                      },
                     }}
                     render={({ field }) => (
                       <Input
                         {...field}
                         aria-describedby="workLocationDetailErr"
-                        id="workLocationDetailId"
+                        aria-labelledby="workLocationDetailId"
                       />
                     )}
                   />
@@ -770,7 +779,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <>
                 <div className={classes.fieldContainer}>
                   <Label
-                    htmlFor="newCivId"
+                    id="isNewCivMilId"
                     size="small"
                     weight="semibold"
                     className={classes.fieldLabel}
@@ -790,6 +799,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       <RadioGroup
                         {...field}
                         aria-describedby="isNewCivMilErr"
+                        aria-labelledby="isNewCivMilId"
                         id="newCivId"
                         disabled={true}
                       >
@@ -816,6 +826,11 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       control={control}
                       rules={{
                         required: "Previous Organization is required",
+                        maxLength: {
+                          value: 100,
+                          message:
+                            "Previous Organization cannot be longer than 100 characters",
+                        },
                       }}
                       render={({ field }) => (
                         <Input
@@ -936,7 +951,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <>
                 <div className={classes.fieldContainer}>
                   <Label
-                    htmlFor="contractNumberId"
+                    id="contractNumberId"
                     size="small"
                     weight="semibold"
                     className={classes.fieldLabel}
@@ -950,12 +965,17 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     control={control}
                     rules={{
                       required: "Contract Number is required",
+                      maxLength: {
+                        value: 100,
+                        message:
+                          "Contract Number cannot be longer than 100 characters",
+                      },
                     }}
                     render={({ field }) => (
                       <Input
                         {...field}
                         aria-describedby="contractNumberErr"
-                        id="contractNumberId"
+                        aria-labelledby="contractNumberId"
                       />
                     )}
                   />
