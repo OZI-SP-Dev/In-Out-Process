@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { useAddTasks } from "api/CreateChecklistItems";
 import {
   useSendInRequestCancelEmail,
+  useSendInRequestCompleteEmail,
   useSendInRequestSubmitEmail,
 } from "api/EmailApi";
 import { ICheckListItem } from "api/CheckListItemApi";
@@ -286,6 +287,34 @@ export const useCancelRequest = (Id: number) => {
           tasks: variable.tasks,
           reason: variable.reason,
         });
+      },
+    }
+  );
+};
+
+// Hook for Completing a request
+export const useCompleteRequest = (Id: number) => {
+  const queryClient = useQueryClient();
+  const sendInRequestCompleteEmail = useSendInRequestCompleteEmail();
+
+  return useMutation(
+    ["requests", Id],
+    async (request: IInRequest) => {
+      const now = new Date();
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.getById(Id)
+        .update({
+          // Set it to be closed today
+          closedOrCancelledDate: now.toISOString(),
+        });
+    },
+    {
+      onSuccess: (_data, request) => {
+        queryClient.invalidateQueries(["requests", Id]);
+
+        // Generate the email notification
+        sendInRequestCompleteEmail.mutate(request);
       },
     }
   );

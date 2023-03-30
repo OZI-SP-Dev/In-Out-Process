@@ -328,3 +328,85 @@ ${reason}`,
     },
   });
 };
+
+export const useSendInRequestCompleteEmail = () => {
+  const errorAPI = useError();
+
+  /**
+   *  Send the In Processing Request Complete Notification to the Employee
+   *
+   * @param {IInRequest} request - The In Processing Request
+   * @returns A Promise from SharePoint for the email being sent
+   */
+  const sendInRequestCompleteEmail = (request: IInRequest) => {
+    const toField: IPerson[] = request.employee ? [request.employee] : [];
+    const newEmail: IEmail = {
+      to: toField,
+      subject: `In-processing for ${request.empName} is now closed`,
+      body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
+    };
+
+    return spWebContext.web.lists
+      .getByTitle("Emails")
+      .items.add(transformInRequestToSP(newEmail));
+  };
+
+  return useMutation(["requests"], sendInRequestCompleteEmail, {
+    onError: (error) => {
+      const errPrefix =
+        "Error occurred while trying to send Email Notification.  Please ensure the Employee knows the In Processing Request is now complete.";
+      if (error instanceof Error) {
+        errorAPI.addError(errPrefix + error.message);
+      } else {
+        errorAPI.addError(errPrefix + "Unkown error");
+      }
+    },
+  });
+};
+
+export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
+  const queryClient = useQueryClient();
+  const errorAPI = useError();
+
+  /**
+   *  Send the In Processing Request Verify Complete Notification to the Supervisor
+   *
+   * @param {IInRequest} request - The In Processing Request
+   * @returns A Promise from SharePoint for the email being sent
+   */
+  const sendInRequestVerifyCompleteEmail = async () => {
+    // Get the request details for use in the email
+    const request = transformInRequestFromSP(
+      await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId))
+    );
+
+    const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
+
+    const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
+    const newEmail: IEmail = {
+      to: toField,
+      subject: `Verify in-processing complete for ${request.empName}`,
+      body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
+
+<b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
+${linkURL}
+<b>Action 2:</b> Close the in-processing request by selecting the button labeled "Complete"`,
+    };
+
+    return spWebContext.web.lists
+      .getByTitle("Emails")
+      .items.add(transformInRequestToSP(newEmail));
+  };
+
+  return useMutation(["requests"], sendInRequestVerifyCompleteEmail, {
+    onError: (error) => {
+      const errPrefix =
+        "Error occurred while trying to send Email Notification.  Please ensure the Supervisor knows they need to verify and close the request.";
+      if (error instanceof Error) {
+        errorAPI.addError(errPrefix + error.message);
+      } else {
+        errorAPI.addError(errPrefix + "Unkown error");
+      }
+    },
+  });
+};
