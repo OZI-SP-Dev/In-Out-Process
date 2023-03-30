@@ -221,6 +221,10 @@ export const InRequestNewForm = () => {
           defaultValue={""}
           rules={{
             required: "Employee Name is required",
+            maxLength: {
+              value: 100,
+              message: "Name cannot be longer than 100 characters",
+            },
             pattern: {
               value: /\S/i,
               message: "Employee Name is required",
@@ -576,7 +580,7 @@ export const InRequestNewForm = () => {
         workLocation === "remote" && (
           <div className={classes.fieldContainer}>
             <Label
-              htmlFor="workLocationDetailId"
+              id="workLocationDetailId"
               size="small"
               weight="semibold"
               className={classes.fieldLabel}
@@ -591,12 +595,17 @@ export const InRequestNewForm = () => {
               defaultValue={""}
               rules={{
                 required: "Remote Location is required for Remote Employees",
+                maxLength: {
+                  value: 100,
+                  message:
+                    "Remote Location cannot be longer than 100 characters",
+                },
               }}
               render={({ field }) => (
                 <Input
                   {...field}
                   aria-describedby="workLocationDetailErr"
-                  id="workLocationDetailId"
+                  aria-labelledby="workLocationDetailId"
                 />
               )}
             />
@@ -773,7 +782,7 @@ export const InRequestNewForm = () => {
         <>
           <div className={classes.fieldContainer}>
             <Label
-              htmlFor="newCivId"
+              id="isNewCivMilId"
               size="small"
               weight="semibold"
               className={classes.fieldLabel}
@@ -801,7 +810,7 @@ export const InRequestNewForm = () => {
                     onChange(e, option);
                   }}
                   aria-describedby="isNewCivMilErr"
-                  id="newCivId"
+                  aria-labelledby="isNewCivMilId"
                 >
                   <Radio key={"yes"} value={"yes"} label="Yes" />
                   <Radio key={"no"} value={"no"} label="No" />
@@ -832,6 +841,11 @@ export const InRequestNewForm = () => {
                 defaultValue={""}
                 rules={{
                   required: "Previous Organization is required",
+                  maxLength: {
+                    value: 100,
+                    message:
+                      "Previous Organization cannot be longer than 100 characters",
+                  },
                 }}
                 render={({ field }) => (
                   <Input
@@ -973,7 +987,7 @@ export const InRequestNewForm = () => {
         <>
           <div className={classes.fieldContainer}>
             <Label
-              htmlFor="contractNumberId"
+              id="contractNumberId"
               size="small"
               weight="semibold"
               className={classes.fieldLabel}
@@ -988,12 +1002,17 @@ export const InRequestNewForm = () => {
               defaultValue={""}
               rules={{
                 required: "Contract Number is required",
+                maxLength: {
+                  value: 100,
+                  message:
+                    "Contract Number cannot be longer than 100 characters",
+                },
               }}
               render={({ field }) => (
                 <Input
                   {...field}
                   aria-describedby="contractNumberErr"
-                  id="contractNumberId"
+                  aria-labelledby="contractNumberId"
                 />
               )}
             />

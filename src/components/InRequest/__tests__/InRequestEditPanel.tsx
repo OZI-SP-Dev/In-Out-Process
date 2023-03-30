@@ -9,12 +9,13 @@ import {
   fieldLabels,
   checkForInputToExist,
   isNotApplicable,
+  checkForErrorMessage,
+  lengthTest,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
-import { EMPTYPES } from "constants/EmpTypes";
 import { SAR_CODES } from "constants/SARCodes";
 
 const queryClient = new QueryClient();
@@ -385,6 +386,25 @@ describe("Remote Location", () => {
       );
     }
   );
+
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      // Civilian Request has the location set to Remote
+      renderEditPanelForRequest(civRequest);
+
+      await checkEnterableTextbox(fieldLabels.REMOTE_LOCATION.form, testString);
+
+      const remLocFld = screen.getByRole("textbox", {
+        name: fieldLabels.REMOTE_LOCATION.form,
+      });
+      checkForErrorMessage(
+        remLocFld,
+        fieldLabels.REMOTE_LOCATION.lengthError,
+        testString.length > 100
+      );
+    }
+  );
 });
 
 describe("Contract Number", () => {
@@ -410,6 +430,23 @@ describe("Contract Number", () => {
       ctrRequest.contractNumber
     );
   });
+
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      renderEditPanelForRequest(ctrRequest);
+      await checkEnterableTextbox(fieldLabels.CONTRACT_NUMBER.form, testString);
+
+      const ctrNumberFld = screen.getByRole("textbox", {
+        name: fieldLabels.CONTRACT_NUMBER.form,
+      });
+      checkForErrorMessage(
+        ctrNumberFld,
+        fieldLabels.CONTRACT_NUMBER.lengthError,
+        testString.length > 100
+      );
+    }
+  );
 });
 
 describe("Contract End Date", () => {
@@ -481,6 +518,45 @@ describe("Requires SCI", () => {
         name: fieldLabels.REQUIRES_SCI.form,
       });
       expect(sci).not.toBeInTheDocument();
+    }
+  );
+});
+
+describe("Employee Name", () => {
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      renderEditPanelForRequest(civRequest);
+      await checkEnterableTextbox(fieldLabels.EMPLOYEE_NAME.form, testString);
+
+      const empNameFld = screen.getByRole("textbox", {
+        name: fieldLabels.EMPLOYEE_NAME.form,
+      });
+      checkForErrorMessage(
+        empNameFld,
+        fieldLabels.EMPLOYEE_NAME.lengthError,
+        testString.length > 100
+      );
+    }
+  );
+});
+
+describe("Previous Org", () => {
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      // Civ Request has isNewCivMil set to 'no', so that Previous Org is available
+      renderEditPanelForRequest(civRequest);
+      await checkEnterableTextbox(fieldLabels.PREVIOUS_ORG.form, testString);
+
+      const prevOrgFld = screen.getByRole("textbox", {
+        name: fieldLabels.PREVIOUS_ORG.form,
+      });
+      checkForErrorMessage(
+        prevOrgFld,
+        fieldLabels.PREVIOUS_ORG.lengthError,
+        testString.length > 100
+      );
     }
   );
 });
