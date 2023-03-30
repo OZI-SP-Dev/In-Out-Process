@@ -22,7 +22,7 @@ import {
   OptionGroup,
   Option,
 } from "@fluentui/react-components";
-import { ComboBox, DatePicker } from "@fluentui/react";
+import { DatePicker } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -496,8 +496,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="sensitivityCodeId"
-                id="sensitivityCodeLabelId"
+                id="sensitivityCodeId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -510,19 +509,28 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 name="sensitivityCode"
                 control={control}
                 render={({ field: { value } }) => (
-                  <ComboBox
-                    id="sensitivityCodeId"
+                  <Combobox
                     aria-describedby="sensitivityCodeErr"
-                    aria-labelledby="sensitivityCodeLabelId"
-                    selectedKey={
-                      props.data.empType === EMPTYPES.Civilian ? value : ""
+                    aria-labelledby="sensitivityCodeId"
+                    autoComplete="on"
+                    listbox={{ className: classes.listBox }}
+                    value={
+                      value
+                        ? SENSITIVITY_CODES.find(({ key }) => key === value)
+                            ?.text
+                        : ""
                     }
                     placeholder={
                       props.data.empType === EMPTYPES.Civilian ? "" : "N/A"
                     }
-                    options={SENSITIVITY_CODES}
                     disabled={true}
-                  />
+                  >
+                    {SENSITIVITY_CODES.map(({ key, text }) => (
+                      <Option key={key} value={key.toString()}>
+                        {text}
+                      </Option>
+                    ))}
+                  </Combobox>
                 )}
               />
               <Text

@@ -1,4 +1,4 @@
-import { ComboBox, DatePicker } from "@fluentui/react";
+import { DatePicker } from "@fluentui/react";
 import { useContext, useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
@@ -490,8 +490,7 @@ export const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="sensitivityCodeId"
-          id="sensitivityCodeLabelId"
+          id="sensitivityCodeId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -510,26 +509,41 @@ export const InRequestNewForm = () => {
                 : undefined,
           }}
           render={({ field: { onBlur, onChange, value } }) => (
-            <ComboBox
-              id="sensitivityCodeId"
+            <Combobox
               aria-describedby="sensitivityCodeErr"
-              aria-labelledby="sensitivityCodeLabelId"
+              aria-labelledby="sensitivityCodeId"
               autoComplete="on"
-              selectedKey={empType === EMPTYPES.Civilian ? value : ""}
-              placeholder={
-                !empType || empType === EMPTYPES.Civilian ? "" : "N/A"
+              listbox={{ className: classes.listBox }}
+              value={
+                value
+                  ? SENSITIVITY_CODES.find(({ key }) => key === value)?.text
+                  : ""
               }
-              onChange={(_, option) => {
-                if (option?.key) {
-                  onChange(option.key);
+              onOptionSelect={(_event, data) => {
+                if (data.optionValue) {
+                  onChange(parseInt(data.optionValue));
                 } else {
-                  onChange(undefined);
+                  onChange(null);
                 }
               }}
               onBlur={onBlur}
-              options={SENSITIVITY_CODES}
-              disabled={empType !== EMPTYPES.Civilian}
-            />
+              disabled={
+                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
+              }
+              placeholder={
+                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
+                  ? "N/A"
+                  : empType !== ""
+                  ? ""
+                  : "Select Employee Type first"
+              }
+            >
+              {SENSITIVITY_CODES.map(({ key, text }) => (
+                <Option key={key} value={key.toString()}>
+                  {text}
+                </Option>
+              ))}
+            </Combobox>
           )}
         />
         {errors.sensitivityCode && (
