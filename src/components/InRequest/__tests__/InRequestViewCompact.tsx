@@ -90,6 +90,16 @@ const fieldsByEmployeeType = [
         { request: milRequest, expected: true },
       ],
   },
+  {
+    field: fieldLabels.GRADE_RANK.view,
+    rules:
+      // Doesn't show for Contractors
+      [
+        { request: civRequest, expected: true },
+        { request: ctrRequest, expected: false },
+        { request: milRequest, expected: true },
+      ],
+  },
 ];
 
 describe.each(fieldsByEmployeeType)(

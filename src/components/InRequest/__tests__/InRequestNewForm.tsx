@@ -634,3 +634,31 @@ describe("Previous Org", () => {
     }
   );
 });
+
+describe("Grade/Rank", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, available: true },
+    { empType: EMPTYPES.Contractor, available: false },
+    { empType: EMPTYPES.Military, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $empType ($available)",
+    async ({ empType, available }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableCombobox(
+        fieldLabels.GRADE_RANK.form,
+        empType === EMPTYPES.Civilian ? "GS-12" : "O-4",
+        available
+      );
+    }
+  );
+
+  it("displays N/A for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    isNotApplicable(
+      fieldLabels.GRADE_RANK.formType,
+      fieldLabels.GRADE_RANK.form
+    );
+  });
+});

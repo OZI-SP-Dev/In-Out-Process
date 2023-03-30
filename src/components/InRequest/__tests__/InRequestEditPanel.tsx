@@ -17,6 +17,7 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
 import { SAR_CODES } from "constants/SARCodes";
+import { EMPTYPES } from "constants/EmpTypes";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -559,4 +560,32 @@ describe("Previous Org", () => {
       );
     }
   );
+});
+
+describe("Grade/Rank", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: ctrRequest, available: false },
+    { request: milRequest, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.GRADE_RANK.form,
+        request.empType === EMPTYPES.Civilian ? "GS-12" : "O-4",
+        available
+      );
+    }
+  );
+
+  it("displays N/A for Contractor", async () => {
+    renderEditPanelForRequest(ctrRequest);
+    isNotApplicable(
+      fieldLabels.GRADE_RANK.formType,
+      fieldLabels.GRADE_RANK.form
+    );
+  });
 });
