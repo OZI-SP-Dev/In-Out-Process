@@ -1,4 +1,5 @@
 import { FunctionComponent, useContext } from "react";
+import { Title1 } from "@fluentui/react-components";
 import { useParams } from "react-router-dom";
 import { CheckList } from "components/CheckList/CheckList";
 import { InRequest } from "components/InRequest/InRequest";
@@ -25,25 +26,45 @@ export const Item: FunctionComponent = (props) => {
   }
 
   return (
-    <>
-      <h1 style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
-        In Processing Request for {request.data?.empName || "...."}
-      </h1>
+    <div
+      style={{
+        display: "grid",
+        paddingLeft: ".5em",
+        paddingRight: ".5em",
+        gridTemplateColumns: "repeat(1, minmax(250px, 1fr)",
+      }}
+    >
+      <div>
+        <Title1
+          truncate
+          title={
+            "In Processing Request for " + (request.data?.empName || "....")
+          }
+          wrap={false}
+          style={{
+            display: "block",
+          }}
+        >
+          In Processing Request for {request.data?.empName || "...."}
+        </Title1>
+      </div>
       {request.data ? (
         <>
-          <InRequest request={request.data} roles={requestRoles} />
-          <CheckList
-            ReqId={Number(itemNum)}
-            Roles={requestRoles}
-            Request={request.data}
-          />
+          <div>
+            <InRequest request={request.data} roles={requestRoles} />
+          </div>
+          <div>
+            <CheckList
+              ReqId={Number(itemNum)}
+              Roles={requestRoles}
+              Request={request.data}
+            />
+          </div>
         </>
       ) : (
-        <div style={{ paddingLeft: ".5em", paddingRight: ".5em" }}>
-          Loading...
-        </div>
+        <div>Loading...</div>
       )}
-      {request.error && <>"An error has occured: " + {request.error}</>}
-    </>
+      {request?.error && <div>"An error has occured: " + request.error</div>}
+    </div>
   );
 };

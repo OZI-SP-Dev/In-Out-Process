@@ -45,9 +45,8 @@ type CancelDialogForm = {
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
   supervisorButtonBar: {
-    marginTop: "-.75em",
+    marginTop: ".25em",
     marginBottom: ".5em",
-    paddingLeft: ".75em",
     display: "flex",
   },
   errorText: {
