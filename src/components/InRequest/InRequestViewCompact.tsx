@@ -9,11 +9,11 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 const useStyles = makeStyles({
   compactContainer: {
     display: "grid",
-    paddingLeft: "1em",
-    paddingRight: "1em",
+    paddingLeft: ".5em",
+    paddingRight: ".5em",
     columnGap: "2em",
+    rowGap: ".5em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
-    gridAutoRows: "minmax(50px, auto)",
   },
   capitalize: { textTransform: "capitalize" },
   messageBar: { whiteSpace: "pre-wrap" }, // Allow the \n character to wrap text

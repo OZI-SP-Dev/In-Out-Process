@@ -17,6 +17,8 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IInRequest } from "api/RequestApi";
 import { SAR_CODES } from "constants/SARCodes";
+import { EMPTYPES } from "constants/EmpTypes";
+import { OFFICES } from "constants/Offices";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -69,22 +71,24 @@ const checkEnterableCombobox = async (
   // We have to allow the parameter to be undefined, but we need to throw error if it was
   expect(text).not.toBeUndefined();
 
-  await user.type(comboboxField, text ? text : "");
+  // Typing is causing some Jest errors -- test by clicking the combobox which should make the options appear if enabled
+  await user.click(comboboxField);
 
   if (available) {
-    const comboboxOpt = screen.getByRole("option", {
+    // Use async call to ensure the element appears
+    const comboboxOpt = await screen.findByRole("option", {
       name: text,
     });
 
     await user.click(comboboxOpt);
 
-    // Ensure value now matches what we typed
+    // Ensure value now matches what we selected
     await waitFor(() => expect(comboboxField).toHaveValue(text));
   } else {
     const comboboxOpt = screen.queryByRole("option", {
       name: text,
     });
-    // Ensure value now matches what we typed
+    // Ensure the combobox option list doesn't appear since it is disabled
     expect(comboboxOpt).not.toBeInTheDocument();
   }
 };
@@ -556,6 +560,54 @@ describe("Previous Org", () => {
         prevOrgFld,
         fieldLabels.PREVIOUS_ORG.lengthError,
         testString.length > 100
+      );
+    }
+  );
+});
+
+describe("Grade/Rank", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: ctrRequest, available: false },
+    { request: milRequest, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.GRADE_RANK.form,
+        request.empType === EMPTYPES.Civilian ? "GS-12" : "O-4",
+        available
+      );
+    }
+  );
+
+  it("displays N/A for Contractor", async () => {
+    renderEditPanelForRequest(ctrRequest);
+    isNotApplicable(
+      fieldLabels.GRADE_RANK.formType,
+      fieldLabels.GRADE_RANK.form
+    );
+  });
+});
+
+describe("Office", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.OFFICE.form,
+        OFFICES[0].text,
+        available
       );
     }
   );

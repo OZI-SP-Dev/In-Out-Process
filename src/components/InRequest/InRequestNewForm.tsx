@@ -1,8 +1,8 @@
-import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
+import { DatePicker } from "@fluentui/react";
 import { useContext, useMemo } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
-import { GS_GRADES, NH_GRADES, MIL_GRADES } from "constants/GradeRanks";
+import { CIV_GRADES, MIL_RANKS } from "constants/GradeRanks";
 import { EMPTYPES } from "constants/EmpTypes";
 import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
 import {
@@ -19,6 +19,7 @@ import {
   Badge,
   Combobox,
   Option,
+  OptionGroup,
 } from "@fluentui/react-components";
 import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
@@ -73,6 +74,7 @@ const useStyles = makeStyles({
     marginTop: ".5em",
     marginBottom: ".5em",
   },
+  listBox: { maxHeight: "15em" },
 });
 
 type IRHFIPerson = {
@@ -125,12 +127,12 @@ export const InRequestNewForm = () => {
   const workLocation = watch("workLocation");
   const SAR = watch("SAR");
 
-  const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
+  const gradeRankOptions = useMemo(() => {
     switch (empType) {
       case EMPTYPES.Civilian:
-        return [...GS_GRADES, ...NH_GRADES];
+        return CIV_GRADES;
       case EMPTYPES.Military:
-        return [...MIL_GRADES];
+        return MIL_RANKS;
       case EMPTYPES.Contractor:
         return [];
       default:
@@ -313,11 +315,13 @@ export const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="gradeRankId"
+          id="gradeRankId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
-          required
+          required={
+            empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
+          }
         >
           <DropdownIcon className={classes.fieldIcon} />
           Grade/Rank
@@ -331,21 +335,37 @@ export const InRequestNewForm = () => {
               empType !== EMPTYPES.Contractor ? "Grade/Rank is required" : "",
           }}
           render={({ field: { onBlur, onChange, value } }) => (
-            <ComboBox
-              id="gradeRankId"
+            <Combobox
               aria-describedby="gradeRankErr"
+              aria-labelledby="gradeRankId"
               autoComplete="on"
-              selectedKey={value}
-              onChange={(_, option) => {
-                if (option?.key) {
-                  onChange(option.key);
+              listbox={{ className: classes.listBox }}
+              value={value}
+              onOptionSelect={(_, option) => {
+                if (option.optionValue) {
+                  onChange(option.optionValue);
                 }
               }}
               onBlur={onBlur}
-              options={gradeRankOptions}
-              dropdownWidth={100}
               disabled={empType === EMPTYPES.Contractor}
-            />
+              placeholder={
+                empType === EMPTYPES.Contractor
+                  ? "N/A"
+                  : empType !== ""
+                  ? ""
+                  : "Select Employee Type first"
+              }
+            >
+              {gradeRankOptions.map((item) => (
+                <OptionGroup key={item.key} label={item.text}>
+                  {item.items.map((item2) => (
+                    <Option key={item2.key} value={item2.key}>
+                      {item2.text}
+                    </Option>
+                  ))}
+                </OptionGroup>
+              ))}
+            </Combobox>
           )}
         />
         {errors.gradeRank && (
@@ -470,8 +490,7 @@ export const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="sensitivityCodeId"
-          id="sensitivityCodeLabelId"
+          id="sensitivityCodeId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -490,26 +509,41 @@ export const InRequestNewForm = () => {
                 : undefined,
           }}
           render={({ field: { onBlur, onChange, value } }) => (
-            <ComboBox
-              id="sensitivityCodeId"
+            <Combobox
               aria-describedby="sensitivityCodeErr"
-              aria-labelledby="sensitivityCodeLabelId"
+              aria-labelledby="sensitivityCodeId"
               autoComplete="on"
-              selectedKey={empType === EMPTYPES.Civilian ? value : ""}
-              placeholder={
-                !empType || empType === EMPTYPES.Civilian ? "" : "N/A"
+              listbox={{ className: classes.listBox }}
+              value={
+                value
+                  ? SENSITIVITY_CODES.find(({ key }) => key === value)?.text
+                  : ""
               }
-              onChange={(_, option) => {
-                if (option?.key) {
-                  onChange(option.key);
+              onOptionSelect={(_event, data) => {
+                if (data.optionValue) {
+                  onChange(parseInt(data.optionValue));
                 } else {
-                  onChange(undefined);
+                  onChange(null);
                 }
               }}
               onBlur={onBlur}
-              options={SENSITIVITY_CODES}
-              disabled={empType !== EMPTYPES.Civilian}
-            />
+              disabled={
+                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
+              }
+              placeholder={
+                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
+                  ? "N/A"
+                  : empType !== ""
+                  ? ""
+                  : "Select Employee Type first"
+              }
+            >
+              {SENSITIVITY_CODES.map(({ key, text }) => (
+                <Option key={key} value={key.toString()}>
+                  {text}
+                </Option>
+              ))}
+            </Combobox>
           )}
         />
         {errors.sensitivityCode && (
@@ -702,7 +736,7 @@ export const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="officeId"
+          id="officeId"
           size="small"
           weight="semibold"
           className={classes.fieldLabel}
@@ -714,24 +748,30 @@ export const InRequestNewForm = () => {
         <Controller
           name="office"
           control={control}
+          defaultValue={""}
           rules={{
             required: "Office is required",
           }}
           render={({ field: { onBlur, onChange, value } }) => (
-            <ComboBox
-              id="officeId"
+            <Combobox
               aria-describedby="officeErr"
+              aria-labelledby="officeId"
               autoComplete="on"
-              selectedKey={value}
-              onChange={(_, option) => {
-                if (option?.key) {
-                  onChange(option.key);
+              listbox={{ className: classes.listBox }}
+              value={value}
+              onOptionSelect={(_, option) => {
+                if (option.optionValue) {
+                  onChange(option.optionValue);
                 }
               }}
               onBlur={onBlur}
-              options={OFFICES}
-              dropdownWidth={100}
-            />
+            >
+              {OFFICES.map(({ key, text }) => (
+                <Option key={key} value={key}>
+                  {text}
+                </Option>
+              ))}
+            </Combobox>
           )}
         />
         {errors.office && (

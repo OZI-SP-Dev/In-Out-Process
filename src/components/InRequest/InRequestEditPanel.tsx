@@ -19,12 +19,14 @@ import {
   tokens,
   makeStyles,
   Combobox,
+  OptionGroup,
+  Option,
 } from "@fluentui/react-components";
-import { ComboBox, DatePicker, IComboBoxOption } from "@fluentui/react";
+import { DatePicker } from "@fluentui/react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
-import { GS_GRADES, MIL_GRADES, NH_GRADES } from "constants/GradeRanks";
+import { CIV_GRADES, MIL_RANKS } from "constants/GradeRanks";
 import { OFFICES } from "constants/Offices";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { IInRequest, useUpdateRequest } from "api/RequestApi";
@@ -70,6 +72,7 @@ const useStyles = makeStyles({
   panelNavCommandBar: {
     marginRight: "auto", // Pull Command Bar far-left and close far-right
   },
+  listBox: { maxHeight: "15em" },
 });
 
 interface IInRequestEditPanel {
@@ -123,12 +126,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
 
   const compProps = props;
 
-  const gradeRankOptions: IComboBoxOption[] = useMemo(() => {
+  const gradeRankOptions = useMemo(() => {
     switch (props.data.empType) {
       case EMPTYPES.Civilian:
-        return [...GS_GRADES, ...NH_GRADES];
+        return CIV_GRADES;
       case EMPTYPES.Military:
-        return [...MIL_GRADES];
+        return MIL_RANKS;
       case EMPTYPES.Contractor:
         return [];
       default:
@@ -328,11 +331,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="gradeRankId"
+                id="gradeRankId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
-                required
+                required={
+                  props.data.empType === EMPTYPES.Civilian ||
+                  props.data.empType === EMPTYPES.Military
+                }
               >
                 <DropdownIcon className={classes.fieldIcon} />
                 Grade/Rank
@@ -340,6 +346,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="gradeRank"
                 control={control}
+                defaultValue={""}
                 rules={{
                   required:
                     props.data.empType !== EMPTYPES.Contractor
@@ -347,21 +354,33 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       : "",
                 }}
                 render={({ field: { onBlur, onChange, value } }) => (
-                  <ComboBox
-                    id="gradeRankId"
+                  <Combobox
                     aria-describedby="gradeRankErr"
+                    aria-labelledby="gradeRankId"
                     autoComplete="on"
-                    selectedKey={value}
-                    onChange={(_, option) => {
-                      if (option?.key) {
-                        onChange(option.key);
+                    listbox={{ className: classes.listBox }}
+                    value={value}
+                    onOptionSelect={(_, option) => {
+                      if (option.optionValue) {
+                        onChange(option.optionValue);
                       }
                     }}
                     onBlur={onBlur}
-                    options={gradeRankOptions}
-                    dropdownWidth={100}
                     disabled={props.data.empType === EMPTYPES.Contractor}
-                  />
+                    placeholder={
+                      props.data.empType === EMPTYPES.Contractor ? "N/A" : ""
+                    }
+                  >
+                    {gradeRankOptions.map((item) => (
+                      <OptionGroup key={item.key} label={item.text}>
+                        {item.items.map((item2) => (
+                          <Option key={item2.key} value={item2.key}>
+                            {item2.text}
+                          </Option>
+                        ))}
+                      </OptionGroup>
+                    ))}
+                  </Combobox>
                 )}
               />
               {errors.gradeRank && (
@@ -477,8 +496,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="sensitivityCodeId"
-                id="sensitivityCodeLabelId"
+                id="sensitivityCodeId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -491,19 +509,28 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 name="sensitivityCode"
                 control={control}
                 render={({ field: { value } }) => (
-                  <ComboBox
-                    id="sensitivityCodeId"
+                  <Combobox
                     aria-describedby="sensitivityCodeErr"
-                    aria-labelledby="sensitivityCodeLabelId"
-                    selectedKey={
-                      props.data.empType === EMPTYPES.Civilian ? value : ""
+                    aria-labelledby="sensitivityCodeId"
+                    autoComplete="on"
+                    listbox={{ className: classes.listBox }}
+                    value={
+                      value
+                        ? SENSITIVITY_CODES.find(({ key }) => key === value)
+                            ?.text
+                        : ""
                     }
                     placeholder={
                       props.data.empType === EMPTYPES.Civilian ? "" : "N/A"
                     }
-                    options={SENSITIVITY_CODES}
                     disabled={true}
-                  />
+                  >
+                    {SENSITIVITY_CODES.map(({ key, text }) => (
+                      <Option key={key} value={key.toString()}>
+                        {text}
+                      </Option>
+                    ))}
+                  </Combobox>
                 )}
               />
               <Text
@@ -699,7 +726,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="officeId"
+                id="officeId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
@@ -711,24 +738,30 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="office"
                 control={control}
+                defaultValue={""}
                 rules={{
                   required: "Office is required",
                 }}
                 render={({ field: { onBlur, onChange, value } }) => (
-                  <ComboBox
-                    id="officeId"
+                  <Combobox
                     aria-describedby="officeErr"
+                    aria-labelledby="officeId"
                     autoComplete="on"
-                    selectedKey={value}
-                    onChange={(_, option) => {
-                      if (option?.key) {
-                        onChange(option.key);
+                    listbox={{ className: classes.listBox }}
+                    value={value}
+                    onOptionSelect={(_, option) => {
+                      if (option.optionValue) {
+                        onChange(option.optionValue);
                       }
                     }}
                     onBlur={onBlur}
-                    options={OFFICES}
-                    dropdownWidth={100}
-                  />
+                  >
+                    {OFFICES.map(({ key, text }) => (
+                      <Option key={key} value={key}>
+                        {text}
+                      </Option>
+                    ))}
+                  </Combobox>
                 )}
               />
               {errors.office && (

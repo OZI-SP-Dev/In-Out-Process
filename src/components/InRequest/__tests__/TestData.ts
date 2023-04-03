@@ -110,6 +110,11 @@ export const fieldLabels = {
     form: /employee name/i,
     lengthError: /name cannot be longer than 100 characters/i,
   },
+  GRADE_RANK: {
+    form: /grade\/rank/i,
+    view: /grade\/rank/i,
+    formType: "combobox",
+  },
   POSITION_SENSITIVITY_CODE: {
     form: /position sensitivity code/i,
     formType: "combobox",
@@ -124,6 +129,10 @@ export const fieldLabels = {
     form: /sar/i,
     formType: "combobox",
     view: /sar/i,
+  },
+  OFFICE: {
+    form: /office/i,
+    view: /office/i,
   },
   EXISTING_CAC: {
     form: /does the support contractor have an existing contractor cac\?/i,
