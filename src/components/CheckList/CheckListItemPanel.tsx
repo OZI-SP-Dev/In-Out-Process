@@ -4,14 +4,14 @@ import { Label, Text, makeStyles } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
-import { addHook, sanitize } from "dompurify";
+import DOMPurify from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
 
-addHook("afterSanitizeAttributes", function (node) {
+DOMPurify.addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
     // Set all links in the Description to be opened in a new tab
     node.setAttribute("target", "_blank");
@@ -89,7 +89,7 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
             <div
               id="panelDescription"
               dangerouslySetInnerHTML={{
-                __html: sanitize(props.item.Description),
+                __html: DOMPurify.sanitize(props.item.Description),
               }}
             />
           </div>
