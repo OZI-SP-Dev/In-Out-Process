@@ -47,7 +47,7 @@ export class Person implements IPerson {
 
 export const useCurrentUser = () => {
   let currentUser: Person;
-  if (process.env.NODE_ENV !== "production") {
+  if (import.meta.env.DEV) {
     currentUser = new Person({
       Id: 1,
       Title: "Barb Akew",

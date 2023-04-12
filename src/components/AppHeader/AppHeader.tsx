@@ -25,7 +25,7 @@ const useStyles = makeStyles({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor:
-      process.env.REACT_APP_TEST_SYS === "true"
+      import.meta.env.MODE === "testing"
         ? tokens.colorPaletteDarkOrangeBackground3
         : tokens.colorBrandBackground,
   },
@@ -52,8 +52,7 @@ export const AppHeader: FunctionComponent<any> = (props) => {
   const userContext = useContext(UserContext);
 
   const title =
-    process.env.REACT_APP_TEST_SYS === "true" ||
-    process.env.NODE_ENV !== "production"
+    import.meta.env.MODE === "testing" || import.meta.env.DEV
       ? "In-Out-Process TEST"
       : "In-Out-Process";
 
@@ -104,8 +103,7 @@ export const AppHeader: FunctionComponent<any> = (props) => {
             </ul>
             {
               //Only load the Impersonation Form if we are in NodeJS or a TEST environment
-              (process.env.NODE_ENV !== "production" ||
-                process.env.REACT_APP_TEST_SYS === "true") && (
+              (import.meta.env.DEV || import.meta.env.MODE === "testing") && (
                 <ImpersonationForm></ImpersonationForm>
               )
             }

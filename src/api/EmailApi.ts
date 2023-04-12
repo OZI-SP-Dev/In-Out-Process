@@ -82,7 +82,7 @@ const transformInRequestToSP = (email: IEmail) => {
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
     // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
     Subject: (
-      (process.env.REACT_APP_TEST_SYS === "true" ? "TEST - " : "") +
+      (import.meta.env.MODE === "testing" ? "TEST - " : "") +
       "In/Out Process - " +
       email.subject
     ).substring(0, 255),

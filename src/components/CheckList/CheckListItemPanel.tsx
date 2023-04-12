@@ -4,14 +4,14 @@ import { Label, Text, makeStyles } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
-import DOMPurify, { sanitize } from "dompurify";
+import { addHook, sanitize } from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
 
-DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
     // Set all links in the Description to be opened in a new tab
     node.setAttribute("target", "_blank");

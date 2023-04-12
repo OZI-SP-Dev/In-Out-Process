@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
-    "target": "es6",
+    "target": "esnext",
+    "useDefineForClassFields": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -18,5 +19,6 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
