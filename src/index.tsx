@@ -9,33 +9,38 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 //  see https://github.com/microsoft/fluentui/wiki/Using-icons
 initializeIcons();
 
-if (import.meta.env.DEV) {
-  const browser = await import("./mocks/browser.js" as any);
-  browser.worker.start({
-    onUnhandledRequest(
-      req: { url: { pathname: string } },
-      print: { warning: () => void }
-    ) {
-      if (
-        req.url.pathname.startsWith("/favicon.ico") ||
-        req.url.pathname.startsWith("/manifest.json") ||
-        req.url.pathname.endsWith(".png") // Ignore giving warning for things like the logo, the persona icons, etc
-      ) {
-        return;
-      }
+async function prepareMSW() {
+  if (import.meta.env.DEV) {
+    const { worker } = await import("./mocks/browser");
 
-      print.warning();
-    },
-  });
+    return worker.start({
+      onUnhandledRequest(
+        req: { url: { pathname: string } },
+        print: { warning: () => void }
+      ) {
+        if (
+          req.url.pathname.startsWith("/favicon.ico") ||
+          req.url.pathname.startsWith("/manifest.json") ||
+          req.url.pathname.endsWith(".png") // Ignore giving warning for things like the logo, the persona icons, etc
+        ) {
+          return;
+        }
+
+        print.warning();
+      },
+    });
+  }
 }
 
 const queryClient = new QueryClient();
 
-ReactDOM.render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </StrictMode>,
-  document.getElementById("root")
-);
+prepareMSW().then(() => {
+  ReactDOM.render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </StrictMode>,
+    document.getElementById("root")
+  );
+});
