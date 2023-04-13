@@ -4,6 +4,7 @@ import { ICheckListItem } from "api/CheckListItemApi";
 import { checklistTemplates } from "api/CreateChecklistItems";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { DateTime } from "luxon";
+import { vi } from "vitest";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +27,8 @@ const testChecklistItems: ICheckListItem[] = checklistTemplates.map(
 describe("Prequisites shows incomplete", () => {
   it.each(testChecklistItems)("$Title", async (item) => {
     // Mock the useCheckListItems to return a checklist item for every defined template
-    jest
-      .spyOn(checklistAPI, "useChecklistItems")
-      .mockImplementation((requestId) => {
+    vi.spyOn(checklistAPI, "useChecklistItems").mockImplementation(
+      (requestId) => {
         const testChecklistItems: ICheckListItem[] = checklistTemplates.map(
           (template, index) => {
             return {
@@ -44,7 +44,8 @@ describe("Prequisites shows incomplete", () => {
         );
 
         return { data: testChecklistItems };
-      });
+      }
+    );
     render(
       <QueryClientProvider client={queryClient}>
         <CheckListItemPrereq checklistItem={item} />
@@ -74,9 +75,8 @@ describe("Prequisites shows incomplete", () => {
 describe("Prequisites shows completed", () => {
   it.each(testChecklistItems)("$Title", async (item) => {
     // Mock the useCheckListItems to return a checklist item for every defined template - and set CompletedDate
-    jest
-      .spyOn(checklistAPI, "useChecklistItems")
-      .mockImplementation((requestId) => {
+    vi.spyOn(checklistAPI, "useChecklistItems").mockImplementation(
+      (requestId) => {
         const testChecklistItems: ICheckListItem[] = checklistTemplates.map(
           (template, index) => {
             return {
@@ -93,7 +93,8 @@ describe("Prequisites shows completed", () => {
         );
 
         return { data: testChecklistItems };
-      });
+      }
+    );
     render(
       <QueryClientProvider client={queryClient}>
         <CheckListItemPrereq checklistItem={item} />

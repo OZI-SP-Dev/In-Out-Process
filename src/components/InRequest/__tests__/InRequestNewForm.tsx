@@ -18,24 +18,25 @@ import {
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
+import { vi } from "vitest";
 
 const user = userEvent.setup();
 
 const queryClient = new QueryClient();
 
 // We're not testing useNavigate within this component -- so just mock it for now so the component will load
-const mockedUsedNavigate = jest.fn();
+const mockedUsedNavigate = vi.fn();
 
-jest.mock("react-router-dom", () => ({
-  ...(jest.requireActual("react-router-dom") as any),
+vi.mock("react-router-dom", async () => ({
+  ...((await vi.importActual("react-router-dom")) as any),
   useNavigate: () => mockedUsedNavigate,
 }));
 
 // We're not testing sendInRequestSubmitEmail within this component -- so just mock it for now so the component will load
-const mockedUseSendInRequestSubmitEmail = jest.fn();
+const mockedUseSendInRequestSubmitEmail = vi.fn();
 
-jest.mock("api/EmailApi", () => ({
-  ...(jest.requireActual("api/EmailApi") as any),
+vi.mock("api/EmailApi", async () => ({
+  ...((await vi.importActual("api/EmailApi")) as any),
   useSendInRequestSubmitEmail: () => mockedUseSendInRequestSubmitEmail,
 }));
 

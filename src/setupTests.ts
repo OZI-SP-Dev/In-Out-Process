@@ -11,4 +11,4 @@ initializeIcons();
 
 // Increase the timeout to 10s to prevent some overlapping issues
 // Test run times are hit/miss on just barely being over the 5s threshold
-jest.setTimeout(20000);
+//jest.setTimeout(20000);
