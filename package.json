@@ -26,7 +26,8 @@
     "build:prod": "tsc --noEmit && vite build && npm run mergeaspx",
     "dev": "vite --open",
     "mergeaspx": "concat -o dist/index.aspx dist/index.aspx dist/index.html",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:InRequestEditPanel": "vitest --test-timeout=20000 related src/components/InRequest/__tests__/InRequestEditPanel.tsx"
   },
   "eslintConfig": {
     "extends": [

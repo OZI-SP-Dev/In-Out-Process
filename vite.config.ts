@@ -16,7 +16,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    include: ["**/__tests__/*.*"],
+    include: ["**/__tests__/*.tsx"],
     setupFiles: "./src/setupTests.ts",
   },
 });
