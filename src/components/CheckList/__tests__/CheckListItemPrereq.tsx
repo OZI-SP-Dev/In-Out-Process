@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
 import { ICheckListItem } from "api/CheckListItemApi";
 import { checklistTemplates } from "api/CreateChecklistItems";
@@ -8,7 +12,7 @@ import { vi } from "vitest";
 
 const queryClient = new QueryClient();
 
-const checklistAPI = require("api/CheckListItemApi");
+const checklistAPI = await import("api/CheckListItemApi");
 
 const testChecklistItems: ICheckListItem[] = checklistTemplates.map(
   (template, index) => {
@@ -43,7 +47,10 @@ describe("Prequisites shows incomplete", () => {
           }
         );
 
-        return { data: testChecklistItems };
+        return { data: testChecklistItems } as UseQueryResult<
+          ICheckListItem[],
+          unknown
+        >;
       }
     );
     render(
@@ -92,7 +99,10 @@ describe("Prequisites shows completed", () => {
           }
         );
 
-        return { data: testChecklistItems };
+        return { data: testChecklistItems } as UseQueryResult<
+          ICheckListItem[],
+          unknown
+        >;
       }
     );
     render(
