@@ -24,21 +24,8 @@ const user = userEvent.setup();
 
 const queryClient = new QueryClient();
 
-// We're not testing useNavigate within this component -- so just mock it for now so the component will load
-const mockedUsedNavigate = vi.fn();
-
-vi.mock("react-router-dom", async () => ({
-  ...((await vi.importActual("react-router-dom")) as any),
-  useNavigate: () => mockedUsedNavigate,
-}));
-
-// We're not testing sendInRequestSubmitEmail within this component -- so just mock it for now so the component will load
-const mockedUseSendInRequestSubmitEmail = vi.fn();
-
-vi.mock("api/EmailApi", async () => ({
-  ...((await vi.importActual("api/EmailApi")) as any),
-  useSendInRequestSubmitEmail: () => mockedUseSendInRequestSubmitEmail,
-}));
+vi.mock("react-router-dom");
+vi.mock("api/EmailApi");
 
 /** Render a InRequestNewForm within a QueryClientProvider, then click on desired Employee Type Radio Button */
 const renderThenSelectEmpType = async (empType: EMPTYPES) => {
