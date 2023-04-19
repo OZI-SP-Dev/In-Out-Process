@@ -4,7 +4,7 @@ import { Label, Text, makeStyles } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
-import DOMPurify, { sanitize } from "dompurify";
+import DOMPurify from "dompurify";
 import { RoleType } from "api/RolesApi";
 import { IInRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
@@ -89,7 +89,7 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
             <div
               id="panelDescription"
               dangerouslySetInnerHTML={{
-                __html: sanitize(props.item.Description),
+                __html: DOMPurify.sanitize(props.item.Description),
               }}
             />
           </div>

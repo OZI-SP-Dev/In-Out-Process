@@ -58,6 +58,15 @@ const checkEnterableTextbox = async (
   await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
+/**
+ * @remarks
+ * This function seems to take an exceptionally long time to complete.
+ * Recommend bumping timeout for any test that uses it to 20s
+ *
+ * @param fieldName - name of field to find
+ * @param text - name of option to find
+ * @param available - whether option should be available or not
+ */
 const checkEnterableCombobox = async (
   fieldName: RegExp,
   text: string | undefined,
@@ -71,7 +80,6 @@ const checkEnterableCombobox = async (
   // We have to allow the parameter to be undefined, but we need to throw error if it was
   expect(text).not.toBeUndefined();
 
-  // Typing is causing some Jest errors -- test by clicking the combobox which should make the options appear if enabled
   await user.click(comboboxField);
 
   if (available) {
@@ -79,6 +87,7 @@ const checkEnterableCombobox = async (
     const comboboxOpt = await screen.findByRole("option", {
       name: text,
     });
+    expect(comboboxOpt).toBeDefined();
 
     await user.click(comboboxOpt);
 
@@ -581,7 +590,8 @@ describe("Grade/Rank", () => {
         request.empType === EMPTYPES.Civilian ? "GS-12" : "O-4",
         available
       );
-    }
+    },
+    20000
   );
 
   it("displays N/A for Contractor", async () => {
@@ -590,7 +600,7 @@ describe("Grade/Rank", () => {
       fieldLabels.GRADE_RANK.formType,
       fieldLabels.GRADE_RANK.form
     );
-  });
+  }, 20000);
 });
 
 describe("Office", () => {
@@ -609,6 +619,7 @@ describe("Office", () => {
         OFFICES[0].text,
         available
       );
-    }
+    },
+    20000
   );
 });
