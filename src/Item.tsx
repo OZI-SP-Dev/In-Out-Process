@@ -6,7 +6,8 @@ import { InRequest } from "components/InRequest/InRequest";
 import { UserContext } from "providers/UserProvider";
 import { useRequest } from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
-export const Item: FunctionComponent = (props) => {
+
+const Item: FunctionComponent = (props) => {
   const { itemNum } = useParams();
   const currentUser = useContext(UserContext);
   const request = useRequest(Number(itemNum));
@@ -68,3 +69,5 @@ export const Item: FunctionComponent = (props) => {
     </div>
   );
 };
+
+export default Item;

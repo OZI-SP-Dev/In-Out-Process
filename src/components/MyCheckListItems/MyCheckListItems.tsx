@@ -33,7 +33,7 @@ const useStyles = makeStyles({
 });
 
 /** This is a component to display the Active CheckListItems that the current user can complete */
-export const MyCheckListItems = () => {
+const MyCheckListItems = () => {
   /** FluentUI Styling */
   const classes = useStyles();
 
@@ -249,3 +249,5 @@ export const MyCheckListItems = () => {
     </>
   );
 };
+
+export default MyCheckListItems;

@@ -100,7 +100,7 @@ type IRHFInRequest = Omit<
   employee: IRHFIPerson;
 };
 
-export const InRequestNewForm = () => {
+const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useContext(UserContext).user;
   const addRequest = useAddRequest();
@@ -1220,3 +1220,5 @@ export const InRequestNewForm = () => {
     </form>
   );
 };
+
+export default InRequestNewForm;

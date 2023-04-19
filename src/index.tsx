@@ -19,9 +19,14 @@ async function prepareMSW() {
         print: { warning: () => void }
       ) {
         if (
+          // Ignore giving warning for things like the logo, the persona icons, etc
           req.url.pathname.startsWith("/favicon.ico") ||
-          req.url.pathname.startsWith("/manifest.json") ||
-          req.url.pathname.endsWith(".png") // Ignore giving warning for things like the logo, the persona icons, etc
+          req.url.pathname.endsWith(".png") ||
+          req.url.pathname.endsWith(".woff") ||
+          // Ignore giving warning for dynamic imports
+          req.url.pathname.endsWith(".ts") ||
+          req.url.pathname.endsWith(".tsx") ||
+          req.url.pathname.endsWith(".js")
         ) {
           return;
         }
