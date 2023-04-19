@@ -31,7 +31,6 @@ interface IImpersonateForm {
 }
 /** Component that displays a button to enable Impersonation
  *  Upon clicking, it prompts the user to select the appropriate impersonation action
- *  This component is only used in Development and when REACT_APP_TEST_SYS flag is set to "true"
  */
 export const ImpersonationForm: FunctionComponent<any> = (props) => {
   const classes = useStyles();
