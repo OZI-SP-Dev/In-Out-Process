@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -86,8 +80,6 @@ const checkEnterableCombobox = async (
   // We have to allow the parameter to be undefined, but we need to throw error if it was
   expect(text).not.toBeUndefined();
 
-  // FluentUI Combobox isn't a standard html <select><option>stuff</option></select>
-  // Test by clicking the combobox which will generate the options if enabled
   await user.click(comboboxField);
 
   if (available) {
@@ -97,9 +89,7 @@ const checkEnterableCombobox = async (
     });
     expect(comboboxOpt).toBeDefined();
 
-    // Due to the FluentUI implementation, user.click was not properly selecting an option
-    // Fire the click event on the option instead
-    fireEvent.click(comboboxOpt);
+    await user.click(comboboxOpt);
 
     // Ensure value now matches what we selected
     await waitFor(() => expect(comboboxField).toHaveValue(text));
