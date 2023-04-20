@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { InRequestNewForm } from "components/InRequest/InRequestNewForm";
+import InRequestNewForm from "components/InRequest/InRequestNewForm";
 import { EMPTYPES } from "constants/EmpTypes";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import {

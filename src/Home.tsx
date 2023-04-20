@@ -9,7 +9,7 @@ import { FunctionComponent } from "react";
 import { MyRequests } from "components/MyRequests/MyRequests";
 import { Link } from "react-router-dom";
 
-export const Home: FunctionComponent = (props) => {
+const Home: FunctionComponent = (props) => {
   return (
     <Stack>
       <Stack.Item align="center">
@@ -69,3 +69,5 @@ export const Home: FunctionComponent = (props) => {
     </Stack>
   );
 };
+
+export default Home;

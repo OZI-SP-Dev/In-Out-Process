@@ -30,7 +30,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const Roles: React.FunctionComponent = () => {
+const Roles: React.FunctionComponent = () => {
   const classes = useStyles();
 
   // Which view is selected
@@ -219,3 +219,5 @@ export const Roles: React.FunctionComponent = () => {
     </>
   );
 };
+
+export default Roles;
