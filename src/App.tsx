@@ -49,7 +49,9 @@ function MainLayout() {
             <AppHeader />
             <ErrorProvider>
               <ErrorNotification />
-              <Outlet />
+              <Suspense fallback={<div>Loading...</div>}>
+                <Outlet />
+              </Suspense>
             </ErrorProvider>
           </ThemeProvider>
         </FluentProvider>
@@ -59,11 +61,7 @@ function MainLayout() {
 }
 
 function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <RouterProvider router={router}></RouterProvider>
-    </Suspense>
-  );
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default App;
