@@ -5,7 +5,6 @@ import {
   RouterProvider,
   ScrollRestoration,
 } from "react-router-dom";
-import "App.css";
 import { AppHeader } from "components/AppHeader/AppHeader";
 import { Route } from "react-router-dom";
 import { ThemeProvider } from "@fluentui/react";
