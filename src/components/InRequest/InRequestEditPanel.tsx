@@ -371,11 +371,17 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                       props.data.empType === EMPTYPES.Contractor ? "N/A" : ""
                     }
                   >
-                    {gradeRankOptions.map((item) => (
-                      <OptionGroup key={item.key} label={item.text}>
-                        {item.items.map((item2) => (
-                          <Option key={item2.key} value={item2.key}>
-                            {item2.text}
+                    {gradeRankOptions.map((gradeRankGroup) => (
+                      <OptionGroup
+                        key={gradeRankGroup.key}
+                        label={gradeRankGroup.text}
+                      >
+                        {gradeRankGroup.items.map((gradeRankOption) => (
+                          <Option
+                            key={gradeRankOption.key}
+                            value={gradeRankOption.key}
+                          >
+                            {gradeRankOption.text}
                           </Option>
                         ))}
                       </OptionGroup>
