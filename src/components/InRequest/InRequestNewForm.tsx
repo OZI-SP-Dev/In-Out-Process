@@ -970,6 +970,7 @@ const InRequestNewForm = () => {
           <Controller
             name="isSupervisor"
             control={control}
+            defaultValue={""}
             rules={{
               required: "Selection is required",
             }}
