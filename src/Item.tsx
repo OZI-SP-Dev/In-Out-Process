@@ -1,5 +1,5 @@
 import { FunctionComponent, useContext } from "react";
-import { Title1 } from "@fluentui/react-components";
+import { makeStyles, Title1 } from "@fluentui/react-components";
 import { useParams } from "react-router-dom";
 import { CheckList } from "components/CheckList/CheckList";
 import { InRequest } from "components/InRequest/InRequest";
@@ -7,10 +7,26 @@ import { UserContext } from "providers/UserProvider";
 import { useRequest } from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
 
+/* FluentUI Styling */
+const useStyles = makeStyles({
+  requestItem: {
+    display: "grid",
+    paddingLeft: ".5em",
+    paddingRight: ".5em",
+    gridTemplateColumns: "minmax(250px, 1fr)",
+  },
+  requestTitle: {
+    // Text (Title1) component requires it to be set as a block for elipsis to work
+    display: "block",
+  },
+});
+
 const Item: FunctionComponent = (props) => {
   const { itemNum } = useParams();
   const currentUser = useContext(UserContext);
   const request = useRequest(Number(itemNum));
+  const classes = useStyles();
+
   let requestRoles: RoleType[];
 
   if (currentUser.roles === undefined) {
@@ -27,24 +43,15 @@ const Item: FunctionComponent = (props) => {
   }
 
   return (
-    <div
-      style={{
-        display: "grid",
-        paddingLeft: ".5em",
-        paddingRight: ".5em",
-        gridTemplateColumns: "repeat(1, minmax(250px, 1fr)",
-      }}
-    >
+    <div className={classes.requestItem}>
       <div>
         <Title1
           truncate
+          className={classes.requestTitle}
           title={
             "In Processing Request for " + (request.data?.empName || "....")
           }
           wrap={false}
-          style={{
-            display: "block",
-          }}
         >
           In Processing Request for {request.data?.empName || "...."}
         </Title1>
