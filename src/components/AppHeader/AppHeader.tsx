@@ -96,11 +96,24 @@ export const AppHeader: FunctionComponent<any> = (props) => {
             </Tooltip>
           </PopoverTrigger>
           <PopoverSurface aria-label="Your roles">
-            <ul>
-              {userContext.roles?.map((role) => (
-                <li key={role}>{role}</li>
-              ))}
-            </ul>
+            {
+              /** If the user has role(s), list them */
+              userContext.roles && userContext.roles.length > 0 && (
+                <ul>
+                  {userContext.roles?.map((role) => (
+                    <li key={role}>{role}</li>
+                  ))}
+                </ul>
+              )
+            }
+            {
+              /** If the user has no privleged role(s), just state standard account */
+              userContext.roles && userContext.roles.length === 0 && (
+                <ul>
+                  <li>Standard user account</li>
+                </ul>
+              )
+            }
             {
               //Only load the Impersonation Form if we are in NodeJS or a TEST environment
               (import.meta.env.DEV || import.meta.env.MODE === "testing") && (
