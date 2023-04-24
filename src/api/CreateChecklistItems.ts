@@ -433,7 +433,7 @@ const createInboundChecklistItems = async (request: IInRequest) => {
    */
   const addChecklistItem = (templateId: templates) => {
     const itemTemplate = checklistTemplates.find(
-      (item2) => item2.TemplateId === templateId
+      (checklistTemplate) => checklistTemplate.TemplateId === templateId
     );
     if (itemTemplate) {
       checklistItems.items
