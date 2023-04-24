@@ -232,7 +232,6 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                   size="extra-large"
                   appearance="ghost"
                   color="danger"
-                  style={{ verticalAlign: "middle" }}
                   icon={<AlertSolidIcon />}
                 />
               </Tooltip>
@@ -250,7 +249,6 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 size="extra-large"
                 appearance="ghost"
                 color="success"
-                style={{ verticalAlign: "middle" }}
                 icon={<CompletedIcon />}
               >
                 Role added successfully
