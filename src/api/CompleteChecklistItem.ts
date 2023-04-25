@@ -26,8 +26,6 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
 
   /** Function called by the React Query useMutation */
   const completeCheckListItem = () => {
-    0;
-
     const [batchedSP, execute] = spWebContext.batched();
     const batch = batchedSP.web.lists.getByTitle("CheckListItems");
     let activatedTasksByRole: Map<RoleType, ICheckListItem[]> = new Map();
