@@ -87,7 +87,6 @@ export const CheckListItemReactivateButton = ({
                     size="extra-large"
                     appearance="ghost"
                     color="danger"
-                    style={{ verticalAlign: "middle" }}
                     icon={<AlertSolidIcon />}
                   />
                 </Tooltip>

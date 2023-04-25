@@ -60,10 +60,10 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
     // If we found some, examine each to see if we met all the prereqs for that item
     preqs.forEach((rule) => {
       const needCompleting = checklistItems.filter(
-        (item2) =>
-          item.TemplateId !== item2.TemplateId && // Ensure we aren't looking at the item we just completed
-          rule.Prereqs.includes(item2.TemplateId) && // Is this item part of the prereqs for this particular item to become active
-          !item2.CompletedBy // If it is, and it isn't completed, then flag we have an item that still needs completed for this item
+        (checklistItem) =>
+          item.TemplateId !== checklistItem.TemplateId && // Ensure we aren't looking at the item we just completed
+          rule.Prereqs.includes(checklistItem.TemplateId) && // Is this item part of the prereqs for this particular item to become active
+          !checklistItem.CompletedBy // If it is, and it isn't completed, then flag we have an item that still needs completed for this item
       );
 
       // If this item has no more more prereqs, then add it to the list to become activated
@@ -86,9 +86,9 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
     } else {
       // If we didn't activate any, is it the last item?
       const needCompleted = checklistItems.filter(
-        (item2) =>
-          item.TemplateId !== item2.TemplateId && // Ensure we aren't looking at the item we just completed
-          !item2.CompletedBy // If it isn't completed, then flag we have an item that still needs completed for this request
+        (checklistItem) =>
+          item.TemplateId !== checklistItem.TemplateId && // Ensure we aren't looking at the item we just completed
+          !checklistItem.CompletedBy // If it isn't completed, then flag we have an item that still needs completed for this request
       );
 
       // If there are not any checklist items remaining, then send the notification
