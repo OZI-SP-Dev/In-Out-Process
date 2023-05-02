@@ -280,7 +280,19 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Supervisor Coordination of 2875",
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.SupervisorCoord2875,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px"><b>!! Attention Supervisor !! </b>Please ensure the Consolidated Security Office (CSO) obtains the employees SSN for profile entry/confirmation within DISS. The CSO cannot process the DD Form 2875 until this action is completed. If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly to determine if there are outstanding issues/informational needs.</p>
+<p>To accomplish this checklist item, please ensure the following steps have been completed:</p>
+<ol>
+<li>Obtain a DD Form 2875 which can be found here: <a href="https://usaf.dps.mil/sites/22539/security/IN%20PROCESSING1/Forms/AllItems.aspx">AFLCMC/XP Security - IN PROCESSING - All Documents (dps.mil)</a></li>
+<li>Have employee fill out the DD Form 2875 and digitally sign the appropriate section</li>
+<li>Supervisor should confirm form is filled out correctly and contains employee signature</li>
+<li>Supervisor shall then digitally sign the DD Form 2875 under the Supervisor section</li>
+<li>Supervisor shall then forward the signed DD Form 2875 to the AFLCMC Consolidated Security Office (CSO) to this organization email box: <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a></li>
+</ol>
+<br/>
+<p>NOTE: Once the CSO has received and approved/signed the DD Form 2875, they will in turn forward the form to the IT department for their signature enabling the employee to receive equipment issue network access.</p>
+<br/>
+<p>Additional information on CSO in-processing can be found here: <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
