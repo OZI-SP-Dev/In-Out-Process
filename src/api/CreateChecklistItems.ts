@@ -299,7 +299,12 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Security Coordination of 2875",
     Lead: RoleType.SECURITY,
     TemplateId: templates.SecurityCoord2875,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px">To accomplish this checklist item, please ensure the following steps have been completed:</p>
+<ol>
+<li>Locate the DD Form 2875 sent to CSO workflow box by the Supervisor</li>
+<li>Upon completion of CSO procedures, digitally sign the DD Form 2875 in the appropriate section</li>
+<li>Security shall then forward the signed DD Form 2875 to the AFLCMC/XP Enterprise Tech Team (ETT) organization email box: <a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a></li>
+</ol>`,
     Prereqs: [templates.SupervisorCoord2875],
   },
   {
