@@ -161,7 +161,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
       const newEmail: IEmail = {
         to: leadUsers,
         cc: [request.supGovLead],
-        subject: `In Process: New checklist item(s) available for ${request.empName}`,
+        subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
         body: `The following checklist item(s) are now available to be completed:<ul>${items
           .map((item) => `<li>${item.Title}</li>`)
           .join(
@@ -230,7 +230,7 @@ export const useSendInRequestSubmitEmail = () => {
     const newEmail: IEmail = {
       to: toField,
       cc: ccField,
-      subject: `Initial Notification for In-bound Employee: ${
+      subject: `In-processing Initial Request: ${
         request.empName
       } expected arrival ${request.eta.toLocaleDateString()}`,
       body: `In-bound employee: ${request.empName}
@@ -304,7 +304,7 @@ export const useSendInRequestCancelEmail = () => {
     const newEmail: IEmail = {
       to: toField,
       cc: ccField,
-      subject: `In-processing for ${request.empName} has been cancelled`,
+      subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
       body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
@@ -341,7 +341,7 @@ export const useSendInRequestCompleteEmail = () => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
     const newEmail: IEmail = {
       to: toField,
-      subject: `In-processing for ${request.empName} is now closed`,
+      subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
       body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
     };
 
@@ -384,7 +384,7 @@ export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
     const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
     const newEmail: IEmail = {
       to: toField,
-      subject: `Verify in-processing complete for ${request.empName}`,
+      subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
       body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
 
 <b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
