@@ -83,7 +83,6 @@ const transformInRequestToSP = (email: IEmail) => {
     // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
     Subject: (
       (process.env.REACT_APP_TEST_SYS === "true" ? "TEST - " : "") +
-      "In/Out Process - " +
       email.subject
     ).substring(0, 255),
     //Adjust line breaks so they show nicely even when Outlook converts to plaintext
