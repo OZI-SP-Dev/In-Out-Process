@@ -46,11 +46,6 @@ export const MyRequests = () => {
   const navigateTo = useNavigate();
   const classes = useStyles();
 
-  function createNewOutRequest() {
-    window.alert("This feature will be coming on a later release");
-    return true;
-  }
-
   const menuItems: ICommandBarItemProps[] = [
     {
       key: "newInRequest",
@@ -70,7 +65,7 @@ export const MyRequests = () => {
       },
       className: classes.createButtons,
       onClick: () => {
-        createNewOutRequest();
+        navigateTo("/depart");
       },
     },
   ];

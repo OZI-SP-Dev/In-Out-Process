@@ -2,7 +2,7 @@ import { MessageBar, MessageBarType } from "@fluentui/react";
 import { FunctionComponent } from "react";
 import { useError } from "hooks/useError";
 
-export const ErrorNotification: FunctionComponent = (props) => {
+export const ErrorNotification: FunctionComponent = () => {
   const { error, removeError } = useError();
 
   const handleSubmit = (key: number) => {

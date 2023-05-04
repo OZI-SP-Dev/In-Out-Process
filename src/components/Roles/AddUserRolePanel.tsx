@@ -165,7 +165,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 required:
                   "You must select a User from the Global Address List (GAL)",
               }}
-              render={({ field: { onBlur, onChange, value } }) => (
+              render={({ field: { value } }) => (
                 <PeoplePicker
                   ariaLabel="User"
                   aria-describedby="userErr"

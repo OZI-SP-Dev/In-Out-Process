@@ -46,7 +46,7 @@ const useStyles = makeStyles({
   navAvatar: { marginLeft: "auto", marginRight: "5px" }, // Force the Avatar icon to be positioned at the right most side
 });
 
-export const AppHeader: FunctionComponent<any> = (props) => {
+export const AppHeader: FunctionComponent<any> = () => {
   const classes = useStyles();
 
   const userContext = useContext(UserContext);
@@ -64,6 +64,9 @@ export const AppHeader: FunctionComponent<any> = (props) => {
         </Link>
         <Link to="/new" className={classes.navLink}>
           New In Processing
+        </Link>
+        <Link to="/depart" className={classes.navLink}>
+          New Out Processing
         </Link>
         <Link to="/myCheckListItems" className={classes.navLink}>
           My Checklist Items

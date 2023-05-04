@@ -7,16 +7,16 @@ import { UserContext } from "providers/UserProvider";
 import { useContext } from "react";
 import { useAddTasks } from "api/CreateChecklistItems";
 import {
-  useSendInRequestCancelEmail,
-  useSendInRequestCompleteEmail,
-  useSendInRequestSubmitEmail,
+  useSendRequestCancelEmail,
+  useSendRequestCompleteEmail,
+  useSendRequestSubmitEmail,
 } from "api/EmailApi";
 import { ICheckListItem } from "api/CheckListItemApi";
 
 /**  Definition for what data is needed to peform the cancellation (including to send email) */
-interface IInRequestCancel {
+interface IRequestCancel {
   /** The request */
-  request: IInRequest;
+  request: IInRequest | IOutRequest;
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the rquest was cancelled */
@@ -24,71 +24,108 @@ interface IInRequestCancel {
 }
 
 /**
- * Directly map the incoming request to the IResponseItem to perform type
+ * Directly map the incoming request to the IInResponseItem to perform type
  * conversions and drop SharePoint added data that is not needed, and will
  * cause update errors
  */
-export const transformInRequestFromSP = (
-  request: IResponseItem
-): IInRequest => {
-  return {
-    Id: request.Id,
-    empName: request.empName,
-    empType: request.empType,
-    gradeRank: request.gradeRank,
-    MPCN: request.MPCN,
-    SAR: request.SAR,
-    sensitivityCode: request.sensitivityCode,
-    workLocation: request.workLocation,
-    workLocationDetail: request.workLocationDetail,
-    office: request.office,
-    isNewCivMil: request.isNewCivMil,
-    prevOrg: request.prevOrg,
-    hasExistingCAC: request.hasExistingCAC,
-    CACExpiration: request.CACExpiration
-      ? new Date(request.CACExpiration)
-      : undefined,
-    contractNumber: request.contractNumber,
-    contractEndDate: request.contractEndDate
-      ? new Date(request.contractEndDate)
-      : undefined,
-    eta: new Date(request.eta),
-    completionDate: new Date(request.completionDate),
-    supGovLead: new Person({
-      Id: request.supGovLead.Id,
-      EMail: request.supGovLead.EMail,
-      Title: request.supGovLead.Title,
-    }),
-    employee: request.employee
-      ? new Person({
-          Id: request.employee.Id,
-          EMail: request.employee.EMail,
-          Title: request.employee.Title,
-        })
-      : undefined,
-    isTraveler: request.isTraveler,
-    isSupervisor: request.isSupervisor,
-    isSCI: request.isSCI,
-    closedOrCancelledDate: request.closedOrCancelledDate
-      ? new Date(request.closedOrCancelledDate)
-      : undefined,
-    cancelReason: request.cancelReason,
-    status: request.closedOrCancelledDate
-      ? request.cancelReason
-        ? "Cancelled"
-        : "Closed"
-      : "Active",
-  };
+export const transformRequestFromSP = (
+  request: IInResponseItem | IOutResponseItem
+): IInRequest | IOutRequest => {
+  if (isInResponse(request)) {
+    return {
+      reqType: REQUEST_TYPES.InRequest,
+      Id: request.Id,
+      empName: request.empName,
+      empType: request.empType,
+      gradeRank: request.gradeRank,
+      MPCN: request.MPCN,
+      SAR: request.SAR,
+      sensitivityCode: request.sensitivityCode,
+      workLocation: request.workLocation,
+      workLocationDetail: request.workLocationDetail,
+      office: request.office,
+      isNewCivMil: request.isNewCivMil,
+      prevOrg: request.prevOrg,
+      hasExistingCAC: request.hasExistingCAC,
+      CACExpiration: request.CACExpiration
+        ? new Date(request.CACExpiration)
+        : undefined,
+      contractNumber: request.contractNumber,
+      contractEndDate: request.contractEndDate
+        ? new Date(request.contractEndDate)
+        : undefined,
+      eta: new Date(request.eta),
+      completionDate: new Date(request.completionDate),
+      supGovLead: new Person({
+        Id: request.supGovLead.Id,
+        EMail: request.supGovLead.EMail,
+        Title: request.supGovLead.Title,
+      }),
+      employee: request.employee
+        ? new Person({
+            Id: request.employee.Id,
+            EMail: request.employee.EMail,
+            Title: request.employee.Title,
+          })
+        : undefined,
+      isTraveler: request.isTraveler,
+      isSupervisor: request.isSupervisor,
+      isSCI: request.isSCI,
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? new Date(request.closedOrCancelledDate)
+        : undefined,
+      cancelReason: request.cancelReason,
+      status: request.closedOrCancelledDate
+        ? request.cancelReason
+          ? "Cancelled"
+          : "Closed"
+        : "Active",
+    };
+  } else {
+    return {
+      reqType: REQUEST_TYPES.OutRequest,
+      Id: request.Id,
+      empName: request.empName,
+      empType: request.empType,
+      SAR: request.SAR,
+      sensitivityCode: request.sensitivityCode,
+      lastDay: new Date(request.lastDay),
+      beginDate: new Date(request.beginDate),
+      supGovLead: new Person({
+        Id: request.supGovLead.Id,
+        EMail: request.supGovLead.EMail,
+        Title: request.supGovLead.Title,
+      }),
+      employee: request.employee
+        ? new Person({
+            Id: request.employee.Id,
+            EMail: request.employee.EMail,
+            Title: request.employee.Title,
+          })
+        : undefined,
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? new Date(request.closedOrCancelledDate)
+        : undefined,
+      cancelReason: request.cancelReason,
+      status: request.closedOrCancelledDate
+        ? request.cancelReason
+          ? "Cancelled"
+          : "Closed"
+        : "Active",
+    };
+  }
 };
 
-const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
+const transformInRequestsFromSP = (
+  requests: (IInResponseItem | IOutResponseItem)[]
+): (IInRequest | IOutRequest)[] => {
   return requests.map((request) => {
-    return transformInRequestFromSP(request);
+    return transformRequestFromSP(request);
   });
 };
 
 /**
- * Directly map the incoming request to the IRequestItem to perform type
+ * Directly map the incoming request to the IInRequestItem to perform type
  * conversions and drop SharePoint added data that is not needed, and
  * will cause update errors.
  *
@@ -96,62 +133,114 @@ const transformInRequestsFromSP = (requests: IResponseItem[]): IInRequest[] => {
  * Convert Person objects to their IDs
  */
 
-const transformInRequestToSP = async (
-  request: IInRequest
-): Promise<IRequestItem> => {
-  const transformedRequest: IRequestItem = {
-    Id: request.Id,
-    empName: request.empName,
-    empType: request.empType,
-    gradeRank: request.gradeRank,
-    MPCN: request.MPCN,
-    SAR: request.SAR,
-    sensitivityCode: request.sensitivityCode,
-    workLocation: request.workLocation,
-    workLocationDetail: request.workLocationDetail,
-    office: request.office,
-    isNewCivMil: request.isNewCivMil,
-    prevOrg: request.prevOrg,
-    hasExistingCAC: request.hasExistingCAC,
-    CACExpiration: request.CACExpiration
-      ? request.CACExpiration.toISOString()
-      : "",
-    contractNumber: request.contractNumber,
-    contractEndDate: request.contractEndDate
-      ? request.contractEndDate.toISOString()
-      : "",
-    eta: request.eta.toISOString(),
-    completionDate: request.completionDate.toISOString(),
-    supGovLeadId:
-      request.supGovLead.Id === -1
-        ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data.Id
-        : request.supGovLead.Id,
-    /* If an employee is provided then we are upadting the employee field with a person
+const transformRequestToSP = async (
+  request: IInRequest | IOutRequest
+): Promise<IInRequestItem | IOutRequestItem> => {
+  if (isInRequest(request)) {
+    // Transform for In Processing Request
+    return {
+      reqType: request.reqType,
+      Id: request.Id,
+      empName: request.empName,
+      empType: request.empType,
+      gradeRank: request.gradeRank,
+      MPCN: request.MPCN,
+      SAR: request.SAR,
+      sensitivityCode: request.sensitivityCode,
+      workLocation: request.workLocation,
+      workLocationDetail: request.workLocationDetail,
+      office: request.office,
+      isNewCivMil: request.isNewCivMil,
+      prevOrg: request.prevOrg,
+      hasExistingCAC: request.hasExistingCAC,
+      CACExpiration: request.CACExpiration
+        ? request.CACExpiration.toISOString()
+        : "",
+      contractNumber: request.contractNumber,
+      contractEndDate: request.contractEndDate
+        ? request.contractEndDate.toISOString()
+        : "",
+      eta: request.eta.toISOString(),
+      completionDate: request.completionDate.toISOString(),
+      supGovLeadId:
+        request.supGovLead.Id === -1
+          ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data
+              .Id
+          : request.supGovLead.Id,
+      /* If an employee is provided then we are upadting the employee field with a person
         A value of -1 requires looking up the site user's Id, whereas a positive number means we already have the Id.
        If the employee object is undefined then we need to clear the SharePoint field.  We do this by setting the
         employeeId to -1 and the employeeStringId to "".  If we don't set employeeStringId to "" then both our app and the
         native SharePoint UI will show a partial person object having an Id of -1 rather than a clear field  
     */
-    employeeId: request.employee?.Id
-      ? request.employee.Id === -1
-        ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
-        : request.employee.Id
-      : -1,
-    employeeStringId: request.employee?.Id ? undefined : "",
-    isTraveler: request.isTraveler,
-    isSupervisor: request.isSupervisor,
-    isSCI: request.isSCI,
-    closedOrCancelledDate: request.closedOrCancelledDate
-      ? request.closedOrCancelledDate.toISOString()
-      : "",
-    cancelReason: request.cancelReason,
-  };
-  return transformedRequest;
+      employeeId: request.employee?.Id
+        ? request.employee.Id === -1
+          ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
+          : request.employee.Id
+        : -1,
+      employeeStringId: request.employee?.Id ? undefined : "",
+      isTraveler: request.isTraveler,
+      isSupervisor: request.isSupervisor,
+      isSCI: request.isSCI,
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? request.closedOrCancelledDate.toISOString()
+        : "",
+      cancelReason: request.cancelReason,
+    } as IInRequestItem;
+  } else {
+    // Transform for Out Processing Request
+    return {
+      reqType: request.reqType,
+      Id: request.Id,
+      empName: request.empName,
+      empType: request.empType,
+      SAR: request.SAR,
+      sensitivityCode: request.sensitivityCode,
+      lastDay: request.lastDay.toISOString(),
+      beginDate: request.beginDate.toISOString(),
+      supGovLeadId:
+        request.supGovLead.Id === -1
+          ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data
+              .Id
+          : request.supGovLead.Id,
+      /* If an employee is provided then we are upadting the employee field with a person
+        A value of -1 requires looking up the site user's Id, whereas a positive number means we already have the Id.
+       If the employee object is undefined then we need to clear the SharePoint field.  We do this by setting the
+        employeeId to -1 and the employeeStringId to "".  If we don't set employeeStringId to "" then both our app and the
+        native SharePoint UI will show a partial person object having an Id of -1 rather than a clear field  
+    */
+      employeeId: request.employee?.Id
+        ? request.employee.Id === -1
+          ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
+          : request.employee.Id
+        : -1,
+      employeeStringId: request.employee?.Id ? undefined : "",
+      /* TODO - Hold as possible Out Processing -- isTraveler: request.isTraveler,
+      isSupervisor: request.isSupervisor,
+      isSCI: request.isSCI,*/
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? request.closedOrCancelledDate.toISOString()
+        : "",
+      cancelReason: request.cancelReason,
+    } as IOutRequestItem;
+  }
 };
+
+/**
+ * Directly map the incoming request to the IOutRequestItem to perform type
+ * conversions and drop SharePoint added data that is not needed, and
+ * will cause update errors.
+ *
+ * Convert Date objects to strings
+ * Convert Person objects to their IDs
+ */
 
 // This is a listing of all fields to be returned with a request
 // Currently it is being used by all requests, but can be updated as needed
 // If we do make separate field requests, we should make a new type and transform functions
+
+// TODO -- Need to add the fields to SharePoint and to the string below -- OUT PROCESSING
+
 const requestedFields =
   "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,isSCI,hasExistingCAC,CACExpiration,contractNumber,contractEndDate,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
 const expandedFields = "supGovLead,employee";
@@ -198,7 +287,7 @@ export const useRequest = (requestId: number) => {
   return useQuery({
     queryKey: ["requests", requestId],
     queryFn: () => getRequest(requestId),
-    select: transformInRequestFromSP,
+    select: transformRequestFromSP,
   });
 };
 
@@ -213,16 +302,16 @@ export const useRequests = () => {
 export const useAddRequest = () => {
   const queryClient = useQueryClient();
   const addTasks = useAddTasks();
-  const sendInRequestSubmitEmail = useSendInRequestSubmitEmail();
+  const sendRequestSubmitEmail = useSendRequestSubmitEmail();
   return useMutation(
     ["requests"],
-    async (newRequest: IInRequest) => {
+    async (newRequest: IInRequest | IOutRequest) => {
       const newRequestRes = await spWebContext.web.lists
         .getByTitle("Items")
-        .items.add(await transformInRequestToSP(newRequest));
+        .items.add(await transformRequestToSP(newRequest));
 
       // Pass back the request that came to us, but add in the Id returned from SharePoint
-      let res: IInRequest = structuredClone(newRequest);
+      let res: IInRequest | IOutRequest = structuredClone(newRequest);
       res.Id = newRequestRes.data.Id;
 
       return res;
@@ -232,11 +321,14 @@ export const useAddRequest = () => {
         // Mark requests as needing refreshed
         queryClient.invalidateQueries(["requests"]);
 
-        // Create the tasks using that new Request Id
-        const tasks = await addTasks.mutateAsync(data);
+        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email and add correct tasks
+        if (isInRequest(data)) {
+          // Create the tasks using that new Request Id
+          const tasks = await addTasks.mutateAsync(data);
 
-        // After the tasks have been created, generate the email notification
-        sendInRequestSubmitEmail.mutate({ request: data, tasks: tasks });
+          // After the tasks have been created, generate the email notification
+          sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
+        }
       },
     }
   );
@@ -246,11 +338,11 @@ export const useUpdateRequest = (Id: number) => {
   const queryClient = useQueryClient();
   return useMutation(
     ["requests", Id],
-    async (request: IInRequest) => {
+    async (request: IInRequest | IOutRequest) => {
       return spWebContext.web.lists
         .getByTitle("Items")
         .items.getById(Id)
-        .update(await transformInRequestToSP(request));
+        .update(await transformRequestToSP(request));
     },
     {
       onSuccess: () => {
@@ -262,10 +354,10 @@ export const useUpdateRequest = (Id: number) => {
 
 export const useCancelRequest = (Id: number) => {
   const queryClient = useQueryClient();
-  const sendInRequestCancelEmail = useSendInRequestCancelEmail();
+  const sendRequestCancelEmail = useSendRequestCancelEmail();
   return useMutation(
     ["requests", Id],
-    async (cancelInfo: IInRequestCancel) => {
+    async (cancelInfo: IRequestCancel) => {
       const now = new Date();
       return spWebContext.web.lists
         .getByTitle("Items")
@@ -281,12 +373,15 @@ export const useCancelRequest = (Id: number) => {
       onSuccess: (_data, variable) => {
         queryClient.invalidateQueries(["requests", Id]);
 
-        // Generate the email notification
-        sendInRequestCancelEmail.mutate({
-          request: variable.request,
-          tasks: variable.tasks,
-          reason: variable.reason,
-        });
+        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email
+        if (isInRequest(variable.request)) {
+          // Generate the email notification
+          sendRequestCancelEmail.mutate({
+            request: variable.request,
+            tasks: variable.tasks,
+            reason: variable.reason,
+          });
+        }
       },
     }
   );
@@ -295,15 +390,15 @@ export const useCancelRequest = (Id: number) => {
 // Hook for Completing a request
 export const useCompleteRequest = (Id: number) => {
   const queryClient = useQueryClient();
-  const sendInRequestCompleteEmail = useSendInRequestCompleteEmail();
+  const sendRequestCompleteEmail = useSendRequestCompleteEmail();
 
   return useMutation(
     ["requests", Id],
-    async (request: IInRequest) => {
+    async (request: IInRequest | IOutRequest) => {
       const now = new Date();
       return spWebContext.web.lists
         .getByTitle("Items")
-        .items.getById(Id)
+        .items.getById(request.Id)
         .update({
           // Set it to be closed today
           closedOrCancelledDate: now.toISOString(),
@@ -314,14 +409,25 @@ export const useCompleteRequest = (Id: number) => {
         queryClient.invalidateQueries(["requests", Id]);
 
         // Generate the email notification
-        sendInRequestCompleteEmail.mutate(request);
+        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email
+        if (isInRequest(request)) {
+          sendRequestCompleteEmail.mutate(request);
+        }
       },
     }
   );
 };
 
+/** ENUM that defines which type of request In or Out Processing */
+export enum REQUEST_TYPES {
+  InRequest = 1,
+  OutRequest = 2,
+}
+
 // create IItem item to work with it internally
 export type IInRequest = {
+  /** Required - Whether it is In or Out Processing request */
+  reqType: REQUEST_TYPES;
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
@@ -382,7 +488,7 @@ export type IInRequest = {
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to change the types of certain objects
-export type IResponseItem = Omit<
+export type IInResponseItem = Omit<
   IInRequest,
   | "eta"
   | "completionDate"
@@ -401,8 +507,88 @@ export type IResponseItem = Omit<
 
 // create PnP JS response interface for the InForm
 // This extends the IInRequest to drop some required objects and add additional objects
-export type IRequestItem = Omit<IResponseItem, "supGovLead" | "employee"> & {
+export type IInRequestItem = Omit<
+  IInResponseItem,
+  "supGovLead" | "employee"
+> & {
   supGovLeadId: number;
   employeeId: number;
   employeeStringId?: string;
 };
+
+// create IItem item to work with it internally
+export type IOutRequest = {
+  reqType: REQUEST_TYPES;
+  /** Required - Will be -1 for NewForms that haven't been saved yet */
+  Id: number;
+  /** Required - Contains the Employee's Name */
+  empName: string;
+  /** Required - Employee's Type valid values are:
+   * 'Civilian' - for Civilian Employees
+   * 'Contractor' - for Contracted Employees
+   * 'Military' - for Military Employees
+   */
+  empType: EMPTYPES;
+  /** Optional - The Employee's SAR from the UMD -- Required for CIV/MIL, others will be blank */
+  SAR?: number;
+  /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
+  sensitivityCode?: number;
+  /** Required - The user's last day */
+  lastDay: Date;
+  /** Required - The Expected Completion Date - Default to 28 days from eta*/
+  beginDate: Date;
+  /** Required - The Superviosr/Gov Lead of the employee */
+  supGovLead: IPerson;
+  /** Optional - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
+  employee?: IPerson;
+  /** Optional - Date Supervisor Closed or Cancelled -- If there is a cancelReason then we know it was cancelled */
+  closedOrCancelledDate?: Date;
+  /** Optional - The reason for why the request was cancelled */
+  cancelReason?: string;
+  // Required - This is a field internally used by the app -- it is calculated within the app and not passed to/from the data repo (SharePoint)
+  status: "Active" | "Cancelled" | "Closed";
+};
+
+// create PnP JS response interface for the InForm
+// This extends the IOutRequest to change the types of certain objects
+export type IOutResponseItem = Omit<
+  IOutRequest,
+  "lastDay" | "beginDate" | "closedOrCancelledDate" | "status" // Drop the status object from the type, as it is used internally and is not data from the repository
+> & {
+  // Storing the date objects in Single Line Text fields as ISOStrings
+  lastDay: string;
+  beginDate: string;
+  closedOrCancelledDate?: string;
+};
+
+// create PnP JS response interface for the InForm
+// This extends the IOutRequest to drop some required objects and add additional objects
+export type IOutRequestItem = Omit<
+  IOutResponseItem,
+  "supGovLead" | "employee"
+> & {
+  supGovLeadId: number;
+  employeeId: number;
+  employeeStringId?: string;
+};
+
+// Custom Type Checking Function to determine if it is an In Processing Request, or an Out Processing Request
+export function isInRequest(
+  request: IInRequest | IOutRequest
+): request is IInRequest {
+  return request.reqType === REQUEST_TYPES.InRequest;
+}
+
+// Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
+export function isInResponse(
+  request: IInResponseItem | IOutResponseItem
+): request is IInResponseItem {
+  return request.reqType === REQUEST_TYPES.InRequest;
+}
+
+// Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
+export function isInRequestItem(
+  request: IInRequestItem | IOutRequestItem
+): request is IInRequestItem {
+  return request.reqType === REQUEST_TYPES.InRequest;
+}

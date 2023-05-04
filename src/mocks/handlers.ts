@@ -1,6 +1,14 @@
 import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
-import { IRequestItem, IResponseItem } from "api/RequestApi";
+import {
+  IInRequestItem,
+  IInResponseItem,
+  IOutRequestItem,
+  IOutResponseItem,
+  isInRequestItem,
+  isInResponse,
+  REQUEST_TYPES,
+} from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
@@ -99,7 +107,7 @@ export const handlers = [
   /**
    * Build a fake context object for PnPJS
    */
-  rest.post("/_api/contextinfo", (req, res, ctx) => {
+  rest.post("/_api/contextinfo", (_req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.delay(responsedelay),
@@ -219,9 +227,12 @@ export const handlers = [
   /**
    * Build emails API
    */
-  rest.post("/_api/web/lists/getByTitle\\('Emails')/items", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.delay(responsedelay));
-  }),
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Emails')/items",
+    (_req, res, ctx) => {
+      return res(ctx.status(200), ctx.delay(responsedelay));
+    }
+  ),
 
   /**
    * Get Request Item
@@ -280,42 +291,59 @@ export const handlers = [
   rest.post(
     "/_api/web/lists/getByTitle\\('Items')/items",
     async (req, res, ctx) => {
-      let body = (await req.json()) as IRequestItem;
+      let body = (await req.json()) as IInRequestItem | IOutRequestItem;
       let supervisor = testUsers.find(
         (element) => element.Id === Number(body.supGovLeadId)
       );
       let employee = testUsers.find(
         (element) => element.Id === Number(body.employeeId)
       );
+      let request: IInResponseItem | IOutResponseItem;
       if (supervisor) {
-        let request: IResponseItem = {
-          Id: nextRequestId++,
-          empName: body.empName,
-          empType: body.empType,
-          gradeRank: body.gradeRank,
-          MPCN: body.MPCN,
-          SAR: body.SAR,
-          sensitivityCode: body.sensitivityCode,
-          workLocation: body.workLocation,
-          workLocationDetail: body.workLocationDetail,
-          office: body.office,
-          isNewCivMil: body.isNewCivMil,
-          prevOrg: body.prevOrg,
-          hasExistingCAC: body.hasExistingCAC,
-          CACExpiration: body.CACExpiration,
-          contractNumber: body.contractNumber,
-          contractEndDate: body.contractEndDate,
-          eta: body.eta,
-          completionDate: body.completionDate,
-          supGovLead: { ...supervisor },
-          isTraveler: body.isTraveler,
-          isSupervisor: body.isSupervisor,
-          isSCI: body.isSCI,
-        };
+        if (isInRequestItem(body)) {
+          request = {
+            reqType: body.reqType,
+            Id: nextRequestId++,
+            empName: body.empName,
+            empType: body.empType,
+            gradeRank: body.gradeRank,
+            MPCN: body.MPCN,
+            SAR: body.SAR,
+            sensitivityCode: body.sensitivityCode,
+            workLocation: body.workLocation,
+            workLocationDetail: body.workLocationDetail,
+            office: body.office,
+            isNewCivMil: body.isNewCivMil,
+            prevOrg: body.prevOrg,
+            hasExistingCAC: body.hasExistingCAC,
+            CACExpiration: body.CACExpiration,
+            contractNumber: body.contractNumber,
+            contractEndDate: body.contractEndDate,
+            eta: body.eta,
+            completionDate: body.completionDate,
+            supGovLead: { ...supervisor },
+            isTraveler: body.isTraveler,
+            isSupervisor: body.isSupervisor,
+            isSCI: body.isSCI,
+          };
+        } else {
+          request = {
+            reqType: body.reqType,
+            Id: nextRequestId++,
+            empName: body.empName,
+            empType: body.empType,
+            SAR: body.SAR,
+            sensitivityCode: body.sensitivityCode,
+            lastDay: body.lastDay,
+            beginDate: body.beginDate,
+            supGovLead: { ...supervisor },
+          };
+        }
         if (employee) {
           request.employee = { ...employee };
         }
         requests.push(request);
+
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
@@ -339,7 +367,7 @@ export const handlers = [
       // If the filter was for My Requests
       if (myRequestFilter) {
         results = results.filter(
-          (item: IResponseItem) =>
+          (item: IInResponseItem) =>
             (item.supGovLead.Id.toString() === myRequestFilter[2] ||
               item.employee?.Id.toString() === myRequestFilter[1]) &&
             !item.closedOrCancelledDate
@@ -679,8 +707,9 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 /**
  * requests array holds our sample data
  */
-let requests: IResponseItem[] = [
+let requests: (IInResponseItem | IOutResponseItem)[] = [
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 2,
     empName: "Doe, John D",
     empType: EMPTYPES.Civilian,
@@ -706,6 +735,7 @@ let requests: IResponseItem[] = [
     isSCI: "",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 1,
     empName: "Doe, Jane D",
     empType: EMPTYPES.Civilian,
@@ -730,6 +760,7 @@ let requests: IResponseItem[] = [
     isSCI: "",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 3,
     empName: testUsers[0].Title,
     empType: EMPTYPES.Civilian,
@@ -754,6 +785,7 @@ let requests: IResponseItem[] = [
     isSCI: "",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 5,
     empName: "Cancelled, Imma B",
     empType: EMPTYPES.Civilian,
@@ -780,6 +812,7 @@ let requests: IResponseItem[] = [
     cancelReason: "Employee proceeded with new opportunity",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 4,
     empName: "Closed, Aye M",
     empType: EMPTYPES.Civilian,
@@ -805,6 +838,7 @@ let requests: IResponseItem[] = [
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 6,
     empName: "Tractor, Kauhn",
     empType: EMPTYPES.Contractor,
@@ -825,6 +859,7 @@ let requests: IResponseItem[] = [
     isSCI: "",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 7,
     empName: "SCI Military",
     empType: EMPTYPES.Military,
@@ -848,6 +883,7 @@ let requests: IResponseItem[] = [
     isSCI: "yes",
   },
   {
+    reqType: REQUEST_TYPES.InRequest,
     Id: 8,
     empName: "No SCI Military",
     empType: EMPTYPES.Military,
@@ -1024,8 +1060,9 @@ const notFound = {
  * @param id - The id of the request from the URL request
  * @param item - The fields to update on the request
  */
-const updateRequest = (id: number, item: IRequestItem) => {
+const updateRequest = (id: number, item: IInRequestItem | IOutRequestItem) => {
   let index = requests.findIndex((element) => element.Id === id);
+  let reqItem = requests[index];
   let supervisor = testUsers.find(
     (element) => element.Id === Number(item.supGovLeadId)
   );
@@ -1034,71 +1071,75 @@ const updateRequest = (id: number, item: IRequestItem) => {
   );
 
   if (index !== -1) {
-    requests[index].empName = item.empName
-      ? item.empName
-      : requests[index].empName;
-    requests[index].empType = item.empType
-      ? item.empType
-      : requests[index].empType;
-    requests[index].gradeRank = item.gradeRank
-      ? item.gradeRank
-      : requests[index].gradeRank;
-    requests[index].MPCN = item.MPCN ? item.MPCN : requests[index].MPCN;
-    requests[index].SAR = item.SAR ? item.SAR : requests[index].SAR;
-    requests[index].sensitivityCode = item.sensitivityCode
-      ? item.sensitivityCode
-      : requests[index].sensitivityCode;
-    requests[index].workLocation = item.workLocation
-      ? item.workLocation
-      : requests[index].workLocation;
-    requests[index].workLocationDetail = item.workLocationDetail
-      ? item.workLocationDetail
-      : requests[index].workLocationDetail;
-    requests[index].office = item.office ? item.office : requests[index].office;
-    requests[index].isNewCivMil = item.isNewCivMil
-      ? item.isNewCivMil
-      : requests[index].isNewCivMil;
-    requests[index].prevOrg = item.prevOrg
-      ? item.prevOrg
-      : requests[index].prevOrg;
-    requests[index].hasExistingCAC = item.hasExistingCAC
-      ? item.hasExistingCAC
-      : requests[index].hasExistingCAC;
-    requests[index].CACExpiration = item.CACExpiration
-      ? item.CACExpiration
-      : requests[index].CACExpiration;
-    requests[index].contractNumber = item.contractNumber
-      ? item.contractNumber
-      : requests[index].contractNumber;
-    requests[index].contractEndDate = item.contractEndDate
-      ? item.contractEndDate
-      : requests[index].contractEndDate;
-    requests[index].eta = item.eta ? item.eta : requests[index].eta;
-    requests[index].completionDate = item.completionDate
-      ? item.completionDate
-      : requests[index].completionDate;
-    requests[index].isTraveler = item.isTraveler
-      ? item.isTraveler
-      : requests[index].isTraveler;
-    requests[index].isSupervisor = item.isSupervisor
-      ? item.isSupervisor
-      : requests[index].isSupervisor;
-    requests[index].isSCI = item.isSCI ? item.isSCI : requests[index].isSCI;
+    if (isInResponse(reqItem) && isInRequestItem(item)) {
+      // If it is an In Processing Request
+      reqItem.empName = item.empName ? item.empName : reqItem.empName;
+      reqItem.empType = item.empType ? item.empType : reqItem.empType;
+      reqItem.gradeRank = item.gradeRank ? item.gradeRank : reqItem.gradeRank;
+      reqItem.MPCN = item.MPCN ? item.MPCN : reqItem.MPCN;
+      reqItem.SAR = item.SAR ? item.SAR : reqItem.SAR;
+      reqItem.sensitivityCode = item.sensitivityCode
+        ? item.sensitivityCode
+        : reqItem.sensitivityCode;
+      reqItem.workLocation = item.workLocation
+        ? item.workLocation
+        : reqItem.workLocation;
+      reqItem.workLocationDetail = item.workLocationDetail
+        ? item.workLocationDetail
+        : reqItem.workLocationDetail;
+      reqItem.office = item.office ? item.office : reqItem.office;
+      reqItem.isNewCivMil = item.isNewCivMil
+        ? item.isNewCivMil
+        : reqItem.isNewCivMil;
+      reqItem.prevOrg = item.prevOrg ? item.prevOrg : reqItem.prevOrg;
+      reqItem.hasExistingCAC = item.hasExistingCAC
+        ? item.hasExistingCAC
+        : reqItem.hasExistingCAC;
+      reqItem.CACExpiration = item.CACExpiration
+        ? item.CACExpiration
+        : reqItem.CACExpiration;
+      reqItem.contractNumber = item.contractNumber
+        ? item.contractNumber
+        : reqItem.contractNumber;
+      reqItem.contractEndDate = item.contractEndDate
+        ? item.contractEndDate
+        : reqItem.contractEndDate;
+      reqItem.eta = item.eta ? item.eta : reqItem.eta;
+      reqItem.completionDate = item.completionDate
+        ? item.completionDate
+        : reqItem.completionDate;
+      reqItem.isTraveler = item.isTraveler
+        ? item.isTraveler
+        : reqItem.isTraveler;
+      reqItem.isSupervisor = item.isSupervisor
+        ? item.isSupervisor
+        : reqItem.isSupervisor;
+      reqItem.isSCI = item.isSCI ? item.isSCI : reqItem.isSCI;
+    } else if (!isInResponse(reqItem) && !isInRequestItem(item)) {
+      // If it is an Out Processing Request
+      reqItem.empName = item.empName ? item.empName : reqItem.empName;
+      reqItem.empType = item.empType ? item.empType : reqItem.empType;
+      reqItem.SAR = item.SAR ? item.SAR : reqItem.SAR;
+      reqItem.sensitivityCode = item.sensitivityCode
+        ? item.sensitivityCode
+        : reqItem.sensitivityCode;
+      reqItem.beginDate = item.beginDate ? item.beginDate : reqItem.beginDate;
+    }
   }
 
   if (supervisor) {
-    requests[index].supGovLead = { ...supervisor };
+    reqItem.supGovLead = { ...supervisor };
   }
 
   if (employee) {
-    requests[index].employee = { ...employee };
+    reqItem.employee = { ...employee };
   }
 
   if (item.cancelReason) {
-    requests[index].cancelReason = item.cancelReason;
+    reqItem.cancelReason = item.cancelReason;
   }
   if (item.closedOrCancelledDate) {
-    requests[index].closedOrCancelledDate = item.closedOrCancelledDate;
+    reqItem.closedOrCancelledDate = item.closedOrCancelledDate;
   }
 };
 

@@ -9,7 +9,7 @@ import { FunctionComponent } from "react";
 import { MyRequests } from "components/MyRequests/MyRequests";
 import { Link } from "react-router-dom";
 
-const Home: FunctionComponent = (props) => {
+const Home: FunctionComponent = () => {
   return (
     <Stack>
       <Stack.Item align="center">

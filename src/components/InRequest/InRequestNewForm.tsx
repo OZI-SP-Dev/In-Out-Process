@@ -183,7 +183,7 @@ const InRequestNewForm = () => {
         <Controller
           name="employee"
           control={control}
-          render={({ field: { onBlur, onChange, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <PeoplePicker
               ariaLabel="Employee"
               aria-describedby="employeeErr"
@@ -589,7 +589,7 @@ const InRequestNewForm = () => {
               aria-labelledby="workLocationLabelId"
               layout="horizontal"
             >
-              {WORKLOCATIONS.map((workLocation, i) => {
+              {WORKLOCATIONS.map((workLocation) => {
                 return (
                   <Radio
                     key={workLocation.value}
@@ -803,7 +803,7 @@ const InRequestNewForm = () => {
           rules={{
             required: "Supervisor/Gov Lead is required",
           }}
-          render={({ field: { onBlur, onChange, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <PeoplePicker
               ariaLabel="Supervisor/Government Lead"
               aria-describedby="supGovLeadErr"
