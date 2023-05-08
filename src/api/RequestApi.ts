@@ -427,7 +427,7 @@ export enum REQUEST_TYPES {
 // create IItem item to work with it internally
 export type IInRequest = {
   /** Required - Whether it is In or Out Processing request */
-  reqType: REQUEST_TYPES;
+  reqType: REQUEST_TYPES.InRequest;
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
@@ -518,7 +518,7 @@ export type IInRequestItem = Omit<
 
 // create IItem item to work with it internally
 export type IOutRequest = {
-  reqType: REQUEST_TYPES;
+  reqType: REQUEST_TYPES.OutRequest;
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
