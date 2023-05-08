@@ -215,9 +215,6 @@ const transformRequestToSP = async (
           : request.employee.Id
         : -1,
       employeeStringId: request.employee?.Id ? undefined : "",
-      /* TODO - Hold as possible Out Processing -- isTraveler: request.isTraveler,
-      isSupervisor: request.isSupervisor,
-      isSCI: request.isSCI,*/
       closedOrCancelledDate: request.closedOrCancelledDate
         ? request.closedOrCancelledDate.toISOString()
         : "",

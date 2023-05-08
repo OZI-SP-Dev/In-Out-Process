@@ -6,7 +6,6 @@ import { EMPTYPES } from "constants/EmpTypes";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import {
   fieldLabels,
-  checkForInputToExist,
   isNotApplicable,
 } from "components/OutRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
@@ -184,84 +183,4 @@ describe("Position Sensitivity Code", () => {
       fieldLabels.POSITION_SENSITIVITY_CODE.form
     );
   });
-});
-
-describe("Has Existing Contractor CAC", () => {
-  it("is selectable for Contractors", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Contractor);
-
-    // Locate the RadioGroup for Existing CAC
-    const hasCAC = screen.getByRole("radiogroup", {
-      name: fieldLabels.EXISTING_CAC.form,
-    });
-
-    const yesBttn = within(hasCAC).getByLabelText(/yes/i);
-    const noBttn = within(hasCAC).getByLabelText(/no/i);
-
-    // Click "Yes" and ensure it reflects checked and that "No" is not
-    await user.click(yesBttn);
-    expect(yesBttn).toBeChecked();
-    expect(noBttn).not.toBeChecked();
-
-    // Click "No" and ensure it reflects checked and that "Yes" is not
-    await user.click(noBttn);
-    expect(noBttn).toBeChecked();
-    expect(yesBttn).not.toBeChecked();
-  });
-
-  it("is not available for Miliary", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Military);
-    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
-  });
-
-  it("is not available for Civilians", async () => {
-    await renderThenSelectEmpType(EMPTYPES.Civilian);
-    checkForInputToExist(fieldLabels.EXISTING_CAC.form, false);
-  });
-});
-
-describe("Local Or Remote", () => {
-  const employeeTypes = [
-    { empType: EMPTYPES.Civilian },
-    { empType: EMPTYPES.Contractor },
-    { empType: EMPTYPES.Military },
-  ];
-
-  it.each(employeeTypes)("is selectable for $empType", async ({ empType }) => {
-    await renderThenSelectEmpType(empType);
-
-    // Locate the RadioGroup for Local/Remote
-    const localOrRemote = screen.getByRole("radiogroup", {
-      name: fieldLabels.LOCAL_OR_REMOTE.form,
-    });
-
-    const localBttn = within(localOrRemote).getByLabelText(/local/i);
-    const remoteBttn = within(localOrRemote).getByLabelText(/remote/i);
-
-    // Click "Local" and ensure it reflects checked and that "Remote" is not
-    await user.click(localBttn);
-    expect(localBttn).toBeChecked();
-    expect(remoteBttn).not.toBeChecked();
-
-    // Click "Remote" and ensure it reflects checked and that "Local" is not
-    await user.click(remoteBttn);
-    expect(remoteBttn).toBeChecked();
-    expect(localBttn).not.toBeChecked();
-  });
-
-  it.each(employeeTypes)(
-    "displays hint text for $empType",
-    async ({ empType }) => {
-      await renderThenSelectEmpType(empType);
-
-      // Locate the RadioGroup for Local/Remote
-      const localOrRemote = screen.getByRole("radiogroup", {
-        name: fieldLabels.LOCAL_OR_REMOTE.form,
-      });
-
-      expect(localOrRemote).toHaveAccessibleDescription(
-        /greater than 50 miles qualifies as remote/i
-      );
-    }
-  );
 });

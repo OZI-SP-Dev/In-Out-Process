@@ -40,54 +40,6 @@ const fieldsByEmployeeType = [
       { request: milRequest, expected: true },
     ],
   },
-  {
-    field: fieldLabels.CAC_EXPIRATION.view,
-    rules: [
-      // Only for Contractors
-      { request: civRequest, expected: false },
-      { request: ctrRequest, expected: true },
-      { request: milRequest, expected: false },
-    ],
-  },
-  {
-    field: fieldLabels.CONTRACT_NUMBER.view,
-    rules:
-      // Only for Contractors
-      [
-        { request: civRequest, expected: false },
-        { request: ctrRequest, expected: true },
-        { request: milRequest, expected: false },
-      ],
-  },
-  {
-    field: fieldLabels.CONTRACT_END_DATE.view,
-    rules:
-      // Only for Contractors
-      [
-        { request: civRequest, expected: false },
-        { request: ctrRequest, expected: true },
-        { request: milRequest, expected: false },
-      ],
-  },
-  {
-    field: fieldLabels.LOCAL_OR_REMOTE.view,
-    rules:
-      // All Employee Types
-      [
-        { request: civRequest, expected: true },
-        { request: ctrRequest, expected: true },
-        { request: milRequest, expected: true },
-      ],
-  },
-  {
-    field: fieldLabels.OFFICE.view,
-    rules: [
-      // All Employee Types
-      { request: civRequest, expected: true },
-      { request: ctrRequest, expected: true },
-      { request: milRequest, expected: true },
-    ],
-  },
 ];
 
 describe.each(fieldsByEmployeeType)(

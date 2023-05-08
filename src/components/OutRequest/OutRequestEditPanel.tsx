@@ -6,7 +6,7 @@ import {
   Panel,
   PanelType,
 } from "@fluentui/react";
-import { FunctionComponent, useMemo } from "react";
+import { FunctionComponent } from "react";
 import {
   Button,
   webLightTheme,
@@ -37,9 +37,6 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "block" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
@@ -91,11 +88,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
 
   // Create a type to handle the IOutRequest type within React Hook Form (RHF)
   // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
-  type IRHFOutRequest = Omit<
-    IOutRequest,
-    "MPCN" | "supGovLead" | "employee"
-  > & {
-    MPCN: string;
+  type IRHFOutRequest = Omit<IOutRequest, "supGovLead" | "employee"> & {
     /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
     supGovLead: IRHFIPerson;
     employee: IRHFIPerson;
@@ -105,44 +98,19 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     control,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue,
   } = useForm<IRHFOutRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
-    mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
+    mode: "onChange" /* Provide input directly as they input, so if entering bad data it will let them know */,
     values: props.data,
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 
-  // Setup watches
-  const lastDay = watch("lastDay");
-
   const compProps = props;
 
-  const minCompletionDate: Date = useMemo(() => {
-    // Set the minimumn completion date to be 14 days from the estimated arrival
-    if (lastDay) {
-      let newMinDate = new Date(lastDay);
-      newMinDate.setDate(newMinDate.getDate() + 14);
-      return newMinDate;
-    } else return new Date();
-  }, [lastDay]);
-
   const updateThisRequest = (data: IRHFOutRequest) => {
-    // Translate the string MPCN to an Integer
-    let mpcn: number | undefined;
-    if (
-      data.empType === EMPTYPES.Civilian ||
-      data.empType === EMPTYPES.Military
-    ) {
-      // Parsing the string should be fine, as we enforce pattern of numeric
-      mpcn = parseInt(data.MPCN);
-    }
-
-    const data2: IOutRequest = { ...data, MPCN: mpcn } as IOutRequest;
-
-    updateRequest.mutate(data2, {
+    updateRequest.mutate(data as IOutRequest, {
       onSuccess: () => {
         // Close the edit panel on a succesful edit
         props.onEditSave();
@@ -211,11 +179,14 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 className={classes.fieldLabel}
               >
                 <ContactIcon className={classes.fieldIcon} />
-                Employee from GAL (skip if not in GAL)
+                Employee from GAL
               </Label>
               <Controller
                 name="employee"
                 control={control}
+                rules={{
+                  required: "Employee is required",
+                }}
                 render={({ field: { onChange, value } }) => (
                   <PeoplePicker
                     ariaLabel="Employee"
@@ -356,34 +327,32 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="arrivalDateId"
+                htmlFor="lastDayId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
                 required
               >
                 <CalendarIcon className={classes.fieldIcon} />
-                Select estimated on-boarding date
+                Last date with current organization
               </Label>
               <Controller
                 name="lastDay"
                 control={control}
                 rules={{
-                  required: "Esitmated date is required",
+                  required: "Last date with current organization is required",
                 }}
                 render={({ field: { value, onChange } }) => (
                   <DatePicker
-                    id="arrivalDateId"
-                    placeholder="Select estimated on-boarding date"
-                    ariaLabel="Select an estimated on-boarding date"
+                    id="lastDayId"
+                    placeholder="Enter the last date the employee will be with the current organization."
+                    ariaLabel="Enter the last date the employee will be with the current organization."
                     aria-describedby="lastDayErr"
                     onSelectDate={(newDate) => {
                       if (newDate) {
-                        let newCompletionDate = new Date(newDate);
-                        newCompletionDate.setDate(
-                          newCompletionDate.getDate() + 28
-                        );
-                        setValue("beginDate", newCompletionDate);
+                        let newBeginDate = new Date(newDate);
+                        newBeginDate.setDate(newBeginDate.getDate() - 7);
+                        setValue("beginDate", newBeginDate);
                       }
                       onChange(newDate);
                     }}
@@ -396,32 +365,39 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                   {errors.lastDay.message}
                 </Text>
               )}
+              <Text
+                weight="regular"
+                size={200}
+                className={classes.fieldDescription}
+              >
+                Enter the last date the employee will be with the current
+                organization.
+              </Text>
             </div>
             <div className={classes.fieldContainer}>
               <Label
-                htmlFor="completionDateId"
+                htmlFor="beginDateId"
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
                 required
               >
                 <CalendarIcon className={classes.fieldIcon} />
-                Select target completion date
+                Estimated Out-processing begin date
               </Label>
               <Controller
                 name="beginDate"
                 control={control}
                 rules={{
-                  required: "Completion Date is required.",
+                  required: "Estimated Out-processing begin date is required.",
                 }}
                 render={({ field: { value, onChange } }) => (
                   <DatePicker
                     id="beginDateId"
-                    placeholder="Select target completion date"
-                    ariaLabel="Select target completion date"
+                    placeholder="Estimate date beginning employee out-processing (Default value is 7 days prior to Last Date with current organization)."
+                    ariaLabel="Estimate date beginning employee out-processing (Default value is 7 days prior to Last Date with current organization)."
                     aria-describedby="beginDateErr"
                     onSelectDate={onChange}
-                    minDate={minCompletionDate}
                     value={value}
                   />
                 )}
@@ -431,6 +407,14 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                   {errors.beginDate.message}
                 </Text>
               )}
+              <Text
+                weight="regular"
+                size={200}
+                className={classes.fieldDescription}
+              >
+                Estimate date beginning employee out-processing (Default value
+                is 7 days prior to Last Date with current organization).
+              </Text>
             </div>
             <div className={classes.fieldContainer}>
               <Label

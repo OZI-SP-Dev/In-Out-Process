@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
   PopoverSurface,
 } from "@fluentui/react-components";
-import { useContext, FunctionComponent } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
@@ -46,7 +46,7 @@ const useStyles = makeStyles({
   navAvatar: { marginLeft: "auto", marginRight: "5px" }, // Force the Avatar icon to be positioned at the right most side
 });
 
-export const AppHeader: FunctionComponent<any> = () => {
+export const AppHeader = () => {
   const classes = useStyles();
 
   const userContext = useContext(UserContext);

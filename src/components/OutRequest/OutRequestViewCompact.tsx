@@ -15,7 +15,6 @@ const useStyles = makeStyles({
     rowGap: ".5em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
   },
-  capitalize: { textTransform: "capitalize" },
   messageBar: { whiteSpace: "pre-wrap" }, // Allow the \n character to wrap text
 });
 
@@ -32,23 +31,6 @@ export const OutRequestViewCompact: FunctionComponent<
     (code) => code.key === formData.sensitivityCode
   );
   const sensitivityCode = codeEntry ? codeEntry.text : "";
-  // Function used to display the Employee Type in a shortened format.
-  // If it is a Civilian add New/Existing after depending on the selection
-  const displayEmpType = (): string => {
-    let displayValue = "";
-    switch (formData.empType) {
-      case EMPTYPES.Civilian:
-        displayValue = "Civilian";
-        break;
-      case EMPTYPES.Military:
-        displayValue = "Military";
-        break;
-      case EMPTYPES.Contractor:
-        displayValue = "Contractor";
-        break;
-    }
-    return displayValue;
-  };
 
   let closedOrCancelledNotice: string = "";
 
@@ -74,7 +56,7 @@ export const OutRequestViewCompact: FunctionComponent<
       <div id="outReqCompact" className={classes.compactContainer}>
         <div>
           <Label weight="semibold" htmlFor="empNameCVId">
-            Employee Name:
+            Employee Name
           </Label>
           <br />
           <Text id="empNameCVId">{formData.empName}</Text>
@@ -84,7 +66,7 @@ export const OutRequestViewCompact: FunctionComponent<
             Employee Type
           </Label>
           <br />
-          <Text id="empTypeCVId">{displayEmpType}</Text>
+          <Text id="empTypeCVId">{formData.empType}</Text>
         </div>
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) && (
@@ -106,20 +88,20 @@ export const OutRequestViewCompact: FunctionComponent<
           </div>
         )}
         <div>
-          <Label weight="semibold" htmlFor="arrivalDateCVId">
-            Estimated on-boarding date
+          <Label weight="semibold" htmlFor="departDateCVId">
+            Last date with org
           </Label>
           <br />
-          <Text id="arrivalDateCVId">
+          <Text id="departDateCVId">
             {formData.lastDay?.toLocaleDateString()}
           </Text>
         </div>
         <div>
-          <Label weight="semibold" htmlFor="completionDateCVId">
-            Target completion date
+          <Label weight="semibold" htmlFor="beginDateCVId">
+            Est Out-processing begin date
           </Label>
           <br />
-          <Text id="completionDateCVId">
+          <Text id="beginDateCVId">
             {formData.beginDate?.toLocaleDateString()}
           </Text>
         </div>

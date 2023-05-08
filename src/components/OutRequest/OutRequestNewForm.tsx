@@ -1,5 +1,5 @@
 import { DatePicker } from "@fluentui/react";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { EMPTYPES } from "constants/EmpTypes";
 import {
@@ -34,9 +34,6 @@ import { SAR_CODES } from "constants/SARCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
@@ -83,7 +80,7 @@ type IRHFIPerson = {
 // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
 type IRHFOutRequest = Omit<
   IOutRequest,
-  "empType" | "workLocation" | "supGovLead" | "employee" | "MPCN"
+  "empType" | "supGovLead" | "employee"
 > & {
   /* Allowthese to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
@@ -107,26 +104,22 @@ const OutRequestNewForm = () => {
   } = useForm<IRHFOutRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
-    mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
+    mode: "onChange" /* Provide input directly as they input, so if entering bad data it will let them know */,
   });
 
   // Set up watches
   const empType = watch("empType");
-  const lastDay = watch("lastDay");
 
-  const maxBeginDate: Date = useMemo(() => {
-    // Set the maximum begin date to be the day they are departing
-    if (lastDay) {
-      let newMaxDate = new Date(lastDay);
-      newMaxDate.setDate(newMaxDate.getDate());
-      return newMaxDate;
-    } else return new Date();
-  }, [lastDay]);
-
+  // Redirect the user to the newly created item, if we were able to successfully create it
   if (addRequest.isSuccess) {
     return <Navigate to={"/item/" + addRequest.data.Id} />;
   }
 
+  /**
+   * Take the RHF and pass it to the hook to create the Out Processing Request
+   *
+   * @param data The RHF data containing all the data from the fields the supervisor entered
+   */
   const createNewRequest = async (data: IRHFOutRequest) => {
     addRequest.mutate(data as IOutRequest);
   };
@@ -140,11 +133,14 @@ const OutRequestNewForm = () => {
       <div className={classes.fieldContainer}>
         <Label size="small" weight="semibold" className={classes.fieldLabel}>
           <ContactIcon className={classes.fieldIcon} />
-          Employee from GAL (skip if not in GAL)
+          Employee from GAL
         </Label>
         <Controller
           name="employee"
           control={control}
+          rules={{
+            required: "Employee is required",
+          }}
           render={({ field: { onChange, value } }) => (
             <PeoplePicker
               ariaLabel="Employee"
@@ -200,7 +196,6 @@ const OutRequestNewForm = () => {
                 if (option.value !== EMPTYPES.Civilian) {
                   setValue("sensitivityCode", undefined);
                 }
-
                 onChange(e, option);
               }}
               aria-describedby="empTypeErr"
@@ -407,13 +402,12 @@ const OutRequestNewForm = () => {
               ariaLabel="Estimate date beginning employee out-processing (Default value is 7 days prior to Last Date with current organization)."
               aria-describedby="beginDateErr"
               onSelectDate={onChange}
-              maxDate={maxBeginDate}
               value={value}
             />
           )}
         />
         {errors.beginDate && (
-          <Text id="completionDateErr" className={classes.errorText}>
+          <Text id="beginDateErr" className={classes.errorText}>
             {errors.beginDate.message}
           </Text>
         )}
