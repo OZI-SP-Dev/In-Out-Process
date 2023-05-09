@@ -121,7 +121,7 @@ const OutRequestNewForm = () => {
    * @param data The RHF data containing all the data from the fields the supervisor entered
    */
   const createNewRequest = async (data: IRHFOutRequest) => {
-    addRequest.mutate(data as IOutRequest);
+    addRequest.mutate({ ...data, reqType: "Out" } as IOutRequest);
   };
 
   return (

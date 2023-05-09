@@ -8,7 +8,7 @@ import {
 } from "@fluentui/react";
 import { makeStyles } from "@fluentui/react-components";
 import { ICheckListItem, useMyChecklistItems } from "api/CheckListItemApi";
-import { IRequest, useRequests } from "api/RequestApi";
+import { IRequestSummary, useRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { RoleType } from "api/RolesApi";
@@ -21,7 +21,7 @@ import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
  * a request reference
  */
 interface ICheckListItemLookup extends ICheckListItem {
-  request?: IRequest;
+  request?: IRequestSummary;
 }
 
 /** FluentUI Styling */

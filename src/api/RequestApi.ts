@@ -16,7 +16,7 @@ import { ICheckListItem } from "api/CheckListItemApi";
 /**  Definition for what data is needed to peform the cancellation (including to send email) */
 interface IRequestCancel {
   /** The request */
-  request: IInRequest | IOutRequest;
+  request: IRequest;
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the rquest was cancelled */
@@ -114,14 +114,6 @@ export const transformRequestFromSP = (
         : "Active",
     };
   }
-};
-
-const transformInRequestsFromSP = (
-  requests: (IInResponseItem | IOutResponseItem)[]
-): IRequest[] => {
-  return requests.map((request) => {
-    return transformRequestFromSP(request);
-  });
 };
 
 /**
@@ -224,23 +216,98 @@ const transformRequestToSP = async (
 };
 
 /**
- * Directly map the incoming request to the IOutRequestItem to perform type
- * conversions and drop SharePoint added data that is not needed, and
- * will cause update errors.
- *
- * Convert Date objects to strings
- * Convert Person objects to their IDs
+ * Directly map the request from SharePoint to perform type
+ * conversions and drop SharePoint added data that is not needed, and will
+ * cause update errors
  */
+export const transformRequestSummaryFromSP = (
+  request: IInResponseItem | IOutResponseItem
+): IRequestSummary => {
+  if (isInResponse(request)) {
+    return {
+      reqType: request.reqType,
+      Id: request.Id,
+      empName: request.empName,
+      eta: new Date(request.eta),
+      completionDate: new Date(request.completionDate),
+      supGovLead: new Person({
+        Id: request.supGovLead.Id,
+        EMail: request.supGovLead.EMail,
+        Title: request.supGovLead.Title,
+      }),
+      employee: request.employee
+        ? new Person({
+            Id: request.employee.Id,
+            EMail: request.employee.EMail,
+            Title: request.employee.Title,
+          })
+        : undefined,
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? new Date(request.closedOrCancelledDate)
+        : undefined,
+      cancelReason: request.cancelReason,
+      status: request.closedOrCancelledDate
+        ? request.cancelReason
+          ? "Cancelled"
+          : "Closed"
+        : "Active",
+    };
+  } else {
+    return {
+      reqType: request.reqType,
+      Id: request.Id,
+      empName: request.empName,
+      lastDay: new Date(request.lastDay),
+      beginDate: new Date(request.beginDate),
+      supGovLead: new Person({
+        Id: request.supGovLead.Id,
+        EMail: request.supGovLead.EMail,
+        Title: request.supGovLead.Title,
+      }),
+      employee: request.employee
+        ? new Person({
+            Id: request.employee.Id,
+            EMail: request.employee.EMail,
+            Title: request.employee.Title,
+          })
+        : undefined,
+      closedOrCancelledDate: request.closedOrCancelledDate
+        ? new Date(request.closedOrCancelledDate)
+        : undefined,
+      cancelReason: request.cancelReason,
+      status: request.closedOrCancelledDate
+        ? request.cancelReason
+          ? "Cancelled"
+          : "Closed"
+        : "Active",
+    };
+  }
+};
 
-// This is a listing of all fields to be returned with a request
-// Currently it is being used by all requests, but can be updated as needed
-// If we do make separate field requests, we should make a new type and transform functions
+const transformRequestsSummaryFromSP = (
+  requests: (IInResponseItem | IOutResponseItem)[]
+): IRequestSummary[] => {
+  return requests.map((request) => {
+    return transformRequestSummaryFromSP(request);
+  });
+};
 
-// TODO -- Need to add the fields to SharePoint and to the string below -- OUT PROCESSING
-
+// This is a listing of all fields to be returned with an individual request
+// We leverage wildcard to get all fields, but have to specify the particular expanded entries we want from expanded field
 const requestedFields =
-  "Id,empName,empType,gradeRank,MPCN,SAR,sensitivityCode,workLocation,workLocationDetail,isNewCivMil,isTraveler,isSupervisor,isSCI,hasExistingCAC,CACExpiration,contractNumber,contractEndDate,prevOrg,eta,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/Title,employee/EMail,completionDate,closedOrCancelledDate,cancelReason";
+  "*,supGovLead/Id,supGovLead/EMail,supGovLead/Title,employee/Id,employee/Title,employee/EMail";
 const expandedFields = "supGovLead,employee";
+
+// These are the fields that we get for the My Requests table, as well as for getting My Checklist Items
+//  Id is used for navigating in My Requests and My Checklist Items
+//  reqType is used to know if it is In/Out type
+//  cancelReason/closedOrCancelled are used to determine request status
+//  empName and eta are used by My Requests table and My Checklist Items
+//  completionDate is used by My Checklist Items
+//  supGovLead/Id and employee/Id are used to determine what should be in My Checklist Items
+const requestsSummaryFields =
+  "Id,reqType,empName,eta,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,employee/Id,employee/EMail,employee/Title";
+const requestsSummaryexpandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
 const getMyRequests = async (userId: number) => {
@@ -249,8 +316,8 @@ const getMyRequests = async (userId: number) => {
     .items.filter(
       `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
     )
-    .select(requestedFields)
-    .expand(expandedFields)();
+    .select(requestsSummaryFields)
+    .expand(requestsSummaryexpandedFields)();
 };
 
 export const getRequest = async (Id: number) => {
@@ -264,8 +331,8 @@ export const getRequest = async (Id: number) => {
 const getRequests = async () => {
   return spWebContext.web.lists
     .getByTitle("Items")
-    .items.select(requestedFields)
-    .expand(expandedFields)
+    .items.select(requestsSummaryFields)
+    .expand(requestsSummaryexpandedFields)
     .top(5000)();
 };
 
@@ -276,7 +343,7 @@ export const useMyRequests = () => {
   return useQuery({
     queryKey: ["requests", "user" + userId],
     queryFn: () => getMyRequests(userId),
-    select: transformInRequestsFromSP,
+    select: transformRequestsSummaryFromSP,
   });
 };
 
@@ -292,7 +359,7 @@ export const useRequests = () => {
   return useQuery({
     queryKey: ["requests"],
     queryFn: () => getRequests(),
-    select: transformInRequestsFromSP,
+    select: transformRequestsSummaryFromSP,
   });
 };
 
@@ -563,6 +630,39 @@ export type IOutRequestItem = Omit<
   employeeStringId?: string;
 };
 
+// Pick just the fields from IInRequest that we need
+type IInRequestSummary = Pick<
+  IInRequest,
+  | "Id"
+  | "reqType"
+  | "empName"
+  | "eta"
+  | "completionDate"
+  | "cancelReason"
+  | "closedOrCancelledDate"
+  | "supGovLead"
+  | "employee"
+  | "status"
+>;
+
+// Pick just the fields from IOutRequest that we need
+type IOutRequestSummary = Pick<
+  IOutRequest,
+  | "Id"
+  | "reqType"
+  | "empName"
+  | "lastDay"
+  | "beginDate"
+  | "cancelReason"
+  | "closedOrCancelledDate"
+  | "supGovLead"
+  | "employee"
+  | "status"
+>;
+
+/* Limited fields retrieved from the Request listing */
+export type IRequestSummary = IInRequestSummary | IOutRequestSummary;
+
 /** Request Type -- Can be either IInRequest or IOutRequest */
 export type IRequest = IInRequest | IOutRequest;
 
@@ -570,19 +670,19 @@ export type IRequest = IInRequest | IOutRequest;
 export function isInRequest(
   request: IInRequest | IOutRequest
 ): request is IInRequest {
-  return request.reqType === "In";
+  return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInResponse(
   request: IInResponseItem | IOutResponseItem
 ): request is IInResponseItem {
-  return request.reqType === "In";
+  return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInRequestItem(
   request: IInRequestItem | IOutRequestItem
 ): request is IInRequestItem {
-  return request.reqType === "In";
+  return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
