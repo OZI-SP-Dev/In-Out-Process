@@ -1,4 +1,4 @@
-import { IInRequest, REQUEST_TYPES } from "api/RequestApi";
+import { IInRequest } from "api/RequestApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { ByRoleMatcher, screen } from "@testing-library/react";
@@ -22,7 +22,7 @@ export const testUsers: IPerson[] = [
 /* With Local/Remote = local */
 /* With SAR = 5 and isSCI = "yes" */
 export const milRequest: IInRequest = {
-  reqType: REQUEST_TYPES.InRequest,
+  reqType: "In",
   Id: 1,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Military,
@@ -48,7 +48,7 @@ export const milRequest: IInRequest = {
 /* With Local/Remote = 'remote' */
 /* With isNewCivMil = 'no' */
 export const civRequest: IInRequest = {
-  reqType: REQUEST_TYPES.InRequest,
+  reqType: "In",
   Id: 2,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Civilian,
@@ -74,7 +74,7 @@ export const civRequest: IInRequest = {
 
 /* Incoming contractor example */
 export const ctrRequest: IInRequest = {
-  reqType: REQUEST_TYPES.InRequest,
+  reqType: "In",
   Id: 3,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Contractor,

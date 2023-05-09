@@ -30,10 +30,10 @@ interface IRequestCancel {
  */
 export const transformRequestFromSP = (
   request: IInResponseItem | IOutResponseItem
-): IInRequest | IOutRequest => {
+): IRequest => {
   if (isInResponse(request)) {
     return {
-      reqType: REQUEST_TYPES.InRequest,
+      reqType: request.reqType,
       Id: request.Id,
       empName: request.empName,
       empType: request.empType,
@@ -83,7 +83,7 @@ export const transformRequestFromSP = (
     };
   } else {
     return {
-      reqType: REQUEST_TYPES.OutRequest,
+      reqType: request.reqType,
       Id: request.Id,
       empName: request.empName,
       empType: request.empType,
@@ -118,7 +118,7 @@ export const transformRequestFromSP = (
 
 const transformInRequestsFromSP = (
   requests: (IInResponseItem | IOutResponseItem)[]
-): (IInRequest | IOutRequest)[] => {
+): IRequest[] => {
   return requests.map((request) => {
     return transformRequestFromSP(request);
   });
@@ -134,7 +134,7 @@ const transformInRequestsFromSP = (
  */
 
 const transformRequestToSP = async (
-  request: IInRequest | IOutRequest
+  request: IRequest
 ): Promise<IInRequestItem | IOutRequestItem> => {
   if (isInRequest(request)) {
     // Transform for In Processing Request
@@ -302,13 +302,13 @@ export const useAddRequest = () => {
   const sendRequestSubmitEmail = useSendRequestSubmitEmail();
   return useMutation(
     ["requests"],
-    async (newRequest: IInRequest | IOutRequest) => {
+    async (newRequest: IRequest) => {
       const newRequestRes = await spWebContext.web.lists
         .getByTitle("Items")
         .items.add(await transformRequestToSP(newRequest));
 
       // Pass back the request that came to us, but add in the Id returned from SharePoint
-      let res: IInRequest | IOutRequest = structuredClone(newRequest);
+      let res: IRequest = structuredClone(newRequest);
       res.Id = newRequestRes.data.Id;
 
       return res;
@@ -335,7 +335,7 @@ export const useUpdateRequest = (Id: number) => {
   const queryClient = useQueryClient();
   return useMutation(
     ["requests", Id],
-    async (request: IInRequest | IOutRequest) => {
+    async (request: IRequest) => {
       return spWebContext.web.lists
         .getByTitle("Items")
         .items.getById(Id)
@@ -391,7 +391,7 @@ export const useCompleteRequest = (Id: number) => {
 
   return useMutation(
     ["requests", Id],
-    async (request: IInRequest | IOutRequest) => {
+    async (request: IRequest) => {
       const now = new Date();
       return spWebContext.web.lists
         .getByTitle("Items")
@@ -415,16 +415,10 @@ export const useCompleteRequest = (Id: number) => {
   );
 };
 
-/** ENUM that defines which type of request In or Out Processing */
-export enum REQUEST_TYPES {
-  InRequest = 1,
-  OutRequest = 2,
-}
-
 // create IItem item to work with it internally
 export type IInRequest = {
   /** Required - Whether it is In or Out Processing request */
-  reqType: REQUEST_TYPES.InRequest;
+  reqType: "In";
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
@@ -515,7 +509,7 @@ export type IInRequestItem = Omit<
 
 // create IItem item to work with it internally
 export type IOutRequest = {
-  reqType: REQUEST_TYPES.OutRequest;
+  reqType: "Out";
   /** Required - Will be -1 for NewForms that haven't been saved yet */
   Id: number;
   /** Required - Contains the Employee's Name */
@@ -569,23 +563,26 @@ export type IOutRequestItem = Omit<
   employeeStringId?: string;
 };
 
+/** Request Type -- Can be either IInRequest or IOutRequest */
+export type IRequest = IInRequest | IOutRequest;
+
 // Custom Type Checking Function to determine if it is an In Processing Request, or an Out Processing Request
 export function isInRequest(
   request: IInRequest | IOutRequest
 ): request is IInRequest {
-  return request.reqType === REQUEST_TYPES.InRequest;
+  return request.reqType === "In";
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInResponse(
   request: IInResponseItem | IOutResponseItem
 ): request is IInResponseItem {
-  return request.reqType === REQUEST_TYPES.InRequest;
+  return request.reqType === "In";
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInRequestItem(
   request: IInRequestItem | IOutRequestItem
 ): request is IInRequestItem {
-  return request.reqType === REQUEST_TYPES.InRequest;
+  return request.reqType === "In";
 }

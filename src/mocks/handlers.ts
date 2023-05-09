@@ -7,7 +7,6 @@ import {
   IOutResponseItem,
   isInRequestItem,
   isInResponse,
-  REQUEST_TYPES,
 } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
 import { IPerson } from "api/UserApi";
@@ -709,7 +708,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
  */
 let requests: (IInResponseItem | IOutResponseItem)[] = [
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 2,
     empName: "Doe, John D",
     empType: EMPTYPES.Civilian,
@@ -735,7 +734,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     isSCI: "",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 1,
     empName: "Doe, Jane D",
     empType: EMPTYPES.Civilian,
@@ -760,7 +759,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     isSCI: "",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 3,
     empName: testUsers[0].Title,
     empType: EMPTYPES.Civilian,
@@ -785,7 +784,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     isSCI: "",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 5,
     empName: "Cancelled, Imma B",
     empType: EMPTYPES.Civilian,
@@ -812,7 +811,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     cancelReason: "Employee proceeded with new opportunity",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 4,
     empName: "Closed, Aye M",
     empType: EMPTYPES.Civilian,
@@ -838,7 +837,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 6,
     empName: "Tractor, Kauhn",
     empType: EMPTYPES.Contractor,
@@ -859,7 +858,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     isSCI: "",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 7,
     empName: "SCI Military",
     empType: EMPTYPES.Military,
@@ -883,7 +882,7 @@ let requests: (IInResponseItem | IOutResponseItem)[] = [
     isSCI: "yes",
   },
   {
-    reqType: REQUEST_TYPES.InRequest,
+    reqType: "In",
     Id: 8,
     empName: "No SCI Military",
     empType: EMPTYPES.Military,

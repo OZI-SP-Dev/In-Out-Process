@@ -129,7 +129,7 @@ export const OutRequest: FunctionComponent<IOutRequestComp> = (props) => {
     }
   };
 
-  /** Function to mark the In Processing Request as Complete */
+  /** Function to mark the Out Processing Request as Complete */
   const performComplete = () => {
     completeRequest.mutate(props.request);
   };

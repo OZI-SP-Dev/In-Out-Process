@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.0-alpha.1] - 2023-05-XX
+
+### Added
+
+- Initial addition of the Out Processing capability
+- Out Processing Request Form fields added
+  - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date
+
 ## [1.1.0] - 2023-04-12
 
 ### Changed

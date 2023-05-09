@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useError } from "hooks/useError";
 import {
   getRequest,
+  IRequest,
   IInRequest,
-  IOutRequest,
   isInRequest,
   transformRequestFromSP,
 } from "api/RequestApi";
@@ -30,18 +30,18 @@ interface IActivationObj {
   /** All CheckListItems for this request */ allChecklistItems: ICheckListItem[];
 }
 
-/**  Definition for what data is needed to send the email notification that new In Processing was added */
+/**  Definition for what data is needed to send the email notification that a new request was added */
 interface ISendRequestSubmitEmail {
   /** The new request */
-  request: IInRequest;
+  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
   /** The tasks that were added to the request, so we know which Leads to contact */
   tasks: IItemAddResult[];
 }
 
-/**  Definition for what data is needed to send the email notification that request was cancelled */
+/**  Definition for what data is needed to send the email notification that a request was cancelled */
 interface ISendRequestCancelEmail {
   /** The request */
-  request: IInRequest;
+  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the request was cancelled */
@@ -197,10 +197,10 @@ export const useSendRequestSubmitEmail = () => {
   const { data: allRolesByRole } = useAllUserRolesByRole();
 
   /**
-   *  Send the New In Processing Request to the POCs
+   *  Send the New Request to the POCs
    *
    * @param {Object} requestInfo - Object containing the new request object and tasks object
-   * @param {string} requestInfo.request - The new In Processing Request
+   * @param {string} requestInfo.request - The new Request
    * @param {string} requestInfo.tasks - The tasks created for the new request
    * @returns A Promise from SharePoint for the email being sent
    */
@@ -271,10 +271,10 @@ export const useSendRequestCancelEmail = () => {
   const { data: allRolesByRole } = useAllUserRolesByRole();
 
   /**
-   *  Send the In Processing Request Cancellation to the POCs
+   *  Send the Request Cancellation to the POCs
    *
    * @param {Object} cancelInfo - Object containing the new request object and tasks object
-   * @param {IInRequest | IOutRequest} cancelInfo.request - The In Processing Request
+   * @param {IRequest} cancelInfo.request - The Request
    * @param {ICheckListItem[]} cancelInfo.tasks - The tasks associated with the request
    * @param {string} cancelInfo.reason - The reason for the cancellation
    * @returns A Promise from SharePoint for the email being sent
@@ -335,12 +335,12 @@ export const useSendRequestCompleteEmail = () => {
   const errorAPI = useError();
 
   /**
-   *  Send the In Processing Request Complete Notification to the Employee
+   *  Send the Request Complete Notification to the Employee
    *
-   * @param {IInRequest | IOutRequest } request - The In Processing Request
+   * @param {IRequest } request - The Request
    * @returns A Promise from SharePoint for the email being sent
    */
-  const sendRequestCompleteEmail = (request: IInRequest | IOutRequest) => {
+  const sendRequestCompleteEmail = (request: IRequest) => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
     const newEmail: IEmail = {
       to: toField,
