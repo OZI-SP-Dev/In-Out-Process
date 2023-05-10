@@ -110,6 +110,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm<IRHFInRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
@@ -124,8 +125,6 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const employee = watch("employee");
   const workLocation = watch("workLocation");
 
-  const compProps = props;
-
   const gradeRankOptions = useMemo(() => {
     switch (props.data.empType) {
       case EMPTYPES.Civilian:
@@ -138,6 +137,11 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
         return [];
     }
   }, [props.data.empType]);
+
+  const onEditCancel = () => {
+    reset(); // Reset the fields they changed since they are cancelling
+    props.onEditCancel(); // Call the passed in function to process in the parent component
+  };
 
   const minCompletionDate: Date = useMemo(() => {
     // Set the minimumn completion date to be 14 days from the estimated arrival
@@ -188,7 +192,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
         text: "Cancel",
         iconProps: { iconName: "Cancel" },
         onClick: (ev?, item?) => {
-          compProps.onEditCancel();
+          onEditCancel();
         },
       },
     ];
@@ -211,7 +215,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       <Panel
         isOpen={props.isEditPanelOpen}
         isBlocking={true}
-        onDismiss={props.onEditCancel}
+        onDismiss={onEditCancel}
         headerText="Edit Request"
         onRenderNavigationContent={onRenderNavigationContent}
         type={PanelType.medium}
@@ -1137,7 +1141,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Button appearance="primary" type="submit">
                 Save
               </Button>
-              <Button appearance="secondary" onClick={props.onEditCancel}>
+              <Button appearance="secondary" onClick={onEditCancel}>
                 Cancel
               </Button>
             </div>
