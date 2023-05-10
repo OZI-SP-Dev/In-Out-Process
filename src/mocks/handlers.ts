@@ -1,10 +1,9 @@
 import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import {
-  IInRequestItem,
   IInResponseItem,
-  IOutRequestItem,
-  IOutResponseItem,
+  IRequestItem,
+  IResponseItem,
   isInRequestItem,
   isInResponse,
 } from "api/RequestApi";
@@ -290,14 +289,14 @@ export const handlers = [
   rest.post(
     "/_api/web/lists/getByTitle\\('Items')/items",
     async (req, res, ctx) => {
-      let body = (await req.json()) as IInRequestItem | IOutRequestItem;
+      let body = (await req.json()) as IRequestItem;
       let supervisor = testUsers.find(
         (element) => element.Id === Number(body.supGovLeadId)
       );
       let employee = testUsers.find(
         (element) => element.Id === Number(body.employeeId)
       );
-      let request: IInResponseItem | IOutResponseItem;
+      let request: IResponseItem;
       if (supervisor) {
         if (isInRequestItem(body)) {
           request = {
@@ -706,7 +705,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 /**
  * requests array holds our sample data
  */
-let requests: (IInResponseItem | IOutResponseItem)[] = [
+let requests: IResponseItem[] = [
   {
     reqType: "In",
     Id: 2,
@@ -1059,7 +1058,7 @@ const notFound = {
  * @param id - The id of the request from the URL request
  * @param item - The fields to update on the request
  */
-const updateRequest = (id: number, item: IInRequestItem | IOutRequestItem) => {
+const updateRequest = (id: number, item: IRequestItem) => {
   let index = requests.findIndex((element) => element.Id === id);
   let reqItem = requests[index];
   let supervisor = testUsers.find(

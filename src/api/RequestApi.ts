@@ -24,13 +24,11 @@ interface IRequestCancel {
 }
 
 /**
- * Directly map the incoming request to the IInResponseItem to perform type
+ * Directly map the incoming request to the IResponseItem to perform type
  * conversions and drop SharePoint added data that is not needed, and will
  * cause update errors
  */
-export const transformRequestFromSP = (
-  request: IInResponseItem | IOutResponseItem
-): IRequest => {
+export const transformRequestFromSP = (request: IResponseItem): IRequest => {
   if (isInResponse(request)) {
     return {
       reqType: request.reqType,
@@ -117,7 +115,7 @@ export const transformRequestFromSP = (
 };
 
 /**
- * Directly map the incoming request to the IInRequestItem to perform type
+ * Directly map the incoming request to the IRequestItem to perform type
  * conversions and drop SharePoint added data that is not needed, and
  * will cause update errors.
  *
@@ -127,7 +125,7 @@ export const transformRequestFromSP = (
 
 const transformRequestToSP = async (
   request: IRequest
-): Promise<IInRequestItem | IOutRequestItem> => {
+): Promise<IRequestItem> => {
   if (isInRequest(request)) {
     // Transform for In Processing Request
     return {
@@ -221,7 +219,7 @@ const transformRequestToSP = async (
  * cause update errors
  */
 export const transformRequestSummaryFromSP = (
-  request: IInResponseItem | IOutResponseItem
+  request: IResponseItem
 ): IRequestSummary => {
   if (isInResponse(request)) {
     return {
@@ -285,7 +283,7 @@ export const transformRequestSummaryFromSP = (
 };
 
 const transformRequestsSummaryFromSP = (
-  requests: (IInResponseItem | IOutResponseItem)[]
+  requests: IResponseItem[]
 ): IRequestSummary[] => {
   return requests.map((request) => {
     return transformRequestSummaryFromSP(request);
@@ -593,7 +591,7 @@ export type IOutRequest = {
   sensitivityCode?: number;
   /** Required - The user's last day */
   lastDay: Date;
-  /** Required - The Expected Completion Date - Default to 28 days from eta*/
+  /** Required - The estimated date to start out processing - Default to 7 days before lastDay*/
   beginDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: IPerson;
@@ -666,6 +664,12 @@ export type IRequestSummary = IInRequestSummary | IOutRequestSummary;
 /** Request Type -- Can be either IInRequest or IOutRequest */
 export type IRequest = IInRequest | IOutRequest;
 
+/** RequestItem Type -- Can be either IInRequestItem or IOutRequestItem */
+export type IRequestItem = IInRequestItem | IOutRequestItem;
+
+/** RequestItem Type -- Can be either IInRequestItem or IOutRequestItem */
+export type IResponseItem = IInResponseItem | IOutResponseItem;
+
 // Custom Type Checking Function to determine if it is an In Processing Request, or an Out Processing Request
 export function isInRequest(
   request: IInRequest | IOutRequest
@@ -675,14 +679,14 @@ export function isInRequest(
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInResponse(
-  request: IInResponseItem | IOutResponseItem
+  request: IResponseItem
 ): request is IInResponseItem {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInRequestItem(
-  request: IInRequestItem | IOutRequestItem
+  request: IRequestItem
 ): request is IInRequestItem {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
