@@ -17,7 +17,7 @@ export const UserContext = createContext({
   // We use thie Context.Provider at a high level object in the tree, so it should never be referenced as undefined
   user: new Person({ Id: 0, Title: "Placeholder", EMail: "Placeholder" }),
   roles: undefined,
-  impersonate: (user) => {},
+  impersonate: (_user) => {},
 } as IUserContext);
 
 export const UserProvider: FunctionComponent = ({ children }) => {

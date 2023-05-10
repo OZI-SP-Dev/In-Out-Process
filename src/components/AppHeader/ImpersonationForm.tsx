@@ -4,7 +4,7 @@ import {
   Button,
   FluentProvider,
 } from "@fluentui/react-components";
-import { useContext, FunctionComponent } from "react";
+import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
 import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
@@ -32,7 +32,7 @@ interface IImpersonateForm {
 /** Component that displays a button to enable Impersonation
  *  Upon clicking, it prompts the user to select the appropriate impersonation action
  */
-export const ImpersonationForm: FunctionComponent<any> = (props) => {
+export const ImpersonationForm = () => {
   const classes = useStyles();
   const userContext = useContext(UserContext);
 

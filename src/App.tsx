@@ -20,6 +20,9 @@ const Item = lazy(() => import("Item"));
 const InRequestNewForm = lazy(
   () => import("components/InRequest/InRequestNewForm")
 );
+const OutRequestNewForm = lazy(
+  () => import("components/OutRequest/OutRequestNewForm")
+);
 const MyCheckListItems = lazy(
   () => import("components/MyCheckListItems/MyCheckListItems")
 );
@@ -32,6 +35,7 @@ const router = createHashRouter(
       <Route path="roles" element={<Roles />} />
       <Route path="item/:itemNum" element={<Item />} />
       <Route path="new" element={<InRequestNewForm />} />
+      <Route path="depart" element={<OutRequestNewForm />} />
       <Route path="myCheckListItems" element={<MyCheckListItems />} />
     </Route>
   )

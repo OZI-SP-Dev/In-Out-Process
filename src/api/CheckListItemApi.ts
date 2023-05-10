@@ -35,7 +35,7 @@ const requestedFields =
 const expandedFields = "CompletedBy";
 
 /**
- * Directly map the incoming request to the IResponseItem to perform type
+ * Directly map the incoming request to the ICheckListResponseItem to perform type
  * conversions and drop SharePoint added data that is not needed, and will
  * cause update errors
  */

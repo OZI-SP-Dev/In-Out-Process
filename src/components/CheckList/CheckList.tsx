@@ -10,13 +10,13 @@ import { Link } from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { CheckListItemPanel } from "components/CheckList/CheckListItemPanel";
 import { RoleType } from "api/RolesApi";
-import { IInRequest } from "api/RequestApi";
+import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 
 export interface ICheckList {
   ReqId: number;
   Roles: RoleType[];
-  Request: IInRequest;
+  Request: IRequest;
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {

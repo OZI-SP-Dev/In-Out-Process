@@ -4,8 +4,9 @@ import { useParams } from "react-router-dom";
 import { CheckList } from "components/CheckList/CheckList";
 import { InRequest } from "components/InRequest/InRequest";
 import { UserContext } from "providers/UserProvider";
-import { useRequest } from "api/RequestApi";
+import { isInRequest, useRequest } from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
+import { OutRequest } from "components/OutRequest/OutRequest";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -21,7 +22,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Item: FunctionComponent = (props) => {
+const Item: FunctionComponent = () => {
   const { itemNum } = useParams();
   const currentUser = useContext(UserContext);
   const request = useRequest(Number(itemNum));
@@ -44,22 +45,29 @@ const Item: FunctionComponent = (props) => {
 
   return (
     <div className={classes.requestItem}>
-      <div>
-        <Title1
-          truncate
-          className={classes.requestTitle}
-          title={
-            "In Processing Request for " + (request.data?.empName || "....")
-          }
-          wrap={false}
-        >
-          In Processing Request for {request.data?.empName || "...."}
-        </Title1>
-      </div>
       {request.data ? (
         <>
           <div>
-            <InRequest request={request.data} roles={requestRoles} />
+            <Title1
+              truncate
+              className={classes.requestTitle}
+              title={
+                isInRequest(request.data)
+                  ? "In"
+                  : "Out" + " Processing Request for " + request.data.empName
+              }
+              wrap={false}
+            >
+              {isInRequest(request.data) ? "In" : "Out"} Processing Request for{" "}
+              {request.data.empName}
+            </Title1>
+          </div>
+          <div>
+            {isInRequest(request.data) ? (
+              <InRequest request={request.data} roles={requestRoles} />
+            ) : (
+              <OutRequest request={request.data} roles={requestRoles} />
+            )}
           </div>
           <div>
             <CheckList

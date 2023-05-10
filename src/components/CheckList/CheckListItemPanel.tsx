@@ -6,7 +6,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import DOMPurify from "dompurify";
 import { RoleType } from "api/RolesApi";
-import { IInRequest } from "api/RequestApi";
+import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
@@ -47,7 +47,7 @@ export interface ICheckList {
   item: ICheckListItem;
   onDismiss: () => void;
   roles: RoleType[];
-  request: IInRequest;
+  request: IRequest;
 }
 
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {

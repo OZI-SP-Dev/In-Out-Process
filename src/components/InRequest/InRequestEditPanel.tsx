@@ -179,7 +179,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
         key: "saveEdits",
         text: "Save",
         iconProps: { iconName: "Save" },
-        onClick: (ev?, item?) => {
+        onClick: (_ev?, _item?) => {
           handleSubmit(updateThisRequest)();
         },
       },
@@ -187,7 +187,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
         key: "cancelEdits",
         text: "Cancel",
         iconProps: { iconName: "Cancel" },
-        onClick: (ev?, item?) => {
+        onClick: (_ev?, _item?) => {
           compProps.onEditCancel();
         },
       },
@@ -235,7 +235,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="employee"
                 control={control}
-                render={({ field: { onBlur, onChange, value } }) => (
+                render={({ field: { onChange, value } }) => (
                   <PeoplePicker
                     ariaLabel="Employee"
                     aria-describedby="employeeErr"
@@ -574,7 +574,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     aria-labelledby="workLocationLabelId"
                     layout="horizontal"
                   >
-                    {WORKLOCATIONS.map((workLocation, i) => {
+                    {WORKLOCATIONS.map((workLocation) => {
                       return (
                         <Radio
                           key={workLocation.value}
@@ -792,7 +792,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 rules={{
                   required: "Supervisor/Gov Lead is required",
                 }}
-                render={({ field: { onBlur, onChange, value } }) => (
+                render={({ field: { onChange, value } }) => (
                   <PeoplePicker
                     ariaLabel="Supervisor/Government Lead"
                     aria-describedby="supGovLeadErr"

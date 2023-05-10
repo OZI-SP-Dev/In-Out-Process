@@ -7,8 +7,8 @@ type error = {
 
 export const ErrorContext = React.createContext({
   error: [] as error[],
-  addError: (message: string) => {},
-  removeError: (key: number) => {},
+  addError: (_message: string) => {},
+  removeError: (_key: number) => {},
 });
 
 export const ErrorProvider: FunctionComponent = ({ children }) => {

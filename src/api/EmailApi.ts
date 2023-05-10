@@ -4,8 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useError } from "hooks/useError";
 import {
   getRequest,
+  IRequest,
   IInRequest,
-  transformInRequestFromSP,
+  isInRequest,
+  transformRequestFromSP,
 } from "api/RequestApi";
 import { RoleType, useAllUserRolesByRole } from "./RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
@@ -28,18 +30,18 @@ interface IActivationObj {
   /** All CheckListItems for this request */ allChecklistItems: ICheckListItem[];
 }
 
-/**  Definition for what data is needed to send the email notification that new In Processing was added */
-interface ISendInRequestSubmitEmail {
+/**  Definition for what data is needed to send the email notification that a new request was added */
+interface ISendRequestSubmitEmail {
   /** The new request */
-  request: IInRequest;
+  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
   /** The tasks that were added to the request, so we know which Leads to contact */
   tasks: IItemAddResult[];
 }
 
-/**  Definition for what data is needed to send the email notification that the In Processing was cancelled */
-interface ISendInRequestCancelEmail {
+/**  Definition for what data is needed to send the email notification that a request was cancelled */
+interface ISendRequestCancelEmail {
   /** The request */
-  request: IInRequest;
+  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the request was cancelled */
@@ -67,7 +69,7 @@ const getEmailAddresses = (people: IPerson[]) => {
  * @param email The object containing the email structure to be translated
  * @returns The object fields translated to SharePoint fields
  */
-const transformInRequestToSP = (email: IEmail) => {
+const transformEmailToSP = (email: IEmail) => {
   let toAddresses: string;
 
   // If the email is not being sent TO anyone, then there is a potential issue.  Send to the BAC Support box
@@ -116,7 +118,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
     const reqId = allChecklistItems[0].RequestId;
 
     // Get the request details for use in the email
-    const request = transformInRequestFromSP(
+    const request = transformRequestFromSP(
       await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId))
     );
 
@@ -170,7 +172,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
           )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
       };
 
-      batch.items.add(transformInRequestToSP(newEmail));
+      batch.items.add(transformEmailToSP(newEmail));
     }
     return execute();
   };
@@ -188,24 +190,24 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
   });
 };
 
-export const useSendInRequestSubmitEmail = () => {
+export const useSendRequestSubmitEmail = () => {
   const errorAPI = useError();
 
   // Get the roles defined -- and who is in them
   const { data: allRolesByRole } = useAllUserRolesByRole();
 
   /**
-   *  Send the New In Processing Request to the POCs
+   *  Send the New Request to the POCs
    *
    * @param {Object} requestInfo - Object containing the new request object and tasks object
-   * @param {string} requestInfo.request - The new In Processing Request
+   * @param {string} requestInfo.request - The new Request
    * @param {string} requestInfo.tasks - The tasks created for the new request
    * @returns A Promise from SharePoint for the email being sent
    */
-  const sendInRequestSubmitEmail = ({
+  const sendRequestSubmitEmail = ({
     request,
     tasks,
-  }: ISendInRequestSubmitEmail) => {
+  }: ISendRequestSubmitEmail) => {
     // Create a list of leads who have checklist items for this request
     const leadsWithDupes = tasks.map((task) => task.data.Lead);
 
@@ -246,10 +248,10 @@ ${linkURL}`,
 
     return spWebContext.web.lists
       .getByTitle("Emails")
-      .items.add(transformInRequestToSP(newEmail));
+      .items.add(transformEmailToSP(newEmail));
   };
 
-  return useMutation(["requests"], sendInRequestSubmitEmail, {
+  return useMutation(["requests"], sendRequestSubmitEmail, {
     onError: (error) => {
       const errPrefix =
         "Error occurred while trying to send Email Notification.  Please ensure those whom need to be informed of the request are. ";
@@ -262,26 +264,26 @@ ${linkURL}`,
   });
 };
 
-export const useSendInRequestCancelEmail = () => {
+export const useSendRequestCancelEmail = () => {
   const errorAPI = useError();
 
   // Get the roles defined -- and who is in them
   const { data: allRolesByRole } = useAllUserRolesByRole();
 
   /**
-   *  Send the In Processing Request Cancellation to the POCs
+   *  Send the Request Cancellation to the POCs
    *
    * @param {Object} cancelInfo - Object containing the new request object and tasks object
-   * @param {IInRequest} cancelInfo.request - The In Processing Request
+   * @param {IRequest} cancelInfo.request - The Request
    * @param {ICheckListItem[]} cancelInfo.tasks - The tasks associated with the request
    * @param {string} cancelInfo.reason - The reason for the cancellation
    * @returns A Promise from SharePoint for the email being sent
    */
-  const sendInRequestCancelEmail = ({
+  const sendRequestCancelEmail = ({
     request,
     tasks,
     reason,
-  }: ISendInRequestCancelEmail) => {
+  }: ISendRequestCancelEmail) => {
     // Create a list of leads who have checklist items for this request
     const leadsWithDupes = tasks.map((task) => task.Lead);
 
@@ -313,10 +315,10 @@ ${reason}`,
 
     return spWebContext.web.lists
       .getByTitle("Emails")
-      .items.add(transformInRequestToSP(newEmail));
+      .items.add(transformEmailToSP(newEmail));
   };
 
-  return useMutation(["requests"], sendInRequestCancelEmail, {
+  return useMutation(["requests"], sendRequestCancelEmail, {
     onError: (error) => {
       const errPrefix =
         "Error occurred while trying to send Email Notification.  Please ensure those whom need to be informed the request was cancelled are.";
@@ -329,16 +331,16 @@ ${reason}`,
   });
 };
 
-export const useSendInRequestCompleteEmail = () => {
+export const useSendRequestCompleteEmail = () => {
   const errorAPI = useError();
 
   /**
-   *  Send the In Processing Request Complete Notification to the Employee
+   *  Send the Request Complete Notification to the Employee
    *
-   * @param {IInRequest} request - The In Processing Request
+   * @param {IRequest } request - The Request
    * @returns A Promise from SharePoint for the email being sent
    */
-  const sendInRequestCompleteEmail = (request: IInRequest) => {
+  const sendRequestCompleteEmail = (request: IRequest) => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
     const newEmail: IEmail = {
       to: toField,
@@ -348,10 +350,10 @@ export const useSendInRequestCompleteEmail = () => {
 
     return spWebContext.web.lists
       .getByTitle("Emails")
-      .items.add(transformInRequestToSP(newEmail));
+      .items.add(transformEmailToSP(newEmail));
   };
 
-  return useMutation(["requests"], sendInRequestCompleteEmail, {
+  return useMutation(["requests"], sendRequestCompleteEmail, {
     onError: (error) => {
       const errPrefix =
         "Error occurred while trying to send Email Notification.  Please ensure the Employee knows the In Processing Request is now complete.";
@@ -376,17 +378,18 @@ export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
    */
   const sendInRequestVerifyCompleteEmail = async () => {
     // Get the request details for use in the email
-    const request = transformInRequestFromSP(
+    const request = transformRequestFromSP(
       await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId))
     );
 
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
 
     const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
+    const office = isInRequest(request) ? request.office : "";
     const newEmail: IEmail = {
       to: toField,
       subject: `Verify in-processing complete for ${request.empName}`,
-      body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
+      body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
 
 <b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
 ${linkURL}
@@ -395,7 +398,7 @@ ${linkURL}
 
     return spWebContext.web.lists
       .getByTitle("Emails")
-      .items.add(transformInRequestToSP(newEmail));
+      .items.add(transformEmailToSP(newEmail));
   };
 
   return useMutation(["requests"], sendInRequestVerifyCompleteEmail, {

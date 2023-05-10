@@ -45,7 +45,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
     filterText: string,
     currentPersonas?: IPersonaProps[],
     limitResults?: number,
-    selectedPersonas?: IPersonaProps[] | undefined
+    _selectedPersonas?: IPersonaProps[] | undefined
   ): Promise<IPersonaProps[]> => {
     if (filterText) {
       let filteredPersonas: IPersonaProps[];
