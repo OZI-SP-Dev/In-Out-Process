@@ -99,6 +99,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<IRHFOutRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
@@ -107,7 +108,10 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 
-  const compProps = props;
+  const onEditCancel = () => {
+    reset(); // Reset the fields they changed since they are cancelling
+    props.onEditCancel(); // Call the passed in function to process in the parent component
+  };
 
   const updateThisRequest = (data: IRHFOutRequest) => {
     updateRequest.mutate(data as IOutRequest, {
@@ -137,7 +141,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
         text: "Cancel",
         iconProps: { iconName: "Cancel" },
         onClick: (_ev?, _item?) => {
-          compProps.onEditCancel();
+          onEditCancel();
         },
       },
     ];
@@ -160,7 +164,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
       <Panel
         isOpen={props.isEditPanelOpen}
         isBlocking={true}
-        onDismiss={props.onEditCancel}
+        onDismiss={onEditCancel}
         headerText="Edit Request"
         onRenderNavigationContent={onRenderNavigationContent}
         type={PanelType.medium}
@@ -457,7 +461,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
               <Button appearance="primary" type="submit">
                 Save
               </Button>
-              <Button appearance="secondary" onClick={props.onEditCancel}>
+              <Button appearance="secondary" onClick={onEditCancel}>
                 Cancel
               </Button>
             </div>
