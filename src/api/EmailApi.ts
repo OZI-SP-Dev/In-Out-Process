@@ -84,9 +84,7 @@ const transformEmailToSP = (email: IEmail) => {
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
     // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
     Subject: (
-      (import.meta.env.MODE === "testing" ? "TEST - " : "") +
-      "In/Out Process - " +
-      email.subject
+      (import.meta.env.MODE === "testing" ? "TEST - " : "") + email.subject
     ).substring(0, 255),
     //Adjust line breaks so they show nicely even when Outlook converts to plaintext
     Body: email.body.replace(/\n/g, "\r\n<BR />"),
@@ -164,7 +162,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
       const newEmail: IEmail = {
         to: leadUsers,
         cc: [request.supGovLead],
-        subject: `In Process: New checklist item(s) available for ${request.empName}`,
+        subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
         body: `The following checklist item(s) are now available to be completed:<ul>${items
           .map((item) => `<li>${item.Title}</li>`)
           .join(
@@ -233,7 +231,7 @@ export const useSendRequestSubmitEmail = () => {
     const newEmail: IEmail = {
       to: toField,
       cc: ccField,
-      subject: `Initial Notification for In-bound Employee: ${
+      subject: `In-processing Initial Request: ${
         request.empName
       } expected arrival ${request.eta.toLocaleDateString()}`,
       body: `In-bound employee: ${request.empName}
@@ -307,7 +305,7 @@ export const useSendRequestCancelEmail = () => {
     const newEmail: IEmail = {
       to: toField,
       cc: ccField,
-      subject: `In-processing for ${request.empName} has been cancelled`,
+      subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
       body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
@@ -344,7 +342,7 @@ export const useSendRequestCompleteEmail = () => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
     const newEmail: IEmail = {
       to: toField,
-      subject: `In-processing for ${request.empName} is now closed`,
+      subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
       body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
     };
 
@@ -388,7 +386,7 @@ export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
     const office = isInRequest(request) ? request.office : "";
     const newEmail: IEmail = {
       to: toField,
-      subject: `Verify in-processing complete for ${request.empName}`,
+      subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
       body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
 
 <b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
