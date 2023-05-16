@@ -15,6 +15,7 @@ import {
   Badge,
   Combobox,
   Option,
+  Input,
 } from "@fluentui/react-components";
 import { IOutRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
@@ -25,11 +26,13 @@ import {
   DropdownIcon,
   ContactIcon,
   AlertSolidIcon,
+  TextFieldIcon,
 } from "@fluentui/react-icons-mdl2";
-import { RadioButtonFilled } from "@fluentui/react-icons";
+import { RadioButtonFilled, ToggleLeftRegular } from "@fluentui/react-icons";
 import { UserContext } from "providers/UserProvider";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { SAR_CODES } from "constants/SARCodes";
+import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -80,10 +83,11 @@ type IRHFIPerson = {
 // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
 type IRHFOutRequest = Omit<
   IOutRequest,
-  "empType" | "supGovLead" | "employee"
+  "empType" | "supGovLead" | "employee" | "workLocation"
 > & {
-  /* Allowthese to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
+  /* Allow these to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
+  workLocation: worklocation | "";
   /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
   supGovLead: IRHFIPerson;
   employee: IRHFIPerson;
@@ -109,6 +113,7 @@ const OutRequestNewForm = () => {
 
   // Set up watches
   const empType = watch("empType");
+  const workLocation = watch("workLocation");
 
   // Redirect the user to the newly created item, if we were able to successfully create it
   if (addRequest.isSuccess) {
@@ -333,6 +338,108 @@ const OutRequestNewForm = () => {
           or contact your HR liason.
         </Text>
       </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          htmlFor="workLocationId"
+          id="workLocationLabelId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <ToggleLeftRegular className={classes.fieldIcon} />
+          Local or Remote?
+        </Label>
+        <Controller
+          name="workLocation"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Selection is required",
+          }}
+          render={({ field }) => (
+            <RadioGroup
+              {...field}
+              id="workLocationId"
+              aria-describedby="workLocationErr workLocationDesc"
+              aria-labelledby="workLocationLabelId"
+              layout="horizontal"
+            >
+              {WORKLOCATIONS.map((workLocation) => {
+                return (
+                  <Radio
+                    key={workLocation.value}
+                    value={workLocation.value}
+                    label={workLocation.label}
+                  />
+                );
+              })}
+            </RadioGroup>
+          )}
+        />
+        {errors.workLocation && (
+          <Text id="workLocationErr" className={classes.errorText}>
+            {errors.workLocation.message}
+          </Text>
+        )}
+        <Text
+          id="workLocationDesc"
+          weight="regular"
+          size={200}
+          className={classes.fieldDescription}
+        >
+          Greater than 50 miles qualifies as Remote
+        </Text>
+      </div>
+      {
+        /* Display field for entering location if Remote */
+        workLocation === "remote" && (
+          <div className={classes.fieldContainer}>
+            <Label
+              id="workLocationDetailId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+              required
+            >
+              <TextFieldIcon className={classes.fieldIcon} />
+              Remote Location
+            </Label>
+            <Controller
+              name="workLocationDetail"
+              control={control}
+              defaultValue={""}
+              rules={{
+                required: "Remote Location is required for Remote Employees",
+                maxLength: {
+                  value: 100,
+                  message:
+                    "Remote Location cannot be longer than 100 characters",
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  aria-describedby="workLocationDetailErr"
+                  aria-labelledby="workLocationDetailId"
+                />
+              )}
+            />
+            {errors.workLocationDetail && (
+              <Text id="workLocationDetailErr" className={classes.errorText}>
+                {errors.workLocationDetail.message}
+              </Text>
+            )}
+            <Text
+              weight="regular"
+              size={200}
+              className={classes.fieldDescription}
+            >
+              City, State
+            </Text>
+          </div>
+        )
+      }
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="departDateId"

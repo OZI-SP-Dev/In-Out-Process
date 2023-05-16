@@ -87,6 +87,8 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       empType: request.empType,
       SAR: request.SAR,
       sensitivityCode: request.sensitivityCode,
+      workLocation: request.workLocation,
+      workLocationDetail: request.workLocationDetail,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
       supGovLead: new Person({
@@ -186,6 +188,8 @@ const transformRequestToSP = async (
       empType: request.empType,
       SAR: request.SAR,
       sensitivityCode: request.sensitivityCode,
+      workLocation: request.workLocation,
+      workLocationDetail: request.workLocationDetail,
       lastDay: request.lastDay.toISOString(),
       beginDate: request.beginDate.toISOString(),
       supGovLeadId:
@@ -589,6 +593,10 @@ export type IOutRequest = {
   SAR?: number;
   /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
   sensitivityCode?: number;
+  /** Required - Possible values are 'local' and 'remote'  */
+  workLocation: worklocation;
+  /** Optional - Required if workLocation is 'remote', otherwise is blank */
+  workLocationDetail?: string;
   /** Required - The user's last day */
   lastDay: Date;
   /** Required - The estimated date to start out processing - Default to 7 days before lastDay*/
