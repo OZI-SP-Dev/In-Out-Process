@@ -6,6 +6,7 @@ import {
   civRequest,
   milRequest,
   fieldLabels,
+  remoteLocationDataset,
 } from "components/OutRequest/__tests__/TestData";
 
 /** Check if there is a text element matching the desired text
@@ -40,6 +41,15 @@ const fieldsByEmployeeType = [
       { request: milRequest, expected: true },
     ],
   },
+  {
+    field: fieldLabels.LOCAL_OR_REMOTE.view,
+    rules: [
+      // Available to all
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: true },
+      { request: milRequest, expected: true },
+    ],
+  },
 ];
 
 describe.each(fieldsByEmployeeType)(
@@ -54,3 +64,24 @@ describe.each(fieldsByEmployeeType)(
     );
   }
 );
+
+// Remote location is displayed under the 'Local or Remote' header
+describe("Local or Remote", () => {
+  it.each(remoteLocationDataset)(
+    "has value of 'local' or remote location - $request.workLocation",
+    ({ request }) => {
+      render(<OutRequestViewCompact formData={request} />);
+      const textElement = screen.queryByText(fieldLabels.LOCAL_OR_REMOTE.view);
+
+      const expectedValue =
+        request.workLocation === "local"
+          ? "local"
+          : request.workLocationDetail
+          ? request.workLocationDetail
+          : "";
+      expect(textElement).toHaveAccessibleDescription(
+        new RegExp(expectedValue, "i")
+      );
+    }
+  );
+});

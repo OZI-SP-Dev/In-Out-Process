@@ -15,6 +15,7 @@ const useStyles = makeStyles({
     rowGap: ".5em",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px,1fr))",
   },
+  capitalize: { textTransform: "capitalize" },
   messageBar: { whiteSpace: "pre-wrap" }, // Allow the \n character to wrap text
 });
 
@@ -87,6 +88,21 @@ export const OutRequestViewCompact: FunctionComponent<
             <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
           </div>
         )}
+        <div>
+          <Label
+            weight="semibold"
+            htmlFor="workLocationCVId"
+            aria-describedby="workLocationCVId"
+          >
+            Local or Remote?
+          </Label>
+          <br />
+          <Text id="workLocationCVId" className={classes.capitalize}>
+            {formData.workLocation === "local"
+              ? formData.workLocation
+              : formData.workLocationDetail}
+          </Text>
+        </div>
         <div>
           <Label weight="semibold" htmlFor="departDateCVId">
             Last date with org

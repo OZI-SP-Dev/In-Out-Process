@@ -5,8 +5,13 @@ import OutRequestNewForm from "components/OutRequest/OutRequestNewForm";
 import { EMPTYPES } from "constants/EmpTypes";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import {
+  checkForErrorMessage,
+  checkForInputToExist,
   fieldLabels,
   isNotApplicable,
+  lengthTest,
+  remoteLocationDataset,
+  remoteLocationOnlyDataset,
 } from "components/OutRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { vi } from "vitest";
@@ -32,7 +37,6 @@ const renderThenSelectEmpType = async (empType: EMPTYPES) => {
 };
 
 /** Check for working input */
-/* TODO - Hold as possible Out Processing --
 const checkEnterableTextbox = async (
   fieldName: RegExp,
   text: string | undefined
@@ -49,7 +53,7 @@ const checkEnterableTextbox = async (
 
   // Ensure value now matches what we typed
   await waitFor(() => expect(textboxField).toHaveValue(text));
-};*/
+};
 
 const checkEnterableCombobox = async (
   fieldName: RegExp,
@@ -183,4 +187,127 @@ describe("Position Sensitivity Code", () => {
       fieldLabels.POSITION_SENSITIVITY_CODE.form
     );
   });
+});
+
+describe("Local Or Remote", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian },
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  it.each(employeeTypes)("is selectable for $empType", async ({ empType }) => {
+    await renderThenSelectEmpType(empType);
+
+    // Locate the RadioGroup for Local/Remote
+    const localOrRemote = screen.getByRole("radiogroup", {
+      name: fieldLabels.LOCAL_OR_REMOTE.form,
+    });
+
+    const localBttn = within(localOrRemote).getByLabelText(/local/i);
+    const remoteBttn = within(localOrRemote).getByLabelText(/remote/i);
+
+    // Click "Local" and ensure it reflects checked and that "Remote" is not
+    await user.click(localBttn);
+    expect(localBttn).toBeChecked();
+    expect(remoteBttn).not.toBeChecked();
+
+    // Click "Remote" and ensure it reflects checked and that "Local" is not
+    await user.click(remoteBttn);
+    expect(remoteBttn).toBeChecked();
+    expect(localBttn).not.toBeChecked();
+  });
+
+  it.each(employeeTypes)(
+    "displays hint text for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
+      });
+
+      expect(localOrRemote).toHaveAccessibleDescription(
+        /greater than 50 miles qualifies as remote/i
+      );
+    }
+  );
+});
+
+describe("Remote Location", () => {
+  it.each(remoteLocationDataset)(
+    "is displayed/hidden when remote/local respectively - $request.workLocation",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+
+      if (request.workLocation === "local") {
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, false);
+      } else {
+        checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, true);
+      }
+    }
+  );
+
+  it.each(remoteLocationOnlyDataset)(
+    "is editable when remote - $request.workLocationDetail",
+    async ({ request }) => {
+      await renderThenSelectEmpType(request.empType);
+
+      // Locate the RadioGroup for Local/Remote
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
+      });
+
+      const localOrRemoteBttn = within(localOrRemote).getByRole("radio", {
+        name: new RegExp(request.workLocation, "i"),
+      });
+
+      // Click "Local" or "Remote"
+      await user.click(localOrRemoteBttn);
+      await checkEnterableTextbox(
+        fieldLabels.REMOTE_LOCATION.form,
+        request.workLocationDetail
+      );
+    }
+  );
+
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Locate the RadioGroup for Local/Remote and select Remote so Remote Location field appears
+      const localOrRemote = screen.getByRole("radiogroup", {
+        name: fieldLabels.LOCAL_OR_REMOTE.form,
+      });
+      const remoteBttn = within(localOrRemote).getByRole("radio", {
+        name: /remote/i,
+      });
+      await user.click(remoteBttn);
+
+      await checkEnterableTextbox(fieldLabels.REMOTE_LOCATION.form, testString);
+
+      const remLocFld = screen.getByRole("textbox", {
+        name: fieldLabels.REMOTE_LOCATION.form,
+      });
+      checkForErrorMessage(
+        remLocFld,
+        fieldLabels.REMOTE_LOCATION.lengthError,
+        testString.length > 100
+      );
+    }
+  );
 });

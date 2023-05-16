@@ -28,6 +28,7 @@ export const milRequest: IOutRequest = {
   empType: EMPTYPES.Military,
   SAR: 5,
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
+  workLocation: "local",
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
   employee: { ...testUsers[1] },
@@ -44,6 +45,8 @@ export const civRequest: IOutRequest = {
   empType: EMPTYPES.Civilian,
   SAR: 5,
   sensitivityCode: 4,
+  workLocation: "remote",
+  workLocationDetail: "Springfield, IL",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -57,6 +60,7 @@ export const ctrRequest: IOutRequest = {
   Id: 3,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Contractor,
+  workLocation: "local",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -70,41 +74,25 @@ export const remoteLocationDataset = [
   { request: civRequest },
 ];
 
+/** Test data used by Remote Location - Filter remoteLocationDataset to only include those with "remote" */
+export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
+  (item) => item.request.workLocation === "remote"
+);
+
 export const fieldLabels = {
   EMPLOYEE_NAME: {
     form: /employee name/i,
     lengthError: /name cannot be longer than 100 characters/i,
-  },
-  GRADE_RANK: {
-    form: /grade\/rank/i,
-    view: /grade\/rank/i,
-    formType: "combobox",
   },
   POSITION_SENSITIVITY_CODE: {
     form: /position sensitivity code/i,
     formType: "combobox",
     view: /position sensitivity code/i,
   },
-  MPCN: {
-    form: /mpcn/i,
-    formType: "textbox",
-    view: /mpcn/i,
-  },
   SAR: {
     form: /sar/i,
     formType: "combobox",
     view: /sar/i,
-  },
-  OFFICE: {
-    form: /office/i,
-    view: /office/i,
-  },
-  EXISTING_CAC: {
-    form: /does the support contractor have an existing contractor cac\?/i,
-  },
-  CAC_EXPIRATION: {
-    form: /cac expiration/i,
-    view: /cac expiration/i,
   },
   LOCAL_OR_REMOTE: {
     form: /local or remote\?/i,
@@ -113,26 +101,6 @@ export const fieldLabels = {
   REMOTE_LOCATION: {
     form: /remote location/i,
     lengthError: /remote location cannot be longer than 100 characters/i,
-  },
-  CONTRACT_NUMBER: {
-    form: /contract number/i,
-    view: /contract number/i,
-    lengthError: /contract number cannot be longer than 100 characters/i,
-  },
-  CONTRACT_END_DATE: {
-    form: /contract end date/i,
-    view: /contract end date/i,
-  },
-  REQUIRES_SCI: {
-    form: /does employee require sci access\?/i,
-    view: /requires sci\?/i,
-  },
-  NEW_CIVMIL: {
-    form: /is employee a new air force (civilian|military)\?/i,
-  },
-  PREVIOUS_ORG: {
-    form: /previous organization/i,
-    lengthError: /previous organization cannot be longer than 100 characters/i,
   },
 };
 
