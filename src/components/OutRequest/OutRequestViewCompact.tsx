@@ -104,6 +104,25 @@ export const OutRequestViewCompact: FunctionComponent<
           </Text>
         </div>
         <div>
+          <Label weight="semibold" htmlFor="officeCVId">
+            Office
+          </Label>
+          <br />
+          <Text id="officeCVId">{formData.office}</Text>
+        </div>
+        {(formData.empType === EMPTYPES.Civilian ||
+          formData.empType === EMPTYPES.Military) && (
+          <div>
+            <Label weight="semibold" htmlFor="isTravelerCVId">
+              Has DTS/GTC?
+            </Label>
+            <br />
+            <Text id="isTravelerCVId" className={classes.capitalize}>
+              {formData.isTraveler}
+            </Text>
+          </div>
+        )}
+        <div>
           <Label weight="semibold" htmlFor="departDateCVId">
             Last date with org
           </Label>

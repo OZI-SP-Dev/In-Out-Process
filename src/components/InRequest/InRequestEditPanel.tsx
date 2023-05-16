@@ -905,6 +905,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <div className={classes.fieldContainer}>
                 <Label
                   htmlFor="isTravelerId"
+                  id="isTravelerLabelId"
                   size="small"
                   weight="semibold"
                   className={classes.fieldLabel}
@@ -920,6 +921,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     <RadioGroup
                       {...field}
                       aria-describedby="isTravelerErr"
+                      aria-labelledby="isTravelerLabelId"
                       id="isTravelerId"
                       disabled={true}
                     >

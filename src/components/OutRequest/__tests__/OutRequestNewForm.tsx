@@ -15,6 +15,7 @@ import {
 } from "components/OutRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { vi } from "vitest";
+import { OFFICES } from "constants/Offices";
 
 const user = userEvent.setup();
 
@@ -310,4 +311,76 @@ describe("Remote Location", () => {
       );
     }
   );
+});
+
+describe("Office", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, available: true },
+    { empType: EMPTYPES.Contractor, available: true },
+    { empType: EMPTYPES.Military, available: true },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType - $available",
+    async ({ empType, available }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableCombobox(
+        fieldLabels.OFFICE.form,
+        OFFICES[0].text,
+        available
+      );
+    }
+  );
+});
+
+describe("Has DTS/GTC", () => {
+  it("is selectable for Military", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Military);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasGTCDTS = screen.getByRole("radiogroup", {
+      name: fieldLabels.IS_TRAVELER.form,
+    });
+
+    const yesBttn = within(hasGTCDTS).getByLabelText(/yes/i);
+    const noBttn = within(hasGTCDTS).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is selectable for Civilian", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasGTCDTS = screen.getByRole("radiogroup", {
+      name: fieldLabels.IS_TRAVELER.form,
+    });
+
+    const yesBttn = within(hasGTCDTS).getByLabelText(/yes/i);
+    const noBttn = within(hasGTCDTS).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is not available for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    checkForInputToExist(fieldLabels.IS_TRAVELER.form, false);
+  });
 });

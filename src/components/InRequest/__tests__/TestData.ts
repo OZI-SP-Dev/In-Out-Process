@@ -1,7 +1,7 @@
 import { IInRequest } from "api/RequestApi";
 import { IPerson } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
-import { ByRoleMatcher, screen } from "@testing-library/react";
+import { ByRoleMatcher, screen, within } from "@testing-library/react";
 
 test("Load Test Data file", () => {});
 
@@ -172,6 +172,10 @@ export const fieldLabels = {
     form: /previous organization/i,
     lengthError: /previous organization cannot be longer than 100 characters/i,
   },
+  IS_TRAVELER: {
+    form: /will the employee require travel ability \(dts and gtc\)/i,
+    view: /requires travel ability\?/i,
+  },
 };
 
 /** Check if there is an input field matching the desired label
@@ -186,6 +190,25 @@ export const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
   } else {
     expect(field).not.toBeInTheDocument();
   }
+};
+
+/** Check if the RadioGroup field matching the label has all options DISABLED
+ * @param labelText The text we are looking for
+ * @param expected Whether or not we expect it to be disabled or not
+ */
+export const checkForRadioGroupToBeDisabled = (
+  labelText: RegExp,
+  expected: boolean
+) => {
+  const radioGroup = screen.getByRole("radiogroup", { name: labelText });
+  const opts = within(radioGroup).getAllByRole("radio");
+  opts.forEach((opt) => {
+    if (expected) {
+      expect(opt).toBeDisabled();
+    } else {
+      expect(opt).not.toBeDisabled();
+    }
+  });
 };
 
 /** Check that ensures N/A is displayed properly */
