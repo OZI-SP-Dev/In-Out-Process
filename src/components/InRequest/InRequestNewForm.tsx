@@ -164,7 +164,11 @@ const InRequestNewForm = () => {
       mpcn = parseInt(data.MPCN);
     }
 
-    const data2: IInRequest = { ...data, MPCN: mpcn, reqType: "In" } as IInRequest;
+    const data2: IInRequest = {
+      ...data,
+      MPCN: mpcn,
+      reqType: "In",
+    } as IInRequest;
 
     addRequest.mutate(data2);
   };
@@ -922,6 +926,7 @@ const InRequestNewForm = () => {
         <div className={classes.fieldContainer}>
           <Label
             htmlFor="isTravelerId"
+            id="isTravelerLabelId"
             size="small"
             weight="semibold"
             className={classes.fieldLabel}
@@ -941,6 +946,7 @@ const InRequestNewForm = () => {
               <RadioGroup
                 {...field}
                 aria-describedby="isTravelerErr"
+                aria-labelledby="isTravelerLabelId"
                 id="isTravelerId"
               >
                 <Radio key={"yes"} value={"yes"} label="Yes" />

@@ -89,6 +89,8 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       sensitivityCode: request.sensitivityCode,
       workLocation: request.workLocation,
       workLocationDetail: request.workLocationDetail,
+      office: request.office,
+      isTraveler: request.isTraveler,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
       supGovLead: new Person({
@@ -190,6 +192,8 @@ const transformRequestToSP = async (
       sensitivityCode: request.sensitivityCode,
       workLocation: request.workLocation,
       workLocationDetail: request.workLocationDetail,
+      office: request.office,
+      isTraveler: request.isTraveler,
       lastDay: request.lastDay.toISOString(),
       beginDate: request.beginDate.toISOString(),
       supGovLeadId:
@@ -597,6 +601,10 @@ export type IOutRequest = {
   workLocation: worklocation;
   /** Optional - Required if workLocation is 'remote', otherwise is blank */
   workLocationDetail?: string;
+  /** Required - The Employee's Office */
+  office: string;
+  /** Required - Can only be 'yes' | 'no' if it is Civ/Mil. Must be '' if it is a Ctr */
+  isTraveler: "yes" | "no" | "";
   /** Required - The user's last day */
   lastDay: Date;
   /** Required - The estimated date to start out processing - Default to 7 days before lastDay*/

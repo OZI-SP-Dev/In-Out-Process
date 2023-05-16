@@ -11,12 +11,14 @@ import {
   remoteLocationOnlyDataset,
   checkForErrorMessage,
   lengthTest,
+  checkForRadioGroupToBeDisabled,
 } from "components/OutRequest/__tests__/TestData";
 import { OutRequestEditPanel } from "components/OutRequest/OutRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IOutRequest } from "api/RequestApi";
 import { SAR_CODES } from "constants/SARCodes";
+import { OFFICES } from "constants/Offices";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -276,6 +278,55 @@ describe("Remote Location", () => {
         fieldLabels.REMOTE_LOCATION.lengthError,
         testString.length > 100
       );
+    }
+  );
+});
+
+describe("Office", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: ctrRequest, available: true },
+    { request: milRequest, available: true },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.OFFICE.form,
+        OFFICES[0].text,
+        available
+      );
+    },
+    20000
+  );
+});
+
+// Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
+describe("Has DTS/GTC", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: milRequest, available: true },
+    { request: ctrRequest, available: false },
+  ];
+  const employeeTypesDisabled = [
+    { request: civRequest },
+    { request: milRequest },
+  ];
+  it.each(employeeTypesDisabled)(
+    "is disabled for $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+      checkForRadioGroupToBeDisabled(fieldLabels.IS_TRAVELER.form, true);
+    }
+  );
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      checkForInputToExist(fieldLabels.IS_TRAVELER.form, available);
     }
   );
 });

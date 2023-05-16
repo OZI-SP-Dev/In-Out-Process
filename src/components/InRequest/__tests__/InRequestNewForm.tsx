@@ -676,3 +676,54 @@ describe("Office", () => {
     }
   );
 });
+
+describe("Has DTS/GTC", () => {
+  it("is selectable for Military", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Military);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasGTCDTS = screen.getByRole("radiogroup", {
+      name: fieldLabels.IS_TRAVELER.form,
+    });
+
+    const yesBttn = within(hasGTCDTS).getByLabelText(/yes/i);
+    const noBttn = within(hasGTCDTS).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is selectable for Civilian", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+    // Locate the RadioGroup for Existing CAC
+    const hasGTCDTS = screen.getByRole("radiogroup", {
+      name: fieldLabels.IS_TRAVELER.form,
+    });
+
+    const yesBttn = within(hasGTCDTS).getByLabelText(/yes/i);
+    const noBttn = within(hasGTCDTS).getByLabelText(/no/i);
+
+    // Click "Yes" and ensure it reflects checked and that "No" is not
+    await user.click(yesBttn);
+    expect(yesBttn).toBeChecked();
+    expect(noBttn).not.toBeChecked();
+
+    // Click "No" and ensure it reflects checked and that "Yes" is not
+    await user.click(noBttn);
+    expect(noBttn).toBeChecked();
+    expect(yesBttn).not.toBeChecked();
+  });
+
+  it("is not available for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    checkForInputToExist(fieldLabels.IS_TRAVELER.form, false);
+  });
+});

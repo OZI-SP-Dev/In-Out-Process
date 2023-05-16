@@ -36,6 +36,7 @@ import {
 import { RadioButtonFilled, ToggleLeftRegular } from "@fluentui/react-icons";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { WORKLOCATIONS } from "constants/WorkLocations";
+import { OFFICES } from "constants/Offices";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -442,6 +443,52 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
             }
             <div className={classes.fieldContainer}>
               <Label
+                id="officeId"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+                required
+              >
+                <DropdownIcon className={classes.fieldIcon} />
+                Office
+              </Label>
+              <Controller
+                name="office"
+                control={control}
+                defaultValue={""}
+                rules={{
+                  required: "Office is required",
+                }}
+                render={({ field: { onBlur, onChange, value } }) => (
+                  <Combobox
+                    aria-describedby="officeErr"
+                    aria-labelledby="officeId"
+                    autoComplete="on"
+                    listbox={{ className: classes.listBox }}
+                    value={value}
+                    onOptionSelect={(_, option) => {
+                      if (option.optionValue) {
+                        onChange(option.optionValue);
+                      }
+                    }}
+                    onBlur={onBlur}
+                  >
+                    {OFFICES.map(({ key, text }) => (
+                      <Option key={key} value={key}>
+                        {text}
+                      </Option>
+                    ))}
+                  </Combobox>
+                )}
+              />
+              {errors.office && (
+                <Text id="officeErr" className={classes.errorText}>
+                  {errors.office.message}
+                </Text>
+              )}
+            </div>
+            <div className={classes.fieldContainer}>
+              <Label
                 htmlFor="lastDayId"
                 size="small"
                 weight="semibold"
@@ -568,6 +615,38 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 </Text>
               )}
             </div>
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
+              <div className={classes.fieldContainer}>
+                <Label
+                  htmlFor="isTravelerId"
+                  id="isTravelerLabelId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
+                  <ToggleLeftRegular className={classes.fieldIcon} />
+                  Does the employee have GTC and DTS accounts?
+                </Label>
+                <Controller
+                  name="isTraveler"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      aria-describedby="isTravelerErr"
+                      aria-labelledby="isTravelerLabelId"
+                      id="isTravelerId"
+                      disabled={true}
+                    >
+                      <Radio key={"yes"} value={"yes"} label="Yes" />
+                      <Radio key={"no"} value={"no"} label="No" />
+                    </RadioGroup>
+                  )}
+                />
+              </div>
+            )}
             <div>
               <Button appearance="primary" type="submit">
                 Save

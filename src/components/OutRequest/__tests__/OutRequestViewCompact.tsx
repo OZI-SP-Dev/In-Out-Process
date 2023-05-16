@@ -50,6 +50,24 @@ const fieldsByEmployeeType = [
       { request: milRequest, expected: true },
     ],
   },
+  {
+    field: fieldLabels.OFFICE.view,
+    rules: [
+      // All Employee Types
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: true },
+      { request: milRequest, expected: true },
+    ],
+  },
+  {
+    field: fieldLabels.IS_TRAVELER.view,
+    rules: [
+      // Civilian/Military Only
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: false },
+      { request: milRequest, expected: true },
+    ],
+  },
 ];
 
 describe.each(fieldsByEmployeeType)(

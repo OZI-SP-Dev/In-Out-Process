@@ -11,6 +11,7 @@ import {
   isNotApplicable,
   checkForErrorMessage,
   lengthTest,
+  checkForRadioGroupToBeDisabled,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -621,5 +622,33 @@ describe("Office", () => {
       );
     },
     20000
+  );
+});
+
+// Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
+describe("Has DTS/GTC", () => {
+  const employeeTypes = [
+    { request: civRequest, available: true },
+    { request: milRequest, available: true },
+    { request: ctrRequest, available: false },
+  ];
+  const employeeTypesDisabled = [
+    { request: civRequest },
+    { request: milRequest },
+  ];
+  it.each(employeeTypesDisabled)(
+    "is disabled for $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+      checkForRadioGroupToBeDisabled(fieldLabels.IS_TRAVELER.form, true);
+    }
+  );
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      checkForInputToExist(fieldLabels.IS_TRAVELER.form, available);
+    }
   );
 });

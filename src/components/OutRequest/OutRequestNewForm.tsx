@@ -33,6 +33,7 @@ import { UserContext } from "providers/UserProvider";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { SAR_CODES } from "constants/SARCodes";
 import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
+import { OFFICES } from "constants/Offices";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -197,6 +198,7 @@ const OutRequestNewForm = () => {
                 /* If they change employee type, clear out the related fields */
                 if (option.value === EMPTYPES.Contractor) {
                   setValue("SAR", undefined);
+                  setValue("isTraveler", "");
                 }
                 if (option.value !== EMPTYPES.Civilian) {
                   setValue("sensitivityCode", undefined);
@@ -442,6 +444,52 @@ const OutRequestNewForm = () => {
       }
       <div className={classes.fieldContainer}>
         <Label
+          id="officeId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <DropdownIcon className={classes.fieldIcon} />
+          Office
+        </Label>
+        <Controller
+          name="office"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Office is required",
+          }}
+          render={({ field: { onBlur, onChange, value } }) => (
+            <Combobox
+              aria-describedby="officeErr"
+              aria-labelledby="officeId"
+              autoComplete="on"
+              listbox={{ className: classes.listBox }}
+              value={value}
+              onOptionSelect={(_, option) => {
+                if (option.optionValue) {
+                  onChange(option.optionValue);
+                }
+              }}
+              onBlur={onBlur}
+            >
+              {OFFICES.map(({ key, text }) => (
+                <Option key={key} value={key}>
+                  {text}
+                </Option>
+              ))}
+            </Combobox>
+          )}
+        />
+        {errors.office && (
+          <Text id="officeErr" className={classes.errorText}>
+            {errors.office.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
           htmlFor="departDateId"
           size="small"
           weight="semibold"
@@ -561,6 +609,45 @@ const OutRequestNewForm = () => {
           </Text>
         )}
       </div>
+      {(empType === EMPTYPES.Civilian || empType === EMPTYPES.Military) && (
+        <div className={classes.fieldContainer}>
+          <Label
+            htmlFor="isTravelerId"
+            id="isTravelerLabelId"
+            size="small"
+            weight="semibold"
+            className={classes.fieldLabel}
+            required
+          >
+            <ToggleLeftRegular className={classes.fieldIcon} />
+            Does the employee have GTC and DTS accounts?
+          </Label>
+          <Controller
+            name="isTraveler"
+            control={control}
+            defaultValue={""}
+            rules={{
+              required: "Selection is required",
+            }}
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                aria-describedby="isTravelerErr"
+                aria-labelledby="isTravelerLabelId"
+                id="isTravelerId"
+              >
+                <Radio key={"yes"} value={"yes"} label="Yes" />
+                <Radio key={"no"} value={"no"} label="No" />
+              </RadioGroup>
+            )}
+          />
+          {errors.isTraveler && (
+            <Text id="isTravelerErr" className={classes.errorText}>
+              {errors.isTraveler.message}
+            </Text>
+          )}
+        </div>
+      )}
       <div className={classes.createButton}>
         <div>
           {addRequest.isLoading && (

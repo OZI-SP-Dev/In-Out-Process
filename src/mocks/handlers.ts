@@ -334,6 +334,8 @@ export const handlers = [
             sensitivityCode: body.sensitivityCode,
             workLocation: body.workLocation,
             workLocationDetail: body.workLocationDetail,
+            office: body.office,
+            isTraveler: body.isTraveler,
             lastDay: body.lastDay,
             beginDate: body.beginDate,
             supGovLead: { ...supervisor },
@@ -1129,6 +1131,10 @@ const updateRequest = (id: number, item: IRequestItem) => {
       reqItem.workLocationDetail = item.workLocationDetail
         ? item.workLocationDetail
         : reqItem.workLocationDetail;
+      reqItem.office = item.office ? item.office : reqItem.office;
+      reqItem.isTraveler = item.isTraveler
+        ? item.isTraveler
+        : reqItem.isTraveler;
       reqItem.beginDate = item.beginDate ? item.beginDate : reqItem.beginDate;
     }
   }
