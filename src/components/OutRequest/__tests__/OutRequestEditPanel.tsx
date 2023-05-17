@@ -19,6 +19,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IOutRequest } from "api/RequestApi";
 import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 const queryClient = new QueryClient();
 const user = userEvent.setup();
@@ -327,6 +328,27 @@ describe("Has DTS/GTC", () => {
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
       checkForInputToExist(fieldLabels.IS_TRAVELER.form, available);
+    }
+  );
+});
+
+describe("Out-processing Reason", () => {
+  // Out-processing Reason is currently a disabled field in Edit mode
+  const employeeTypes = [
+    { request: civRequest, available: false },
+    { request: ctrRequest, available: false },
+    { request: milRequest, available: false },
+  ];
+
+  it.each(employeeTypes)(
+    "is available for $request.empType - $available",
+    async ({ request, available }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableCombobox(
+        fieldLabels.OUT_REASON.form,
+        OUT_PROCESS_REASONS[0].items[0].text,
+        available
+      );
     }
   );
 });

@@ -68,6 +68,15 @@ const fieldsByEmployeeType = [
       { request: milRequest, expected: true },
     ],
   },
+  {
+    field: fieldLabels.OUT_REASON.view,
+    rules: [
+      // All Employee Types
+      { request: civRequest, expected: true },
+      { request: ctrRequest, expected: true },
+      { request: milRequest, expected: true },
+    ],
+  },
 ];
 
 describe.each(fieldsByEmployeeType)(

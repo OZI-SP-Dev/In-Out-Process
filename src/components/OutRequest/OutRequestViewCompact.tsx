@@ -140,6 +140,13 @@ export const OutRequestViewCompact: FunctionComponent<
             {formData.beginDate?.toLocaleDateString()}
           </Text>
         </div>
+        <div>
+          <Label weight="semibold" htmlFor="outReasonCVId">
+            Reason for Out-processing
+          </Label>
+          <br />
+          <Text id="outReasonCVId">{formData.outReason}</Text>
+        </div>
       </div>
     </>
   );

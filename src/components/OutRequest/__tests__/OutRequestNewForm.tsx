@@ -16,6 +16,7 @@ import {
 import { SAR_CODES } from "constants/SARCodes";
 import { vi } from "vitest";
 import { OFFICES } from "constants/Offices";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 const user = userEvent.setup();
 
@@ -383,4 +384,48 @@ describe("Has DTS/GTC", () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
     checkForInputToExist(fieldLabels.IS_TRAVELER.form, false);
   });
+});
+
+describe("Out-processing Reason", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian, available: true },
+    { empType: EMPTYPES.Contractor, available: true },
+    { empType: EMPTYPES.Military, available: true },
+  ];
+  const requiredOutReason = /a reason is required/i;
+  const validOutReasons = OUT_PROCESS_REASONS.map((reasonGroup) =>
+    reasonGroup.items.map((reason) => reason.text)
+  );
+  const validOutReasonsFlattened = validOutReasons.flat(1);
+  it.each(employeeTypes)(
+    "is available for $empType ($available)",
+    async ({ empType, available }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableCombobox(
+        fieldLabels.OUT_REASON.form,
+        validOutReasonsFlattened[0],
+        available
+      );
+    }
+  );
+
+  it.each(validOutReasonsFlattened)(
+    "no error on valid values - %s",
+    async (outReason) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+      await checkEnterableCombobox(
+        fieldLabels.OUT_REASON.form,
+        outReason,
+        true
+      );
+
+      const outReasonFld = screen.getByRole("combobox", {
+        name: fieldLabels.OUT_REASON.form,
+      });
+
+      // No error text is displayed
+      const errText = within(outReasonFld).queryByText(requiredOutReason);
+      expect(errText).not.toBeInTheDocument();
+    }
+  );
 });
