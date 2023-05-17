@@ -16,6 +16,7 @@ import {
   Combobox,
   Option,
   Input,
+  OptionGroup,
 } from "@fluentui/react-components";
 import { IOutRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
@@ -34,6 +35,7 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { SAR_CODES } from "constants/SARCodes";
 import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
 import { OFFICES } from "constants/Offices";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -168,6 +170,56 @@ const OutRequestNewForm = () => {
         {errors.employee && (
           <Text id="employeeErr" className={classes.errorText}>
             {errors.employee.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          id="outReasonId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <DropdownIcon className={classes.fieldIcon} />
+          Reason for Out-processing
+        </Label>
+        <Controller
+          name="outReason"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "A reason is required",
+          }}
+          render={({ field: { onBlur, onChange, value } }) => (
+            <Combobox
+              aria-describedby="outReasonErr"
+              aria-labelledby="outReasonId"
+              autoComplete="on"
+              listbox={{ className: classes.listBox }}
+              value={value}
+              onOptionSelect={(_, option) => {
+                if (option.optionValue) {
+                  onChange(option.optionValue);
+                }
+              }}
+              onBlur={onBlur}
+            >
+              {OUT_PROCESS_REASONS.map((reasonGroup) => (
+                <OptionGroup key={reasonGroup.key} label={reasonGroup.text}>
+                  {reasonGroup.items.map((reasonOption) => (
+                    <Option key={reasonOption.key} value={reasonOption.key}>
+                      {reasonOption.text}
+                    </Option>
+                  ))}
+                </OptionGroup>
+              ))}
+            </Combobox>
+          )}
+        />
+        {errors.outReason && (
+          <Text id="outReasonErr" className={classes.errorText}>
+            {errors.outReason.message}
           </Text>
         )}
       </div>
