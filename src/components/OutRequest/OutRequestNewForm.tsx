@@ -139,7 +139,12 @@ const OutRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <div className={classes.fieldContainer}>
-        <Label size="small" weight="semibold" className={classes.fieldLabel}>
+        <Label
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <ContactIcon className={classes.fieldIcon} />
           Employee from GAL
         </Label>

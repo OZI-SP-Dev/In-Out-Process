@@ -191,6 +191,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
+                required
               >
                 <ContactIcon className={classes.fieldIcon} />
                 Employee from GAL
