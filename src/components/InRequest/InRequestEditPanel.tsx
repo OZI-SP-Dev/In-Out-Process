@@ -43,9 +43,6 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "block" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,

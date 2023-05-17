@@ -40,9 +40,6 @@ import { SAR_CODES } from "constants/SARCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
