@@ -139,7 +139,12 @@ const OutRequestNewForm = () => {
       onSubmit={handleSubmit(createNewRequest)}
     >
       <div className={classes.fieldContainer}>
-        <Label size="small" weight="semibold" className={classes.fieldLabel}>
+        <Label
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
           <ContactIcon className={classes.fieldIcon} />
           Employee from GAL
         </Label>
@@ -567,7 +572,7 @@ const OutRequestNewForm = () => {
                 if (newDate) {
                   let newBeginDate = new Date(newDate);
                   newBeginDate.setDate(newBeginDate.getDate() - 7);
-                  setValue("beginDate", newBeginDate);
+                  setValue("beginDate", newBeginDate, { shouldValidate: true });
                 }
                 onChange(newDate);
               }}

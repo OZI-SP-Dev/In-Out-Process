@@ -40,9 +40,6 @@ import { SAR_CODES } from "constants/SARCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
@@ -194,10 +191,10 @@ const InRequestNewForm = () => {
               selectedItems={value}
               updatePeople={(items) => {
                 if (items?.[0]?.text) {
-                  setValue("empName", items[0].text);
+                  setValue("empName", items[0].text, { shouldValidate: true });
                   onChange(items[0]);
                 } else {
-                  setValue("empName", "");
+                  setValue("empName", "", { shouldValidate: true });
                   onChange([]);
                 }
               }}
@@ -695,7 +692,9 @@ const InRequestNewForm = () => {
                 if (newDate) {
                   let newCompletionDate = new Date(newDate);
                   newCompletionDate.setDate(newCompletionDate.getDate() + 28);
-                  setValue("completionDate", newCompletionDate);
+                  setValue("completionDate", newCompletionDate, {
+                    shouldValidate: true,
+                  });
                 }
                 onChange(newDate);
               }}

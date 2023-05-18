@@ -2,17 +2,22 @@ import {
   Text,
   makeStyles,
   Button,
-  FluentProvider,
+  DialogSurface,
+  DialogBody,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+  Dialog,
 } from "@fluentui/react-components";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
-import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
 import { useBoolean } from "@fluentui/react-hooks";
 import { Controller, useForm } from "react-hook-form";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { spWebContext } from "providers/SPWebContext";
 import { Person } from "api/UserApi";
+import { Dismiss24Regular } from "@fluentui/react-icons";
 
 // TODO - Investigate why the Popover showing roles doesn't disappear when Dialog opens
 
@@ -85,65 +90,70 @@ export const ImpersonationForm = () => {
       <Button appearance="primary" onClick={showImpersonateDialog}>
         Impersonate User
       </Button>
-      <Dialog
-        hidden={!isImpersonateDialogOpen}
-        modalProps={{
-          isBlocking: true,
-        }}
-        minWidth="500px"
-        onDismiss={hideImpersonateDialog}
-        dialogContentProps={{
-          type: DialogType.close,
-          title: "Select user to impersonate",
-        }}
-      >
-        <FluentProvider>
+      <Dialog open={isImpersonateDialogOpen}>
+        <DialogSurface aria-describedby="impersonateDialog">
           <form
             id="impersonateForm"
             onSubmit={handleSubmit(performImpersonate)}
           >
-            <div>
-              <Controller
-                name="user"
-                control={control}
-                rules={{
-                  required:
-                    "You must select a user if you want to impersonate someone",
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <PeoplePicker
-                    ariaLabel="User to Impersonate"
-                    aria-describedby="userErr"
-                    selectedItems={value}
-                    updatePeople={(items) => {
-                      if (items?.[0]) {
-                        onChange(items[0]);
-                      } else {
-                        onChange([]);
-                      }
-                    }}
+            <DialogBody>
+              <DialogTitle
+                action={
+                  <Button
+                    appearance="subtle"
+                    aria-label="close"
+                    icon={<Dismiss24Regular />}
+                    onClick={hideImpersonateDialog}
                   />
-                )}
-              />
-              {errors.user && (
-                <Text id="userErr" className={classes.errorText}>
-                  {errors.user.message}
-                </Text>
-              )}
-            </div>
-            <DialogFooter>
-              <Button appearance="primary" type="submit">
-                Impersonate
-              </Button>
-              <Button appearance="primary" onClick={removeImpersonation}>
-                Return as myself
-              </Button>
-              <Button appearance="secondary" onClick={hideImpersonateDialog}>
-                Cancel
-              </Button>
-            </DialogFooter>
+                }
+              >
+                Select user to impersonate
+              </DialogTitle>
+              <DialogContent id="impersonateDialog">
+                <div>
+                  <Controller
+                    name="user"
+                    control={control}
+                    rules={{
+                      required:
+                        "You must select a user if you want to impersonate someone",
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <PeoplePicker
+                        ariaLabel="User to Impersonate"
+                        aria-describedby="userErr"
+                        selectedItems={value}
+                        updatePeople={(items) => {
+                          if (items?.[0]) {
+                            onChange(items[0]);
+                          } else {
+                            onChange([]);
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                  {errors.user && (
+                    <Text id="userErr" className={classes.errorText}>
+                      {errors.user.message}
+                    </Text>
+                  )}
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button appearance="primary" type="submit">
+                  Impersonate
+                </Button>
+                <Button appearance="primary" onClick={removeImpersonation}>
+                  Return as myself
+                </Button>
+                <Button appearance="secondary" onClick={hideImpersonateDialog}>
+                  Cancel
+                </Button>
+              </DialogActions>
+            </DialogBody>
           </form>
-        </FluentProvider>
+        </DialogSurface>
       </Dialog>
     </>
   );

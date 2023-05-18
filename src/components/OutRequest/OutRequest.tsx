@@ -1,7 +1,6 @@
 import { FunctionComponent } from "react";
 import {
   Button,
-  FluentProvider,
   Textarea,
   Text,
   makeStyles,
@@ -9,6 +8,12 @@ import {
   Tooltip,
   Spinner,
   Badge,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@fluentui/react-components";
 import { OutRequestViewCompact } from "components/OutRequest/OutRequestViewCompact";
 import { OutRequestEditPanel } from "components/OutRequest/OutRequestEditPanel";
@@ -20,7 +25,6 @@ import {
   useUpdateRequest,
 } from "api/RequestApi";
 import { RoleType } from "api/RolesApi";
-import { Dialog, DialogFooter, DialogType } from "@fluentui/react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
@@ -30,6 +34,7 @@ import {
   AlertSolidIcon,
 } from "@fluentui/react-icons-mdl2";
 import { useChecklistItems } from "api/CheckListItemApi";
+import { Dismiss24Regular } from "@fluentui/react-icons";
 
 interface IOutRequestComp {
   request: IOutRequest;
@@ -214,91 +219,93 @@ export const OutRequest: FunctionComponent<IOutRequestComp> = (props) => {
               </>
             )
           }
-          <Dialog
-            hidden={isCancelDialogOpen}
-            modalProps={{
-              isBlocking: true,
-            }}
-            onDismiss={hideCancelDialog}
-            dialogContentProps={{
-              type: DialogType.normal,
-              title: "Provide a reason for the cancellation",
-            }}
-          >
-            <FluentProvider>
-              <form
-                id="outReqForm"
-                onSubmit={handleSubmit(performCancel)}
-                className={classes.formContainer}
-              >
-                <Controller
-                  name="cancelReason"
-                  defaultValue=""
-                  control={control}
-                  rules={{
-                    required: "Reason is required",
-                    pattern: {
-                      value: /\S/i,
-                      message: "Reason is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <Textarea
-                      {...field}
-                      placeholder="Provide a reason for the cancelling of this request"
-                      aria-label="Reason for cancellation"
-                      aria-describedby="reasonErr"
-                    />
-                  )}
-                />
-                {errors.cancelReason && (
-                  <Text id="reasonErr" className={classes.errorText}>
-                    {errors.cancelReason.message}
-                  </Text>
-                )}
-                <DialogFooter>
-                  {updateType === "cancel" && updateRequest.isLoading ? (
-                    <Button appearance="transparent">
-                      <Spinner
-                        as="div"
-                        size="extra-small"
-                        label="Cancelling..."
+          <Dialog open={!isCancelDialogOpen}>
+            <DialogSurface>
+              <form id="outReqForm" onSubmit={handleSubmit(performCancel)}>
+                <DialogBody>
+                  <DialogTitle
+                    action={
+                      <Button
+                        appearance="subtle"
+                        aria-label="close"
+                        icon={<Dismiss24Regular />}
+                        onClick={hideCancelDialog}
                       />
-                    </Button>
-                  ) : (
-                    <>
-                      <Button appearance="primary" type="submit">
-                        OK
-                      </Button>
-                      {updateType === "cancel" && updateRequest.isError && (
-                        <Tooltip
-                          content={
-                            updateRequest.error instanceof Error
-                              ? updateRequest.error.message
-                              : "An error occurred."
-                          }
-                          relationship="label"
-                        >
-                          <Badge
-                            size="large"
-                            appearance="ghost"
-                            color="danger"
-                            icon={<AlertSolidIcon />}
-                          />
-                        </Tooltip>
-                      )}
-                    </>
-                  )}
-                  <Button
-                    appearance="secondary"
-                    disabled={updateRequest.isLoading}
-                    onClick={hideCancelDialog}
+                    }
                   >
-                    Cancel
-                  </Button>
-                </DialogFooter>
+                    Provide a reason for the cancellation
+                  </DialogTitle>
+                  <DialogContent className={classes.formContainer}>
+                    <Controller
+                      name="cancelReason"
+                      defaultValue=""
+                      control={control}
+                      rules={{
+                        required: "Reason is required",
+                        pattern: {
+                          value: /\S/i,
+                          message: "Reason is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <Textarea
+                          {...field}
+                          placeholder="Provide a reason for the cancelling of this request"
+                          aria-label="Reason for cancellation"
+                          aria-describedby="reasonErr"
+                        />
+                      )}
+                    />
+                    {errors.cancelReason && (
+                      <Text id="reasonErr" className={classes.errorText}>
+                        {errors.cancelReason.message}
+                      </Text>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    {updateType === "cancel" && updateRequest.isLoading ? (
+                      <Button appearance="transparent">
+                        <Spinner
+                          as="div"
+                          size="extra-small"
+                          label="Cancelling..."
+                        />
+                      </Button>
+                    ) : (
+                      <>
+                        <Button appearance="primary" type="submit">
+                          OK
+                        </Button>
+                        {updateType === "cancel" && updateRequest.isError && (
+                          <Tooltip
+                            content={
+                              updateRequest.error instanceof Error
+                                ? updateRequest.error.message
+                                : "An error occurred."
+                            }
+                            relationship="label"
+                          >
+                            <Badge
+                              size="large"
+                              appearance="ghost"
+                              color="danger"
+                              icon={<AlertSolidIcon />}
+                            />
+                          </Tooltip>
+                        )}
+                      </>
+                    )}
+                    <Button
+                      appearance="secondary"
+                      disabled={updateRequest.isLoading}
+                      onClick={hideCancelDialog}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogActions>
+                </DialogBody>
               </form>
-            </FluentProvider>
+            </DialogSurface>
           </Dialog>
           <OutRequestEditPanel
             onEditSave={hideEditPanel}

@@ -50,7 +50,7 @@ export const CheckListItemReactivateButton = ({
       >
         Reactivate
       </Button>
-      <Dialog open={isReactivateDialogOpen} modalType="modal">
+      <Dialog open={isReactivateDialogOpen}>
         <DialogSurface>
           <DialogBody>
             <DialogTitle>Reactivate Checklist Item?</DialogTitle>

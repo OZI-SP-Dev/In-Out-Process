@@ -191,6 +191,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 size="small"
                 weight="semibold"
                 className={classes.fieldLabel}
+                required
               >
                 <ContactIcon className={classes.fieldIcon} />
                 Employee from GAL
@@ -572,7 +573,9 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                       if (newDate) {
                         let newBeginDate = new Date(newDate);
                         newBeginDate.setDate(newBeginDate.getDate() - 7);
-                        setValue("beginDate", newBeginDate);
+                        setValue("beginDate", newBeginDate, {
+                          shouldValidate: true,
+                        });
                       }
                       onChange(newDate);
                     }}

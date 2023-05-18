@@ -37,9 +37,6 @@ const useStyles = makeStyles({
     paddingBottom: ".5em",
     display: "flex",
   },
-  panelNavCommandBar: {
-    marginRight: "auto", // Pull Command Bar far-left and close far-right
-  },
 });
 
 export interface ICheckList {

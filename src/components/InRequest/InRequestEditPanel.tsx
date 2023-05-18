@@ -43,9 +43,6 @@ import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "block" },
-  floatRight: {
-    float: "right",
-  },
   errorText: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
@@ -246,10 +243,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                     selectedItems={value}
                     updatePeople={(items) => {
                       if (items?.[0]?.text) {
-                        setValue("empName", items[0].text);
+                        setValue("empName", items[0].text, {
+                          shouldValidate: true,
+                        });
                         onChange(items[0]);
                       } else {
-                        setValue("empName", "");
+                        setValue("empName", "", { shouldValidate: true });
                         onChange([]);
                       }
                     }}
@@ -685,7 +684,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                         newCompletionDate.setDate(
                           newCompletionDate.getDate() + 28
                         );
-                        setValue("completionDate", newCompletionDate);
+                        setValue("completionDate", newCompletionDate, {
+                          shouldValidate: true,
+                        });
                       }
                       onChange(newDate);
                     }}
