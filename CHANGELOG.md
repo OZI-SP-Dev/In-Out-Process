@@ -18,6 +18,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Out Processing Request Form fields added
   - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date, Local/Remote, Remote Location, Office, Has DTS/GTC, Out-processing Reason
 
+### Changed
+
+- Updated @fluentui/react-components to 9.20.1
+- Updated Dialog components to use v9
+
+### Fixed
+
+- Removed unused styles
+- Removed form required warnings when values autoset based on another value
+
 ## [1.1.0] - 2023-04-12
 
 ### Changed
