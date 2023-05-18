@@ -1,6 +1,4 @@
 import {
-  CommandBar,
-  ICommandBarItemProps,
   IPanelProps,
   IRenderFunction,
   Panel,
@@ -36,6 +34,8 @@ import {
   CalendarIcon,
   DropdownIcon,
   ContactIcon,
+  SaveIcon,
+  CancelIcon,
 } from "@fluentui/react-icons-mdl2";
 import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -67,9 +67,14 @@ const useStyles = makeStyles({
     display: "block",
   },
   panelNavCommandBar: {
-    marginRight: "auto", // Pull Command Bar far-left and close far-right
+    marginRight: "auto", // Place the close icon of the panel on the far right, and buttons on far left
+    display: "flex",
+    paddingLeft: "1em",
   },
   listBox: { maxHeight: "15em" },
+  icon: {
+    color: tokens.colorBrandBackground,
+  },
 });
 
 interface IInRequestEditPanel {
@@ -175,30 +180,27 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     props,
     defaultRender
   ) => {
-    const items: ICommandBarItemProps[] = [
-      {
-        key: "saveEdits",
-        text: "Save",
-        iconProps: { iconName: "Save" },
-        onClick: (_ev?, _item?) => {
-          handleSubmit(updateThisRequest)();
-        },
-      },
-      {
-        key: "cancelEdits",
-        text: "Cancel",
-        iconProps: { iconName: "Cancel" },
-        onClick: (_ev?, _item?) => {
-          onEditCancel();
-        },
-      },
-    ];
-
     return (
       <>
-        <div className={classes.panelNavCommandBar}>
-          <CommandBar items={items}></CommandBar>
-        </div>
+        <FluentProvider
+          theme={webLightTheme}
+          className={classes.panelNavCommandBar}
+        >
+          <Button
+            appearance="subtle"
+            icon={<SaveIcon className={classes.icon} />}
+            onClick={() => handleSubmit(updateThisRequest)()}
+          >
+            Save
+          </Button>
+          <Button
+            appearance="subtle"
+            icon={<CancelIcon className={classes.icon} />}
+            onClick={onEditCancel}
+          >
+            Cancel
+          </Button>
+        </FluentProvider>
         {
           // Render the default close button
           defaultRender!(props)

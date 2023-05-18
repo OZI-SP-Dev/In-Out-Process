@@ -6,7 +6,17 @@ import {
   useAllUserRolesByUser,
   useRoleManagement,
 } from "api/RolesApi";
-import { makeStyles } from "@fluentui/react-components";
+import {
+  Button,
+  makeStyles,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  tokens,
+} from "@fluentui/react-components";
 import { Navigate } from "react-router-dom";
 import {
   ConstrainMode,
@@ -15,18 +25,29 @@ import {
   IObjectWithKey,
   SelectionMode,
   Selection,
-  ICommandBarItemProps,
-  CommandBar,
 } from "@fluentui/react";
 import { useBoolean } from "@fluentui/react-hooks";
 import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
 import { UserContext } from "providers/UserProvider";
+import { AddIcon, DeleteIcon, ListIcon } from "@fluentui/react-icons-mdl2";
 
 /** FluentUI Styling */
 const useStyles = makeStyles({
   header: {
     paddingLeft: "1em",
     paddingRight: "1em",
+  },
+  buttonBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginLeft: "1em",
+    marginRight: "1em",
+  },
+  floatRight: {
+    marginLeft: "auto",
+  },
+  icon: {
+    color: tokens.colorBrandBackground,
   },
 });
 
@@ -128,52 +149,6 @@ const Roles: React.FunctionComponent = () => {
     }
   }, [allRolesByRole, allRolesByUser, selectedValue]);
 
-  let commandItems: ICommandBarItemProps[] = [
-    {
-      key: "add",
-      text: "Add User",
-      iconProps: { iconName: "Add" },
-      onClick: showAddPanel,
-    },
-  ];
-
-  // If they have selected an item, then add a Delete button
-  if (selectedItems.length > 0) {
-    commandItems.push({
-      key: "delete",
-      text: "Delete",
-      iconProps: { iconName: "Delete" },
-      onClick: () => {
-        for (let entry of selectedItems) {
-          let spRoleEntry = entry as SPRole;
-          removeRole.mutate(spRoleEntry.Id);
-        }
-      },
-    });
-  }
-
-  const farCommandButtons: ICommandBarItemProps[] = [
-    {
-      key: "view",
-      text: selectedValue === "ByRole" ? "By Role" : "By User",
-      iconProps: { iconName: "List" },
-      subMenuProps: {
-        items: [
-          {
-            key: "byRole",
-            text: "By Role",
-            onClick: () => setSelectedValue("ByRole"),
-          },
-          {
-            key: "byUser",
-            text: "By User",
-            onClick: () => setSelectedValue("ByUser"),
-          },
-        ],
-      },
-    },
-  ];
-
   // Ensure we have a roles object before determining whether or not to redirect
   if (!userRoles) {
     return <>Loading...</>;
@@ -198,10 +173,50 @@ const Roles: React.FunctionComponent = () => {
   return (
     <>
       <h2 className={classes.header}>Current Assigned Roles</h2>
-      <CommandBar
-        items={commandItems}
-        farItems={farCommandButtons}
-      ></CommandBar>
+      <div className={classes.buttonBar}>
+        <Button
+          appearance="subtle"
+          icon={<AddIcon className={classes.icon} />}
+          onClick={showAddPanel}
+        >
+          Add User
+        </Button>
+        {selectedItems.length > 0 && (
+          <Button
+            appearance="subtle"
+            icon={<DeleteIcon className={classes.icon} />}
+            onClick={() => {
+              for (let entry of selectedItems) {
+                let spRoleEntry = entry as SPRole;
+                removeRole.mutate(spRoleEntry.Id);
+              }
+            }}
+          >
+            Delete
+          </Button>
+        )}
+        <Menu>
+          <MenuTrigger>
+            <MenuButton
+              appearance="subtle"
+              icon={<ListIcon className={classes.icon} />}
+              className={classes.floatRight}
+            >
+              {selectedValue === "ByRole" ? "By Role" : "By User"}
+            </MenuButton>
+          </MenuTrigger>
+          <MenuPopover>
+            <MenuList>
+              <MenuItem onClick={() => setSelectedValue("ByRole")}>
+                By Role
+              </MenuItem>
+              <MenuItem onClick={() => setSelectedValue("ByUser")}>
+                By User
+              </MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </Menu>
+      </div>
       <DetailsList
         items={detailListData?.allItems ? detailListData.allItems : []}
         columns={columns}

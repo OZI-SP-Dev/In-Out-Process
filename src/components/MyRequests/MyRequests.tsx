@@ -1,19 +1,11 @@
-import {
-  CommandBar,
-  IColumn,
-  ICommandBarItemProps,
-  SelectionMode,
-  ShimmeredDetailsList,
-} from "@fluentui/react";
-import { makeStyles, tokens } from "@fluentui/react-components";
+import { IColumn, SelectionMode, ShimmeredDetailsList } from "@fluentui/react";
+import { Button, makeStyles, tokens } from "@fluentui/react-components";
+import { AddIcon } from "@fluentui/react-icons-mdl2";
 import { useMyRequests } from "api/RequestApi";
 import { Link, useNavigate } from "react-router-dom";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
-  commandBar: {
-    height: "2.5em",
-  },
   createButtons: {
     height: "2.5em",
     backgroundColor: tokens.colorBrandBackground,
@@ -46,29 +38,6 @@ export const MyRequests = () => {
   const navigateTo = useNavigate();
   const classes = useStyles();
 
-  const menuItems: ICommandBarItemProps[] = [
-    {
-      key: "newInRequest",
-      text: "New In Processing Request",
-      iconProps: { iconName: "Add", className: classes.icon },
-      className: classes.createButtons,
-      onClick: () => {
-        navigateTo("/new");
-      },
-    },
-    {
-      key: "newOutRequest",
-      text: "New Out Processing Request",
-      iconProps: {
-        iconName: "Add",
-        className: classes.icon,
-      },
-      className: classes.createButtons,
-      onClick: () => {
-        navigateTo("/depart");
-      },
-    },
-  ];
   const columns: IColumn[] = [
     {
       key: "column0",
@@ -118,7 +87,32 @@ export const MyRequests = () => {
   return (
     <>
       <br />
-      <CommandBar className={classes.commandBar} items={menuItems} />
+      <div style={{ display: "flex" }}>
+        <Button
+          className={classes.createButtons}
+          appearance="primary"
+          icon={
+            <AddIcon
+              className={classes.icon}
+              onClick={() => navigateTo("/new")} /*classes.createButtons*/
+            />
+          }
+        >
+          New In Processing Request
+        </Button>
+        <Button
+          className={classes.createButtons}
+          appearance="primary"
+          icon={
+            <AddIcon
+              className={classes.icon}
+              onClick={() => navigateTo("/depart")}
+            />
+          }
+        >
+          New Out Processing Request
+        </Button>
+      </div>
       <div className={classes.myRequestsHeader}>
         <h2>My Requests</h2>
       </div>
