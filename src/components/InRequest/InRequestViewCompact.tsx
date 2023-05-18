@@ -32,25 +32,23 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     (code) => code.key === formData.sensitivityCode
   );
   const sensitivityCode = codeEntry ? codeEntry.text : "";
-  // Function used to display the Employee Type in a shortened format.
+
+  // Display the Employee Type in a shortened format
   // If it is a Civilian add New/Existing after depending on the selection
-  const displayEmpType = (): string => {
-    let displayValue = "";
-    switch (formData.empType) {
-      case EMPTYPES.Civilian:
-        displayValue =
-          "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
-        break;
-      case EMPTYPES.Military:
-        displayValue =
-          "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
-        break;
-      case EMPTYPES.Contractor:
-        displayValue = "Contractor";
-        break;
-    }
-    return displayValue;
-  };
+  let displayEmpType = "";
+  switch (formData.empType) {
+    case EMPTYPES.Civilian:
+      displayEmpType =
+        "Civilian - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
+      break;
+    case EMPTYPES.Military:
+      displayEmpType =
+        "Military - " + (formData.isNewCivMil === "yes" ? "New" : "Existing");
+      break;
+    case EMPTYPES.Contractor:
+      displayEmpType = "Contractor";
+      break;
+  }
 
   let closedOrCancelledNotice: string = "";
 
