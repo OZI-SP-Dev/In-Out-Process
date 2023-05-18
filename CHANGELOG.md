@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Dialog
   - CommandBar - replaced with just Buttons per Best Practice to not use Toolbar unless 3+ buttons
   - Toggle - replaced with Switch
+  - Dropdown
 
 ### Fixed
 

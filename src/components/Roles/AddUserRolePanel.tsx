@@ -7,7 +7,7 @@ import {
 } from "api/RolesApi";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { IPerson } from "api/UserApi";
-import { Dropdown, Panel, PanelType } from "@fluentui/react";
+import { Panel, PanelType } from "@fluentui/react";
 import {
   Button,
   Label,
@@ -18,6 +18,8 @@ import {
   Tooltip,
   Badge,
   Spinner,
+  Dropdown,
+  Option,
 } from "@fluentui/react-components";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -95,7 +97,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
       return a.toLowerCase().localeCompare(b.toLowerCase());
     })
     .map((role) => {
-      return { key: role, text: role };
+      return role;
     });
 
   // Function to test adding a Role
@@ -201,15 +203,21 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 <Dropdown
                   id="roleId"
                   aria-describedby="roleErr"
-                  selectedKey={value}
-                  onChange={(_, option) => {
-                    if (option?.key) {
-                      onChange(option.key);
+                  value={value}
+                  selectedOptions={value}
+                  onOptionSelect={(_ev, data) => {
+                    if (data?.selectedOptions) {
+                      onChange(data.optionValue);
                     }
                   }}
                   onBlur={onBlur}
-                  options={roles}
-                />
+                >
+                  {roles.map((role) => (
+                    <Option value={role} key={role}>
+                      {role}
+                    </Option>
+                  ))}
+                </Dropdown>
               )}
             />
             {errors.Role && (
