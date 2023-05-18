@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
+  buttonBar: {
+    display: "flex",
+  },
   createButtons: {
     height: "2.5em",
     backgroundColor: tokens.colorBrandBackground,
@@ -87,14 +90,14 @@ export const MyRequests = () => {
   return (
     <>
       <br />
-      <div style={{ display: "flex" }}>
+      <div className={classes.buttonBar}>
         <Button
           className={classes.createButtons}
           appearance="primary"
           icon={
             <AddIcon
               className={classes.icon}
-              onClick={() => navigateTo("/new")} /*classes.createButtons*/
+              onClick={() => navigateTo("/new")}
             />
           }
         >
