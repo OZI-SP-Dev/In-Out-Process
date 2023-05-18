@@ -1,9 +1,10 @@
-import { Stack } from "@fluentui/react";
 import {
   Accordion,
   AccordionHeader,
   AccordionItem,
   AccordionPanel,
+  Title2,
+  Title3,
 } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { MyRequests } from "components/MyRequests/MyRequests";
@@ -11,10 +12,10 @@ import { Link } from "react-router-dom";
 
 const Home: FunctionComponent = () => {
   return (
-    <Stack>
-      <Stack.Item align="center">
-        <h1>Welcome to the In/Out Processing Tool</h1>
-      </Stack.Item>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <Title2 align="center">
+        <b>Welcome to the In/Out Processing Tool</b>
+      </Title2>
       <Accordion multiple defaultOpenItems={["overview", "instructions"]}>
         <AccordionItem value="overview">
           <AccordionHeader as="h2" size="extra-large">
@@ -63,10 +64,10 @@ const Home: FunctionComponent = () => {
       </Accordion>
       <MyRequests />
       <br />
-      <h2 style={{ paddingLeft: "1em" }}>
+      <Title3 style={{ paddingLeft: "1em" }}>
         <Link to="/myCheckListItems">View My Checklist Items</Link>
-      </h2>
-    </Stack>
+      </Title3>
+    </div>
   );
 };
 
