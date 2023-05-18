@@ -84,7 +84,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
         if (item.CompletedDate) {
           return <>{item.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
         } else {
-          // TODO: Replace this button with a Command Bar at the top of the ShimmeredDetailList
+          // TODO: Potentially replace this button with a Button at the top of the ShimmeredDetailList allowing multiple to be completed at once
           return (
             // Show the button to complete if they are the proper role AND the request is Active
             props.Roles?.includes(item.Lead) &&
