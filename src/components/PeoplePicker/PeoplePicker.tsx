@@ -7,6 +7,7 @@ import {
 } from "@fluentui/react/lib/Pickers";
 import { spWebContext } from "providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
+import { LayerHost } from "@fluentui/react";
 
 // TODO: Add a way to show as input needed/corrected
 
@@ -115,26 +116,41 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
   };
 
   return (
-    <NormalPeoplePicker
-      onResolveSuggestions={onFilterChanged}
-      getTextFromItem={getTextFromItem}
-      pickerSuggestionsProps={suggestionProps}
-      className={"ms-PeoplePicker"}
-      key={"controlled"}
-      selectionAriaLabel={"Selected users"}
-      removeButtonAriaLabel={"Remove"}
-      selectedItems={selectedItems}
-      onChange={onItemsChange}
-      inputProps={{
-        "aria-label": props.ariaLabel,
-      }}
-      resolveDelay={300}
-      disabled={props.readOnly}
-      itemLimit={props.itemLimit ? props.itemLimit : 1}
-      // TODO: Look into adding suggestions based on cache
-      //onEmptyResolveSuggestions={getEmptyResolveSuggestions}
-      //onRemoveSuggestion={removeSuggestion}
-    />
+    <>
+      <NormalPeoplePicker
+        pickerCalloutProps={{
+          layerProps: {
+            hostId: "myPicker",
+          },
+        }}
+        onResolveSuggestions={onFilterChanged}
+        getTextFromItem={getTextFromItem}
+        pickerSuggestionsProps={suggestionProps}
+        className={"ms-PeoplePicker"}
+        key={"controlled"}
+        selectionAriaLabel={"Selected users"}
+        removeButtonAriaLabel={"Remove"}
+        selectedItems={selectedItems}
+        onChange={onItemsChange}
+        inputProps={{
+          "aria-label": props.ariaLabel,
+        }}
+        resolveDelay={300}
+        disabled={props.readOnly}
+        itemLimit={props.itemLimit ? props.itemLimit : 1}
+        // TODO: Look into adding suggestions based on cache
+        //onEmptyResolveSuggestions={getEmptyResolveSuggestions}
+        //onRemoveSuggestion={removeSuggestion}
+      />
+      {/* Creating a LayerHost and setting the z-index to 1 higher than it's default of 1000000
+             allows the popup people suggestions to appear above the V9 Dialog box 
+             This can likely be eliminated once they release a V9 for the PeoplePicker
+             NOTE:  When removing also remove the pickerCalloutProps setting hostId to this host  */}
+      <LayerHost
+        id="myPicker"
+        style={{ zIndex: 1000001, position: "fixed" }}
+      ></LayerHost>
+    </>
   );
 };
 
