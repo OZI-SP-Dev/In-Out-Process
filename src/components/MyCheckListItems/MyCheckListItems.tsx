@@ -4,9 +4,8 @@ import {
   IGroup,
   SelectionMode,
   ShimmeredDetailsList,
-  Toggle,
 } from "@fluentui/react";
-import { makeStyles } from "@fluentui/react-components";
+import { Field, makeStyles, Switch } from "@fluentui/react-components";
 import { ICheckListItem, useMyChecklistItems } from "api/CheckListItemApi";
 import { IRequestSummary, useRequests } from "api/RequestApi";
 import { Link } from "react-router-dom";
@@ -26,7 +25,7 @@ interface ICheckListItemLookup extends ICheckListItem {
 
 /** FluentUI Styling */
 const useStyles = makeStyles({
-  myCheckListItemsHeader: {
+  padContent: {
     paddingLeft: "1em",
     paddingRight: "1em",
   },
@@ -215,16 +214,19 @@ const MyCheckListItems = () => {
 
   return (
     <>
-      <div className={classes.myCheckListItemsHeader}>
+      <div className={classes.padContent}>
         <h1>My CheckList Items</h1>
       </div>
-      <Toggle
-        className={classes.myCheckListItemsHeader}
+      <Field
+        className={classes.padContent}
         label="Toggle to show/hide completed items"
-        onChange={() => setShowingCompleted(!showingCompleted)}
-        onText="Showing all items"
-        offText="Showing open items"
-      />
+      >
+        <Switch
+          aria-labeledBy="completedToggleId"
+          onChange={() => setShowingCompleted(!showingCompleted)}
+          label={showingCompleted ? "Showing all items" : "Showing open items"}
+        />
+      </Field>
       <ShimmeredDetailsList
         setKey="Id"
         items={myCheckListItems || []}
