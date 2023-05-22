@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Initial addition of the Out Processing capability
 - Out Processing Request Form fields added
-  - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date, Local/Remote, Remote Location, Office, Has DTS/GTC, Out-processing Reason
+  - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date, Local/Remote, Remote Location, Office, Has DTS/GTC, Out-processing Reason, Gaining Organization
 
 ### Changed
 

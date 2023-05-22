@@ -32,6 +32,7 @@ export const milRequest: IOutRequest = {
   office: "OZI",
   isTraveler: "yes",
   outReason: "OTHER",
+  gainingOrg: "",
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
   employee: { ...testUsers[1] },
@@ -53,6 +54,7 @@ export const civRequest: IOutRequest = {
   office: "OZIC",
   isTraveler: "no",
   outReason: "Move within AFLCMC organization",
+  gainingOrg: "AFLCMC/WA",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -70,6 +72,7 @@ export const ctrRequest: IOutRequest = {
   office: "OZIP",
   isTraveler: "",
   outReason: "Move within AFMC organization",
+  gainingOrg: "AFRL/RY",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -122,6 +125,11 @@ export const fieldLabels = {
   OUT_REASON: {
     form: /reason for out-processing/i,
     view: /reason for out-processing/i,
+  },
+  GAINING_ORG: {
+    form: /gaining organization/i,
+    view: /gaining organization/i,
+    lengthError: /gaining organization cannot be longer than 100 characters/i,
   },
 };
 

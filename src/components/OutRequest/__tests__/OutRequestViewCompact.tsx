@@ -112,3 +112,45 @@ describe("Local or Remote", () => {
     }
   );
 });
+
+// Gaining Orginization is displayed under the 'Gaining Org' header if the out reason is a "Transferring" one
+describe("Gaining Organization", () => {
+  const testData = [
+    {
+      request: { ...milRequest, outReason: "OTHER", gainingOrg: "" },
+      appear: false,
+    },
+    {
+      request: {
+        ...milRequest,
+        outReason: "Move within AFLCMC organization",
+        gainingOrg: "Within AFLCMC",
+      },
+      appear: true,
+    },
+    {
+      request: {
+        ...milRequest,
+        outReason: "Move within AFMC organization",
+        gainingOrg: "Within AFMC",
+      },
+      appear: true,
+    },
+    {
+      request: {
+        ...milRequest,
+        outReason: "Move within AF organization",
+        gainingOrg: "Within AF",
+      },
+      appear: true,
+    },
+  ];
+
+  it.each(testData)(
+    "displays if $request.outReason - $appear",
+    ({ request, appear }) => {
+      render(<OutRequestViewCompact formData={request} />);
+      expectTextToBeInTheDocument(fieldLabels.GAINING_ORG.view, appear);
+    }
+  );
+});

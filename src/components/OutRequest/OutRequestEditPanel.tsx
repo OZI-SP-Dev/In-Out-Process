@@ -123,6 +123,15 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
   // Setup watches
   const workLocation = watch("workLocation");
 
+  const isTransferReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Transferring" &&
+        reasonGroup.items.filter(
+          (reason) => props.data.outReason === reason.key
+        ).length > 0
+    ).length > 0;
+
   const onEditCancel = () => {
     reset(); // Reset the fields they changed since they are cancelling
     props.onEditCancel(); // Call the passed in function to process in the parent component
@@ -284,6 +293,52 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 </Text>
               )}
             </div>
+            {isTransferReason && (
+              <div className={classes.fieldContainer}>
+                <Label
+                  htmlFor="gainingOrgId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required
+                >
+                  <TextFieldIcon className={classes.fieldIcon} />
+                  Gaining Organization
+                </Label>
+                <Controller
+                  name="gainingOrg"
+                  control={control}
+                  rules={{
+                    required: "Gaining Organization is required",
+                    maxLength: {
+                      value: 100,
+                      message:
+                        "Gaining Organization cannot be longer than 100 characters",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      aria-describedby="gainingOrgErr"
+                      id="gainingOrgId"
+                    />
+                  )}
+                />
+                {errors.gainingOrg && (
+                  <Text id="gainingOrgErr" className={classes.errorText}>
+                    {errors.gainingOrg.message}
+                  </Text>
+                )}
+                <Text
+                  weight="regular"
+                  size={200}
+                  className={classes.fieldDescription}
+                >
+                  Entry should include Higher HQ / Directorate; examples
+                  AFRL/RD, AFLCMC/HI, SAF/AQ
+                </Text>
+              </div>
+            )}
             <div className={classes.fieldContainer}>
               <Label
                 htmlFor="empTypeId"
