@@ -166,6 +166,19 @@ export const OutRequestViewCompact: FunctionComponent<
             <Text id="gainingOrgCVId">{formData.gainingOrg}</Text>
           </div>
         )}
+        <div>
+          <Label
+            weight="semibold"
+            htmlFor="isSCICVId"
+            aria-describedby="isSCICVId"
+          >
+            Special clearance accesses (i.e., SCI, SAP, etc)?
+          </Label>
+          <br />
+          <Text id="isSCICVId" className={classes.capitalize}>
+            {formData.isSCI}
+          </Text>
+        </div>
       </div>
     </>
   );

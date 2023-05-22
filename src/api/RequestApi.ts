@@ -93,6 +93,7 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       isTraveler: request.isTraveler,
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
+      isSCI: request.isSCI,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
       supGovLead: new Person({
@@ -198,6 +199,7 @@ const transformRequestToSP = async (
       isTraveler: request.isTraveler,
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
+      isSCI: request.isSCI,
       lastDay: request.lastDay.toISOString(),
       beginDate: request.beginDate.toISOString(),
       supGovLeadId:
@@ -613,6 +615,8 @@ export type IOutRequest = {
   outReason: string;
   /** Required - The user's new organization.  Will be '' if they are not transferring */
   gainingOrg: string;
+  /** Required - Can only be 'yes' | 'no' */
+  isSCI: "yes" | "no";
   /** Required - The user's last day */
   lastDay: Date;
   /** Required - The estimated date to start out processing - Default to 7 days before lastDay*/

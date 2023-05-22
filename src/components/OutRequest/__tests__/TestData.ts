@@ -33,6 +33,7 @@ export const milRequest: IOutRequest = {
   isTraveler: "yes",
   outReason: "OTHER",
   gainingOrg: "",
+  isSCI: "yes",
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
   employee: { ...testUsers[1] },
@@ -55,6 +56,7 @@ export const civRequest: IOutRequest = {
   isTraveler: "no",
   outReason: "Move within AFLCMC organization",
   gainingOrg: "AFLCMC/WA",
+  isSCI: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -73,6 +75,7 @@ export const ctrRequest: IOutRequest = {
   isTraveler: "",
   outReason: "Move within AFMC organization",
   gainingOrg: "AFRL/RY",
+  isSCI: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -130,6 +133,10 @@ export const fieldLabels = {
     form: /gaining organization/i,
     view: /gaining organization/i,
     lengthError: /gaining organization cannot be longer than 100 characters/i,
+  },
+  SPECIAL_ACCESS: {
+    form: /does the employee enjoy any special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
+    view: /special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
   },
 };
 

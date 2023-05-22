@@ -338,6 +338,7 @@ export const handlers = [
             isTraveler: body.isTraveler,
             outReason: body.outReason,
             gainingOrg: body.gainingOrg,
+            isSCI: body.isSCI,
             lastDay: body.lastDay,
             beginDate: body.beginDate,
             supGovLead: { ...supervisor },
@@ -1141,6 +1142,7 @@ const updateRequest = (id: number, item: IRequestItem) => {
       reqItem.gainingOrg = item.gainingOrg
         ? item.gainingOrg
         : reqItem.gainingOrg;
+      reqItem.isSCI = item.isSCI ? item.isSCI : reqItem.isSCI;
       reqItem.beginDate = item.beginDate ? item.beginDate : reqItem.beginDate;
     }
   }

@@ -456,3 +456,30 @@ describe("Gaining Organization", () => {
     }
   );
 });
+
+describe("Special clearance accesses (i.e., SCI, SAP, etc)?", () => {
+  const empTypes = [EMPTYPES.Civilian, EMPTYPES.Contractor, EMPTYPES.Military];
+  it.each(empTypes)(
+    "is selectable for all employee types - $empType",
+    async (empType) => {
+      await renderThenSelectEmpType(empType);
+
+      const sci = screen.getByRole("radiogroup", {
+        name: fieldLabels.SPECIAL_ACCESS.form,
+      });
+
+      const yesBttn = within(sci).getByLabelText(/yes/i);
+      const noBttn = within(sci).getByLabelText(/no/i);
+
+      // Click "Yes" and ensure it reflects checked and that "No" is not
+      await user.click(yesBttn);
+      expect(yesBttn).toBeChecked();
+      expect(noBttn).not.toBeChecked();
+
+      // Click "No" and ensure it reflects checked and that "Yes" is not
+      await user.click(noBttn);
+      expect(noBttn).toBeChecked();
+      expect(yesBttn).not.toBeChecked();
+    }
+  );
+});
