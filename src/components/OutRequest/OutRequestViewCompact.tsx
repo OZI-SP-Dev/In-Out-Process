@@ -4,6 +4,7 @@ import { makeStyles, Label, Text } from "@fluentui/react-components";
 import { IOutRequest } from "api/RequestApi";
 import { MessageBar, MessageBarType } from "@fluentui/react";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -32,6 +33,15 @@ export const OutRequestViewCompact: FunctionComponent<
     (code) => code.key === formData.sensitivityCode
   );
   const sensitivityCode = codeEntry ? codeEntry.text : "";
+
+  const isTransferReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Transferring" &&
+        reasonGroup.items.filter(
+          (reason) => props.formData.outReason === reason.key
+        ).length > 0
+    ).length > 0;
 
   let closedOrCancelledNotice: string = "";
 
@@ -147,6 +157,15 @@ export const OutRequestViewCompact: FunctionComponent<
           <br />
           <Text id="outReasonCVId">{formData.outReason}</Text>
         </div>
+        {isTransferReason && (
+          <div>
+            <Label weight="semibold" htmlFor="gainingOrgCVId">
+              Gaining Organization
+            </Label>
+            <br />
+            <Text id="gainingOrgCVId">{formData.gainingOrg}</Text>
+          </div>
+        )}
       </div>
     </>
   );

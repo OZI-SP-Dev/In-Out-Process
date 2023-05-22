@@ -117,6 +117,15 @@ const OutRequestNewForm = () => {
   // Set up watches
   const empType = watch("empType");
   const workLocation = watch("workLocation");
+  const outReason = watch("outReason");
+
+  const isTransferReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Transferring" &&
+        reasonGroup.items.filter((reason) => outReason === reason.key).length >
+          0
+    ).length > 0;
 
   // Redirect the user to the newly created item, if we were able to successfully create it
   if (addRequest.isSuccess) {
@@ -228,6 +237,53 @@ const OutRequestNewForm = () => {
           </Text>
         )}
       </div>
+      {isTransferReason && (
+        <div className={classes.fieldContainer}>
+          <Label
+            htmlFor="gainingOrgId"
+            size="small"
+            weight="semibold"
+            className={classes.fieldLabel}
+            required
+          >
+            <TextFieldIcon className={classes.fieldIcon} />
+            Gaining Organization
+          </Label>
+          <Controller
+            name="gainingOrg"
+            control={control}
+            defaultValue={""}
+            rules={{
+              required: "Gaining Organization is required",
+              maxLength: {
+                value: 100,
+                message:
+                  "Gaining Organization cannot be longer than 100 characters",
+              },
+            }}
+            render={({ field }) => (
+              <Input
+                {...field}
+                aria-describedby="gainingOrgErr"
+                id="gainingOrgId"
+              />
+            )}
+          />
+          {errors.gainingOrg && (
+            <Text id="gainingOrgErr" className={classes.errorText}>
+              {errors.gainingOrg.message}
+            </Text>
+          )}
+          <Text
+            weight="regular"
+            size={200}
+            className={classes.fieldDescription}
+          >
+            Entry should include Higher HQ / Directorate; examples AFRL/RD,
+            AFLCMC/HI, SAF/AQ
+          </Text>
+        </div>
+      )}
       <div className={classes.fieldContainer}>
         <Label
           htmlFor="empTypeId"

@@ -352,3 +352,27 @@ describe("Out-processing Reason", () => {
     }
   );
 });
+
+describe("Gaining Organization", () => {
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      renderEditPanelForRequest({
+        ...milRequest,
+        outReason: "Move within AFMC organization", // Must select that Employee is a transfering Employee
+      });
+
+      await checkEnterableTextbox(fieldLabels.GAINING_ORG.form, testString);
+
+      const gainingOrgFld = screen.getByRole("textbox", {
+        name: fieldLabels.GAINING_ORG.form,
+      });
+
+      checkForErrorMessage(
+        gainingOrgFld,
+        fieldLabels.GAINING_ORG.lengthError,
+        testString.length > 100
+      );
+    }
+  );
+});
