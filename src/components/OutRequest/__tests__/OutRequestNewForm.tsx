@@ -483,3 +483,30 @@ describe("Special clearance accesses (i.e., SCI, SAP, etc)?", () => {
     }
   );
 });
+
+describe("Has SIPR", () => {
+  const empTypes = [EMPTYPES.Civilian, EMPTYPES.Contractor, EMPTYPES.Military];
+  it.each(empTypes)(
+    "is selectable for all employee types - $empType",
+    async (empType) => {
+      await renderThenSelectEmpType(empType);
+
+      const hasSIPR = screen.getByRole("radiogroup", {
+        name: fieldLabels.HAS_SIPR.form,
+      });
+
+      const yesBttn = within(hasSIPR).getByLabelText(/yes/i);
+      const noBttn = within(hasSIPR).getByLabelText(/no/i);
+
+      // Click "Yes" and ensure it reflects checked and that "No" is not
+      await user.click(yesBttn);
+      expect(yesBttn).toBeChecked();
+      expect(noBttn).not.toBeChecked();
+
+      // Click "No" and ensure it reflects checked and that "Yes" is not
+      await user.click(noBttn);
+      expect(noBttn).toBeChecked();
+      expect(yesBttn).not.toBeChecked();
+    }
+  );
+});

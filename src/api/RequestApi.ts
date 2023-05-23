@@ -94,6 +94,7 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
       isSCI: request.isSCI,
+      hasSIPR: request.hasSIPR,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
       supGovLead: new Person({
@@ -200,6 +201,7 @@ const transformRequestToSP = async (
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
       isSCI: request.isSCI,
+      hasSIPR: request.hasSIPR,
       lastDay: request.lastDay.toISOString(),
       beginDate: request.beginDate.toISOString(),
       supGovLeadId:
@@ -617,6 +619,8 @@ export type IOutRequest = {
   gainingOrg: string;
   /** Required - Can only be 'yes' | 'no' */
   isSCI: "yes" | "no";
+  /** Required - Can only be 'yes' | 'no' */
+  hasSIPR: "yes" | "no";
   /** Required - The user's last day */
   lastDay: Date;
   /** Required - The estimated date to start out processing - Default to 7 days before lastDay*/
