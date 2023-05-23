@@ -179,6 +179,19 @@ export const OutRequestViewCompact: FunctionComponent<
             {formData.isSCI}
           </Text>
         </div>
+        <div>
+          <Label
+            weight="semibold"
+            htmlFor="hasSIPRCVId"
+            aria-describedby="hasSIPRCVId"
+          >
+            Has SIPR Token?
+          </Label>
+          <br />
+          <Text id="hasSIPRCVId" className={classes.capitalize}>
+            {formData.hasSIPR}
+          </Text>
+        </div>
       </div>
     </>
   );

@@ -396,3 +396,23 @@ describe("Special clearance accesses (i.e., SCI, SAP, etc)?", () => {
     }
   );
 });
+
+describe("Has SIPR", () => {
+  // Currently field is not editable -- this may change as we explore updating tasks based on changes
+  const requests = [civRequest, milRequest, ctrRequest];
+  it.each(requests)(
+    "is disabled for all requests = $request.empType",
+    async (request) => {
+      renderEditPanelForRequest(request);
+
+      const hasSIPR = screen.getByRole("radiogroup", {
+        name: fieldLabels.HAS_SIPR.form,
+      });
+
+      const yesBttn = within(hasSIPR).getByRole("radio", { name: /yes/i });
+      const noBttn = within(hasSIPR).getByRole("radio", { name: /no/i });
+      expect(yesBttn).toBeDisabled();
+      expect(noBttn).toBeDisabled();
+    }
+  );
+});

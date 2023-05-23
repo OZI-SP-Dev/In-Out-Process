@@ -34,6 +34,7 @@ export const milRequest: IOutRequest = {
   outReason: "OTHER",
   gainingOrg: "",
   isSCI: "yes",
+  hasSIPR: "yes",
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
   employee: { ...testUsers[1] },
@@ -57,6 +58,7 @@ export const civRequest: IOutRequest = {
   outReason: "Move within AFLCMC organization",
   gainingOrg: "AFLCMC/WA",
   isSCI: "no",
+  hasSIPR: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -76,6 +78,7 @@ export const ctrRequest: IOutRequest = {
   outReason: "Move within AFMC organization",
   gainingOrg: "AFRL/RY",
   isSCI: "no",
+  hasSIPR: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -137,6 +140,10 @@ export const fieldLabels = {
   SPECIAL_ACCESS: {
     form: /does the employee enjoy any special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
     view: /special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
+  },
+  HAS_SIPR: {
+    form: /does the employee possess a sipr token\?/i,
+    view: /has sipr token\?/i,
   },
 };
 

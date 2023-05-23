@@ -793,6 +793,47 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 )}
               />
             </div>
+            <div className={classes.fieldContainer}>
+              <Label
+                htmlFor="hasSIPRId"
+                id="hasSIPRLabelId"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+                required
+              >
+                <ToggleLeftRegular className={classes.fieldIcon} />
+                Does the employee possess a SIPR token?
+              </Label>
+              <Controller
+                name="hasSIPR"
+                control={control}
+                rules={{
+                  required: "Selection is required",
+                }}
+                render={({ field: { onBlur, onChange, value } }) => (
+                  <RadioGroup
+                    onBlur={onBlur}
+                    value={value}
+                    onChange={(e, option) => {
+                      onChange(e, option);
+                    }}
+                    aria-describedby="hasSIPRErr"
+                    aria-labelledby="hasSIPRLabelId"
+                    disabled={true}
+                    id="hasSIPRId"
+                  >
+                    <Radio key={"yes"} value={"yes"} label="Yes" />
+                    <Radio key={"no"} value={"no"} label="No" />
+                  </RadioGroup>
+                )}
+              />
+              {errors.hasSIPR && (
+                <Text id="hasSIPRErr" className={classes.errorText}>
+                  {errors.hasSIPR.message}
+                </Text>
+              )}
+            </div>
             <div>
               <Button appearance="primary" type="submit">
                 Save

@@ -172,3 +172,21 @@ describe("Requires SCI", () => {
     expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
   });
 });
+
+describe("Has SIPR", () => {
+  it("is displayed for all requests", async () => {
+    render(<OutRequestViewCompact formData={milRequest} />);
+    expectTextToBeInTheDocument(fieldLabels.HAS_SIPR.view, true);
+  });
+
+  it.each(["yes", "no"])("has correct value displayed - %s", (hasSIPR) => {
+    const milRequestSIPR = {
+      ...milRequest,
+      hasSIPR: hasSIPR as "yes" | "no",
+    };
+    render(<OutRequestViewCompact formData={milRequestSIPR} />);
+    const textElement = screen.queryByText(fieldLabels.HAS_SIPR.view);
+
+    expect(textElement).toHaveAccessibleDescription(new RegExp(hasSIPR, "i"));
+  });
+});
