@@ -154,3 +154,21 @@ describe("Gaining Organization", () => {
     }
   );
 });
+
+describe("Requires SCI", () => {
+  it("is displayed for all requests", async () => {
+    render(<OutRequestViewCompact formData={milRequest} />);
+    expectTextToBeInTheDocument(fieldLabels.SPECIAL_ACCESS.view, true);
+  });
+
+  it.each(["yes", "no"])("has correct value displayed - %s", (isSCI) => {
+    const milRequestSCI = {
+      ...milRequest,
+      isSCI: isSCI as "yes" | "no",
+    };
+    render(<OutRequestViewCompact formData={milRequestSCI} />);
+    const textElement = screen.queryByText(fieldLabels.SPECIAL_ACCESS.view);
+
+    expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
+  });
+});

@@ -765,6 +765,34 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 />
               </div>
             )}
+            <div className={classes.fieldContainer}>
+              <Label
+                id="isSCIId"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+                required
+              >
+                <ToggleLeftRegular className={classes.fieldIcon} />
+                Does the employee enjoy any special clearance accesses (i.e.,
+                SCI, SAP, etc)?
+              </Label>
+              <Controller
+                name="isSCI"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    aria-describedby="isSCIErr"
+                    aria-labelledby="isSCIId"
+                    disabled={true}
+                  >
+                    <Radio key={"yes"} value={"yes"} label="Yes" />
+                    <Radio key={"no"} value={"no"} label="No" />
+                  </RadioGroup>
+                )}
+              />
+            </div>
             <div>
               <Button appearance="primary" type="submit">
                 Save

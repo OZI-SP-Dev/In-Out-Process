@@ -86,11 +86,12 @@ type IRHFIPerson = {
 // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
 type IRHFOutRequest = Omit<
   IOutRequest,
-  "empType" | "supGovLead" | "employee" | "workLocation"
+  "empType" | "supGovLead" | "employee" | "workLocation" | "isSCI"
 > & {
   /* Allow these to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
+  isSCI: "yes" | "no" | "";
   /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
   supGovLead: IRHFIPerson;
   employee: IRHFIPerson;
@@ -761,6 +762,43 @@ const OutRequestNewForm = () => {
           )}
         </div>
       )}
+      <div className={classes.fieldContainer}>
+        <Label
+          id="isSCIId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <ToggleLeftRegular className={classes.fieldIcon} />
+          Does the employee enjoy any special clearance accesses (i.e., SCI,
+          SAP, etc)?
+        </Label>
+        <Controller
+          name="isSCI"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Selection is required",
+          }}
+          render={({ field }) => (
+            <RadioGroup
+              {...field}
+              aria-labelledby="isSCIId"
+              aria-describedby="isSCIErr"
+              id="isSCIId"
+            >
+              <Radio key={"yes"} value={"yes"} label="Yes" />
+              <Radio key={"no"} value={"no"} label="No" />
+            </RadioGroup>
+          )}
+        />
+        {errors.isSCI && (
+          <Text id="isSCIErr" className={classes.errorText}>
+            {errors.isSCI.message}
+          </Text>
+        )}
+      </div>
       <div className={classes.createButton}>
         <div>
           {addRequest.isLoading && (
