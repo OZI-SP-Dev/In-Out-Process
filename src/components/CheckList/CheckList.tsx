@@ -1,17 +1,25 @@
-import { useChecklistItems } from "api/CheckListItemApi";
-import {
-  IColumn,
-  SelectionMode,
-  ShimmeredDetailsList,
-  Selection,
-} from "@fluentui/react";
+import { ICheckListItem, useChecklistItems } from "api/CheckListItemApi";
 import { FunctionComponent, useState } from "react";
-import { Link } from "@fluentui/react-components";
+import {
+  createTableColumn,
+  DataGrid,
+  DataGridBody,
+  DataGridCell,
+  DataGridHeader,
+  DataGridHeaderCell,
+  DataGridProps,
+  DataGridRow,
+  Link,
+  TableCellLayout,
+  TableColumnDefinition,
+} from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { CheckListItemPanel } from "components/CheckList/CheckListItemPanel";
 import { RoleType } from "api/RolesApi";
 import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
+import { DateTime } from "luxon";
+import { SkeletonDataGrid } from "components/SkeletonDataGrid/SkeletonDataGrid";
 
 export interface ICheckList {
   ReqId: number;
@@ -26,102 +34,159 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   const [isItemPanelOpen, { setTrue: showItemPanel, setFalse: hideItemPanel }] =
     useBoolean(false);
 
-  // The selected CheckList Item
-  let selection = new Selection();
-
   // State and function to handle which item is being displayed in the CheckList Item Panel
   const [currentItemId, setCurrentItemId] = useState<number>();
+
+  // DataGrid method for when a new row is selected
+  const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
+    setCurrentItemId(
+      parseInt(data.selectedItems.values().next().value.toString())
+    );
+  };
+
+  // Define columns for the DataGrid
+  const columns: TableColumnDefinition<ICheckListItem>[] = [
+    createTableColumn<ICheckListItem>({
+      columnId: "title",
+      compare: (a, b) => {
+        return a.Title.localeCompare(b.Title);
+      },
+      renderHeaderCell: () => {
+        return "Title";
+      },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout>
+            <Link
+              onClick={() => {
+                setCurrentItemId(item.Id);
+                showItemPanel();
+              }}
+            >
+              {item.Title}
+            </Link>
+          </TableCellLayout>
+        );
+      },
+    }),
+    createTableColumn<ICheckListItem>({
+      columnId: "lead",
+      compare: (a, b) => {
+        return a.Lead.localeCompare(b.Lead);
+      },
+      renderHeaderCell: () => {
+        return "Lead";
+      },
+      renderCell: (item) => {
+        return <TableCellLayout>{item.Lead}</TableCellLayout>;
+      },
+    }),
+    createTableColumn<ICheckListItem>({
+      columnId: "completedDate",
+      compare: (a, b) => {
+        const aDate =
+          a.CompletedDate?.toUnixInteger() ?? DateTime.now().toUnixInteger();
+        const bDate =
+          b.CompletedDate?.toUnixInteger() ?? DateTime.now().toUnixInteger();
+        return aDate - bDate;
+      },
+      renderHeaderCell: () => {
+        return "Completed Date";
+      },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout>
+            {item.CompletedDate
+              ? item.CompletedDate?.toFormat("yyyy-MM-dd")
+              : props.Roles?.includes(item.Lead) &&
+                props.Request.status === "Active" && (
+                  <CheckListItemButton checklistItem={item} />
+                )}
+          </TableCellLayout>
+        );
+      },
+    }),
+    createTableColumn<ICheckListItem>({
+      columnId: "completedBy",
+      compare: (a, b) => {
+        const aTitle = a.CompletedBy?.Title ?? "";
+        const bTitle = b.CompletedBy?.Title ?? "";
+        return aTitle.localeCompare(bTitle);
+      },
+      renderHeaderCell: () => {
+        return "Completed By";
+      },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout truncate={true}>
+            {item.CompletedBy?.Title}
+          </TableCellLayout>
+        );
+      },
+    }),
+  ];
+
+  // Define the columnSizingOptions for the resizable column grid
+  const columnSizingOptions = {
+    completedDate: {
+      defaultWidth: 140,
+      minWidth: 140,
+      idealWidth: 140,
+    },
+    completedBy: {
+      defaultWidth: 350,
+      idealWidth: 350,
+    },
+    title: {
+      defaultWidth: 650,
+      idealWidth: 650,
+    },
+  };
 
   // The currently selected CheckList Item
   const currentItem = checlistItems.data?.find(
     (item) => item.Id === currentItemId
   );
 
-  // Define columns for details list
-  const columns: IColumn[] = [
-    {
-      key: "column0",
-      name: "Item",
-      fieldName: "Id",
-      minWidth: 40,
-      maxWidth: 40,
-      isResizable: false,
-    },
-    {
-      key: "column1",
-      name: "Title",
-      fieldName: "Title",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => (
-        <Link
-          onClick={() => {
-            setCurrentItemId(item.Id);
-            showItemPanel();
-          }}
-        >
-          {item.Title}
-        </Link>
-      ),
-    },
-    {
-      key: "column2",
-      name: "Lead",
-      fieldName: "Lead",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-    },
-    {
-      key: "column3",
-      name: "Completed Date",
-      fieldName: "CompletedDate",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => {
-        if (item.CompletedDate) {
-          return <>{item.CompletedDate?.toFormat("yyyy-MM-dd")}</>;
-        } else {
-          // TODO: Potentially replace this button with a Button at the top of the ShimmeredDetailList allowing multiple to be completed at once
-          return (
-            // Show the button to complete if they are the proper role AND the request is Active
-            props.Roles?.includes(item.Lead) &&
-            props.Request.status === "Active" && (
-              <CheckListItemButton checklistItem={item} />
-            )
-          );
-        }
-      },
-    },
-    {
-      key: "column4",
-      name: "Completed By",
-      fieldName: "CompletedBy",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => {
-        return <>{item.CompletedBy?.Title}</>;
-      },
-    },
-  ];
-
   return (
     <>
-      <ShimmeredDetailsList
-        setKey="Id"
-        items={checlistItems.data || []}
-        columns={columns}
-        enableShimmer={!checlistItems.data}
-        selectionMode={SelectionMode.single}
-        onActiveItemChanged={(item) => {
-          setCurrentItemId(item.Id);
-        }}
-        onItemInvoked={showItemPanel}
-        selection={selection}
-      />
+      <br />
+      <SkeletonDataGrid isLoadingData={!checlistItems.data}>
+        <DataGrid
+          items={checlistItems.data || [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]}
+          columns={columns}
+          selectionMode="single"
+          getRowId={(item) => item.Id} // Make the rowId the Id of the ChecklistItem instead of index in array
+          onSelectionChange={onSelectionChange}
+          size="small"
+          resizableColumns={true}
+          columnSizingOptions={columnSizingOptions}
+          sortable={true}
+        >
+          <DataGridHeader>
+            <DataGridRow>
+              {({ renderHeaderCell }) => (
+                <DataGridHeaderCell>
+                  <b>{renderHeaderCell()}</b>
+                </DataGridHeaderCell>
+              )}
+            </DataGridRow>
+          </DataGridHeader>
+          <DataGridBody<ICheckListItem>>
+            {({ item, rowId }) => (
+              <DataGridRow<ICheckListItem>
+                key={rowId}
+                selectionCell={{ "aria-label": "Select row" }}
+                onDoubleClick={showItemPanel}
+              >
+                {({ renderCell }) => (
+                  <DataGridCell>{renderCell(item)}</DataGridCell>
+                )}
+              </DataGridRow>
+            )}
+          </DataGridBody>
+        </DataGrid>
+      </SkeletonDataGrid>
       {currentItem && (
         <CheckListItemPanel
           isOpen={isItemPanelOpen}
