@@ -29,6 +29,11 @@ export const SkeletonDataGrid = ({
     return <>There has been an error trying to load grid of data</>;
   }
 
+  // Determine if the selection mode was set on the DataGrid -- supposed to be false by default which should not render selection cell
+  // Since DataGrid is still rendering the selectionCell regardless of value, this workaround will ensure we don't set a selectionCell
+  // if the prop isn't populated
+  const hasSelectionEnabled = firstChild.props?.selectionMode ? true : false;
+
   return (
     <>
       {isLoadingData ? (
@@ -50,7 +55,11 @@ export const SkeletonDataGrid = ({
               {({ rowId }) => (
                 <DataGridRow<any>
                   key={rowId}
-                  selectionCell={{ "aria-label": "Select row" }}
+                  selectionCell={
+                    hasSelectionEnabled
+                      ? { "aria-label": "Select row" }
+                      : undefined
+                  }
                 >
                   {() => (
                     <DataGridCell>
