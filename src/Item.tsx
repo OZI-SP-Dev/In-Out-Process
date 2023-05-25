@@ -16,7 +16,7 @@ const useStyles = makeStyles({
     paddingRight: ".5em",
     gridTemplateColumns: "minmax(250px, 1fr)",
     scrollbarGutter: "stable",
-    height: "calc(100vh - 42px)",
+    height: "calc(100vh - 3em)", // Reserve 3em for NavHeader height
     overflowY: "auto",
   },
   requestTitle: {
