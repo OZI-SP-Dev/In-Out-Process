@@ -15,6 +15,9 @@ const useStyles = makeStyles({
     paddingLeft: ".5em",
     paddingRight: ".5em",
     gridTemplateColumns: "minmax(250px, 1fr)",
+    scrollbarGutter: "stable",
+    maxHeight: "calc(100vh - 3em)", // Reserve 3em for NavHeader height
+    overflowY: "auto",
   },
   requestTitle: {
     // Text (Title1) component requires it to be set as a block for elipsis to work
