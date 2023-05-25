@@ -23,6 +23,10 @@ const useStyles = makeStyles({
     // Text (Title1) component requires it to be set as a block for elipsis to work
     display: "block",
   },
+  checkList: {
+    marginLeft: ".5em", // Add some margins to keep DataGrid
+    marginRight: ".5em", // from displaying the horizontal scrollbar with Resize
+  },
 });
 
 const Item: FunctionComponent = () => {
@@ -72,7 +76,7 @@ const Item: FunctionComponent = () => {
               <OutRequest request={request.data} roles={requestRoles} />
             )}
           </div>
-          <div>
+          <div className={classes.checkList}>
             <CheckList
               ReqId={Number(itemNum)}
               Roles={requestRoles}
