@@ -1,7 +1,19 @@
-import { IColumn, SelectionMode, ShimmeredDetailsList } from "@fluentui/react";
-import { Button, makeStyles, tokens } from "@fluentui/react-components";
+import {
+  Button,
+  createTableColumn,
+  DataGrid,
+  DataGridBody,
+  DataGridCell,
+  DataGridHeader,
+  DataGridHeaderCell,
+  DataGridRow,
+  makeStyles,
+  TableCellLayout,
+  TableColumnDefinition,
+  tokens,
+} from "@fluentui/react-components";
 import { AddIcon } from "@fluentui/react-icons-mdl2";
-import { useMyRequests } from "api/RequestApi";
+import { useMyRequests, IInRequest } from "api/RequestApi";
 import { Link, useNavigate } from "react-router-dom";
 
 /* FluentUI Styling */
@@ -41,51 +53,54 @@ export const MyRequests = () => {
   const navigateTo = useNavigate();
   const classes = useStyles();
 
-  const columns: IColumn[] = [
-    {
-      key: "column0",
-      name: "Item",
-      fieldName: "Id",
-      minWidth: 30,
-      maxWidth: 30,
-      isResizable: false,
-    },
-    {
-      key: "column1",
-      name: "Employee Name",
-      fieldName: "empName",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => <Link to={"item/" + item.Id}>{item.empName}</Link>,
-    },
-    {
-      key: "column2",
-      name: "Estimated On-Boarding",
-      fieldName: "eta",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => {
-        if (item.eta) {
-          return item.eta.toLocaleDateString();
-        }
+  // Define columns for the DataGrid
+  const columns: TableColumnDefinition<IInRequest>[] = [
+    createTableColumn<IInRequest>({
+      columnId: "empName",
+      compare: (a, b) => {
+        return a.empName.localeCompare(b.empName);
       },
-    },
-    {
-      key: "column3",
-      name: "Status",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (item) => {
-        if (item.eta) {
-          /*TODO: Change to show some sort of status field once established */
-          return item.eta.toLocaleDateString();
-        }
+      renderHeaderCell: () => {
+        return "Employee Name";
       },
-    },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout>
+            <Link to={"item/" + item.Id}>{item.empName}</Link>
+          </TableCellLayout>
+        );
+      },
+    }),
+    createTableColumn<IInRequest>({
+      columnId: "eta",
+      compare: (a, b) => {
+        const aDate = a.eta?.getDate() ?? new Date().getDate();
+        const bDate = b.eta?.getDate() ?? new Date().getDate();
+        return aDate - bDate;
+      },
+      renderHeaderCell: () => {
+        return "Estimated On-Boarding";
+      },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout>{item.eta?.toLocaleDateString()}</TableCellLayout>
+        );
+      },
+    }),
   ];
+
+  // Define the columnSizingOptions for the resizable column grid
+  const columnSizingOptions = {
+    empName: {
+      defaultWidth: 250,
+      minWidth: 140,
+      idealWidth: 250,
+    },
+    eta: {
+      defaultWidth: 350,
+      idealWidth: 350,
+    },
+  };
 
   return (
     <>
@@ -120,13 +135,34 @@ export const MyRequests = () => {
         <h2>My Requests</h2>
       </div>
       <div className={classes.requestList}>
-        <ShimmeredDetailsList
+        <DataGrid
           items={data || []}
           columns={columns}
-          enableShimmer={!data}
-          selectionMode={SelectionMode.none}
-          setKey="Id"
-        />
+          getRowId={(item) => item.Id} // Make the rowId the Id of the ChecklistItem instead of index in array
+          size="small"
+          resizableColumns={true}
+          columnSizingOptions={columnSizingOptions}
+          sortable={true}
+        >
+          <DataGridHeader>
+            <DataGridRow>
+              {({ renderHeaderCell }) => (
+                <DataGridHeaderCell>
+                  <b>{renderHeaderCell()}</b>
+                </DataGridHeaderCell>
+              )}
+            </DataGridRow>
+          </DataGridHeader>
+          <DataGridBody<IInRequest>>
+            {({ item, rowId }) => (
+              <DataGridRow<IInRequest> key={rowId}>
+                {({ renderCell }) => (
+                  <DataGridCell>{renderCell(item)}</DataGridCell>
+                )}
+              </DataGridRow>
+            )}
+          </DataGridBody>
+        </DataGrid>
       </div>
     </>
   );

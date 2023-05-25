@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial addition of the Out Processing capability
 - Out Processing Request Form fields added
   - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date, Local/Remote, Remote Location, Office, Has DTS/GTC, Out-processing Reason, Gaining Organization, Special clearance accesses (i.e., SCI, SAP, etc)?
+- Checklist Items on Request View are now sortable by column header
 
 ### Changed
 
@@ -27,6 +28,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Toggle - replaced with Switch
   - Dropdown
   - Stack - Removed and replaced with general CSS flexbox
+  - DetailList (partial upgrade -- still some remaining that use grouping) - Replaced with DataGrid
+  - Removed the "Item" column from CheckListItem display
+  - Removed the "Status" column from the My Requests
 
 ### Fixed
 
