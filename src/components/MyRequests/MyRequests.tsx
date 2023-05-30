@@ -171,25 +171,17 @@ export const MyRequests = () => {
       <div className={classes.buttonBar}>
         <Button
           className={classes.createButtons}
+          onClick={() => navigateTo("/new")}
           appearance="primary"
-          icon={
-            <AddIcon
-              className={classes.icon}
-              onClick={() => navigateTo("/new")}
-            />
-          }
+          icon={<AddIcon className={classes.icon} />}
         >
           New In Processing Request
         </Button>
         <Button
           className={classes.createButtons}
+          onClick={() => navigateTo("/depart")}
           appearance="primary"
-          icon={
-            <AddIcon
-              className={classes.icon}
-              onClick={() => navigateTo("/depart")}
-            />
-          }
+          icon={<AddIcon className={classes.icon} />}
         >
           New Out Processing Request
         </Button>
