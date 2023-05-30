@@ -53,6 +53,7 @@ enum templates {
   SignedAF2587 = 43,
   SignedNDADebrief = 44,
   TurnInCAC = 45,
+  ConfirmTurnInCAC = 46,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -479,6 +480,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <p><b><u>Contractors:</u></b> You must turn your CAC into your Trusted Agent (TA) on your last day. If you are going to another AF contract, coordinate with your TA to transfer your CAC. If you do not know your Trusted Agent is, reach out to the Consolidated Security Office (CSO) by email at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a> or visit our SharePoint site at <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
     Prereqs: [],
   },
+  {
+    Title: "Confirm return of Common Access Card (CAC)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.ConfirmTurnInCAC,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.TurnInCAC],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -773,6 +781,11 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     request.empType === EMPTYPES.Contractor
   ) {
     addChecklistItem(templates.TurnInCAC);
+  }
+
+  // If it is a Ctr then add task for Confirming turning in CAC.
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.ConfirmTurnInCAC);
   }
 
   // Wait for the responses to all come back from the batch
