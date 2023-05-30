@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - DetailList (partial upgrade -- still some remaining that use grouping) - Replaced with DataGrid
   - Removed the "Item" column from CheckListItem display
   - Removed the "Status" column from the My Requests
+- Updated MyRequests component on homepage to display 2 separate areas for In-processing and Out-processing, and updated what data is shown from each request
 
 ### Fixed
 
