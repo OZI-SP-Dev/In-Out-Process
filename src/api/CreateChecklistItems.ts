@@ -48,6 +48,7 @@ enum templates {
   SCIBilletNomination = 39,
   CoordGTCApplUpdate = 40,
   RemovalFromWHAT = 41,
+  TurnInSIPR = 42,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -443,6 +444,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
     Prereqs: [],
   },
+  {
+    Title: "Turn in SIPR token(s)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.TurnInSIPR,
+    Description: `<p style="margin-top: 0px">Contact information and guidance for turning in SIPR tokens will be found with the Wright Patterson AFB Local Registration Authority (LRA) Office.  For more information, go the <a href="https://usaf.dps.mil/teams/88CS_LRA/SitePages/Home.aspx">88th CS LRA SharePoint site.</a></p>
+    <p>This checklist item should not be marked complete until any/all appropriate SIPR tokens have been returned to the 88th CS LRA.</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -690,6 +699,11 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // Add the Removal from WHAT task if the employee is a contractor
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.RemovalFromWHAT);
+  }
+
+  // If they have a SIPR token to turn in then add the task for it
+  if (request.hasSIPR) {
+    addChecklistItem(templates.TurnInSIPR);
   }
 
   // Wait for the responses to all come back from the batch
