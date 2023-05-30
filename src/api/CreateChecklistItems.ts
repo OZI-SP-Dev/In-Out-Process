@@ -47,6 +47,7 @@ enum templates {
   SignedNDA = 38,
   SCIBilletNomination = 39,
   CoordGTCApplUpdate = 40,
+  RemovalFromWHAT = 41,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -435,6 +436,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 </p>`,
     Prereqs: [templates.ObtainCACGov],
   },
+  {
+    Title: "Removal from Workforce Hybrid Analysis Tool (WHAT)",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.RemovalFromWHAT,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -678,6 +686,11 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
         );
     }
   };
+
+  // Add the Removal from WHAT task if the employee is a contractor
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.RemovalFromWHAT);
+  }
 
   // Wait for the responses to all come back from the batch
   await execute();
