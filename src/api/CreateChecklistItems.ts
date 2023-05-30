@@ -52,6 +52,7 @@ enum templates {
   TurnInSIPR = 42,
   SignedAF2587 = 43,
   SignedNDADebrief = 44,
+  TurnInCAC = 45,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -469,6 +470,15 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Turn-in Common Access Card (CAC)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.TurnInCAC,
+    Description: `<p style="margin-top: 0px"><i><b>HIGHLY RECOMMENDED:</b> For obvious reasons, make turning in your CAC one of the very last out-processing actions</i></p>
+<p><b><u>Military / Civilian:</u></b> If you are separating or retiring, please turn your CAC in to your supervisor or respective CAC Card Issuance Facility.</p>
+<p><b><u>Contractors:</u></b> You must turn your CAC into your Trusted Agent (TA) on your last day. If you are going to another AF contract, coordinate with your TA to transfer your CAC. If you do not know your Trusted Agent is, reach out to the Consolidated Security Office (CSO) by email at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a> or visit our SharePoint site at <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -753,6 +763,16 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // If the employee is Retiring or Separating then add task for Signed NDA Debrief
   if (isRetiringReason || isSeparatinggReason) {
     addChecklistItem(templates.SignedNDADebrief);
+  }
+
+  // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
+  if (
+    ((request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+      (isRetiringReason || isSeparatinggReason)) ||
+    request.empType === EMPTYPES.Contractor
+  ) {
+    addChecklistItem(templates.TurnInCAC);
   }
 
   // Wait for the responses to all come back from the batch
