@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 enum templates {
   WelcomePackage = 1,
@@ -49,6 +50,7 @@ enum templates {
   CoordGTCApplUpdate = 40,
   RemovalFromWHAT = 41,
   TurnInSIPR = 42,
+  SignedAF2587 = 43,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -452,6 +454,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     <p>This checklist item should not be marked complete until any/all appropriate SIPR tokens have been returned to the 88th CS LRA.</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Signed AF 2587",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SignedAF2587,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -696,6 +705,24 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     }
   };
 
+  /* Determine if the out-processing reason is a Separating reason */
+  const isSeparatinggReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Separating" &&
+        reasonGroup.items.filter((reason) => request.outReason === reason.key)
+          .length > 0
+    ).length > 0;
+
+  /* Determine if the out-processing reason is a Retiring reason */
+  const isRetiringReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Retiring" &&
+        reasonGroup.items.filter((reason) => request.outReason === reason.key)
+          .length > 0
+    ).length > 0;
+
   // Add the Removal from WHAT task if the employee is a contractor
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.RemovalFromWHAT);
@@ -706,6 +733,14 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.TurnInSIPR);
   }
 
+  // If it is a Civ/Mil who is Retiring or Separating then add task for AF2587
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
+    addChecklistItem(templates.SignedAF2587);
+  }
   // Wait for the responses to all come back from the batch
   await execute();
 
