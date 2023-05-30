@@ -54,6 +54,7 @@ enum templates {
   SignedNDADebrief = 44,
   TurnInCAC = 45,
   ConfirmTurnInCAC = 46,
+  RemoveSpecialAccess = 47,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -487,6 +488,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [templates.TurnInCAC],
   },
+  {
+    Title: "Remove special access privileges",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.RemoveSpecialAccess,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -786,6 +794,11 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // If it is a Ctr then add task for Confirming turning in CAC.
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.ConfirmTurnInCAC);
+  }
+
+  // If they selected the employee has special access, then add the task from removing it
+  if (request.isSCI) {
+    addChecklistItem(templates.RemoveSpecialAccess);
   }
 
   // Wait for the responses to all come back from the batch
