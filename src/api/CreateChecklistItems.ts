@@ -51,6 +51,7 @@ enum templates {
   RemovalFromWHAT = 41,
   TurnInSIPR = 42,
   SignedAF2587 = 43,
+  SignedNDADebrief = 44,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -461,6 +462,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Signed debrief section of Non-Disclosure Agreement (NDA)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SignedNDADebrief,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -741,6 +749,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   ) {
     addChecklistItem(templates.SignedAF2587);
   }
+
+  // If the employee is Retiring or Separating then add task for Signed NDA Debrief
+  if (isRetiringReason || isSeparatinggReason) {
+    addChecklistItem(templates.SignedNDADebrief);
+  }
+
   // Wait for the responses to all come back from the batch
   await execute();
 
