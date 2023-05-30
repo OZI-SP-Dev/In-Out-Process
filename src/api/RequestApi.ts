@@ -399,11 +399,11 @@ export const useAddRequest = () => {
         // Mark requests as needing refreshed
         queryClient.invalidateQueries(["requests"]);
 
+        // Create the tasks using that new Request Id
+        const tasks = await addTasks.mutateAsync(data);
+
         // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email and add correct tasks
         if (isInRequest(data)) {
-          // Create the tasks using that new Request Id
-          const tasks = await addTasks.mutateAsync(data);
-
           // After the tasks have been created, generate the email notification
           sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
         }

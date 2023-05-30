@@ -1,5 +1,5 @@
 import { spWebContext } from "providers/SPWebContext";
-import { IInRequest } from "api/RequestApi";
+import { IInRequest, IOutRequest, IRequest, isInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleType } from "api/RolesApi";
@@ -647,12 +647,55 @@ const createInboundChecklistItems = async (request: IInRequest) => {
   return res;
 };
 
+const createOutboundChecklistItems = async (request: IOutRequest) => {
+  const [batchedSP, execute] = spWebContext.batched();
+  const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  /** Hold the responses to the requests in the batch */
+  let res: IItemAddResult[] = [];
+
+  /**
+   * Function to call the PnPJS function to create the item
+   * @param templateId The ID of the template to use for creating the Checklist Item
+   */
+  const addChecklistItem = (templateId: templates) => {
+    const itemTemplate = checklistTemplates.find(
+      (checklistTemplate) => checklistTemplate.TemplateId === templateId
+    );
+    if (itemTemplate) {
+      checklistItems.items
+        .add({
+          Title: itemTemplate.Title,
+          Lead: itemTemplate.Lead,
+          RequestId: request.Id,
+          TemplateId: itemTemplate.TemplateId,
+          Active: itemTemplate.Prereqs.length === 0,
+          Description: itemTemplate.Description,
+        } as ICheckListItem)
+        .then(
+          // Add the response to the array of responses
+          (r) => res.push(r)
+        );
+    }
+  };
+
+  // Wait for the responses to all come back from the batch
+  await execute();
+
+  // Reutrn the array of responses
+  return res;
+};
+
 export const useAddTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ["checklist"],
-    (newRequest: IInRequest) => {
-      return createInboundChecklistItems(newRequest);
+    (newRequest: IRequest) => {
+      if (isInRequest(newRequest)) {
+        return createInboundChecklistItems(newRequest);
+      } else {
+        return createOutboundChecklistItems(newRequest);
+      }
     },
     {
       onSuccess: () => {
