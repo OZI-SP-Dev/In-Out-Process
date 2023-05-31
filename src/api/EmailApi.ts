@@ -33,7 +33,7 @@ interface IActivationObj {
 /**  Definition for what data is needed to send the email notification that a new request was added */
 interface ISendRequestSubmitEmail {
   /** The new request */
-  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
+  request: IRequest;
   /** The tasks that were added to the request, so we know which Leads to contact */
   tasks: IItemAddResult[];
 }
@@ -228,22 +228,44 @@ export const useSendRequestSubmitEmail = () => {
 
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
 
-    const newEmail: IEmail = {
-      to: toField,
-      cc: ccField,
-      subject: `In-processing Initial Request: ${
-        request.empName
-      } expected arrival ${request.eta.toLocaleDateString()}`,
-      body: `In-bound employee: ${request.empName}
+    let newEmail: IEmail;
+
+    if (isInRequest(request)) {
+      // It is an In-processing request
+      newEmail = {
+        to: toField,
+        cc: ccField,
+        subject: `In-processing Initial Request: ${
+          request.empName
+        } expected arrival ${request.eta.toLocaleDateString()}`,
+        body: `In-bound employee: ${request.empName}
 Expected arrival date: ${request.eta.toLocaleDateString()}
 Owning organization and supervisor: ${request.office}, ${
-        request.supGovLead.Title
-      }
+          request.supGovLead.Title
+        }
 
 To view this request and take action follow the below link:
 ${linkURL}`,
-    };
+      };
+    } else {
+      // It is an Out-processing request
+      newEmail = {
+        to: toField,
+        cc: ccField,
+        subject: `Out-processing Initial Request: ${
+          request.empName
+        } expected final date ${request.lastDay.toLocaleDateString()}`,
+        body: `Out-bound employee: ${request.empName}
+Estimated out-processing begin date: ${request.beginDate.toLocaleDateString()}
+Final out-processing date: ${request.lastDay.toLocaleDateString()}
+Owning organization and supervisor: ${request.office}, ${
+          request.supGovLead.Title
+        }
 
+To view this request and take action follow the below link:
+${linkURL}`,
+      };
+    }
     return spWebContext.web.lists
       .getByTitle("Emails")
       .items.add(transformEmailToSP(newEmail));

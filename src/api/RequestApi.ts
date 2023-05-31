@@ -401,12 +401,8 @@ export const useAddRequest = () => {
 
         // Create the tasks using that new Request Id
         const tasks = await addTasks.mutateAsync(data);
-
-        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email and add correct tasks
-        if (isInRequest(data)) {
-          // After the tasks have been created, generate the email notification
-          sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
-        }
+        // After the tasks have been created, generate the email notification
+        sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
       },
     }
   );
