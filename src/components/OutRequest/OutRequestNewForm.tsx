@@ -772,8 +772,8 @@ const OutRequestNewForm = () => {
           required
         >
           <ToggleLeftRegular className={classes.fieldIcon} />
-          Does the employee enjoy any special clearance accesses (i.e., SCI,
-          SAP, etc)?
+          Does the employee have any special clearance accesses (i.e., SCI, SAP,
+          etc)?
         </Label>
         <Controller
           name="isSCI"
