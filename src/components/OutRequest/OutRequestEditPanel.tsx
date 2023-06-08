@@ -774,7 +774,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 required
               >
                 <ToggleLeftRegular className={classes.fieldIcon} />
-                Does the employee enjoy any special clearance accesses (i.e.,
+                Does the employee have any special clearance accesses (i.e.,
                 SCI, SAP, etc)?
               </Label>
               <Controller
