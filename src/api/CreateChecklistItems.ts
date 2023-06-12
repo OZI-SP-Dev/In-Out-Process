@@ -763,7 +763,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // If they have a SIPR token to turn in then add the task for it
-  if (request.hasSIPR) {
+  if (request.hasSIPR === "yes") {
     addChecklistItem(templates.TurnInSIPR);
   }
 
@@ -797,7 +797,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // If they selected the employee has special access, then add the task from removing it
-  if (request.isSCI) {
+  if (request.isSCI === "yes") {
     addChecklistItem(templates.RemoveSpecialAccess);
   }
 
