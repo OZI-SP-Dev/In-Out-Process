@@ -763,7 +763,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // If they have a SIPR token to turn in then add the task for it
-  if (request.hasSIPR) {
+  if (request.hasSIPR === "yes") {
     addChecklistItem(templates.TurnInSIPR);
   }
 
@@ -776,8 +776,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.SignedAF2587);
   }
 
-  // If the employee is Retiring or Separating then add task for Signed NDA Debrief
-  if (isRetiringReason || isSeparatinggReason) {
+  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Signed NDA Debrief
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
     addChecklistItem(templates.SignedNDADebrief);
   }
 
@@ -797,7 +801,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // If they selected the employee has special access, then add the task from removing it
-  if (request.isSCI) {
+  if (request.isSCI === "yes") {
     addChecklistItem(templates.RemoveSpecialAccess);
   }
 
