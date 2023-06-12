@@ -776,8 +776,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.SignedAF2587);
   }
 
-  // If the employee is Retiring or Separating then add task for Signed NDA Debrief
-  if (isRetiringReason || isSeparatinggReason) {
+  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Signed NDA Debrief
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
     addChecklistItem(templates.SignedNDADebrief);
   }
 
