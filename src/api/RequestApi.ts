@@ -317,10 +317,11 @@ const expandedFields = "supGovLead,employee";
 //  reqType is used to know if it is In/Out type
 //  cancelReason/closedOrCancelled are used to determine request status
 //  empName and eta are used by My Requests table and My Checklist Items
+//  lastDay is used by My Requests table
 //  completionDate is used by My Checklist Items
 //  supGovLead/Id and employee/Id are used to determine what should be in My Checklist Items
 const requestsSummaryFields =
-  "Id,reqType,empName,eta,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,employee/Id,employee/EMail,employee/Title";
+  "Id,reqType,empName,eta,lastDay,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,employee/Id,employee/EMail,employee/Title";
 const requestsSummaryexpandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
