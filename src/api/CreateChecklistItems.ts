@@ -1,10 +1,11 @@
 import { spWebContext } from "providers/SPWebContext";
-import { IInRequest } from "api/RequestApi";
+import { IInRequest, IOutRequest, IRequest, isInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "./CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
+import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 enum templates {
   WelcomePackage = 1,
@@ -47,6 +48,13 @@ enum templates {
   SignedNDA = 38,
   SCIBilletNomination = 39,
   CoordGTCApplUpdate = 40,
+  RemovalFromWHAT = 41,
+  TurnInSIPR = 42,
+  SignedAF2587 = 43,
+  SignedNDADebrief = 44,
+  TurnInCAC = 45,
+  ConfirmTurnInCAC = 46,
+  RemoveSpecialAccess = 47,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -435,6 +443,58 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 </p>`,
     Prereqs: [templates.ObtainCACGov],
   },
+  {
+    Title: "Removal from Workforce Hybrid Analysis Tool (WHAT)",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.RemovalFromWHAT,
+    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Turn in SIPR token(s)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.TurnInSIPR,
+    Description: `<p style="margin-top: 0px">Contact information and guidance for turning in SIPR tokens will be found with the Wright Patterson AFB Local Registration Authority (LRA) Office.  For more information, go the <a href="https://usaf.dps.mil/teams/88CS_LRA/SitePages/Home.aspx">88th CS LRA SharePoint site.</a></p>
+    <p>This checklist item should not be marked complete until any/all appropriate SIPR tokens have been returned to the 88th CS LRA.</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Signed AF 2587",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SignedAF2587,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Signed debrief section of Non-Disclosure Agreement (NDA)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SignedNDADebrief,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Turn-in Common Access Card (CAC)",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.TurnInCAC,
+    Description: `<p style="margin-top: 0px"><i><b>HIGHLY RECOMMENDED:</b> For obvious reasons, make turning in your CAC one of the very last out-processing actions</i></p>
+<p><b><u>Military / Civilian:</u></b> If you are separating or retiring, please turn your CAC in to your supervisor or respective CAC Card Issuance Facility.</p>
+<p><b><u>Contractors:</u></b> You must turn your CAC into your Trusted Agent (TA) on your last day. If you are going to another AF contract, coordinate with your TA to transfer your CAC. If you do not know your Trusted Agent is, reach out to the Consolidated Security Office (CSO) by email at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a> or visit our SharePoint site at <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Confirm return of Common Access Card (CAC)",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.ConfirmTurnInCAC,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.TurnInCAC],
+  },
+  {
+    Title: "Remove special access privileges",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.RemoveSpecialAccess,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -647,12 +707,117 @@ const createInboundChecklistItems = async (request: IInRequest) => {
   return res;
 };
 
+const createOutboundChecklistItems = async (request: IOutRequest) => {
+  const [batchedSP, execute] = spWebContext.batched();
+  const checklistItems = batchedSP.web.lists.getByTitle("CheckListItems");
+
+  /** Hold the responses to the requests in the batch */
+  let res: IItemAddResult[] = [];
+
+  /**
+   * Function to call the PnPJS function to create the item
+   * @param templateId The ID of the template to use for creating the Checklist Item
+   */
+  const addChecklistItem = (templateId: templates) => {
+    const itemTemplate = checklistTemplates.find(
+      (checklistTemplate) => checklistTemplate.TemplateId === templateId
+    );
+    if (itemTemplate) {
+      checklistItems.items
+        .add({
+          Title: itemTemplate.Title,
+          Lead: itemTemplate.Lead,
+          RequestId: request.Id,
+          TemplateId: itemTemplate.TemplateId,
+          Active: itemTemplate.Prereqs.length === 0,
+          Description: itemTemplate.Description,
+        } as ICheckListItem)
+        .then(
+          // Add the response to the array of responses
+          (r) => res.push(r)
+        );
+    }
+  };
+
+  /* Determine if the out-processing reason is a Separating reason */
+  const isSeparatinggReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Separating" &&
+        reasonGroup.items.filter((reason) => request.outReason === reason.key)
+          .length > 0
+    ).length > 0;
+
+  /* Determine if the out-processing reason is a Retiring reason */
+  const isRetiringReason =
+    OUT_PROCESS_REASONS.filter(
+      (reasonGroup) =>
+        reasonGroup.key === "Retiring" &&
+        reasonGroup.items.filter((reason) => request.outReason === reason.key)
+          .length > 0
+    ).length > 0;
+
+  // Add the Removal from WHAT task if the employee is a contractor
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.RemovalFromWHAT);
+  }
+
+  // If they have a SIPR token to turn in then add the task for it
+  if (request.hasSIPR) {
+    addChecklistItem(templates.TurnInSIPR);
+  }
+
+  // If it is a Civ/Mil who is Retiring or Separating then add task for AF2587
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
+    addChecklistItem(templates.SignedAF2587);
+  }
+
+  // If the employee is Retiring or Separating then add task for Signed NDA Debrief
+  if (isRetiringReason || isSeparatinggReason) {
+    addChecklistItem(templates.SignedNDADebrief);
+  }
+
+  // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
+  if (
+    ((request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+      (isRetiringReason || isSeparatinggReason)) ||
+    request.empType === EMPTYPES.Contractor
+  ) {
+    addChecklistItem(templates.TurnInCAC);
+  }
+
+  // If it is a Ctr then add task for Confirming turning in CAC.
+  if (request.empType === EMPTYPES.Contractor) {
+    addChecklistItem(templates.ConfirmTurnInCAC);
+  }
+
+  // If they selected the employee has special access, then add the task from removing it
+  if (request.isSCI) {
+    addChecklistItem(templates.RemoveSpecialAccess);
+  }
+
+  // Wait for the responses to all come back from the batch
+  await execute();
+
+  // Reutrn the array of responses
+  return res;
+};
+
 export const useAddTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ["checklist"],
-    (newRequest: IInRequest) => {
-      return createInboundChecklistItems(newRequest);
+    (newRequest: IRequest) => {
+      if (isInRequest(newRequest)) {
+        return createInboundChecklistItems(newRequest);
+      } else {
+        return createOutboundChecklistItems(newRequest);
+      }
     },
     {
       onSuccess: () => {
