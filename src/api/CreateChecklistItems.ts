@@ -786,10 +786,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
+  // Exemption to this is if they are staying within DoD (Move to non-AF DOD organization)
   if (
     ((request.empType === EMPTYPES.Civilian ||
       request.empType === EMPTYPES.Military) &&
-      (isRetiringReason || isSeparatinggReason)) ||
+      (isRetiringReason || isSeparatinggReason) &&
+      request.outReason !== "Move to non-AF DOD organization") ||
     request.empType === EMPTYPES.Contractor
   ) {
     addChecklistItem(templates.TurnInCAC);

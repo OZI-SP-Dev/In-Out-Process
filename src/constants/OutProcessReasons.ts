@@ -22,6 +22,7 @@ export const OUT_PROCESS_REASONS = [
     text: "Separating",
     items: [
       {
+        // Note:  If this text changes -- ensure the exemption conditional statement is also updated in CreateChecklistItems
         key: "Move to non-AF DOD organization",
         text: "Move to non-AF DOD organization",
       },
