@@ -5,7 +5,6 @@ import { useError } from "hooks/useError";
 import {
   getRequest,
   IRequest,
-  IInRequest,
   isInRequest,
   transformRequestFromSP,
 } from "api/RequestApi";
@@ -41,7 +40,7 @@ interface ISendRequestSubmitEmail {
 /**  Definition for what data is needed to send the email notification that a request was cancelled */
 interface ISendRequestCancelEmail {
   /** The request */
-  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
+  request: IRequest;
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the request was cancelled */
@@ -284,6 +283,10 @@ ${linkURL}`,
   });
 };
 
+/**
+ * Hook used to send email notification that the request has been cancelled
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendRequestCancelEmail = () => {
   const errorAPI = useError();
 
@@ -324,14 +327,29 @@ export const useSendRequestCancelEmail = () => {
     const toField = leadUsers;
     const ccField = [request.supGovLead];
 
-    const newEmail: IEmail = {
-      to: toField,
-      cc: ccField,
-      subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
-      body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
+    let newEmail: IEmail;
+
+    if (isInRequest(request)) {
+      // In-processing request email
+      newEmail = {
+        to: toField,
+        cc: ccField,
+        subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
+        body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
-    };
+      };
+    } else {
+      // Out-processing request email
+      newEmail = {
+        to: toField,
+        cc: ccField,
+        subject: `Out-processing Cancel Request: Request for ${request.empName} has been cancelled`,
+        body: `This email notification is to announce the cancellation of the out-processing request for ${request.empName} assigned to ${request.office}.
+The request has been cancelled for the following reason:
+${reason}`,
+      };
+    }
 
     return spWebContext.web.lists
       .getByTitle("Emails")
