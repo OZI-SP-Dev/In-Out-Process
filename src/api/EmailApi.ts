@@ -351,6 +351,10 @@ ${reason}`,
   });
 };
 
+/**
+ * Hook used to send email notification to the Employee that the request is complete
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendRequestCompleteEmail = () => {
   const errorAPI = useError();
 
@@ -362,11 +366,22 @@ export const useSendRequestCompleteEmail = () => {
    */
   const sendRequestCompleteEmail = (request: IRequest) => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
-    const newEmail: IEmail = {
-      to: toField,
-      subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
-      body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
-    };
+    let newEmail: IEmail;
+    if (isInRequest(request)) {
+      // Email for In-processing request
+      newEmail = {
+        to: toField,
+        subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
+        body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
+      };
+    } else {
+      // Email for Out-processing request
+      newEmail = {
+        to: toField,
+        subject: `Out-processing Request Complete:  Out-processing for ${request.empName} is complete`,
+        body: `This email notification is to inform you that all out-processing tasks have been completed and the request closed.`,
+      };
+    }
 
     return spWebContext.web.lists
       .getByTitle("Emails")

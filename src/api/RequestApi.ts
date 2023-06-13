@@ -484,10 +484,7 @@ export const useCompleteRequest = (Id: number) => {
         queryClient.invalidateQueries(["requests", Id]);
 
         // Generate the email notification
-        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email
-        if (isInRequest(request)) {
-          sendRequestCompleteEmail.mutate(request);
-        }
+        sendRequestCompleteEmail.mutate(request);
       },
     }
   );
