@@ -26,8 +26,8 @@ export const OUT_PROCESS_REASONS = [
         text: "Move to non-AF DOD organization",
       },
       {
-        key: "Move to external (non-government) job",
-        text: "Move to external (non-government) job",
+        key: "Move to external (Non-DOD government / Non-government) job",
+        text: "Move to external (Non-DOD government / Non-government) job",
       },
       {
         key: "Move to external (government related contractor) job",
