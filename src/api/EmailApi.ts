@@ -5,7 +5,6 @@ import { useError } from "hooks/useError";
 import {
   getRequest,
   IRequest,
-  IInRequest,
   isInRequest,
   transformRequestFromSP,
 } from "api/RequestApi";
@@ -41,7 +40,7 @@ interface ISendRequestSubmitEmail {
 /**  Definition for what data is needed to send the email notification that a request was cancelled */
 interface ISendRequestCancelEmail {
   /** The request */
-  request: IInRequest; // TODO -- Replace this with generic IRequest once we define what should be in that email
+  request: IRequest;
   /** The tasks, so we know which Leads to contact */
   tasks: ICheckListItem[];
   /** The reason the request was cancelled */
@@ -91,7 +90,10 @@ const transformEmailToSP = (email: IEmail) => {
   };
 };
 
-/** Hook to send the Notification Activation emails */
+/**
+ * Hook to send the Notification Activation emails
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendActivationEmails = (completedChecklistItemId: number) => {
   const { data: allRolesByRole } = useAllUserRolesByRole();
   const queryClient = useQueryClient();
@@ -162,7 +164,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
       const newEmail: IEmail = {
         to: leadUsers,
         cc: [request.supGovLead],
-        subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
+        subject: `(Action Required) ${request.reqType}-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
         body: `The following checklist item(s) are now available to be completed:<ul>${items
           .map((item) => `<li>${item.Title}</li>`)
           .join(
@@ -284,6 +286,10 @@ ${linkURL}`,
   });
 };
 
+/**
+ * Hook used to send email notification that the request has been cancelled
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendRequestCancelEmail = () => {
   const errorAPI = useError();
 
@@ -327,8 +333,10 @@ export const useSendRequestCancelEmail = () => {
     const newEmail: IEmail = {
       to: toField,
       cc: ccField,
-      subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
-      body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
+      subject: `${request.reqType}-processing Cancel Request: Request for ${request.empName} has been cancelled`,
+      body: `This email notification is to announce the cancellation of the ${request.reqType.toLowerCase()}-processing request for ${
+        request.empName
+      } assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
     };
@@ -351,6 +359,10 @@ ${reason}`,
   });
 };
 
+/**
+ * Hook used to send email notification to the Employee that the request is complete
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendRequestCompleteEmail = () => {
   const errorAPI = useError();
 
@@ -364,8 +376,8 @@ export const useSendRequestCompleteEmail = () => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
     const newEmail: IEmail = {
       to: toField,
-      subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
-      body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
+      subject: `${request.reqType}-processing Request Complete:  ${request.reqType}-processing for ${request.empName} is complete`,
+      body: `This email notification is to inform you that all ${request.reqType.toLowerCase()}-processing tasks have been completed and the request closed.`,
     };
 
     return spWebContext.web.lists
@@ -386,14 +398,18 @@ export const useSendRequestCompleteEmail = () => {
   });
 };
 
-export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
+/**
+ * Hook used to send email notification to the Supervisor that the request is ready to be verified complete
+ * @param {number} reqId - The Id of the request to be used
+ * @returns {Object} UseMutationResult object
+ */
+export const useSendRequestVerifyCompleteEmail = (reqId: number) => {
   const queryClient = useQueryClient();
   const errorAPI = useError();
 
   /**
-   *  Send the In Processing Request Verify Complete Notification to the Supervisor
+   *  Send the Processing Request Verify Complete Notification to the Supervisor
    *
-   * @param {IInRequest} request - The In Processing Request
    * @returns A Promise from SharePoint for the email being sent
    */
   const sendInRequestVerifyCompleteEmail = async () => {
@@ -405,15 +421,21 @@ export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
 
     const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
-    const office = isInRequest(request) ? request.office : "";
+
     const newEmail: IEmail = {
       to: toField,
-      subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
-      body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
+      subject: `(Action Required) ${request.reqType}-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
+      body: `This is an email notification confirming the completion of all ${request.reqType.toLowerCase()}-processing activities for ${
+        request.empName
+      } assigned to ${
+        request.office
+      }.  In order to close this ${request.reqType.toLowerCase()}-processing request, it is required that you accomplish the below actions:  
 
-<b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
+<b>Action 1:</b> Go to ${
+        request.empName
+      }'s ${request.reqType.toLowerCase()}-processing request by following the below link:
 ${linkURL}
-<b>Action 2:</b> Close the in-processing request by selecting the button labeled "Complete"`,
+<b>Action 2:</b> Close the ${request.reqType.toLowerCase()}-processing request by selecting the button labeled "Complete"`,
     };
 
     return spWebContext.web.lists

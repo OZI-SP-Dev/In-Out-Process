@@ -448,15 +448,12 @@ export const useCancelRequest = (Id: number) => {
       onSuccess: (_data, variable) => {
         queryClient.invalidateQueries(["requests", Id]);
 
-        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email
-        if (isInRequest(variable.request)) {
-          // Generate the email notification
-          sendRequestCancelEmail.mutate({
-            request: variable.request,
-            tasks: variable.tasks,
-            reason: variable.reason,
-          });
-        }
+        // Generate the email notification
+        sendRequestCancelEmail.mutate({
+          request: variable.request,
+          tasks: variable.tasks,
+          reason: variable.reason,
+        });
       },
     }
   );
@@ -484,10 +481,7 @@ export const useCompleteRequest = (Id: number) => {
         queryClient.invalidateQueries(["requests", Id]);
 
         // Generate the email notification
-        // TODO -- When implementing Out Request Email -- remove this typecheck, and update hook to send correct email
-        if (isInRequest(request)) {
-          sendRequestCompleteEmail.mutate(request);
-        }
+        sendRequestCompleteEmail.mutate(request);
       },
     }
   );

@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 import { checklistTemplates } from "api/CreateChecklistItems";
 import {
   useSendActivationEmails,
-  useSendInRequestVerifyCompleteEmail,
+  useSendRequestVerifyCompleteEmail,
 } from "api/EmailApi";
 import { RoleType } from "api/RolesApi";
 import { useContext } from "react";
@@ -19,8 +19,8 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
   const queryClient = useQueryClient();
   const currentUser = useContext(UserContext).user;
   const { mutate: sendActivationEmails } = useSendActivationEmails(item.Id);
-  const { mutate: sendInRequestVerifyCompleteEmail } =
-    useSendInRequestVerifyCompleteEmail(item.RequestId);
+  const { mutate: sendRequestVerifyCompleteEmail } =
+    useSendRequestVerifyCompleteEmail(item.RequestId);
 
   let checklistItems: ICheckListItem[];
 
@@ -93,7 +93,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
 
       // If there are not any checklist items remaining, then send the notification
       if (needCompleted.length === 0) {
-        sendInRequestVerifyCompleteEmail();
+        sendRequestVerifyCompleteEmail();
       }
     }
     return execute();
