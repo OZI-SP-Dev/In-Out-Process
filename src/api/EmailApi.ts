@@ -161,32 +161,16 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 
       const linkURL = `${webUrl}/app/index.aspx#/item/${request.Id}`;
 
-      let newEmail: IEmail;
-      if (isInRequest(request)) {
-        // In-processing request email
-        newEmail = {
-          to: leadUsers,
-          cc: [request.supGovLead],
-          subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
-          body: `The following checklist item(s) are now available to be completed:<ul>${items
-            .map((item) => `<li>${item.Title}</li>`)
-            .join(
-              ""
-            )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
-        };
-      } else {
-        newEmail = {
-          // Out-processing request email
-          to: leadUsers,
-          cc: [request.supGovLead],
-          subject: `(Action Required) Out-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
-          body: `The following checklist item(s) are now available to be completed:<ul>${items
-            .map((item) => `<li>${item.Title}</li>`)
-            .join(
-              ""
-            )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
-        };
-      }
+      const newEmail: IEmail = {
+        to: leadUsers,
+        cc: [request.supGovLead],
+        subject: `(Action Required) ${request.reqType}-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
+        body: `The following checklist item(s) are now available to be completed:<ul>${items
+          .map((item) => `<li>${item.Title}</li>`)
+          .join(
+            ""
+          )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
+      };
 
       batch.items.add(transformEmailToSP(newEmail));
     }
@@ -346,29 +330,16 @@ export const useSendRequestCancelEmail = () => {
     const toField = leadUsers;
     const ccField = [request.supGovLead];
 
-    let newEmail: IEmail;
-
-    if (isInRequest(request)) {
-      // In-processing request email
-      newEmail = {
-        to: toField,
-        cc: ccField,
-        subject: `In-processing Cancel Request: Request for ${request.empName} has been cancelled`,
-        body: `This email notification is to announce the cancellation of the in-processing request for ${request.empName} assigned to ${request.office}.
+    const newEmail: IEmail = {
+      to: toField,
+      cc: ccField,
+      subject: `${request.reqType}-processing Cancel Request: Request for ${request.empName} has been cancelled`,
+      body: `This email notification is to announce the cancellation of the ${request.reqType.toLowerCase()}-processing request for ${
+        request.empName
+      } assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
-      };
-    } else {
-      // Out-processing request email
-      newEmail = {
-        to: toField,
-        cc: ccField,
-        subject: `Out-processing Cancel Request: Request for ${request.empName} has been cancelled`,
-        body: `This email notification is to announce the cancellation of the out-processing request for ${request.empName} assigned to ${request.office}.
-The request has been cancelled for the following reason:
-${reason}`,
-      };
-    }
+    };
 
     return spWebContext.web.lists
       .getByTitle("Emails")
@@ -403,22 +374,11 @@ export const useSendRequestCompleteEmail = () => {
    */
   const sendRequestCompleteEmail = (request: IRequest) => {
     const toField: IPerson[] = request.employee ? [request.employee] : [];
-    let newEmail: IEmail;
-    if (isInRequest(request)) {
-      // Email for In-processing request
-      newEmail = {
-        to: toField,
-        subject: `In-processing Request Complete:  In-processing for ${request.empName} is complete`,
-        body: `This email notification is to inform you that all in-processing tasks have been completed and the request closed.`,
-      };
-    } else {
-      // Email for Out-processing request
-      newEmail = {
-        to: toField,
-        subject: `Out-processing Request Complete:  Out-processing for ${request.empName} is complete`,
-        body: `This email notification is to inform you that all out-processing tasks have been completed and the request closed.`,
-      };
-    }
+    const newEmail: IEmail = {
+      to: toField,
+      subject: `${request.reqType}-processing Request Complete:  ${request.reqType}-processing for ${request.empName} is complete`,
+      body: `This email notification is to inform you that all ${request.reqType.toLowerCase()}-processing tasks have been completed and the request closed.`,
+    };
 
     return spWebContext.web.lists
       .getByTitle("Emails")
@@ -462,30 +422,21 @@ export const useSendRequestVerifyCompleteEmail = (reqId: number) => {
 
     const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
 
-    let newEmail: IEmail;
-    if (isInRequest(request)) {
-      // The In-processing request email
-      newEmail = {
-        to: toField,
-        subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
-        body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
+    const newEmail: IEmail = {
+      to: toField,
+      subject: `(Action Required) ${request.reqType}-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
+      body: `This is an email notification confirming the completion of all ${request.reqType.toLowerCase()}-processing activities for ${
+        request.empName
+      } assigned to ${
+        request.office
+      }.  In order to close this ${request.reqType.toLowerCase()}-processing request, it is required that you accomplish the below actions:  
 
-<b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
+<b>Action 1:</b> Go to ${
+        request.empName
+      }'s ${request.reqType.toLowerCase()}-processing request by following the below link:
 ${linkURL}
-<b>Action 2:</b> Close the in-processing request by selecting the button labeled "Complete"`,
-      };
-    } else {
-      // The Out-processing request email
-      newEmail = {
-        to: toField,
-        subject: `(Action Required) Out-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
-        body: `This is an email notification confirming the completion of all out-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this out-processing request, it is required that you accomplish the below actions:  
-
-<b>Action 1:</b> Go to ${request.empName}'s out-processing request by following the below link:
-${linkURL}
-<b>Action 2:</b> Close the out-processing request by selecting the button labeled "Complete"`,
-      };
-    }
+<b>Action 2:</b> Close the ${request.reqType.toLowerCase()}-processing request by selecting the button labeled "Complete"`,
+    };
 
     return spWebContext.web.lists
       .getByTitle("Emails")
