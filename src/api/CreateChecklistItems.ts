@@ -57,6 +57,7 @@ enum templates {
   RemoveSpecialAccess = 47,
   GTCTransferMemo = 48,
   GTCConfirmTransfer = 49,
+  CloseATAAPS = 50,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -511,6 +512,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [templates.GTCTransferMemo],
   },
+  {
+    Title: "Close ATAAPS",
+    Lead: RoleType.ATAAPS,
+    TemplateId: templates.CloseATAAPS,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -810,6 +818,15 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   if (request.isTraveler === "yes") {
     addChecklistItem(templates.GTCTransferMemo);
     addChecklistItem(templates.GTCConfirmTransfer);
+  }
+
+  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Closing ATAAPS
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
+    addChecklistItem(templates.CloseATAAPS);
   }
 
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
