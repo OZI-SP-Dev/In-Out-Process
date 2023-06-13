@@ -58,6 +58,7 @@ enum templates {
   GTCTransferMemo = 48,
   GTCConfirmTransfer = 49,
   CloseATAAPS = 50,
+  DetachDTS = 51,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -519,6 +520,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Detach account from losing organization",
+    Lead: RoleType.DTS,
+    TemplateId: templates.DetachDTS,
+    Description: `<p style="margin-top: 0px">DTS Link:  <a href="https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch">https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch</a></p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -814,10 +822,11 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.RemoveSpecialAccess);
   }
 
-  // If they selected the employee has DTS/GTC then add the GTC checklist items
+  // If they selected the employee has DTS/GTC then add the GTC/DTS checklist items
   if (request.isTraveler === "yes") {
     addChecklistItem(templates.GTCTransferMemo);
     addChecklistItem(templates.GTCConfirmTransfer);
+    addChecklistItem(templates.DetachDTS);
   }
 
   // If the employee is a Civ/Mil who is Retiring or Separating then add task for Closing ATAAPS
