@@ -401,14 +401,18 @@ export const useSendRequestCompleteEmail = () => {
   });
 };
 
-export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
+/**
+ * Hook used to send email notification to the Supervisor that the request is ready to be verified complete
+ * @param {number} reqId - The Id of the request to be used
+ * @returns {Object} UseMutationResult object
+ */
+export const useSendRequestVerifyCompleteEmail = (reqId: number) => {
   const queryClient = useQueryClient();
   const errorAPI = useError();
 
   /**
-   *  Send the In Processing Request Verify Complete Notification to the Supervisor
+   *  Send the Processing Request Verify Complete Notification to the Supervisor
    *
-   * @param {IInRequest} request - The In Processing Request
    * @returns A Promise from SharePoint for the email being sent
    */
   const sendInRequestVerifyCompleteEmail = async () => {
@@ -420,16 +424,31 @@ export const useSendInRequestVerifyCompleteEmail = (reqId: number) => {
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
 
     const toField: IPerson[] = request.supGovLead ? [request.supGovLead] : [];
-    const office = isInRequest(request) ? request.office : "";
-    const newEmail: IEmail = {
-      to: toField,
-      subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
-      body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
+
+    let newEmail: IEmail;
+    if (isInRequest(request)) {
+      // The In-processing request email
+      newEmail = {
+        to: toField,
+        subject: `(Action Required) In-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
+        body: `This is an email notification confirming the completion of all in-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this in-processing request, it is required that you accomplish the below actions:  
 
 <b>Action 1:</b> Go to ${request.empName}'s in-processing request by following the below link:
 ${linkURL}
 <b>Action 2:</b> Close the in-processing request by selecting the button labeled "Complete"`,
-    };
+      };
+    } else {
+      // The Out-processing request email
+      newEmail = {
+        to: toField,
+        subject: `(Action Required) Out-processing Verify Complete: Verify and complete checklist for ${request.empName}`,
+        body: `This is an email notification confirming the completion of all out-processing activities for ${request.empName} assigned to ${request.office}.  In order to close this out-processing request, it is required that you accomplish the below actions:  
+
+<b>Action 1:</b> Go to ${request.empName}'s out-processing request by following the below link:
+${linkURL}
+<b>Action 2:</b> Close the out-processing request by selecting the button labeled "Complete"`,
+      };
+    }
 
     return spWebContext.web.lists
       .getByTitle("Emails")
