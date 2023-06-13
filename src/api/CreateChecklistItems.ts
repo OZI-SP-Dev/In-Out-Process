@@ -55,6 +55,7 @@ enum templates {
   TurnInCAC = 45,
   ConfirmTurnInCAC = 46,
   RemoveSpecialAccess = 47,
+  GTCTransferMemo = 48,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -495,6 +496,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Complete GTC transfer memo",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTCTransferMemo,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -785,6 +793,16 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.SignedNDADebrief);
   }
 
+  // If they selected the employee has special access, then add the task from removing it
+  if (request.isSCI === "yes") {
+    addChecklistItem(templates.RemoveSpecialAccess);
+  }
+
+  // If they selected the employee has DTS/GTC then add the GTC checklist item
+  if (request.isTraveler === "yes") {
+    addChecklistItem(templates.GTCTransferMemo);
+  }
+
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
   // Exemption to this is if they are staying within DoD (Move to non-AF DOD organization)
   if (
@@ -800,11 +818,6 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // If it is a Ctr then add task for Confirming turning in CAC.
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.ConfirmTurnInCAC);
-  }
-
-  // If they selected the employee has special access, then add the task from removing it
-  if (request.isSCI === "yes") {
-    addChecklistItem(templates.RemoveSpecialAccess);
   }
 
   // Wait for the responses to all come back from the batch
