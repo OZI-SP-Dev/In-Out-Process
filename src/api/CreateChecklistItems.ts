@@ -56,6 +56,7 @@ enum templates {
   ConfirmTurnInCAC = 46,
   RemoveSpecialAccess = 47,
   GTCTransferMemo = 48,
+  GTCConfirmTransfer = 49,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -503,6 +504,13 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Confirm employee travel card re-assigned to new organization",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTCConfirmTransfer,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.GTCTransferMemo],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -798,9 +806,10 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.RemoveSpecialAccess);
   }
 
-  // If they selected the employee has DTS/GTC then add the GTC checklist item
+  // If they selected the employee has DTS/GTC then add the GTC checklist items
   if (request.isTraveler === "yes") {
     addChecklistItem(templates.GTCTransferMemo);
+    addChecklistItem(templates.GTCConfirmTransfer);
   }
 
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
