@@ -55,6 +55,10 @@ enum templates {
   TurnInCAC = 45,
   ConfirmTurnInCAC = 46,
   RemoveSpecialAccess = 47,
+  GTCTransferMemo = 48,
+  GTCConfirmTransfer = 49,
+  CloseATAAPS = 50,
+  DetachDTS = 51,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -495,6 +499,34 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">None</p>`,
     Prereqs: [],
   },
+  {
+    Title: "Complete GTC transfer memo",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTCTransferMemo,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Confirm employee travel card re-assigned to new organization",
+    Lead: RoleType.GTC,
+    TemplateId: templates.GTCConfirmTransfer,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [templates.GTCTransferMemo],
+  },
+  {
+    Title: "Close ATAAPS",
+    Lead: RoleType.ATAAPS,
+    TemplateId: templates.CloseATAAPS,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Detach account from losing organization",
+    Lead: RoleType.DTS,
+    TemplateId: templates.DetachDTS,
+    Description: `<p style="margin-top: 0px">DTS Link:  <a href="https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch">https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch</a></p>`,
+    Prereqs: [],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -785,11 +817,34 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.SignedNDADebrief);
   }
 
+  // If they selected the employee has special access, then add the task from removing it
+  if (request.isSCI === "yes") {
+    addChecklistItem(templates.RemoveSpecialAccess);
+  }
+
+  // If they selected the employee has DTS/GTC then add the GTC/DTS checklist items
+  if (request.isTraveler === "yes") {
+    addChecklistItem(templates.GTCTransferMemo);
+    addChecklistItem(templates.GTCConfirmTransfer);
+    addChecklistItem(templates.DetachDTS);
+  }
+
+  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Closing ATAAPS
+  if (
+    (request.empType === EMPTYPES.Civilian ||
+      request.empType === EMPTYPES.Military) &&
+    (isRetiringReason || isSeparatinggReason)
+  ) {
+    addChecklistItem(templates.CloseATAAPS);
+  }
+
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
+  // Exemption to this is if they are staying within DoD (Move to non-AF DOD organization)
   if (
     ((request.empType === EMPTYPES.Civilian ||
       request.empType === EMPTYPES.Military) &&
-      (isRetiringReason || isSeparatinggReason)) ||
+      (isRetiringReason || isSeparatinggReason) &&
+      request.outReason !== "Move to non-AF DOD organization") ||
     request.empType === EMPTYPES.Contractor
   ) {
     addChecklistItem(templates.TurnInCAC);
@@ -798,11 +853,6 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // If it is a Ctr then add task for Confirming turning in CAC.
   if (request.empType === EMPTYPES.Contractor) {
     addChecklistItem(templates.ConfirmTurnInCAC);
-  }
-
-  // If they selected the employee has special access, then add the task from removing it
-  if (request.isSCI === "yes") {
-    addChecklistItem(templates.RemoveSpecialAccess);
   }
 
   // Wait for the responses to all come back from the batch

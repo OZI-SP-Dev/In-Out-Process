@@ -22,12 +22,13 @@ export const OUT_PROCESS_REASONS = [
     text: "Separating",
     items: [
       {
+        // Note:  If this text changes -- ensure the exemption conditional statement is also updated in CreateChecklistItems
         key: "Move to non-AF DOD organization",
         text: "Move to non-AF DOD organization",
       },
       {
-        key: "Move to external (non-government) job",
-        text: "Move to external (non-government) job",
+        key: "Move to external (Non-DOD government / Non-government) job",
+        text: "Move to external (Non-DOD government / Non-government) job",
       },
       {
         key: "Move to external (government related contractor) job",
