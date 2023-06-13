@@ -90,7 +90,10 @@ const transformEmailToSP = (email: IEmail) => {
   };
 };
 
-/** Hook to send the Notification Activation emails */
+/**
+ * Hook to send the Notification Activation emails
+ * @returns {Object} UseMutationResult object
+ */
 export const useSendActivationEmails = (completedChecklistItemId: number) => {
   const { data: allRolesByRole } = useAllUserRolesByRole();
   const queryClient = useQueryClient();
@@ -158,16 +161,32 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 
       const linkURL = `${webUrl}/app/index.aspx#/item/${request.Id}`;
 
-      const newEmail: IEmail = {
-        to: leadUsers,
-        cc: [request.supGovLead],
-        subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
-        body: `The following checklist item(s) are now available to be completed:<ul>${items
-          .map((item) => `<li>${item.Title}</li>`)
-          .join(
-            ""
-          )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
-      };
+      let newEmail: IEmail;
+      if (isInRequest(request)) {
+        // In-processing request email
+        newEmail = {
+          to: leadUsers,
+          cc: [request.supGovLead],
+          subject: `(Action Required) In-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
+          body: `The following checklist item(s) are now available to be completed:<ul>${items
+            .map((item) => `<li>${item.Title}</li>`)
+            .join(
+              ""
+            )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
+        };
+      } else {
+        newEmail = {
+          // Out-processing request email
+          to: leadUsers,
+          cc: [request.supGovLead],
+          subject: `(Action Required) Out-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
+          body: `The following checklist item(s) are now available to be completed:<ul>${items
+            .map((item) => `<li>${item.Title}</li>`)
+            .join(
+              ""
+            )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
+        };
+      }
 
       batch.items.add(transformEmailToSP(newEmail));
     }
