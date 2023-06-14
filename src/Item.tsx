@@ -87,7 +87,9 @@ const Item: FunctionComponent = () => {
       ) : (
         <div>Loading...</div>
       )}
-      {request?.error && <div>"An error has occured: " + request.error</div>}
+      {request?.error && request.error instanceof Error && (
+        <div>An error has occured: ${request.error.message}</div>
+      )}
     </div>
   );
 };
