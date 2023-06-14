@@ -125,7 +125,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
     // Loop through the Map of checklist items that just became active, which are grouped by lead
     for (let [lead, items] of activatedChecklistItems) {
       let leadUsers: IPerson[] = [];
-      let outstandingMessage: string = "";
+      let outstandingMessage = "";
       const oustandingItems: ICheckListItem[] = allChecklistItems.filter(
         (item) =>
           item.Id !== completedChecklistItemId && // Don't include the item just completed

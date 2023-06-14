@@ -161,7 +161,7 @@ const InRequestNewForm = () => {
       mpcn = parseInt(data.MPCN);
     }
 
-    const data2: IInRequest = {
+    const data2 = {
       ...data,
       MPCN: mpcn,
       reqType: "In",

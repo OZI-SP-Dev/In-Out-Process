@@ -145,7 +145,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     props.onEditCancel(); // Call the passed in function to process in the parent component
   };
 
-  const minCompletionDate: Date = useMemo(() => {
+  const minCompletionDate = useMemo(() => {
     // Set the minimumn completion date to be 14 days from the estimated arrival
     if (eta) {
       let newMinDate = new Date(eta);
@@ -165,7 +165,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       mpcn = parseInt(data.MPCN);
     }
 
-    const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
+    const data2 = { ...data, MPCN: mpcn } as IInRequest;
 
     updateRequest.mutate(data2, {
       onSuccess: () => {
