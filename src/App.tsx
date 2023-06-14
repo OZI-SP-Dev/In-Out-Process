@@ -52,7 +52,9 @@ function MainLayout() {
             <AppHeader />
             <ErrorProvider>
               <ErrorNotification />
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense
+                fallback={<div style={{ paddingLeft: ".5em" }}>Loading...</div>}
+              >
                 <Outlet />
               </Suspense>
             </ErrorProvider>

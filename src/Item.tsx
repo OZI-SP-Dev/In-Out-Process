@@ -38,7 +38,7 @@ const Item: FunctionComponent = () => {
   let requestRoles: RoleType[];
 
   if (currentUser.roles === undefined) {
-    return <>Loading...</>;
+    return <div className={classes.requestItem}>Loading...</div>;
   } else {
     requestRoles = [...currentUser.roles];
     if (request?.data?.supGovLead.Id === currentUser.user?.Id) {

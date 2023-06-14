@@ -49,6 +49,9 @@ const useStyles = makeStyles({
   icon: {
     color: tokens.colorBrandBackground,
   },
+  loadingText: {
+    paddingLeft: ".5em",
+  },
 });
 
 const Roles: React.FunctionComponent = () => {
@@ -151,7 +154,7 @@ const Roles: React.FunctionComponent = () => {
 
   // Ensure we have a roles object before determining whether or not to redirect
   if (!userRoles) {
-    return <>Loading...</>;
+    return <div className={classes.loadingText}>Loading...</div>;
   }
 
   if (!userRoles.includes(RoleType.ADMIN)) {
