@@ -38,7 +38,7 @@ const Item: FunctionComponent = () => {
   let requestRoles: RoleType[];
 
   if (currentUser.roles === undefined) {
-    return <>Loading...</>;
+    return <div className={classes.requestItem}>Loading...</div>;
   } else {
     requestRoles = [...currentUser.roles];
     if (request?.data?.supGovLead.Id === currentUser.user?.Id) {
@@ -87,7 +87,9 @@ const Item: FunctionComponent = () => {
       ) : (
         <div>Loading...</div>
       )}
-      {request?.error && <div>"An error has occured: " + request.error</div>}
+      {request?.error && request.error instanceof Error && (
+        <div>An error has occured: ${request.error.message}</div>
+      )}
     </div>
   );
 };

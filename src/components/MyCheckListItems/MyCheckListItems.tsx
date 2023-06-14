@@ -142,12 +142,14 @@ const MyCheckListItems = () => {
   // Define columns for details list
   const columns: IColumn[] = [
     {
-      key: "item",
-      name: "Item",
-      fieldName: "Id",
+      key: "type",
+      name: "Type",
       minWidth: 40,
       maxWidth: 40,
       isResizable: false,
+      onRender: (item) => {
+        return item.request.reqType;
+      },
     },
     {
       key: "title",
@@ -188,13 +190,15 @@ const MyCheckListItems = () => {
     },
     {
       key: "onBoardDate",
-      name: "Estimated On-Boarding",
+      name: "Est. On-Boarding / Last Day",
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
       onRender: (item) => {
         if (item.request.eta) {
           return item.request.eta.toLocaleDateString();
+        } else if (item.request.lastDay) {
+          return item.request.lastDay.toLocaleDateString();
         }
       },
     },
@@ -222,7 +226,6 @@ const MyCheckListItems = () => {
         label="Toggle to show/hide completed items"
       >
         <Switch
-          aria-labeledBy="completedToggleId"
           onChange={() => setShowingCompleted(!showingCompleted)}
           label={showingCompleted ? "Showing all items" : "Showing open items"}
         />

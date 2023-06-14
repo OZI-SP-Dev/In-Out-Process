@@ -31,7 +31,7 @@ interface IRequestCancel {
 export const transformRequestFromSP = (request: IResponseItem): IRequest => {
   if (isInResponse(request)) {
     return {
-      reqType: request.reqType,
+      reqType: "In", // Force this to be "In" to support legacy entries of "" from MVCR1
       Id: request.Id,
       empName: request.empName,
       empType: request.empType,
@@ -239,7 +239,7 @@ export const transformRequestSummaryFromSP = (
 ): IRequestSummary => {
   if (isInResponse(request)) {
     return {
-      reqType: request.reqType,
+      reqType: "In", // Force this to be "In" to support legacy entries of "" from MVCR1
       Id: request.Id,
       empName: request.empName,
       eta: new Date(request.eta),
