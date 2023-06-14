@@ -226,7 +226,6 @@ const MyCheckListItems = () => {
         label="Toggle to show/hide completed items"
       >
         <Switch
-          aria-labeledBy="completedToggleId"
           onChange={() => setShowingCompleted(!showingCompleted)}
           label={showingCompleted ? "Showing all items" : "Showing open items"}
         />
