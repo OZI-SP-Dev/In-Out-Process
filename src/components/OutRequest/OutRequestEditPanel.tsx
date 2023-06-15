@@ -78,7 +78,7 @@ const useStyles = makeStyles({
 });
 
 interface IOutRequestEditPanel {
-  data?: any;
+  data: IOutRequest;
   onEditCancel: () => void;
   isEditPanelOpen: boolean;
   onEditSave: () => void;
@@ -116,7 +116,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
     mode: "onChange" /* Provide input directly as they input, so if entering bad data it will let them know */,
-    values: props.data,
+    values: props.data as IRHFOutRequest,
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 

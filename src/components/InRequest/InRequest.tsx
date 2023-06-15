@@ -109,7 +109,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
    */
   const updateType = isCancelDialogOpen ? "cancel" : "complete";
 
-  const performCancel = (item: any) => {
+  const performCancel = (item: CancelDialogForm) => {
     if (checklistItems.data) {
       cancelRequest.mutate(
         {

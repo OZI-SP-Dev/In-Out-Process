@@ -78,7 +78,7 @@ const useStyles = makeStyles({
 });
 
 interface IInRequestEditPanel {
-  data?: any;
+  data: IInRequest;
   onEditCancel: () => void;
   isEditPanelOpen: boolean;
   onEditSave: () => void;
@@ -117,7 +117,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
     mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
-    values: props.data,
+    values: props.data as unknown as IRHFInRequest,
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 
