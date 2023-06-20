@@ -93,7 +93,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     Id: number;
     Title: string;
     EMail: string;
-    text: string;
+    text?: string;
     imageUrl?: string;
   };
 
@@ -116,7 +116,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
     mode: "onChange" /* Provide input directly as they input, so if entering bad data it will let them know */,
-    values: props.data as IRHFOutRequest,
+    values: props.data,
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 
