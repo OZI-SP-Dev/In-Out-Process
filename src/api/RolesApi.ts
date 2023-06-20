@@ -72,7 +72,7 @@ type IRolesByUser = Map<string, SPRole[]>;
  * @param roles The data containing user and role
  * @returns An Map with UserId as grouping the SPRole[] by user(s)
  */
-const getIUserRoles = (roles: SPRole[]): IRolesByUser => {
+const getIUserRoles = (roles: SPRole[]) => {
   const map: IRolesByUser = new Map<string, SPRole[]>();
   for (let role of roles) {
     // Ensure the role on the Record actually exists in RoleType -- otherwise ignore this record
@@ -119,7 +119,7 @@ const getIUserRolesGroup = (roles: SPRole[]): IRolesByType => {
  * @param roles The SPRole[] data from the Role list
  * @returns A single RoleType[] object for a single user
  */
-const getIUserRoleType = (roles: SPRole[]): RoleType[] => {
+const getIUserRoleType = (roles: SPRole[]) => {
   let userRoles: IRolesByUser = getIUserRoles(roles);
   if (userRoles.size === 1) {
     // Return the first (and only) item in the array

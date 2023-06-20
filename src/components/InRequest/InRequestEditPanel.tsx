@@ -78,7 +78,7 @@ const useStyles = makeStyles({
 });
 
 interface IInRequestEditPanel {
-  data?: any;
+  data: IInRequest;
   onEditCancel: () => void;
   isEditPanelOpen: boolean;
   onEditSave: () => void;
@@ -93,17 +93,17 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     Id: number;
     Title: string;
     EMail: string;
-    text: string;
+    text?: string;
     imageUrl?: string;
   };
 
   // Create a type to handle the IInRequest type within React Hook Form (RHF)
   // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
   type IRHFInRequest = Omit<IInRequest, "MPCN" | "supGovLead" | "employee"> & {
-    MPCN: string;
+    MPCN?: string;
     /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
     supGovLead: IRHFIPerson;
-    employee: IRHFIPerson;
+    employee?: IRHFIPerson;
   };
 
   const {
@@ -117,7 +117,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
     mode: "onChange" /* Provide input directly as they input, so if entering bad data (eg letter in MPCN) it will let them know */,
-    values: props.data,
+    values: { ...props.data, MPCN: props.data.MPCN?.toString() },
   });
   const updateRequest = useUpdateRequest(props.data.Id);
 
@@ -145,7 +145,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     props.onEditCancel(); // Call the passed in function to process in the parent component
   };
 
-  const minCompletionDate: Date = useMemo(() => {
+  const minCompletionDate = useMemo(() => {
     // Set the minimumn completion date to be 14 days from the estimated arrival
     if (eta) {
       let newMinDate = new Date(eta);
@@ -162,10 +162,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       data.empType === EMPTYPES.Military
     ) {
       // Parsing the string should be fine, as we enforce pattern of numeric
-      mpcn = parseInt(data.MPCN);
+      if (data.MPCN) {
+        mpcn = parseInt(data.MPCN);
+      }
     }
 
-    const data2: IInRequest = { ...data, MPCN: mpcn } as IInRequest;
+    const data2 = { ...data, MPCN: mpcn } as IInRequest;
 
     updateRequest.mutate(data2, {
       onSuccess: () => {
@@ -242,7 +244,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                   <PeoplePicker
                     ariaLabel="Employee"
                     aria-describedby="employeeErr"
-                    selectedItems={value}
+                    selectedItems={value ?? []}
                     updatePeople={(items) => {
                       if (items?.[0]?.text) {
                         setValue("empName", items[0].text, {

@@ -27,7 +27,7 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
   props
 ) => {
   const classes = useStyles();
-  const formData: IInRequest = props.formData;
+  const formData = props.formData;
   const codeEntry = SENSITIVITY_CODES.find(
     (code) => code.key === formData.sensitivityCode
   );

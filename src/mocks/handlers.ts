@@ -8,7 +8,7 @@ import {
   isInResponse,
 } from "api/RequestApi";
 import { RoleType, SPRole } from "api/RolesApi";
-import { IPerson } from "api/UserApi";
+import { IPerson, Person } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
@@ -324,7 +324,12 @@ export const handlers = [
             isSupervisor: body.isSupervisor,
             isSCI: body.isSCI,
           };
+          if (employee) {
+            request.employee = { ...employee };
+          }
         } else {
+          if (employee) {
+          }
           request = {
             reqType: body.reqType,
             Id: nextRequestId++,
@@ -343,11 +348,12 @@ export const handlers = [
             lastDay: body.lastDay,
             beginDate: body.beginDate,
             supGovLead: { ...supervisor },
+            employee: employee
+              ? { ...employee }
+              : new Person({ Id: 0, Title: "Error", EMail: "Error" }),
           };
         }
-        if (employee) {
-          request.employee = { ...employee };
-        }
+
         requests.push(request);
 
         return res(

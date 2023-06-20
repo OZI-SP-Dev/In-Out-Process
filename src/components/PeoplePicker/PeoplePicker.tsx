@@ -107,7 +107,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
     }
   };
 
-  const onItemsChange = (items: IPersonaProps[] | undefined): void => {
+  const onItemsChange = (items: IPersonaProps[] | undefined) => {
     if (items) {
       props.updatePeople(items as IPerson[]);
     } else {

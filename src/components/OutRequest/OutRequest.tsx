@@ -107,11 +107,9 @@ export const OutRequest: FunctionComponent<IOutRequestComp> = (props) => {
    *  Note: You MUST pair this with a check of the updateRequest as this defaults to "complete" - so doesn't indicate a "complete" request
    *   was processed without checking if updateRequest.isError, isSuccess, etc.
    */
-  const updateType: "cancel" | "complete" = isCancelDialogOpen
-    ? "cancel"
-    : "complete";
+  const updateType = isCancelDialogOpen ? "cancel" : "complete";
 
-  const performCancel = (item: any) => {
+  const performCancel = (item: CancelDialogForm) => {
     if (checklistItems.data) {
       cancelRequest.mutate(
         {

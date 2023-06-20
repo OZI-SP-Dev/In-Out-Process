@@ -78,7 +78,7 @@ const useStyles = makeStyles({
 });
 
 interface IOutRequestEditPanel {
-  data?: any;
+  data: IOutRequest;
   onEditCancel: () => void;
   isEditPanelOpen: boolean;
   onEditSave: () => void;
@@ -93,7 +93,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     Id: number;
     Title: string;
     EMail: string;
-    text: string;
+    text?: string;
     imageUrl?: string;
   };
 

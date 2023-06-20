@@ -102,13 +102,11 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
         EMail: request.supGovLead.EMail,
         Title: request.supGovLead.Title,
       }),
-      employee: request.employee
-        ? new Person({
-            Id: request.employee.Id,
-            EMail: request.employee.EMail,
-            Title: request.employee.Title,
-          })
-        : undefined,
+      employee: new Person({
+        Id: request.employee.Id,
+        EMail: request.employee.EMail,
+        Title: request.employee.Title,
+      }),
       closedOrCancelledDate: request.closedOrCancelledDate
         ? new Date(request.closedOrCancelledDate)
         : undefined,
@@ -209,18 +207,10 @@ const transformRequestToSP = async (
           ? (await spWebContext.web.ensureUser(request.supGovLead.EMail)).data
               .Id
           : request.supGovLead.Id,
-      /* If an employee is provided then we are upadting the employee field with a person
-        A value of -1 requires looking up the site user's Id, whereas a positive number means we already have the Id.
-       If the employee object is undefined then we need to clear the SharePoint field.  We do this by setting the
-        employeeId to -1 and the employeeStringId to "".  If we don't set employeeStringId to "" then both our app and the
-        native SharePoint UI will show a partial person object having an Id of -1 rather than a clear field  
-    */
-      employeeId: request.employee?.Id
-        ? request.employee.Id === -1
+      employeeId:
+        request.employee.Id === -1
           ? (await spWebContext.web.ensureUser(request.employee.EMail)).data.Id
-          : request.employee.Id
-        : -1,
-      employeeStringId: request.employee?.Id ? undefined : "",
+          : request.employee.Id,
       closedOrCancelledDate: request.closedOrCancelledDate
         ? request.closedOrCancelledDate.toISOString()
         : "",
@@ -278,13 +268,11 @@ export const transformRequestSummaryFromSP = (
         EMail: request.supGovLead.EMail,
         Title: request.supGovLead.Title,
       }),
-      employee: request.employee
-        ? new Person({
-            Id: request.employee.Id,
-            EMail: request.employee.EMail,
-            Title: request.employee.Title,
-          })
-        : undefined,
+      employee: new Person({
+        Id: request.employee.Id,
+        EMail: request.employee.EMail,
+        Title: request.employee.Title,
+      }),
       closedOrCancelledDate: request.closedOrCancelledDate
         ? new Date(request.closedOrCancelledDate)
         : undefined,
@@ -618,8 +606,8 @@ export type IOutRequest = {
   beginDate: Date;
   /** Required - The Superviosr/Gov Lead of the employee */
   supGovLead: IPerson;
-  /** Optional - The employee GAL entry. If the user doesn't exist yet, then it will be undefined */
-  employee?: IPerson;
+  /** Required - The employee GAL entry. */
+  employee: IPerson;
   /** Optional - Date Supervisor Closed or Cancelled -- If there is a cancelReason then we know it was cancelled */
   closedOrCancelledDate?: Date;
   /** Optional - The reason for why the request was cancelled */
@@ -648,7 +636,6 @@ export type IOutRequestItem = Omit<
 > & {
   supGovLeadId: number;
   employeeId: number;
-  employeeStringId?: string;
 };
 
 // Pick just the fields from IInRequest that we need

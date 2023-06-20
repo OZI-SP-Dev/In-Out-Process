@@ -28,7 +28,7 @@ export const OutRequestViewCompact: FunctionComponent<
   IOutRequestViewCompact
 > = (props) => {
   const classes = useStyles();
-  const formData: IOutRequest = props.formData;
+  const formData = props.formData;
   const codeEntry = SENSITIVITY_CODES.find(
     (code) => code.key === formData.sensitivityCode
   );

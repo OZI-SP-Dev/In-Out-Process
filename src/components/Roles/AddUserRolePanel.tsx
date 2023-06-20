@@ -35,6 +35,11 @@ interface IAddUserRolePanel {
   onAdd: () => void;
 }
 
+type IRHFSubmitRole = Omit<ISubmitRole, "User"> & {
+  /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
+  User: string; // We'll store the User separately in a local state as an IPerson
+};
+
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
@@ -74,13 +79,14 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
   const classes = useStyles();
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [items, setItems] = useState<RoleType[]>([]);
+  const [User, setUser] = useState<IPerson>();
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
     reset,
-  } = useForm<any>();
+  } = useForm<IRHFSubmitRole>();
 
   // Get the hook with functions to perform Role Management
   const { addRole } = useRoleManagement();
@@ -101,44 +107,51 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     });
 
   // Function to test adding a Role
-  const addRoleClick = (data: ISubmitRole) => {
-    addRole.mutate(data, {
-      onSuccess: () => {
-        setTimeout(() => {
-          props.onAdd();
-        }, 2000);
-      },
-    });
-  };
-
-  const onUserChange = (user: IPerson[]) => {
-    if (user) {
-      setValue("User", user[0]);
-      if (typeof user[0]?.EMail === "string") {
-        const newItems = allRolesByUser?.get(user[0].EMail);
-        if (newItems === undefined) {
-          setItems([]);
-        } else {
-          setItems(newItems.map((role) => role.Title));
+  const addRoleClick = (data: IRHFSubmitRole) => {
+    if (User) {
+      addRole.mutate(
+        { ...data, User: User },
+        {
+          onSuccess: () => {
+            setTimeout(() => {
+              props.onAdd();
+            }, 2000);
+          },
         }
-      } else {
-        setItems([]);
-      }
-    } else {
-      setValue("User", []);
-      setItems([]);
+      );
     }
   };
 
-  const onOpen = () => {
-    reset();
-    addRole.reset();
+  const onUserChange = (user: IPerson[]) => {
+    if (user.length > 0) {
+      setUser(user[0]); // Store the IPerson in a local state
+      setValue("User", user[0].Title); // Set a value for the RHF error/validation handling
+
+      const newItems = allRolesByUser?.get(user[0].EMail);
+      if (newItems === undefined) {
+        setItems([]);
+      } else {
+        setItems(newItems.map((role) => role.Title));
+      }
+    } else {
+      setUser(undefined); // Clear out our local state
+      setValue("User", ""); // Clear value for the RHF erorr/validation handling
+      setItems([]); // List all roles as options
+    }
+  };
+
+  /** Function called when the Panel is closed/dismissed */
+  const onDismissed = () => {
+    reset(); // Clear the RHF fields
+    setUser(undefined); // Clear our local User state
+    setItems([]); // Resest Roles to all options
+    addRole.reset(); // Reset our mutation
   };
 
   return (
     <Panel
       isOpen={props.isAddPanelOpen}
-      onOpen={onOpen}
+      onDismissed={onDismissed}
       isBlocking={true}
       onDismiss={props.onAddCancel}
       headerText="Add User to Role"
@@ -167,11 +180,11 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 required:
                   "You must select a User from the Global Address List (GAL)",
               }}
-              render={({ field: { value } }) => (
+              render={() => (
                 <PeoplePicker
                   ariaLabel="User"
                   aria-describedby="userErr"
-                  selectedItems={value}
+                  selectedItems={User ?? []}
                   updatePeople={onUserChange}
                 />
               )}
@@ -199,12 +212,10 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
               rules={{
                 required: "You must select a role to add to the user",
               }}
-              render={({ field: { onBlur, onChange, value } }) => (
+              render={({ field: { onBlur, onChange } }) => (
                 <Dropdown
                   id="roleId"
                   aria-describedby="roleErr"
-                  value={value}
-                  selectedOptions={value}
                   onOptionSelect={(_ev, data) => {
                     if (data?.selectedOptions) {
                       onChange(data.optionValue);
