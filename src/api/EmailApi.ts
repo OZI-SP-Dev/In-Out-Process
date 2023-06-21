@@ -8,8 +8,8 @@ import {
   isInRequest,
   transformRequestFromSP,
 } from "api/RequestApi";
-import { RoleType, useAllUserRolesByRole } from "./RolesApi";
-import { ICheckListItem } from "./CheckListItemApi";
+import { RoleType, useAllUserRolesByRole } from "api/RolesApi";
+import { ICheckListItem } from "api/CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
 
 /**  Definition for what is required/optional for sending an email */

@@ -11,7 +11,7 @@ initializeIcons();
 
 async function prepareMSW() {
   if (import.meta.env.DEV) {
-    const { worker } = await import("./mocks/browser");
+    const { worker } = await import("mocks/browser");
 
     return worker.start({
       onUnhandledRequest(

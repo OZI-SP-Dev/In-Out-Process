@@ -3,7 +3,7 @@ import { IInRequest, IOutRequest, IRequest, isInRequest } from "api/RequestApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleType } from "api/RolesApi";
-import { ICheckListItem } from "./CheckListItemApi";
+import { ICheckListItem } from "api/CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
