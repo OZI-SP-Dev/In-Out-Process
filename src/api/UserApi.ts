@@ -1,12 +1,15 @@
-import { IPersonaProps } from "@fluentui/react";
 import { TestImages } from "@fluentui/example-data";
 
 declare var _spPageContextInfo: any;
 
-export interface IPerson extends IPersonaProps {
+export interface IPerson {
   Id: number;
   Title: string;
   EMail: string;
+  text?: string;
+  secondaryText?: string;
+  imageUrl?: string;
+  imageInitials?: string;
 }
 
 /**
@@ -16,14 +19,18 @@ export interface IPerson extends IPersonaProps {
 export class Person implements IPerson {
   Id: number;
   Title: string;
+  EMail: string;
   text: string;
   secondaryText: string;
-  EMail: string;
   imageUrl?: string;
   imageInitials?: string;
 
   constructor(
-    person: IPerson = { Id: -1, Title: "", EMail: "" },
+    person: IPerson = {
+      Id: -1,
+      Title: "",
+      EMail: "",
+    },
     LoginName?: string
   ) {
     this.Id = person.Id;

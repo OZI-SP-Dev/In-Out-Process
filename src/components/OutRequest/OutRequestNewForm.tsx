@@ -71,28 +71,16 @@ const useStyles = makeStyles({
   listBox: { maxHeight: "15em" },
 });
 
-type IRHFIPerson = {
-  Id: number;
-  Title: string;
-  EMail: string;
-  text: string;
-  imageUrl?: string;
-};
-
 // Create a type to handle the IOutRequest type within React Hook Form (RHF)
-// This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
 type IRHFOutRequest = Omit<
   IOutRequest,
-  "empType" | "supGovLead" | "employee" | "workLocation" | "isSCI" | "hasSIPR"
+  "empType" | "workLocation" | "isSCI" | "hasSIPR"
 > & {
   /* Allow these to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
   isSCI: "yes" | "no" | "";
   hasSIPR: "yes" | "no" | "";
-  /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
-  supGovLead: IRHFIPerson;
-  employee: IRHFIPerson;
 };
 
 const OutRequestNewForm = () => {

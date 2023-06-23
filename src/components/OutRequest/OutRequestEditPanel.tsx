@@ -87,22 +87,6 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
 ) => {
   const classes = useStyles();
 
-  type IRHFIPerson = {
-    Id: number;
-    Title: string;
-    EMail: string;
-    text?: string;
-    imageUrl?: string;
-  };
-
-  // Create a type to handle the IOutRequest type within React Hook Form (RHF)
-  // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
-  type IRHFOutRequest = Omit<IOutRequest, "supGovLead" | "employee"> & {
-    /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
-    supGovLead: IRHFIPerson;
-    employee: IRHFIPerson;
-  };
-
   const {
     control,
     handleSubmit,
@@ -110,7 +94,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     setValue,
     watch,
     reset,
-  } = useForm<IRHFOutRequest>({
+  } = useForm<IOutRequest>({
     criteriaMode:
       "all" /* Pass back multiple errors, so we can prioritize which one(s) to show */,
     mode: "onChange" /* Provide input directly as they input, so if entering bad data it will let them know */,
@@ -135,7 +119,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
     props.onEditCancel(); // Call the passed in function to process in the parent component
   };
 
-  const updateThisRequest = (data: IRHFOutRequest) => {
+  const updateThisRequest = (data: IOutRequest) => {
     updateRequest.mutate(data as IOutRequest, {
       onSuccess: () => {
         // Close the edit panel on a succesful edit
