@@ -34,6 +34,7 @@ const useStyles = makeStyles({
 interface IImpersonateForm {
   /** The user object returned by RHF */ user: Person;
 }
+
 /** Component that displays a button to enable Impersonation
  *  Upon clicking, it prompts the user to select the appropriate impersonation action
  */
@@ -55,32 +56,24 @@ export const ImpersonationForm = () => {
   } = useForm<IImpersonateForm>();
 
   /**
-   * Take the form data (or no data) and if it was provided, then pass to the UserContext to update
-   * If it was not provided, then pass nothing to UserContext, so it resets to self
+   * Take the form data, lookup User, then pass to the UserContext impersonate function to update
    *
    * @param data The RHF data, or undefined
    * @returns a void Promise
    */
-  const performImpersonate = async (data: IImpersonateForm | undefined) => {
-    if (data) {
-      // Lookup the userId
-      const userId = (await spWebContext.web.ensureUser(data.user.EMail)).data
-        .Id;
-      // Create a new userData object, to pass to the impersonation function
-      const userData = { ...data.user, Id: userId };
-      userContext.impersonate(userData);
-      hideImpersonateDialog(); // Close the impersonation dialog
-    }
+  const performImpersonate = async (data: IImpersonateForm) => {
+    // Lookup the userId
+    const userId = (await spWebContext.web.ensureUser(data.user.EMail)).data.Id;
+    // Create a new userData object, to pass to the impersonation function
+    const userData = { ...data.user, Id: userId };
+    userContext.impersonate(userData);
+    hideImpersonateDialog(); // Close the impersonation dialog
   };
 
   /**
-   * Take the form data (or no data) and if it was provided, then pass to the UserContext to update
-   * If it was not provided, then pass nothing to UserContext, so it resets to self
-   *
-   * @param data The RHF data, or undefined
+   * Pass nothing to UserContext impersonate function, so it resets to self
    */
   const removeImpersonation = () => {
-    // Call the UserContext impersonate function with no defined data to remove the impersonation
     userContext.impersonate(undefined);
     hideImpersonateDialog(); // Close the impersonation dialog
   };
