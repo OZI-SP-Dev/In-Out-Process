@@ -39,8 +39,10 @@ export class Person implements IPerson {
     }
     if (!this.imageUrl) {
       this.imageInitials =
-        this.Title.substr(this.Title.indexOf(" ") + 1, 1) +
-        this.Title.substr(0, 1);
+        this.Title.substring(
+          this.Title.indexOf(" ") + 1,
+          this.Title.indexOf(" ") + 2
+        ) + this.Title.substring(0, 1);
     }
   }
 }
