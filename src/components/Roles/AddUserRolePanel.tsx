@@ -35,11 +35,6 @@ interface IAddUserRolePanel {
   onAdd: () => void;
 }
 
-type IRHFSubmitRole = Omit<ISubmitRole, "User"> & {
-  /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
-  User: string; // We'll store the User separately in a local state as an IPerson
-};
-
 /* FluentUI Styling */
 const useStyles = makeStyles({
   formContainer: { display: "grid" },
@@ -79,14 +74,13 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
   const classes = useStyles();
   const { data: allRolesByUser } = useAllUserRolesByUser();
   const [items, setItems] = useState<RoleType[]>([]);
-  const [User, setUser] = useState<IPerson>();
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
     reset,
-  } = useForm<IRHFSubmitRole>();
+  } = useForm<Partial<ISubmitRole>>(); //Make all the props optional, so that we can set them to undefined etc
 
   // Get the hook with functions to perform Role Management
   const { addRole } = useRoleManagement();
@@ -107,26 +101,22 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     });
 
   // Function to test adding a Role
-  const addRoleClick = (data: IRHFSubmitRole) => {
-    if (User) {
-      addRole.mutate(
-        { ...data, User: User },
-        {
-          onSuccess: () => {
-            setTimeout(() => {
-              props.onAdd();
-            }, 2000);
-          },
-        }
-      );
+  const addRoleClick = (data: Partial<ISubmitRole>) => {
+    if (data.User && data.Role) {
+      // Since we ensure that there is data we can assert that it is of ISubmitRole type
+      addRole.mutate(data as ISubmitRole, {
+        onSuccess: () => {
+          setTimeout(() => {
+            props.onAdd();
+          }, 2000);
+        },
+      });
     }
   };
 
   const onUserChange = (user: IPerson[]) => {
     if (user.length > 0) {
-      setUser(user[0]); // Store the IPerson in a local state
-      setValue("User", user[0].Title); // Set a value for the RHF error/validation handling
-
+      setValue("User", user[0]);
       const newItems = allRolesByUser?.get(user[0].EMail);
       if (newItems === undefined) {
         setItems([]);
@@ -134,8 +124,7 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
         setItems(newItems.map((role) => role.Title));
       }
     } else {
-      setUser(undefined); // Clear out our local state
-      setValue("User", ""); // Clear value for the RHF erorr/validation handling
+      setValue("User", undefined); // Clear value for the RHF erorr/validation handling
       setItems([]); // List all roles as options
     }
   };
@@ -143,7 +132,6 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
   /** Function called when the Panel is closed/dismissed */
   const onDismissed = () => {
     reset(); // Clear the RHF fields
-    setUser(undefined); // Clear our local User state
     setItems([]); // Resest Roles to all options
     addRole.reset(); // Reset our mutation
   };
@@ -180,11 +168,11 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 required:
                   "You must select a User from the Global Address List (GAL)",
               }}
-              render={() => (
+              render={({ field: { value } }) => (
                 <PeoplePicker
                   ariaLabel="User"
                   aria-describedby="userErr"
-                  selectedItems={User ?? []}
+                  selectedItems={value ?? []}
                   updatePeople={onUserChange}
                 />
               )}
