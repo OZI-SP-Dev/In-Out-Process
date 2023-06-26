@@ -59,6 +59,8 @@ enum templates {
   GTCConfirmTransfer = 49,
   CloseATAAPS = 50,
   DetachDTS = 51,
+  ScheduleETT = 52,
+  EquimentTurnIn = 53,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -527,6 +529,20 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px">DTS Link:  <a href="https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch">https://dtsproweb.defensetravel.osd.mil/dtamaint/user/promptUserSearch</a></p>`,
     Prereqs: [],
   },
+  {
+    Title: "Schedule equipment turn-in appointment",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.ScheduleETT,
+    Description: `<p style="margin-top: 0px">None</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Equipment turn-in & account update",
+    Lead: RoleType.IT,
+    TemplateId: templates.EquimentTurnIn,
+    Description: `<p style="margin-top: 0px">Out-processing employee will proceed to designated location at appointed time with all equipment listed on hand-receipt.  ETT will verify serial numbers on all equipment, remove employee from distribution groups/deprovision accounts, as required.</p>`,
+    Prereqs: [templates.ScheduleETT],
+  },
 ];
 
 const createInboundChecklistItems = async (request: IInRequest) => {
@@ -837,6 +853,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   ) {
     addChecklistItem(templates.CloseATAAPS);
   }
+
+  // Add task for scheduling equipment turn in
+  addChecklistItem(templates.ScheduleETT);
+
+  // Add task for turning in equipment
+  addChecklistItem(templates.EquimentTurnIn);
 
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
   // Exemption to this is if they are staying within DoD (Move to non-AF DOD organization)
