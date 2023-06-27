@@ -4,7 +4,7 @@ import {
   Panel,
   PanelType,
 } from "@fluentui/react";
-import { FunctionComponent, useMemo } from "react";
+import { FunctionComponent, useContext, useMemo } from "react";
 import {
   Button,
   webLightTheme,
@@ -39,6 +39,7 @@ import {
 } from "@fluentui/react-icons-mdl2";
 import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import { UserContext } from "providers/UserProvider";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -88,6 +89,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   props
 ) => {
   const classes = useStyles();
+  const currentUser = useContext(UserContext).user;
 
   // Create a type to handle the IInRequest type within React Hook Form (RHF)
   type IRHFInRequest = Omit<IInRequest, "MPCN"> & {
@@ -228,6 +230,13 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
               <Controller
                 name="employee"
                 control={control}
+                rules={{
+                  validate: (value) => {
+                    return value?.EMail === currentUser.EMail
+                      ? "You cannot submit a request for yourself"
+                      : undefined;
+                  },
+                }}
                 render={({ field: { onChange, value } }) => (
                   <PeoplePicker
                     ariaLabel="Employee"
