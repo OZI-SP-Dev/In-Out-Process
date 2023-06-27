@@ -1,21 +1,21 @@
 import { IOutRequest } from "api/RequestApi";
-import { IPerson } from "api/UserApi";
+import { Person } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { ByRoleMatcher, screen, within } from "@testing-library/react";
 
 test("Load Test Data file", () => {});
 
-export const testUsers: IPerson[] = [
-  {
+export const testUsers = [
+  new Person({
     Id: 1,
     Title: "Barb Akew (All)",
     EMail: "Barb Akew@localhost",
-  },
-  {
+  }),
+  new Person({
     Id: 2,
     Title: "Chris P. Bacon (IT)",
     EMail: "Chris P. Bacon@localhost",
-  },
+  }),
 ];
 
 /* Incoming military example */

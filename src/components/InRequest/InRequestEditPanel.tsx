@@ -89,21 +89,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
 ) => {
   const classes = useStyles();
 
-  type IRHFIPerson = {
-    Id: number;
-    Title: string;
-    EMail: string;
-    text?: string;
-    imageUrl?: string;
-  };
-
   // Create a type to handle the IInRequest type within React Hook Form (RHF)
-  // This will allow for better typechecking on the RHF without it running into issues with the special IPerson type
-  type IRHFInRequest = Omit<IInRequest, "MPCN" | "supGovLead" | "employee"> & {
+  type IRHFInRequest = Omit<IInRequest, "MPCN"> & {
     MPCN?: string;
-    /* Make of special type to prevent RHF from erroring out on typechecking -- but allow for better form typechecking on all other fields */
-    supGovLead: IRHFIPerson;
-    employee?: IRHFIPerson;
   };
 
   const {
