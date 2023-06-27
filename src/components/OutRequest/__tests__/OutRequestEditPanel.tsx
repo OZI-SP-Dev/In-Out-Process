@@ -5,7 +5,6 @@ import {
   civRequest,
   milRequest,
   fieldLabels,
-  isNotApplicable,
   remoteLocationDataset,
   checkForInputToExist,
   remoteLocationOnlyDataset,
@@ -14,10 +13,8 @@ import {
   checkForRadioGroupToBeDisabled,
 } from "components/OutRequest/__tests__/TestData";
 import { OutRequestEditPanel } from "components/OutRequest/OutRequestEditPanel";
-import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IOutRequest } from "api/RequestApi";
-import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
@@ -102,68 +99,6 @@ const checkEnterableCombobox = async (
     expect(comboboxOpt).not.toBeInTheDocument();
   }
 };
-
-describe("SAR", () => {
-  // SAR is currently a disabled field in Edit mode
-  const employeeTypes = [
-    { request: civRequest, available: false },
-    { request: ctrRequest, available: false },
-    { request: milRequest, available: false },
-  ];
-
-  it.each(employeeTypes)(
-    "is available for $request.empType - $available",
-    async ({ request, available }) => {
-      renderEditPanelForRequest(request);
-      await checkEnterableCombobox(
-        fieldLabels.SAR.form,
-        SAR_CODES[0].text,
-        available
-      );
-    }
-  );
-
-  it("displays N/A for Contractor", async () => {
-    renderEditPanelForRequest(ctrRequest);
-    isNotApplicable(fieldLabels.SAR.formType, fieldLabels.SAR.form);
-  });
-});
-
-// Currently this field should not be EDITABLE -- may eventually update so that it can be changed for CIV
-describe("Position Sensitivity Code", () => {
-  const employeeTypes = [
-    { request: civRequest },
-    { request: ctrRequest },
-    { request: milRequest },
-  ];
-  it.each(employeeTypes)(
-    "is not selectable for $request.empType",
-    async ({ request }) => {
-      renderEditPanelForRequest(request);
-      await checkEnterableCombobox(
-        fieldLabels.POSITION_SENSITIVITY_CODE.form,
-        SENSITIVITY_CODES[0].text,
-        false
-      );
-    }
-  );
-
-  it("displays N/A for Contractor", async () => {
-    renderEditPanelForRequest(ctrRequest);
-    isNotApplicable(
-      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
-      fieldLabels.POSITION_SENSITIVITY_CODE.form
-    );
-  });
-
-  it("displays N/A for Military", async () => {
-    renderEditPanelForRequest(milRequest);
-    isNotApplicable(
-      fieldLabels.POSITION_SENSITIVITY_CODE.formType,
-      fieldLabels.POSITION_SENSITIVITY_CODE.form
-    );
-  });
-});
 
 describe("Local Or Remote", () => {
   const employeeTypes = [

@@ -20,13 +20,12 @@ export const testUsers: IPerson[] = [
 
 /* Incoming military example */
 /* With Local/Remote = local */
-/* With SAR = 5 and isSCI = "yes" */
+/* With isSCI = "yes" */
 export const milRequest: IOutRequest = {
   reqType: "Out",
   Id: 1,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Military,
-  SAR: 5,
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   workLocation: "local",
   office: "OZI",
@@ -49,8 +48,6 @@ export const civRequest: IOutRequest = {
   Id: 2,
   empName: testUsers[1].Title,
   empType: EMPTYPES.Civilian,
-  SAR: 5,
-  sensitivityCode: 4,
   workLocation: "remote",
   workLocationDetail: "Springfield, IL",
   office: "OZIC",
@@ -101,16 +98,6 @@ export const fieldLabels = {
   EMPLOYEE_NAME: {
     form: /employee name/i,
     lengthError: /name cannot be longer than 100 characters/i,
-  },
-  POSITION_SENSITIVITY_CODE: {
-    form: /position sensitivity code/i,
-    formType: "combobox",
-    view: /position sensitivity code/i,
-  },
-  SAR: {
-    form: /sar/i,
-    formType: "combobox",
-    view: /sar/i,
   },
   LOCAL_OR_REMOTE: {
     form: /local or remote\?/i,

@@ -24,24 +24,6 @@ const expectTextToBeInTheDocument = (text: RegExp, expected: boolean) => {
 
 const fieldsByEmployeeType = [
   {
-    field: fieldLabels.POSITION_SENSITIVITY_CODE.view,
-    rules: [
-      // Only for Civilian
-      { request: civRequest, expected: true },
-      { request: ctrRequest, expected: false },
-      { request: milRequest, expected: false },
-    ],
-  },
-  {
-    field: fieldLabels.SAR.view,
-    rules: [
-      // Only for Civilian and Military
-      { request: civRequest, expected: true },
-      { request: ctrRequest, expected: false },
-      { request: milRequest, expected: true },
-    ],
-  },
-  {
     field: fieldLabels.LOCAL_OR_REMOTE.view,
     rules: [
       // Available to all

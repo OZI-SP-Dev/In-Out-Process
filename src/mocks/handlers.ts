@@ -335,8 +335,6 @@ export const handlers = [
             Id: nextRequestId++,
             empName: body.empName,
             empType: body.empType,
-            SAR: body.SAR,
-            sensitivityCode: body.sensitivityCode,
             workLocation: body.workLocation,
             workLocationDetail: body.workLocationDetail,
             office: body.office,
@@ -923,7 +921,6 @@ let requests: IResponseItem[] = [
     Id: 9,
     empName: testUsers[1].Title,
     empType: EMPTYPES.Military,
-    SAR: 5,
     lastDay: "2023-03-13T04:00:00.000Z",
     workLocation: "local",
     office: "OZI",
@@ -941,8 +938,6 @@ let requests: IResponseItem[] = [
     Id: 10,
     empName: testUsers[2].Title,
     empType: EMPTYPES.Civilian,
-    SAR: 5,
-    sensitivityCode: 4,
     workLocation: "remote",
     workLocationDetail: "Springfield, IL",
     office: "OZIC",
@@ -1230,10 +1225,6 @@ const updateRequest = (id: number, item: IRequestItem) => {
       // If it is an Out Processing Request
       reqItem.empName = item.empName ? item.empName : reqItem.empName;
       reqItem.empType = item.empType ? item.empType : reqItem.empType;
-      reqItem.SAR = item.SAR ? item.SAR : reqItem.SAR;
-      reqItem.sensitivityCode = item.sensitivityCode
-        ? item.sensitivityCode
-        : reqItem.sensitivityCode;
       reqItem.workLocation = item.workLocation
         ? item.workLocation
         : reqItem.workLocation;
