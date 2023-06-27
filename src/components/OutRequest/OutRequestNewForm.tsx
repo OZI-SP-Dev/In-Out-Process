@@ -22,7 +22,6 @@ import { IOutRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import {
-  NumberFieldIcon,
   CalendarIcon,
   DropdownIcon,
   ContactIcon,
@@ -31,8 +30,6 @@ import {
 } from "@fluentui/react-icons-mdl2";
 import { RadioButtonFilled, ToggleLeftRegular } from "@fluentui/react-icons";
 import { UserContext } from "providers/UserProvider";
-import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
-import { SAR_CODES } from "constants/SARCodes";
 import { worklocation, WORKLOCATIONS } from "constants/WorkLocations";
 import { OFFICES } from "constants/Offices";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
@@ -312,11 +309,7 @@ const OutRequestNewForm = () => {
               onChange={(e, option) => {
                 /* If they change employee type, clear out the related fields */
                 if (option.value === EMPTYPES.Contractor) {
-                  setValue("SAR", undefined);
                   setValue("isTraveler", "");
-                }
-                if (option.value !== EMPTYPES.Civilian) {
-                  setValue("sensitivityCode", undefined);
                 }
                 onChange(e, option);
               }}
@@ -334,126 +327,6 @@ const OutRequestNewForm = () => {
             {errors.empType.message}
           </Text>
         )}
-      </div>
-      <div className={classes.fieldContainer}>
-        <Label
-          id="SARId"
-          size="small"
-          weight="semibold"
-          className={classes.fieldLabel}
-          required
-        >
-          <NumberFieldIcon className={classes.fieldIcon} />
-          SAR
-        </Label>
-        <Controller
-          name="SAR"
-          control={control}
-          rules={{
-            required:
-              empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
-                ? "SAR is required"
-                : undefined,
-          }}
-          render={({ field }) => (
-            <Combobox
-              selectedOptions={field.value ? [field.value.toString()] : [""]}
-              value={field.value ? field.value.toString() : ""}
-              onOptionSelect={(_event, data) => {
-                if (data.optionValue) {
-                  field.onChange(parseInt(data.optionValue));
-                } else {
-                  field.onChange(null);
-                }
-              }}
-              aria-labelledby="SARId"
-              aria-describedby="SARErr"
-              disabled={empType === EMPTYPES.Contractor}
-              placeholder={empType === EMPTYPES.Contractor ? "N/A" : ""}
-            >
-              {SAR_CODES.map((code) => (
-                <Option key={code.key}>{code.text}</Option>
-              ))}
-            </Combobox>
-          )}
-        />
-        {errors.SAR && (
-          <Text id="SARErr" className={classes.errorText}>
-            {errors.SAR.message}
-          </Text>
-        )}
-        <Text weight="regular" size={200} className={classes.fieldDescription}>
-          If you do not know the SAR, please reference the UMD or contact your
-          HR liaison.
-        </Text>
-      </div>
-      <div className={classes.fieldContainer}>
-        <Label
-          id="sensitivityCodeId"
-          size="small"
-          weight="semibold"
-          className={classes.fieldLabel}
-          required={empType === EMPTYPES.Civilian}
-        >
-          <DropdownIcon className={classes.fieldIcon} />
-          Position Sensitivity Code
-        </Label>
-        <Controller
-          name="sensitivityCode"
-          control={control}
-          rules={{
-            required:
-              empType === EMPTYPES.Civilian
-                ? "Position Sensitivity Code is required"
-                : undefined,
-          }}
-          render={({ field: { onBlur, onChange, value } }) => (
-            <Combobox
-              aria-describedby="sensitivityCodeErr"
-              aria-labelledby="sensitivityCodeId"
-              autoComplete="on"
-              listbox={{ className: classes.listBox }}
-              value={
-                value
-                  ? SENSITIVITY_CODES.find(({ key }) => key === value)?.text
-                  : ""
-              }
-              onOptionSelect={(_event, data) => {
-                if (data.optionValue) {
-                  onChange(parseInt(data.optionValue));
-                } else {
-                  onChange(null);
-                }
-              }}
-              onBlur={onBlur}
-              disabled={
-                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
-              }
-              placeholder={
-                empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
-                  ? "N/A"
-                  : empType !== ""
-                  ? ""
-                  : "Select Employee Type first"
-              }
-            >
-              {SENSITIVITY_CODES.map(({ key, text }) => (
-                <Option key={key} value={key.toString()}>
-                  {text}
-                </Option>
-              ))}
-            </Combobox>
-          )}
-        />
-        {errors.sensitivityCode && (
-          <Text id="sensitivityCode" className={classes.errorText}>
-            {errors.sensitivityCode.message}
-          </Text>
-        )}
-        <Text weight="regular" size={200} className={classes.fieldDescription}>
-          If you do not know the code, please reference the position documents
-          or contact your HR liason.
-        </Text>
       </div>
       <div className={classes.fieldContainer}>
         <Label

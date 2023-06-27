@@ -3,7 +3,6 @@ import { EMPTYPES } from "constants/EmpTypes";
 import { makeStyles, Label, Text } from "@fluentui/react-components";
 import { IOutRequest } from "api/RequestApi";
 import { MessageBar, MessageBarType } from "@fluentui/react";
-import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
 /* FluentUI Styling */
@@ -29,10 +28,6 @@ export const OutRequestViewCompact: FunctionComponent<
 > = (props) => {
   const classes = useStyles();
   const formData = props.formData;
-  const codeEntry = SENSITIVITY_CODES.find(
-    (code) => code.key === formData.sensitivityCode
-  );
-  const sensitivityCode = codeEntry ? codeEntry.text : "";
 
   const isTransferReason =
     OUT_PROCESS_REASONS.filter(
@@ -79,25 +74,6 @@ export const OutRequestViewCompact: FunctionComponent<
           <br />
           <Text id="empTypeCVId">{formData.empType}</Text>
         </div>
-        {(formData.empType === EMPTYPES.Civilian ||
-          formData.empType === EMPTYPES.Military) && (
-          <div>
-            <Label weight="semibold" htmlFor="SARCVId">
-              SAR
-            </Label>
-            <br />
-            <Text id="SARCVId">{formData.SAR}</Text>
-          </div>
-        )}
-        {formData.empType === EMPTYPES.Civilian && (
-          <div>
-            <Label weight="semibold" htmlFor="SARCVId">
-              Position Sensitivity Code
-            </Label>
-            <br />
-            <Text id="sensitivityCodeCVId">{sensitivityCode}</Text>
-          </div>
-        )}
         <div>
           <Label
             weight="semibold"

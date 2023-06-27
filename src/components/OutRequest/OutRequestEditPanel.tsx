@@ -26,7 +26,6 @@ import { useForm, Controller } from "react-hook-form";
 import { EMPTYPES } from "constants/EmpTypes";
 import { IOutRequest, useUpdateRequest } from "api/RequestApi";
 import {
-  NumberFieldIcon,
   CalendarIcon,
   DropdownIcon,
   ContactIcon,
@@ -35,7 +34,6 @@ import {
   CancelIcon,
 } from "@fluentui/react-icons-mdl2";
 import { RadioButtonFilled, ToggleLeftRegular } from "@fluentui/react-icons";
-import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { OFFICES } from "constants/Offices";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
@@ -367,91 +365,6 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                   </RadioGroup>
                 )}
               />
-            </div>
-            <div className={classes.fieldContainer}>
-              <Label
-                id="SARId"
-                size="small"
-                weight="semibold"
-                className={classes.fieldLabel}
-                required
-              >
-                <NumberFieldIcon className={classes.fieldIcon} />
-                SAR
-              </Label>
-              <Controller
-                name="SAR"
-                control={control}
-                render={({ field }) => (
-                  <Combobox
-                    selectedOptions={
-                      field.value ? [field.value.toString()] : [""]
-                    }
-                    value={field.value ? field.value.toString() : ""}
-                    aria-labelledby="SARId"
-                    disabled={true}
-                    placeholder={
-                      props.data.empType === EMPTYPES.Contractor ? "N/A" : ""
-                    }
-                  ></Combobox>
-                )}
-              />
-              <Text
-                weight="regular"
-                size={200}
-                className={classes.fieldDescription}
-              >
-                If you do not know the SAR, please reference the UMD or contact
-                your HR liaison.
-              </Text>
-            </div>
-            <div className={classes.fieldContainer}>
-              <Label
-                id="sensitivityCodeId"
-                size="small"
-                weight="semibold"
-                className={classes.fieldLabel}
-                required={props.data.empType === EMPTYPES.Civilian}
-              >
-                <DropdownIcon className={classes.fieldIcon} />
-                Position Sensitivity Code
-              </Label>
-              <Controller
-                name="sensitivityCode"
-                control={control}
-                render={({ field: { value } }) => (
-                  <Combobox
-                    aria-describedby="sensitivityCodeErr"
-                    aria-labelledby="sensitivityCodeId"
-                    autoComplete="on"
-                    listbox={{ className: classes.listBox }}
-                    value={
-                      value
-                        ? SENSITIVITY_CODES.find(({ key }) => key === value)
-                            ?.text
-                        : ""
-                    }
-                    placeholder={
-                      props.data.empType === EMPTYPES.Civilian ? "" : "N/A"
-                    }
-                    disabled={true}
-                  >
-                    {SENSITIVITY_CODES.map(({ key, text }) => (
-                      <Option key={key} value={key.toString()}>
-                        {text}
-                      </Option>
-                    ))}
-                  </Combobox>
-                )}
-              />
-              <Text
-                weight="regular"
-                size={200}
-                className={classes.fieldDescription}
-              >
-                If you do not know the code, please reference the position
-                documents or contact your HR liason.
-              </Text>
             </div>
             <div className={classes.fieldContainer}>
               <Label

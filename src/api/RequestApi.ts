@@ -85,8 +85,6 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       Id: request.Id,
       empName: request.empName,
       empType: request.empType,
-      SAR: request.SAR,
-      sensitivityCode: request.sensitivityCode,
       workLocation: request.workLocation,
       workLocationDetail: request.workLocationDetail,
       office: request.office,
@@ -190,8 +188,6 @@ const transformRequestToSP = async (
       Id: request.Id,
       empName: request.empName,
       empType: request.empType,
-      SAR: request.SAR,
-      sensitivityCode: request.sensitivityCode,
       workLocation: request.workLocation,
       workLocationDetail: request.workLocationDetail,
       office: request.office,
@@ -580,10 +576,6 @@ export type IOutRequest = {
    * 'Military' - for Military Employees
    */
   empType: EMPTYPES;
-  /** Optional - The Employee's SAR from the UMD -- Required for CIV/MIL, others will be blank */
-  SAR?: number;
-  /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */
-  sensitivityCode?: number;
   /** Required - Possible values are 'local' and 'remote'  */
   workLocation: worklocation;
   /** Optional - Required if workLocation is 'remote', otherwise is blank */
