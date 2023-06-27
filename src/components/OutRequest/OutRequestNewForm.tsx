@@ -149,6 +149,11 @@ const OutRequestNewForm = () => {
           control={control}
           rules={{
             required: "Employee is required",
+            validate: (value) => {
+              return value.EMail === currentUser.EMail
+                ? "You cannot submit a request for yourself"
+                : undefined;
+            },
           }}
           render={({ field: { onChange, value } }) => (
             <PeoplePicker

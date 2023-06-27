@@ -169,6 +169,13 @@ const InRequestNewForm = () => {
         <Controller
           name="employee"
           control={control}
+          rules={{
+            validate: (value) => {
+              return value?.EMail === currentUser.EMail
+                ? "You cannot submit a request for yourself"
+                : undefined;
+            },
+          }}
           render={({ field: { onChange, value } }) => (
             <PeoplePicker
               ariaLabel="Employee"
