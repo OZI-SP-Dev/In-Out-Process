@@ -4,9 +4,10 @@ import {
   useAllUserRolesByUser,
   RoleType,
   ISubmitRole,
+  SPRole,
 } from "api/RolesApi";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
-import { IPerson } from "api/UserApi";
+import { IPerson, Person } from "api/UserApi";
 import { Panel, PanelType } from "@fluentui/react";
 import {
   Button,
@@ -20,6 +21,7 @@ import {
   Spinner,
   Dropdown,
   Option,
+  Input,
 } from "@fluentui/react-components";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -27,13 +29,19 @@ import {
   CompletedIcon,
   ContactIcon,
   DropdownIcon,
+  TextFieldIcon,
 } from "@fluentui/react-icons-mdl2";
 
 interface IAddUserRolePanel {
-  onAddCancel?: () => void;
-  isAddPanelOpen?: boolean;
-  onAdd: () => void;
+  onClose: () => void;
+  isAddPanelOpen: boolean;
+  editItem?: SPRole;
 }
+
+// Custom type converter, to make it possible to set any of the props to null
+type WithNull<T> = {
+  [P in keyof T]: T[P] | null;
+};
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -53,6 +61,9 @@ const useStyles = makeStyles({
     paddingBottom: ".5em",
     display: "grid",
     position: "relative",
+  },
+  fieldDescription: {
+    display: "block",
   },
   fieldLabel: {
     paddingBottom: ".5em",
@@ -80,11 +91,12 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     formState: { errors },
     setValue,
     reset,
-  } = useForm<Partial<ISubmitRole>>(); //Make all the props optional, so that we can set them to undefined etc
+  } = useForm<WithNull<ISubmitRole>>({}); //Make all the props able to be null, so that we can set them to null -- RHF doesn't like undefined
 
   // Get the hook with functions to perform Role Management
-  const { addRole } = useRoleManagement();
+  const { addRole, updateRole } = useRoleManagement();
 
+  /** The list of available dropdown roles for the selected user */
   const roles = Object.values(RoleType)
     .filter(
       (item) =>
@@ -100,22 +112,36 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
       return role;
     });
 
-  // Function to test adding a Role
-  const addRoleClick = (data: Partial<ISubmitRole>) => {
-    if (data.User && data.Role) {
+  /** Function to add/update a Role record */
+  const addRoleClick = (data: WithNull<ISubmitRole>) => {
+    if (data.User && data.Title) {
       // Since we ensure that there is data we can assert that it is of ISubmitRole type
-      addRole.mutate(data as ISubmitRole, {
-        onSuccess: () => {
-          setTimeout(() => {
-            props.onAdd();
-          }, 2000);
-        },
-      });
+      const roleData = data as ISubmitRole;
+      if (!props.editItem) {
+        +(
+          // Since we ensure that there is data we can assert that it is of ISubmitRole type
+          addRole.mutate(roleData, {
+            onSuccess: () => {
+              setTimeout(() => {
+                props.onClose();
+              }, 2000);
+            },
+          })
+        );
+      } else {
+        updateRole.mutate(roleData, {
+          onSuccess: () => {
+            setTimeout(() => {
+              props.onClose();
+            }, 2000);
+          },
+        });
+      }
     }
   };
 
-  const onUserChange = (user: IPerson[]) => {
-    if (user.length > 0) {
+  const onUserChange = (user: IPerson[] | null) => {
+    if (user && user.length > 0) {
       setValue("User", user[0]);
       const newItems = allRolesByUser?.get(user[0].EMail);
       if (newItems === undefined) {
@@ -124,25 +150,37 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
         setItems(newItems.map((role) => role.Title));
       }
     } else {
-      setValue("User", undefined); // Clear value for the RHF erorr/validation handling
+      setValue("User", null); // Clear value for the RHF erorr/validation handling
       setItems([]); // List all roles as options
     }
   };
 
-  /** Function called when the Panel is closed/dismissed */
-  const onDismissed = () => {
-    reset(); // Clear the RHF fields
-    setItems([]); // Resest Roles to all options
+  /** Function called when the Panel is opened */
+  const onOpen = () => {
+    if (props.editItem) {
+      const user = new Person(props.editItem.User);
+      const tempEditItem = {
+        ...props.editItem,
+        User: user,
+      };
+      reset(tempEditItem); // Set the RHF values
+      onUserChange([user]);
+    } else {
+      reset({ User: null, Title: null, Email: "" }); // Clear RHF
+      setItems([]); // Resest Roles to all options
+    }
+
     addRole.reset(); // Reset our mutation
+    updateRole.reset(); // Reset our mutation
   };
 
   return (
     <Panel
       isOpen={props.isAddPanelOpen}
-      onDismissed={onDismissed}
+      onOpen={onOpen}
       isBlocking={true}
-      onDismiss={props.onAddCancel}
-      headerText="Add User to Role"
+      onDismiss={props.onClose}
+      headerText={!props.editItem ? "Add Role" : "Update Role"}
       type={PanelType.medium}
     >
       <FluentProvider>
@@ -195,15 +233,17 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
               Role
             </Label>
             <Controller
-              name="Role"
+              name="Title"
               control={control}
               rules={{
                 required: "You must select a role to add to the user",
               }}
-              render={({ field: { onBlur, onChange } }) => (
+              render={({ field: { onBlur, onChange, value } }) => (
                 <Dropdown
                   id="roleId"
                   aria-describedby="roleErr"
+                  value={value ?? ""}
+                  selectedOptions={[value?.toString() ?? ""]}
                   onOptionSelect={(_ev, data) => {
                     if (data?.selectedOptions) {
                       onChange(data.optionValue);
@@ -219,11 +259,48 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 </Dropdown>
               )}
             />
-            {errors.Role && (
+            {errors.Title && (
               <Text id="roleErr" className={classes.errorText}>
-                {errors.Role.message}
+                {errors.Title.message}
               </Text>
             )}
+          </div>
+          <div className={classes.fieldContainer}>
+            <Label
+              htmlFor="roleId"
+              size="small"
+              weight="semibold"
+              className={classes.fieldLabel}
+            >
+              <TextFieldIcon className={classes.fieldIcon} />
+              Alternate Email Address
+            </Label>
+            <Controller
+              name="Email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  aria-describedby="emailErr"
+                  aria-labelledby="emailErr"
+                />
+              )}
+            />
+            {errors.Email && (
+              <Text id="emailErr" className={classes.errorText}>
+                {errors.Email.message}
+              </Text>
+            )}
+            <Text
+              weight="regular"
+              size={200}
+              className={classes.fieldDescription}
+            >
+              Email address to send to if different than the Global Address List
+              (GAL). This can be used to send emails to an Organizational Box,
+              by providing that address here.
+            </Text>
           </div>
           <div className={classes.addButton}>
             {addRole.isError && (
@@ -243,22 +320,48 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                 />
               </Tooltip>
             )}
-            {(addRole.isIdle || addRole.isError) && (
+            {updateRole.isError && (
+              <Tooltip
+                content={
+                  updateRole.error instanceof Error
+                    ? updateRole.error.message
+                    : "An error occurred."
+                }
+                relationship="label"
+              >
+                <Badge
+                  size="extra-large"
+                  appearance="ghost"
+                  color="danger"
+                  icon={<AlertSolidIcon />}
+                />
+              </Tooltip>
+            )}
+            {((addRole.isIdle && updateRole.isIdle) ||
+              addRole.isError ||
+              updateRole.isError) && (
               <Button appearance="primary" type="submit">
-                Add User to Role
+                {!props.editItem ? "Add Role" : "Update Role"}
               </Button>
             )}
-            {addRole.isLoading && (
-              <Spinner size="small" label="Adding role..." />
+            {(addRole.isLoading || updateRole.isLoading) && (
+              <Spinner
+                size="small"
+                label={
+                  addRole.isLoading ? "Adding role..." : "Updating role..."
+                }
+              />
             )}
-            {addRole.isSuccess && (
+            {(addRole.isSuccess || updateRole.isSuccess) && (
               <Badge
                 size="extra-large"
                 appearance="ghost"
                 color="success"
                 icon={<CompletedIcon />}
               >
-                Role added successfully
+                {addRole.isSuccess
+                  ? "Role added successfully"
+                  : "Role updated successfully"}
               </Badge>
             )}
           </div>

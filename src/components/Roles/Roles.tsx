@@ -29,7 +29,12 @@ import {
 import { useBoolean } from "@fluentui/react-hooks";
 import { AddUserRolePanel } from "components/Roles/AddUserRolePanel";
 import { UserContext } from "providers/UserProvider";
-import { AddIcon, DeleteIcon, ListIcon } from "@fluentui/react-icons-mdl2";
+import {
+  AddIcon,
+  DeleteIcon,
+  EditIcon,
+  ListIcon,
+} from "@fluentui/react-icons-mdl2";
 
 /** FluentUI Styling */
 const useStyles = makeStyles({
@@ -166,10 +171,17 @@ const Roles: React.FunctionComponent = () => {
     {
       key: "column0",
       name: selectedValue === "ByRole" ? "User" : "Role",
-      minWidth: 100,
+      minWidth: 300,
       isResizable: true,
       onRender: (item) =>
         selectedValue === "ByRole" ? item.User.Title : item.Title,
+    },
+    {
+      key: "column1",
+      name: "Alternate Email Address",
+      fieldName: "Email",
+      minWidth: 300,
+      isResizable: true,
     },
   ];
 
@@ -180,10 +192,23 @@ const Roles: React.FunctionComponent = () => {
         <Button
           appearance="subtle"
           icon={<AddIcon className={classes.icon} />}
-          onClick={showAddPanel}
+          onClick={() => {
+            // Clear any selected items out, as we want to add not edit
+            selection.setAllSelected(false);
+            showAddPanel();
+          }}
         >
           Add User
         </Button>
+        {selectedItems.length === 1 && (
+          <Button
+            appearance="subtle"
+            icon={<EditIcon className={classes.icon} />}
+            onClick={showAddPanel}
+          >
+            Edit
+          </Button>
+        )}
         {selectedItems.length > 0 && (
           <Button
             appearance="subtle"
@@ -228,11 +253,12 @@ const Roles: React.FunctionComponent = () => {
         groups={detailListData?.groups}
         selection={selection}
         groupProps={{ showEmptyGroups: true }}
+        onItemInvoked={showAddPanel}
       ></DetailsList>
       <AddUserRolePanel
         isAddPanelOpen={isAddPanelOpen}
-        onAddCancel={hideAddPanel}
-        onAdd={hideAddPanel}
+        onClose={hideAddPanel}
+        editItem={(selectedItems[0] as SPRole) ?? undefined}
       />
     </>
   );

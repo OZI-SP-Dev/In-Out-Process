@@ -82,7 +82,12 @@ let testRoles: SPRole[] = [
   { Id: 10, User: { ...testUsers[3] }, Title: RoleType.FOG }, // FOG for Patty O'Table
   { Id: 11, User: { ...testUsers[4] }, Title: RoleType.DTS }, // DTS for Chip N. Dip
   { Id: 12, User: { ...testUsers[5] }, Title: RoleType.GTC }, // GTC for Walter Mellon@localhost
-  { Id: 13, User: { ...testUsers[6] }, Title: RoleType.SECURITY }, // SECURITY for Herb Alty
+  {
+    Id: 13,
+    User: { ...testUsers[6] },
+    Title: RoleType.SECURITY,
+    Email: "OrgBox@localhost",
+  }, // SECURITY for Herb Alty
 ];
 
 /**
@@ -683,6 +688,42 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
         return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
       }
       return res(ctx.status(400), ctx.delay(responsedelay));
+    }
+  ),
+
+  /**
+   * Update a Role Item
+   * We know we're updating an item because an ItemId is included
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+      let body = await req.json();
+      let index = testRoles.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+      let roleItem = testRoles[index];
+      let user = testUsers.find(
+        (element) => element.Id === Number(body.UserId)
+      );
+
+      if (index !== -1 && user) {
+        roleItem.User = user;
+        roleItem.Email = body.Email;
+        roleItem.Title = body.Title;
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: testRoles[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
     }
   ),
 
