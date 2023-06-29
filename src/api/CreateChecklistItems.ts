@@ -845,10 +845,9 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.DetachDTS);
   }
 
-  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Closing ATAAPS
+  // If the employee is a Civ who is Retiring or Separating then add task for Closing ATAAPS
   if (
-    (request.empType === EMPTYPES.Civilian ||
-      request.empType === EMPTYPES.Military) &&
+    request.empType === EMPTYPES.Civilian &&
     (isRetiringReason || isSeparatinggReason)
   ) {
     addChecklistItem(templates.CloseATAAPS);
