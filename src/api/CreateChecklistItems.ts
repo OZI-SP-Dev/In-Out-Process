@@ -533,7 +533,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Schedule equipment turn-in appointment",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.ScheduleETT,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment turn-in appointment with the Enterprise Technical Team (ETT): <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/Forms/AllItems.aspx?viewpath=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FForms%2FAllItems%2Easpx&id=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links%2FETT%20OP%2Epdf&viewid=8b5449d7%2D6c5b%2D49fb%2Dbd3c%2D7f97cda4d428&parent=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links">ETT OP.pdf</a></p>`,
     Prereqs: [],
   },
   {
@@ -845,10 +845,9 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.DetachDTS);
   }
 
-  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Closing ATAAPS
+  // If the employee is a Civ who is Retiring or Separating then add task for Closing ATAAPS
   if (
-    (request.empType === EMPTYPES.Civilian ||
-      request.empType === EMPTYPES.Military) &&
+    request.empType === EMPTYPES.Civilian &&
     (isRetiringReason || isSeparatinggReason)
   ) {
     addChecklistItem(templates.CloseATAAPS);
