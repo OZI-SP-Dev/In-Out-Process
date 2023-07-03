@@ -118,16 +118,14 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
       // Since we ensure that there is data we can assert that it is of ISubmitRole type
       const roleData = data as ISubmitRole;
       if (!props.editItem) {
-        +(
-          // Since we ensure that there is data we can assert that it is of ISubmitRole type
-          addRole.mutate(roleData, {
-            onSuccess: () => {
-              setTimeout(() => {
-                props.onClose();
-              }, 2000);
-            },
-          })
-        );
+        // Since we ensure that there is data we can assert that it is of ISubmitRole type
+        addRole.mutate(roleData, {
+          onSuccess: () => {
+            setTimeout(() => {
+              props.onClose();
+            }, 2000);
+          },
+        });
       } else {
         updateRole.mutate(roleData, {
           onSuccess: () => {
