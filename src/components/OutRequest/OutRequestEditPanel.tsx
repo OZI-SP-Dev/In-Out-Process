@@ -4,7 +4,7 @@ import {
   Panel,
   PanelType,
 } from "@fluentui/react";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useContext } from "react";
 import {
   Button,
   webLightTheme,
@@ -37,6 +37,7 @@ import { RadioButtonFilled, ToggleLeftRegular } from "@fluentui/react-icons";
 import { WORKLOCATIONS } from "constants/WorkLocations";
 import { OFFICES } from "constants/Offices";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
+import { UserContext } from "providers/UserProvider";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -86,6 +87,7 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
   props
 ) => {
   const classes = useStyles();
+  const currentUser = useContext(UserContext).user;
 
   const {
     control,
@@ -194,6 +196,11 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 control={control}
                 rules={{
                   required: "Employee is required",
+                  validate: (value) => {
+                    return value.EMail === currentUser.EMail
+                      ? "You cannot submit a request for yourself"
+                      : undefined;
+                  },
                 }}
                 render={({ field: { onChange, value } }) => (
                   <PeoplePicker
