@@ -150,7 +150,7 @@ const OutRequestNewForm = () => {
           rules={{
             required: "Employee is required",
             validate: (value) => {
-              return value.EMail === currentUser.EMail
+              return value?.EMail === currentUser.EMail
                 ? "You cannot submit a request for yourself"
                 : undefined;
             },
