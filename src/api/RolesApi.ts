@@ -1,13 +1,11 @@
 import {
   useMutation,
-  UseMutationResult,
   useQuery,
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
 import { spWebContext } from "providers/SPWebContext";
 import { IPerson } from "api/UserApi";
-import { IItemAddResult } from "@pnp/sp/items";
 import { useError } from "hooks/useError";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
@@ -42,21 +40,32 @@ export interface SPRole {
   User: IPerson;
   /** The string representing the Role in the Roles list  */
   Title: RoleType;
+  /** Optional - The Alternate Email Address to send the notification to */
+  Email?: string;
 }
 
 //* Format for request for adding a Role to a user */
 export interface ISubmitRole {
+  /** The Id of the Role record to update -- if none then it is new record */
+  Id?: number;
   /** The User to add the Role to */
   User: IPerson;
   /** The Role to add to the User */
-  Role: RoleType;
+  Title: RoleType;
+  /** Optional - The Alternate Email Address to send the notification to */
+  Email?: string;
 }
 
 //* Format for sending request to SP for adding a Role to a user */
 interface ISPSubmitRole {
+  /** The Id of the Role record to update -- if none then it is new record */
   Id?: number;
+  /** The UserId of the person to add the Role to */
   UserId: number;
+  /** The Role to add to the User */
   Title: RoleType;
+  /** Optional - The Alternate Email Address to send the notification to */
+  Email?: string;
 }
 
 /** Type for Map of User Roles grouped with key of Role */
@@ -65,6 +74,17 @@ type IRolesByType = Map<RoleType, SPRole[]>;
 /** Type for Map of User Roles grouped with key of UserId */
 type IRolesByUser = Map<string, SPRole[]>;
 
+/** Function to overrite Email of User on Role record if an Email was provided on the record
+ *  @param role - The SPRole record
+ *  @returns An SPRole where User is updated with Role record email if provided
+ */
+const overrideEmail = (role: SPRole): SPRole => {
+  const tempUser = {
+    ...role.User,
+    EMail: role.Email ?? role.User.EMail,
+  };
+  return { ...role, User: tempUser };
+};
 /**
  * Take the SP Role list row data, and group it by user specifying all roles
  * belonging to the user.  One or more user's data can be passed in
@@ -77,12 +97,14 @@ const getIUserRoles = (roles: SPRole[]) => {
   for (let role of roles) {
     // Ensure the role on the Record actually exists in RoleType -- otherwise ignore this record
     if (Object.values(RoleType).includes(role.Title)) {
+      // Store the record based on the User's actual GAL email
       const key = role.User.EMail;
       const collection = map.get(key);
+      const tempRole = overrideEmail(role);
       if (!collection) {
-        map.set(key, [role]);
+        map.set(key, [tempRole]);
       } else {
-        collection.push(role);
+        collection.push(tempRole);
       }
     }
   }
@@ -103,10 +125,11 @@ const getIUserRolesGroup = (roles: SPRole[]): IRolesByType => {
     if (Object.values(RoleType).includes(role.Title)) {
       const key = role.Title;
       const collection = map.get(key);
+      const tempRole = overrideEmail(role);
       if (!collection) {
-        map.set(key, [role]);
+        map.set(key, [tempRole]);
       } else {
-        collection.push(role);
+        collection.push(tempRole);
       }
     }
   }
@@ -140,7 +163,7 @@ const getIUserRoleType = (roles: SPRole[]) => {
 const getAllRoles = async (): Promise<SPRole[]> => {
   return spWebContext.web.lists
     .getByTitle("Roles")
-    .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+    .items.select("Id", "User/Id", "User/Title", "User/EMail", "Title", "Email")
     .expand("User")();
 };
 
@@ -156,7 +179,7 @@ const getRolesForUser = async (userId?: number): Promise<SPRole[]> => {
   return spWebContext.web.lists
     .getByTitle("Roles")
     .items.filter(`User/Id eq '${userId}'`)
-    .select("Id", "User/Id", "User/Title", "User/EMail", "Title")
+    .select("Id", "User/Id", "User/Title", "User/EMail", "Title", "Email")
     .expand("User")();
 };
 
@@ -249,18 +272,10 @@ export const useAllUserRolesByRole = () =>
   useAllUserRoles(getIUserRolesGroup) as UseQueryResult<IRolesByType, unknown>;
 
 /**
- * Hook that returns 2 mutate functions to be used for Role Management
+ * Hook that returns 3 mutate functions to be used for Role Management
  *
  */
-export const useRoleManagement = (): {
-  addRole: UseMutationResult<
-    SPRole | IItemAddResult,
-    unknown,
-    ISubmitRole,
-    unknown
-  >;
-  removeRole: UseMutationResult<void, unknown, number, unknown>;
-} => {
+export const useRoleManagement = () => {
   const queryClient = useQueryClient();
   const { data: currentRolesByUser } = useAllUserRolesByUser();
   const errObj = useError();
@@ -274,11 +289,12 @@ export const useRoleManagement = (): {
     if (currentRolesByUser) {
       const alreadyExists = currentRolesByUser
         ?.get(submitRoleVal.User.EMail)
-        ?.find((roles) => roles.Title === submitRoleVal.Role);
-      if (alreadyExists) {
+        ?.find((roles) => roles.Title === submitRoleVal.Title);
+      // The user can have the role already if it is the record we are updating
+      if (alreadyExists && alreadyExists.Id !== submitRoleVal.Id) {
         return Promise.reject(
           new Error(
-            `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Role}, you cannot submit a duplicate role!`
+            `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Title}, you cannot submit a duplicate role!`
           )
         );
       } else {
@@ -289,14 +305,26 @@ export const useRoleManagement = (): {
               ? (await spWebContext.web.ensureUser(submitRoleVal.User.EMail))
                   .data.Id
               : submitRoleVal.User.Id,
-          Title: submitRoleVal.Role,
+          Title: submitRoleVal.Title,
+          Email: submitRoleVal.Email,
         };
-        return spWebContext.web.lists.getByTitle("Roles").items.add(spRequest);
+        if (!submitRoleVal.Id) {
+          // New item
+          return spWebContext.web.lists
+            .getByTitle("Roles")
+            .items.add(spRequest);
+        } else {
+          // Existing item
+          return spWebContext.web.lists
+            .getByTitle("Roles")
+            .items.getById(submitRoleVal.Id)
+            .update(spRequest);
+        }
       }
     } else {
       return Promise.reject(
         new Error(
-          `Unable to add User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Role} becasue current roles are undefined`
+          `Unable to add/update User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Title} becasue current roles are undefined`
         )
       );
     }
@@ -316,6 +344,16 @@ export const useRoleManagement = (): {
 
   /** React Query Mutation used to add a Role */
   const addRoleMutation = useMutation(["roles"], submitRole, {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries(["roles"]);
+    },
+  });
+
+  /** React Query Mutation used to update a Role record
+   *    Calls the same thing as adding a user, but allows us to track separately
+   */
+  const updateRoleMutation = useMutation(["roles"], submitRole, {
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(["roles"]);
@@ -346,5 +384,12 @@ export const useRoleManagement = (): {
   });
 
   // Return object of functions that can be called
-  return { addRole: addRoleMutation, removeRole: removeRoleMutation };
+  return {
+    /** Mutation to add a user to a role */
+    addRole: addRoleMutation,
+    /** Mutation to update a role record */
+    updateRole: updateRoleMutation,
+    /** Mutation to delete a role record */
+    removeRole: removeRoleMutation,
+  };
 };
