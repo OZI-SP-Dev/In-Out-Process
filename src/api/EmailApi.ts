@@ -251,6 +251,10 @@ ${linkURL}`,
       };
     } else {
       // It is an Out-processing request
+
+      // Add the employee to the to line
+      toField.push(request.employee);
+
       newEmail = {
         to: toField,
         cc: ccField,
