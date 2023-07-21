@@ -107,8 +107,13 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
       );
       checklistItems = transformCheckListItemsFromSP(checklistItemsTemp);
     },
+
     onSuccess: () => {
-      return queryClient.invalidateQueries(["checklist"]);
+      return queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "checklist" ||
+          query.queryKey[0] === "myChecklist",
+      });
     },
   });
 };
