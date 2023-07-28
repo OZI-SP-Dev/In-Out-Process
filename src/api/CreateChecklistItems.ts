@@ -98,7 +98,7 @@ export const checklistTemplates: ICheckListItemTemplate[] = [
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.ObtainCACGov,
     Description: `<div><p style="margin-top: 0px"><b>Initial CAC for brand new employees</b><br/>
-For brand new employees who have not yet obtained their CAC, please see 'Installation In-processing' as this task will address enrollment in the Defense Enrollment Eligibility Reporting System (DEERS) and provide guidance for scheduling a CAC appointment.</p>
+For brand new employees who have not yet obtained their CAC, please see 'Attend Installation In-processing' task as this task will address enrollment in the Defense Enrollment Eligibility Reporting System (DEERS) and provide guidance for scheduling a CAC appointment.</p>
 <p><b>Replacement CAC</b><br/>
 To schedule your CAC appointment see the following announcement:</p>
 <p>The 88 Force Support ID Card Section is transitioning from RAPIDS to Setmore for scheduling ID card appointments. This includes all CAC, Retiree, Dependents, and DAV customers.<br/><br/>
