@@ -51,7 +51,6 @@ enum templates {
   RemovalFromWHAT = 41,
   TurnInSIPR = 42,
   SignedAF2587 = 43,
-  SignedNDADebrief = 44,
   TurnInCAC = 45,
   ConfirmTurnInCAC = 46,
   RemoveSpecialAccess = 47,
@@ -472,13 +471,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Prereqs: [],
   },
   {
-    Title: "Signed debrief section of Non-Disclosure Agreement (NDA)",
-    Lead: RoleType.SECURITY,
-    TemplateId: templates.SignedNDADebrief,
-    Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [],
-  },
-  {
     Title: "Turn-in Common Access Card (CAC)",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.TurnInCAC,
@@ -822,15 +814,6 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     (isRetiringReason || isSeparatinggReason)
   ) {
     addChecklistItem(templates.SignedAF2587);
-  }
-
-  // If the employee is a Civ/Mil who is Retiring or Separating then add task for Signed NDA Debrief
-  if (
-    (request.empType === EMPTYPES.Civilian ||
-      request.empType === EMPTYPES.Military) &&
-    (isRetiringReason || isSeparatinggReason)
-  ) {
-    addChecklistItem(templates.SignedNDADebrief);
   }
 
   // If they selected the employee has special access, then add the task from removing it
