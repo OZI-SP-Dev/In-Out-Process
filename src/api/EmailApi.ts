@@ -163,7 +163,6 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 
       const newEmail: IEmail = {
         to: leadUsers,
-        cc: [request.supGovLead],
         subject: `(Action Required) ${request.reqType}-processing Checklist Item Active: New checklist item(s) available for ${request.empName}`,
         body: `The following checklist item(s) are now available to be completed:<ul>${items
           .map((item) => `<li>${item.Title}</li>`)
