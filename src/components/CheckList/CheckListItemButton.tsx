@@ -4,6 +4,9 @@ import { useCompleteChecklistItem } from "api/CompleteChecklistItem";
 import { useState } from "react";
 import { AlertSolidIcon } from "@fluentui/react-icons-mdl2";
 import { useIsMutating } from "@tanstack/react-query";
+import { useBoolean } from "@fluentui/react-hooks";
+import { UpdateEmployeeToPerson } from "components/UpdateEmployeeToPerson/UpdateEmployeeToPerson";
+import { templates } from "api/CreateChecklistItems";
 
 interface CheckListItemButtonProps {
   checklistItem: ICheckListItem;
@@ -17,6 +20,25 @@ export const CheckListItemButton = ({
     mutationKey: ["checklist", checklistItem.Id],
   });
   const [visible, setVisible] = useState(false);
+
+  /** Show the UpdateEmployeeToPerson Dialog or not */
+  const [isDialogOpen, { setTrue: showDialog, setFalse: hideDialog }] =
+    useBoolean(false);
+
+  /** Function to perform upon clicking Complete button */
+  const completeClick = () => {
+    if (checklistItem.TemplateId === templates.ProvisionAFNET) {
+      showDialog();
+    } else {
+      completeCheckListItem.mutate();
+    }
+  };
+
+  /** Function to perform if it is the AFNET task */
+  const completeAction = () => {
+    completeCheckListItem.mutate();
+    hideDialog();
+  };
 
   // Because this button may be used more than once on a screen we can't use .isLoading
   // .isLoading will be true if ANY item is currently using this mutation
@@ -41,7 +63,7 @@ export const CheckListItemButton = ({
       >
         <Button
           appearance="primary"
-          onClick={() => completeCheckListItem.mutate()}
+          onClick={completeClick}
           disabledFocusable={!checklistItem.Active}
         >
           Complete
@@ -64,6 +86,13 @@ export const CheckListItemButton = ({
             icon={<AlertSolidIcon />}
           />
         </Tooltip>
+      )}
+      {isDialogOpen && (
+        <UpdateEmployeeToPerson
+          requestId={checklistItem.RequestId}
+          completeAction={completeAction}
+          cancelAction={hideDialog}
+        ></UpdateEmployeeToPerson>
       )}
     </>
   );
