@@ -1,5 +1,6 @@
 import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
+import { templates } from "api/CreateChecklistItems";
 import {
   IInResponseItem,
   IRequestItem,
@@ -762,7 +763,7 @@ let requests: IResponseItem[] = [
   {
     reqType: "In",
     Id: 2,
-    empName: "Doe, John D",
+    empName: testUsers[1].Title,
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-11",
     MPCN: 1234567,
@@ -805,7 +806,6 @@ let requests: IResponseItem[] = [
     eta: "2022-12-31T00:00:00.000Z",
     completionDate: "2023-01-31T00:00:00.000Z",
     supGovLead: { ...testUsers[0] },
-    employee: { ...testUsers[1] },
     isTraveler: "no",
     isSupervisor: "no",
     isSCI: "",
@@ -1184,6 +1184,28 @@ let checklistitems: ICheckListResponseItem[] = [
     CompletedBy: undefined,
     RequestId: 10,
     TemplateId: 8,
+    Active: true,
+  },
+  {
+    Id: 16,
+    Title: "Provision/move AFNET account",
+    Description: "",
+    Lead: "IT",
+    CompletedDate: "",
+    CompletedBy: undefined,
+    RequestId: 2,
+    TemplateId: templates.ProvisionAFNET,
+    Active: true,
+  },
+  {
+    Id: 17,
+    Title: "Provision/move AFNET account",
+    Description: "",
+    Lead: "IT",
+    CompletedDate: "",
+    CompletedBy: undefined,
+    RequestId: 1,
+    TemplateId: templates.ProvisionAFNET,
     Active: true,
   },
 ];

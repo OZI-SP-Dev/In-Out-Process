@@ -7,7 +7,7 @@ import { ICheckListItem } from "api/CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
 
-enum templates {
+export enum templates {
   WelcomePackage = 1,
   IA_Training = 2,
   ObtainCACGov = 3,

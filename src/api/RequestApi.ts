@@ -411,6 +411,29 @@ export const useUpdateRequest = (Id: number) => {
   );
 };
 
+export const useUpdateEmployeeToPerson = (Id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ["requests", Id],
+    async (employee: IPerson) => {
+      return spWebContext.web.lists
+        .getByTitle("Items")
+        .items.getById(Id)
+        .update({
+          employeeId: (
+            await spWebContext.web.ensureUser(employee.EMail)
+          ).data.Id,
+          empName: employee.Title,
+        });
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["requests", Id]);
+      },
+    }
+  );
+};
+
 export const useCancelRequest = (Id: number) => {
   const queryClient = useQueryClient();
   const sendRequestCancelEmail = useSendRequestCancelEmail();
