@@ -296,7 +296,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px"><b>!! Attention Supervisor !! </b>Please ensure the Consolidated Security Office (CSO) obtains the employees SSN for profile entry/confirmation within DISS. The CSO cannot process the DD Form 2875 until this action is completed. If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly to determine if there are outstanding issues/informational needs.</p>
 <p>To accomplish this checklist item, please ensure the following steps have been completed:</p>
 <ol>
-<li>Obtain a DD Form 2875 which can be found here: <a href="https://usaf.dps.mil/sites/22539/security/IN%20PROCESSING1/Forms/AllItems.aspx">AFLCMC/XP Security - IN PROCESSING - All Documents (dps.mil)</a></li>
+<li>Obtain a DD Form 2875 which can be found here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links">DD-2875s</a></li>
 <li>Have employee fill out the DD Form 2875 and digitally sign the appropriate section</li>
 <li>Supervisor should confirm form is filled out correctly and contains employee signature</li>
 <li>Supervisor shall then digitally sign the DD Form 2875 under the Supervisor section</li>
@@ -331,7 +331,14 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Equipment Issue",
     Lead: RoleType.IT,
     TemplateId: templates.EquipmentIssue,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px; text-align: center;">Enterprise Technical Team (ETT) In-Processing</p><p>To ensure expedient equipment issue for new employees, please have the new employee or supervisor of the new employee contact the ETT to schedule an appointment.  Be advised that ETT technicians will be in the building on Tuesday and Friday mornings, BY APPOINTMENT ONLY.</p>
+<p>When contacting the ETT, the technician will need to know if there are any non-standard software requirements for the new employee, as this requires additional coordination.</p>
+<p>For remote employees, the supervisor will need to coordinate with the ETT for shipping of hardware and first-time login.</p>
+<p>To schedule an appointment, please contact one of the following ETT Technicians via MS Teams:</p>
+<p>Henry Cardenas<br/>
+Arthur Goodwin<br/>
+Todd Shanklin<br/>
+Jerry (Joey) Theriot</p>`,
     Prereqs: [templates.SecurityCoord2875],
   },
   {
