@@ -83,15 +83,15 @@ export const AppHeader = () => {
           My Checklist Items
         </Link>
         <Menu>
-          <MenuTrigger disableButtonEnhancement>
+          <MenuTrigger>
             <Text className={classes.navLink}>Reports</Text>
           </MenuTrigger>
           <MenuPopover>
             <MenuList>
               <MenuItem onClick={() => navigate("/summary")}>
-                <Link to="/summary" className={classes.subNavLink}>
+                <Text className={classes.subNavLink}>
                   Summary View
-                </Link>
+                </Text>
               </MenuItem>
             </MenuList>
           </MenuPopover>
