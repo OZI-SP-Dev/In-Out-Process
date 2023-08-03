@@ -86,8 +86,8 @@ export const MyRequests = () => {
     createTableColumn<IInRequest>({
       columnId: "eta",
       compare: (a, b) => {
-        const aDate = a.eta?.getDate() ?? new Date().getDate();
-        const bDate = b.eta?.getDate() ?? new Date().getDate();
+        const aDate = a.eta?.valueOf() ?? new Date().valueOf();
+        const bDate = b.eta?.valueOf() ?? new Date().valueOf();
         return aDate - bDate;
       },
       renderHeaderCell: () => {
@@ -135,8 +135,8 @@ export const MyRequests = () => {
     createTableColumn<IOutRequest>({
       columnId: "lastDay",
       compare: (a, b) => {
-        const aDate = a.lastDay?.getDate() ?? new Date().getDate();
-        const bDate = b.lastDay?.getDate() ?? new Date().getDate();
+        const aDate = a.lastDay?.valueOf() ?? new Date().valueOf();
+        const bDate = b.lastDay?.valueOf() ?? new Date().valueOf();
         return aDate - bDate;
       },
       renderHeaderCell: () => {
