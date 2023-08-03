@@ -13,7 +13,7 @@ import {
   MenuItem,
 } from "@fluentui/react-components";
 import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
 import { RoleType } from "api/RolesApi";
@@ -59,7 +59,7 @@ const useStyles = makeStyles({
 
 export const AppHeader = () => {
   const classes = useStyles();
-
+  const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
   const title =
@@ -88,7 +88,7 @@ export const AppHeader = () => {
           </MenuTrigger>
           <MenuPopover>
             <MenuList>
-              <MenuItem>
+              <MenuItem onClick={() => navigate("/summary")}>
                 <Link to="/summary" className={classes.subNavLink}>
                   Summary View
                 </Link>
