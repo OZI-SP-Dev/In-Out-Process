@@ -3,7 +3,9 @@ import { IPersonaProps } from "@fluentui/react/lib/Persona";
 import { IPerson, Person } from "api/UserApi";
 import {
   IBasePickerSuggestionsProps,
+  ISuggestionItemProps,
   NormalPeoplePicker,
+  PeoplePickerItemSuggestion,
 } from "@fluentui/react/lib/Pickers";
 import { spWebContext } from "providers/SPWebContext";
 import { IPeoplePickerEntity } from "@pnp/sp/profiles";
@@ -115,6 +117,14 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
     }
   };
 
+  const onRenderSuggestionsItem = (personaProps: IPersonaProps, suggestionsProps: ISuggestionItemProps<IPersonaProps> | undefined) => (
+    <PeoplePickerItemSuggestion 
+      personaProps={personaProps} 
+      suggestionsProps={suggestionsProps} 
+      styles={{ personaWrapper: { width: '100%' }}}
+    />
+  );
+
   return (
     <>
       <NormalPeoplePicker
@@ -125,6 +135,7 @@ export const PeoplePicker: FunctionComponent<IPeoplePickerProps> = (props) => {
         }}
         onResolveSuggestions={onFilterChanged}
         getTextFromItem={getTextFromItem}
+        onRenderSuggestionsItem={onRenderSuggestionsItem}
         pickerSuggestionsProps={suggestionProps}
         className={"ms-PeoplePicker"}
         key={"controlled"}
