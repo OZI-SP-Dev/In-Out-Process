@@ -296,7 +296,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Description: `<p style="margin-top: 0px"><b>!! Attention Supervisor !! </b>Please ensure the Consolidated Security Office (CSO) obtains the employees SSN for profile entry/confirmation within DISS. The CSO cannot process the DD Form 2875 until this action is completed. If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly to determine if there are outstanding issues/informational needs.</p>
 <p>To accomplish this checklist item, please ensure the following steps have been completed:</p>
 <ol>
-<li>Obtain a DD Form 2875 which can be found here: <a href="https://usaf.dps.mil/sites/22539/security/IN%20PROCESSING1/Forms/AllItems.aspx">AFLCMC/XP Security - IN PROCESSING - All Documents (dps.mil)</a></li>
+<li>Obtain a DD Form 2875 which can be found here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links">DD-2875s</a></li>
 <li>Have employee fill out the DD Form 2875 and digitally sign the appropriate section</li>
 <li>Supervisor should confirm form is filled out correctly and contains employee signature</li>
 <li>Supervisor shall then digitally sign the DD Form 2875 under the Supervisor section</li>
