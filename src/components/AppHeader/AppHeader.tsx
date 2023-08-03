@@ -6,6 +6,11 @@ import {
   Popover,
   PopoverTrigger,
   PopoverSurface,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
 } from "@fluentui/react-components";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
@@ -43,6 +48,12 @@ const useStyles = makeStyles({
     ":hover": { textDecorationLine: "underline" },
     color: tokens.colorBrandBackgroundInverted,
   },
+  subNavLink: {
+    marginLeft: "1em",
+    marginRight: "1em",
+    textDecorationLine: "none",
+    ":hover": { textDecorationLine: "underline" },
+  },
   navAvatar: { marginLeft: "auto", marginRight: "5px" }, // Force the Avatar icon to be positioned at the right most side
 });
 
@@ -71,6 +82,20 @@ export const AppHeader = () => {
         <Link to="/myCheckListItems" className={classes.navLink}>
           My Checklist Items
         </Link>
+        <Menu>
+          <MenuTrigger disableButtonEnhancement>
+            <Text className={classes.navLink}>Reports</Text>
+          </MenuTrigger>
+          <MenuPopover>
+            <MenuList>
+              <MenuItem>
+                <Link to="/summary" className={classes.subNavLink}>
+                  Summary View
+                </Link>
+              </MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </Menu>
         {
           /* Include a link to Manage Roles if the current user is an ADMIN */
           userContext.roles?.includes(RoleType.ADMIN) && (
