@@ -18,10 +18,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Out Processing Request Form fields added
   - Employee, Employee Type, Supervisor, SAR, Sensitivity Code, Last Day w/ Org, Est Out processing begin date, Local/Remote, Remote Location, Office, Has DTS/GTC, Out-processing Reason, Gaining Organization, Special clearance accesses (i.e., SCI, SAP, etc)?
 - Checklist Items on Request View are now sortable by column header
+- Summary View Report - Report that shows Active, Cancelled, and Completed Requests
+- Ability to add Alternate Email to a user, enables sending messages to Org box
 
 ### Changed
 
 - Updated @fluentui/react-components to 9.20.1
+- Updated vite from 4.2.1 to 4.2.3
 - Update components to use v9 version (or replacement)
   - Dialog
   - CommandBar - replaced with just Buttons per Best Practice to not use Toolbar unless 3+ buttons
@@ -32,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Removed the "Item" column from CheckListItem display
   - Removed the "Status" column from the My Requests
 - Updated MyRequests component on homepage to display 2 separate areas for In-processing and Out-processing, and updated what data is shown from each request
+- No longer CC supervisor when tasks become active
+- User can no longer input request for themself
 
 ### Fixed
 

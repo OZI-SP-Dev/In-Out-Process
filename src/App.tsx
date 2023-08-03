@@ -26,6 +26,7 @@ const OutRequestNewForm = lazy(
 const MyCheckListItems = lazy(
   () => import("components/MyCheckListItems/MyCheckListItems")
 );
+const SummaryView = lazy(() => import("components/Reports/SummaryView"));
 
 /** Create a React Router with the needed Routes using the Data API */
 const router = createHashRouter(
@@ -37,6 +38,7 @@ const router = createHashRouter(
       <Route path="new" element={<InRequestNewForm />} />
       <Route path="depart" element={<OutRequestNewForm />} />
       <Route path="myCheckListItems" element={<MyCheckListItems />} />
+      <Route path="summary" element={<SummaryView />} />
     </Route>
   )
 );

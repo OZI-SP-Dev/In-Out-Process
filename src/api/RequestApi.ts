@@ -228,6 +228,7 @@ export const transformRequestSummaryFromSP = (
       reqType: "In", // Force this to be "In" to support legacy entries of "" from MVCR1
       Id: request.Id,
       empName: request.empName,
+      office: request.office,
       eta: new Date(request.eta),
       completionDate: new Date(request.completionDate),
       supGovLead: new Person({
@@ -257,6 +258,7 @@ export const transformRequestSummaryFromSP = (
       reqType: request.reqType,
       Id: request.Id,
       empName: request.empName,
+      office: request.office,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
       supGovLead: new Person({
@@ -300,12 +302,13 @@ const expandedFields = "supGovLead,employee";
 //  Id is used for navigating in My Requests and My Checklist Items
 //  reqType is used to know if it is In/Out type
 //  cancelReason/closedOrCancelled are used to determine request status
-//  empName and eta are used by My Requests table and My Checklist Items
-//  lastDay is used by My Requests table
+//  empName and eta are used by My Requests table and My Checklist Items and Summary View
+//  lastDay is used by My Requests table and Summary View
 //  completionDate is used by My Checklist Items
+//  office is used by Summary View
 //  supGovLead/Id and employee/Id are used to determine what should be in My Checklist Items
 const requestsSummaryFields =
-  "Id,reqType,empName,eta,lastDay,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,employee/Id,employee/EMail,employee/Title";
+  "Id,reqType,empName,eta,lastDay,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/EMail,employee/Title";
 const requestsSummaryexpandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -420,9 +423,8 @@ export const useUpdateEmployeeToPerson = (Id: number) => {
         .getByTitle("Items")
         .items.getById(Id)
         .update({
-          employeeId: (
-            await spWebContext.web.ensureUser(employee.EMail)
-          ).data.Id,
+          employeeId: (await spWebContext.web.ensureUser(employee.EMail)).data
+            .Id,
           empName: employee.Title,
         });
     },
@@ -659,6 +661,7 @@ type IInRequestSummary = Pick<
   | "Id"
   | "reqType"
   | "empName"
+  | "office"
   | "eta"
   | "completionDate"
   | "cancelReason"
@@ -674,6 +677,7 @@ type IOutRequestSummary = Pick<
   | "Id"
   | "reqType"
   | "empName"
+  | "office"
   | "lastDay"
   | "beginDate"
   | "cancelReason"
