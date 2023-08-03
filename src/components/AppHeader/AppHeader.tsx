@@ -89,9 +89,7 @@ export const AppHeader = () => {
           <MenuPopover>
             <MenuList>
               <MenuItem onClick={() => navigate("/summary")}>
-                <Text className={classes.subNavLink}>
-                  Summary View
-                </Text>
+                <Text className={classes.subNavLink}>Summary View</Text>
               </MenuItem>
             </MenuList>
           </MenuPopover>
