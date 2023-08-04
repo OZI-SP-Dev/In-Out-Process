@@ -474,7 +474,9 @@ Jerry (Joey) Theriot</p>`,
     Title: "Signed AF 2587",
     Lead: RoleType.SECURITY,
     TemplateId: templates.SignedAF2587,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Description: `<p style="margin-top: 0px">If separating from government or military service, an AF 2587 must be completed. Fill, sign, and return to CSO Workflow at <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
+    <p>To accomplish the above, please locate the <b>2587-Clearance-Termination-Debrief</b> which is found on the <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">CSO In/Out Processing SharePoint site</a></p>
+    <p>NOTE: Please be sure to follow the instructions that accompany this document.</p>`,
     Prereqs: [],
   },
   {
