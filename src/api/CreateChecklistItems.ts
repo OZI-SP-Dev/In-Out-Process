@@ -280,7 +280,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.SignedTeleworkAgreement,
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Telework%20Agreement%20Form%20dd2946.pdf">Telework Agreement Form DD2946</a></p>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+    Prereqs: [templates.ObtainCACGov],
   },
   {
     Title: "Telework status entered in WHAT",
@@ -716,8 +716,13 @@ const createInboundChecklistItems = async (request: IInRequest) => {
     addChecklistItem(templates.SignedPerformContribPlan);
   }
 
-  // Signed telework agreement
-  addChecklistItem(templates.SignedTeleworkAgreement);
+  // Signed telework agreement (Civ/Mil only)
+  if (
+    request.empType === EMPTYPES.Civilian ||
+    request.empType === EMPTYPES.Military
+  ) {
+    addChecklistItem(templates.SignedTeleworkAgreement);
+  }
 
   // Telework status entered in WHAT
   addChecklistItem(templates.TeleworkAddedToWHAT);
