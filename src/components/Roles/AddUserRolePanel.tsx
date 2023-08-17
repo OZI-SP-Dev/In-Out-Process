@@ -127,7 +127,8 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
           },
         });
       } else {
-        updateRole.mutate(roleData, {
+        const updateData = { old: { ...props.editItem }, new: { ...roleData } };
+        updateRole.mutate(updateData, {
           onSuccess: () => {
             setTimeout(() => {
               props.onClose();

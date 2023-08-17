@@ -216,7 +216,7 @@ const Roles: React.FunctionComponent = () => {
             onClick={() => {
               for (let entry of selectedItems) {
                 let spRoleEntry = entry as SPRole;
-                removeRole.mutate(spRoleEntry.Id);
+                removeRole.mutate(spRoleEntry);
               }
             }}
           >

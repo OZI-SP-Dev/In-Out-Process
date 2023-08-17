@@ -4,11 +4,13 @@ import {
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { spWebContext } from "providers/SPWebContext";
+import { spWebContext, webUrl } from "providers/SPWebContext";
 import { IPerson } from "api/UserApi";
 import { useError } from "hooks/useError";
 import { useContext } from "react";
 import { UserContext } from "providers/UserProvider";
+
+// Uses import @pnp/sp/site-groups/web within SPWebContext.ts
 
 /** Enum used to define the different roles in the tool */
 export enum RoleType {
@@ -285,46 +287,106 @@ export const useRoleManagement = () => {
    * Internal function used by the react-query useMutation
    *
    */
-  const submitRole = async (submitRoleVal: ISubmitRole) => {
+  const addRole = async (submitRoleVal: ISubmitRole) => {
+    return addOrUpdateRole({ new: { ...submitRoleVal } });
+  };
+
+  /**
+   * Submit the updated role to SharePoint
+   * Internal function used by the react-query useMutation
+   *
+   */
+  const updateRole = async (submitRoleVal: {
+    old: SPRole;
+    new: ISubmitRole;
+  }) => {
+    return addOrUpdateRole(submitRoleVal);
+  };
+
+  /**
+   * Submit the add or update role request to SharePoint
+   * Internal function used by the react-query useMutation
+   *
+   */
+  const addOrUpdateRole = async (updateRoleVal: {
+    old?: SPRole;
+    new: ISubmitRole;
+  }) => {
     if (currentRolesByUser) {
       const alreadyExists = currentRolesByUser
-        ?.get(submitRoleVal.User.EMail)
-        ?.find((roles) => roles.Title === submitRoleVal.Title);
+        ?.get(updateRoleVal.new.User.EMail)
+        ?.find((roles) => roles.Title === updateRoleVal.new.Title);
+
       // The user can have the role already if it is the record we are updating
-      if (alreadyExists && alreadyExists.Id !== submitRoleVal.Id) {
+      if (alreadyExists && alreadyExists.Id !== updateRoleVal.new.Id) {
         return Promise.reject(
           new Error(
-            `User ${submitRoleVal.User.Title} already has the Role ${submitRoleVal.Title}, you cannot submit a duplicate role!`
+            `User ${updateRoleVal.new.User.Title} already has the Role ${updateRoleVal.new.Title}, you cannot submit a duplicate role!`
           )
         );
       } else {
         let spRequest: ISPSubmitRole = {
           // If the Id for the User is -1 then we need to look up the user in SharePoint, otherwise use the Id we alreay have
           UserId:
-            submitRoleVal.User.Id === -1
-              ? (await spWebContext.web.ensureUser(submitRoleVal.User.EMail))
-                  .data.Id
-              : submitRoleVal.User.Id,
-          Title: submitRoleVal.Title,
-          Email: submitRoleVal.Email,
+            updateRoleVal.new.User.Id === -1
+              ? (
+                  await spWebContext.web.ensureUser(
+                    updateRoleVal.new.User.EMail
+                  )
+                ).data.Id
+              : updateRoleVal.new.User.Id,
+          Title: updateRoleVal.new.Title,
+          Email: updateRoleVal.new.Email,
         };
-        if (!submitRoleVal.Id) {
-          // New item
-          return spWebContext.web.lists
+
+        let spRes;
+        if (!updateRoleVal.old) {
+          // New role
+          // TODO -- If new item, and they click retry b/c group fails -- don't want to recreate
+          spRes = await spWebContext.web.lists
             .getByTitle("Roles")
-            .items.add(spRequest);
+            .items.add(spRequest)
+            .catch((reason) => {
+              return Promise.reject(
+                new Error("Error creating role entry: " + reason)
+              );
+            });
+          await addUserToGroup(updateRoleVal.new);
         } else {
-          // Existing item
-          return spWebContext.web.lists
+          // Existing role being updated
+          spRes = await spWebContext.web.lists
             .getByTitle("Roles")
-            .items.getById(submitRoleVal.Id)
-            .update(spRequest);
+            .items.getById(updateRoleVal.old.Id)
+            .update(spRequest)
+            .catch((reason) => {
+              return Promise.reject(
+                new Error("Error updating role entry: " + reason)
+              );
+            });
+
+          if (updateRoleVal.new.User.EMail !== updateRoleVal.old.User.EMail) {
+            const addRes = addUserToGroup(updateRoleVal.new);
+            const delRes = removeUserFromGroup(updateRoleVal.old);
+
+            // Wait for both the add and remove requests to complete
+            const results = await Promise.allSettled([addRes, delRes]);
+
+            // If either/both of them failed, then create a Reject Promise with the respective errors
+            const rejected = results.filter((a) => a.status === "rejected");
+            if (rejected) {
+              return Promise.reject(
+                new Error(rejected.map((item: any) => item.reason).join("\n"))
+              );
+            }
+          }
+
+          return Promise.resolve(spRes);
         }
       }
     } else {
       return Promise.reject(
         new Error(
-          `Unable to add/update User ${submitRoleVal.User.Title} to the Role ${submitRoleVal.Title} becasue current roles are undefined`
+          `Unable to add/update User ${updateRoleVal.new.User.Title} to the Role ${updateRoleVal.new.Title} becasue current roles are undefined`
         )
       );
     }
@@ -335,15 +397,22 @@ export const useRoleManagement = () => {
    * Internal function used by the react-query useMutation
    *
    */
-  const deleteRole = async (roleId: number) => {
-    return spWebContext.web.lists
+  const deleteRole = async (roleEntry: SPRole) => {
+    let spDelRes = await spWebContext.web.lists
       .getByTitle("Roles")
-      .items.getById(roleId)
-      .delete();
+      .items.getById(roleEntry.Id)
+      .delete()
+      .catch((err) => {
+        return Promise.reject(new Error("Error removing role entry: " + err));
+      });
+
+    await removeUserFromGroup(roleEntry);
+
+    return Promise.resolve(spDelRes);
   };
 
   /** React Query Mutation used to add a Role */
-  const addRoleMutation = useMutation(["roles"], submitRole, {
+  const addRoleMutation = useMutation(["roles"], addRole, {
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(["roles"]);
@@ -353,9 +422,9 @@ export const useRoleManagement = () => {
   /** React Query Mutation used to update a Role record
    *    Calls the same thing as adding a user, but allows us to track separately
    */
-  const updateRoleMutation = useMutation(["roles"], submitRole, {
-    // Always refetch after error or success:
-    onSettled: () => {
+  const updateRoleMutation = useMutation(["roles"], updateRole, {
+    // Only refresh on success, so that on error of group updates, modal won't refresh
+    onSuccess: () => {
       queryClient.invalidateQueries(["roles"]);
     },
   });
@@ -382,6 +451,59 @@ export const useRoleManagement = () => {
       }
     },
   });
+
+  /**
+   * Add the user to the SharePoint group
+   */
+  const addUserToGroup = async (submitRoleVal: ISubmitRole) => {
+    const loginName = getLoginNameFromEmail(submitRoleVal.User.EMail);
+    const groupName = getSiteGroupName(submitRoleVal.Title);
+    return spWebContext.web.siteGroups
+      .getByName(groupName)
+      .users.add(loginName)
+      .catch((reason) => {
+        return Promise.reject(new Error("Error adding permissions: " + reason));
+      });
+  };
+
+  /**
+   * Delete the user from the SharePoint Group
+   */
+  const removeUserFromGroup = async (submitRoleVal: SPRole) => {
+    const loginName = getLoginNameFromEmail(submitRoleVal.User.EMail);
+    const groupName = getSiteGroupName(submitRoleVal.Title);
+    return spWebContext.web.siteGroups
+      .getByName(groupName)
+      .users.removeByLoginName(loginName)
+      .catch((reason) => {
+        return Promise.reject(
+          new Error("Error removing permissions: " + reason)
+        );
+      });
+  };
+
+  /**
+   * Get the LoginName for an email
+   * Do this by appending the SharePoint Prefix for a user
+   */
+  const getLoginNameFromEmail = (email: string) => {
+    return "i:0#.f|membership|" + email;
+  };
+
+  /**
+   * Get the site URL
+   * Do this by appending the SharePoint Prefix for a user
+   */
+  const getSiteGroupName = (groupName: string) => {
+    const siteMatches = webUrl.match(/(?<=\/)INOUT.*/);
+    let groupNameRes;
+    if (siteMatches) {
+      groupNameRes = siteMatches[0] + " " + groupName;
+    } else {
+      groupNameRes = groupName;
+    }
+    return groupNameRes;
+  };
 
   // Return object of functions that can be called
   return {

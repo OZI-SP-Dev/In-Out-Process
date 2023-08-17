@@ -96,6 +96,27 @@ let testRoles: SPRole[] = [
  */
 let maxRoleId = testRoles.length;
 
+/** Mock SharePoint Groups
+ * Group Key is GroupName with Value being a User Map
+ * User Map Key is Email with value being LoginName
+ */
+let groups = new Map<string, Map<string, string>>();
+
+// Create a group for each defined role except EMPLOYEE and SUPERVISOR
+Object.values(RoleType).forEach((role) => {
+  if (!(role in [RoleType.EMPLOYEE, RoleType.SUPERVISOR])) {
+    groups.set(role, new Map<string, string>());
+  }
+});
+
+/** Populate the groups based on the test roles assigned */
+testRoles.forEach((role) => {
+  if (groups.has(role.Title)) {
+    let users = groups.get(role.Title);
+    users?.set(role.User.EMail, "i:0#.f|membership|" + role.User.EMail);
+  }
+});
+
 /**
  * Custom type guard to determine if it is an IPerson or FluentUI example data user
  * @param userObj The IPerson array of people entries
@@ -699,6 +720,30 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
   rest.post(
     "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
     async (req, res, ctx) => {
+      // If it is a request to delete the item
+      if (req.headers.get("x-http-method") === "DELETE") {
+        const { ItemId } = req.params;
+        let index = testRoles.findIndex(
+          (element) => element.Id === Number(ItemId)
+        );
+
+        if (index !== -1) {
+          testRoles.splice(index, 1);
+          return res(
+            ctx.status(200),
+            ctx.delay(responsedelay),
+            ctx.json({ value: requests[index] })
+          );
+        } else {
+          return res(
+            ctx.status(404),
+            ctx.delay(responsedelay),
+            ctx.json(notFound)
+          );
+        }
+      }
+
+      // It wasn't a delete request, so must be an update
       const { ItemId } = req.params;
       let body = await req.json();
       let index = testRoles.findIndex(
@@ -729,28 +774,146 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
   ),
 
   /**
-   * Delete a User Role
+   * Add a user to a group
    */
   rest.post(
-    "/_api/web/lists/getByTitle\\('Roles')/items\\(:ItemId)",
+    "/_api/web/siteGroups/getByName\\(':GroupName')/users",
     async (req, res, ctx) => {
-      const { ItemId } = req.params;
-      let index = testRoles.findIndex(
-        (element) => element.Id === Number(ItemId)
-      );
-      if (index !== -1) {
-        testRoles.splice(index, 1);
-        return res(
-          ctx.status(200),
-          ctx.delay(responsedelay)
-          //ctx.json({ value: requests[index] })
-        );
+      const { GroupName } = req.params;
+      let body = await req.json();
+      const loginName = body?.LoginName;
+      const email = loginName.replace("i:0#.f|membership|", "");
+
+      if (typeof GroupName === "string") {
+        if (!groups.has(GroupName)) {
+          return res(
+            ctx.status(404),
+            ctx.delay(responsedelay),
+            ctx.json({
+              "odata.error": {
+                code: "-2146232832, Microsoft.SharePoint.SPException",
+                message: { lang: "en-US", value: "Group cannot be found." },
+              },
+            })
+          );
+        }
+
+        if (loginName) {
+          const userRecord = testUsers.find((item) => {
+            return item.EMail === email;
+          });
+          if (userRecord) {
+            const userMap = groups.get(GroupName as string);
+            userMap?.set(email, loginName);
+
+            return res(
+              ctx.status(200),
+              ctx.delay(responsedelay),
+              ctx.json({
+                "odata.metadata":
+                  "http://localhost:3000/_api/$metadata#SP.ApiData.Users1/@Element",
+                "odata.type": "SP.User",
+                "odata.id": `http://localhost:3000/_api/Web/GetUserById(${userRecord.Id})`,
+                "odata.editLink": `Web/GetUserById(${userRecord.Id})`,
+                Id: userRecord.Id,
+                IsHiddenInUI: false,
+                LoginName: loginName,
+                Title: userRecord.Title,
+                PrincipalType: 1,
+                Email: email,
+                Expiration: "",
+                IsEmailAuthenticationGuestUser: false,
+                IsShareByEmailGuestUser: false,
+                IsSiteAdmin: false,
+                UserId: {
+                  NameId: "9999000099990000", // Random hex here
+                  NameIdIssuer: "urn:federation:microsoftonline",
+                },
+                UserPrincipalName: email,
+              })
+            );
+          } else {
+            return res(
+              ctx.status(404),
+              ctx.delay(responsedelay),
+              ctx.json({
+                "odata.error": {
+                  code: "-2130575276, Microsoft.SharePoint.SPException",
+                  message: {
+                    lang: "en-US",
+                    value: "The user does not exist or is not unique.",
+                  },
+                },
+              })
+            );
+          }
+        }
       } else {
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.body("GroupName passed in was not of type 'string'")
+        );
+      }
+    }
+  ),
+
+  /**
+   *  Remove a user from a group
+   */
+  rest.post(
+    "/_api/web/siteGroups/getByName\\(':GroupName')/users/removeByLoginName\\(@v)",
+    async (req, res, ctx) => {
+      const { GroupName } = req.params;
+      if (!groups.has(GroupName as string)) {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json({
+            "odata.error": {
+              code: "-2146232832, Microsoft.SharePoint.SPException",
+              message: { lang: "en-US", value: "Group cannot be found." },
+            },
+          })
         );
+      }
+
+      // Get the passed in user email by stripping the single quotes and user prefix from LoginName
+      const email = req.url.searchParams
+        .get("@v")
+        ?.replace(/(^'i:0#.f\|membership\||'$)/g, "");
+
+      if (email) {
+        if (
+          testUsers.find((item) => {
+            return item.EMail === email;
+          })
+        ) {
+          const userMap = groups.get(GroupName as string);
+          userMap?.delete(email);
+          return res(
+            ctx.status(500),
+            ctx.delay(responsedelay),
+            ctx.json({
+              "odata.metadata": "http://localhost:3000/_api/$metadata#Edm.Null",
+              "odata.null": true,
+            })
+          );
+        } else {
+          return res(
+            ctx.status(404),
+            ctx.delay(responsedelay),
+            ctx.json({
+              "odata.error": {
+                code: "-2130575276, Microsoft.SharePoint.SPException",
+                message: {
+                  lang: "en-US",
+                  value: "The user does not exist or is not unique.",
+                },
+              },
+            })
+          );
+        }
       }
     }
   ),
