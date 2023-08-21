@@ -892,7 +892,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
           const userMap = groups.get(GroupName as string);
           userMap?.delete(email);
           return res(
-            ctx.status(500),
+            ctx.status(200),
             ctx.delay(responsedelay),
             ctx.json({
               "odata.metadata": "http://localhost:3000/_api/$metadata#Edm.Null",
