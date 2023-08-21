@@ -286,21 +286,56 @@ export const useRoleManagement = () => {
    * Submit the new role to SharePoint
    * Internal function used by the react-query useMutation
    *
+   * @param {Object} submitRoleVal - Object containing the new request object and tasks object
+   * @param {Object} submitRoleVal.new - The new Role entry
+   * @param {boolean} submitRoleVal.retryPerms - Whether or not this is an retry of just group add/remove requests
+   * @returns A Promise from SharePoint (either for the role entry or for the group add/remove)
    */
-  const addRole = async (submitRoleVal: ISubmitRole) => {
-    return addOrUpdateRole({ new: { ...submitRoleVal } });
+  const addRole = async (submitRoleVal: {
+    new: ISubmitRole;
+    retryPerms?: boolean;
+  }) => {
+    if (!submitRoleVal.retryPerms) {
+      return addOrUpdateRole({ new: { ...submitRoleVal.new } });
+    } else {
+      return addUserToGroup(submitRoleVal.new);
+    }
   };
 
   /**
    * Submit the updated role to SharePoint
    * Internal function used by the react-query useMutation
    *
+   * @param {Object} submitRoleVal - Object containing the new request object and tasks object
+   * @param {Object} submitRoleVal.old - The old Role entry
+   * @param {Object} submitRoleVal.new - The new Role entry
+   * @param {boolean} submitRoleVal.retryPerms - Whether or not this is an retry of just group add/remove requests
+   * @returns A Promise from SharePoint (either for the role entry or for the group add/remove)
    */
   const updateRole = async (submitRoleVal: {
     old: SPRole;
     new: ISubmitRole;
+    retryPerms?: boolean;
   }) => {
-    return addOrUpdateRole(submitRoleVal);
+    if (!submitRoleVal.retryPerms) {
+      return addOrUpdateRole(submitRoleVal);
+    } else {
+      const addRes = addUserToGroup(submitRoleVal.new);
+      const delRes = removeUserFromGroup(submitRoleVal.old);
+
+      // Wait for both the add and remove requests to complete
+      const results = await Promise.allSettled([addRes, delRes]);
+
+      // If either/both of them failed, then create a Reject Promise with the respective errors
+      const rejected = results.filter((a) => a.status === "rejected");
+      if (rejected?.length > 0) {
+        return Promise.reject(
+          new Error(rejected.map((item: any) => item.reason).join("\n"))
+        );
+      } else {
+        return addRes;
+      }
+    }
   };
 
   /**
@@ -320,6 +355,7 @@ export const useRoleManagement = () => {
       // The user can have the role already if it is the record we are updating
       if (alreadyExists && alreadyExists.Id !== updateRoleVal.new.Id) {
         return Promise.reject(
+          // Note: AddUserRolePanel uses the key ", you cannot submit a duplicate role!", so if this error changes, the respective check will need updated
           new Error(
             `User ${updateRoleVal.new.User.Title} already has the Role ${updateRoleVal.new.Title}, you cannot submit a duplicate role!`
           )
@@ -373,7 +409,7 @@ export const useRoleManagement = () => {
 
             // If either/both of them failed, then create a Reject Promise with the respective errors
             const rejected = results.filter((a) => a.status === "rejected");
-            if (rejected) {
+            if (rejected?.length > 0) {
               return Promise.reject(
                 new Error(rejected.map((item: any) => item.reason).join("\n"))
               );
@@ -462,6 +498,7 @@ export const useRoleManagement = () => {
       .getByName(groupName)
       .users.add(loginName)
       .catch((reason) => {
+        // Note: "permissions:" is used as a key to find this error within AddUserRolePanel, if it is changed, respective check will need updated
         return Promise.reject(new Error("Error adding permissions: " + reason));
       });
   };
@@ -477,6 +514,7 @@ export const useRoleManagement = () => {
       .users.removeByLoginName(loginName)
       .catch((reason) => {
         return Promise.reject(
+          // Note: "permissions:" is used as a key to find this error within AddUserRolePanel, if it is changed, respective check will need updated
           new Error("Error removing permissions: " + reason)
         );
       });

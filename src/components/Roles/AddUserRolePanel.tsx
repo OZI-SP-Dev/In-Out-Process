@@ -113,28 +113,60 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     });
 
   /** Function to add/update a Role record */
+  const performAddOrUpdate = (roleData: { new: ISubmitRole }) => {
+    if (!props.editItem) {
+      // Since we ensure that there is data we can assert that it is of ISubmitRole type
+      addRole.mutate(roleData, {
+        onSuccess: () => {
+          setTimeout(() => {
+            props.onClose();
+          }, 2000);
+        },
+      });
+    } else {
+      const updateData = { ...roleData, old: { ...props.editItem } };
+      updateRole.mutate(updateData, {
+        onSuccess: () => {
+          setTimeout(() => {
+            props.onClose();
+          }, 2000);
+        },
+      });
+    }
+  };
+
+  /** Function to add/update a Role record */
   const addRoleClick = (data: WithNull<ISubmitRole>) => {
     if (data.User && data.Title) {
       // Since we ensure that there is data we can assert that it is of ISubmitRole type
-      const roleData = data as ISubmitRole;
-      if (!props.editItem) {
-        // Since we ensure that there is data we can assert that it is of ISubmitRole type
-        addRole.mutate(roleData, {
-          onSuccess: () => {
-            setTimeout(() => {
-              props.onClose();
-            }, 2000);
-          },
-        });
+      const roleData = { new: { ...(data as ISubmitRole) } };
+      return performAddOrUpdate(roleData);
+    }
+  };
+
+  const retryRoleClick = (data: WithNull<ISubmitRole>) => {
+    if (data.User && data.Title) {
+      // Since we ensure that there is data we can assert that it is of ISubmitRole type
+
+      // If one of the error messages contains "permissions:" then it failed trying to add/remove from group
+      // This means it succeeded at adding/updating the role entry, so we can skip resubmitting that transaction
+      //  and just resubmit the one(s) for adding/removing from group
+      if (
+        (addRole.isError &&
+          addRole.error instanceof Error &&
+          addRole.error.message.match(/(permissions:)/)) ||
+        (updateRole.isError &&
+          updateRole.error instanceof Error &&
+          updateRole.error.message.match(/(permissions:)/))
+      ) {
+        const roleData = {
+          new: { ...(data as ISubmitRole) },
+          retryPerms: true,
+        };
+        return performAddOrUpdate(roleData);
       } else {
-        const updateData = { old: { ...props.editItem }, new: { ...roleData } };
-        updateRole.mutate(updateData, {
-          onSuccess: () => {
-            setTimeout(() => {
-              props.onClose();
-            }, 2000);
-          },
-        });
+        const roleData = { new: { ...(data as ISubmitRole) } };
+        return performAddOrUpdate(roleData);
       }
     }
   };
@@ -172,6 +204,16 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
     addRole.reset(); // Reset our mutation
     updateRole.reset(); // Reset our mutation
   };
+
+  const hasError =
+    (addRole.isError || updateRole.isError) &&
+    ((addRole.error instanceof Error &&
+      addRole.error.message.match(", you cannot submit a duplicate role!") ===
+        null) ||
+      (updateRole.error instanceof Error &&
+        updateRole.error.message.match(
+          ", you cannot submit a duplicate role!"
+        ) === null));
 
   return (
     <Panel
@@ -211,6 +253,9 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                   aria-describedby="userErr"
                   selectedItems={value ?? []}
                   updatePeople={onUserChange}
+                  readOnly={
+                    hasError || addRole.isLoading || updateRole.isLoading
+                  }
                 />
               )}
             />
@@ -249,6 +294,9 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                     }
                   }}
                   onBlur={onBlur}
+                  disabled={
+                    hasError || addRole.isLoading || updateRole.isLoading
+                  }
                 >
                   {roles.map((role) => (
                     <Option value={role} key={role}>
@@ -283,6 +331,9 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
                   value={field.value ?? ""}
                   aria-describedby="emailErr"
                   aria-labelledby="emailErr"
+                  disabled={
+                    hasError || addRole.isLoading || updateRole.isLoading
+                  }
                 />
               )}
             />
@@ -337,10 +388,17 @@ export const AddUserRolePanel: FunctionComponent<IAddUserRolePanel> = (
               </Tooltip>
             )}
             {((addRole.isIdle && updateRole.isIdle) ||
-              addRole.isError ||
-              updateRole.isError) && (
+              ((addRole.isError || updateRole.isError) && !hasError)) && (
               <Button appearance="primary" type="submit">
                 {!props.editItem ? "Add Role" : "Update Role"}
+              </Button>
+            )}
+            {(addRole.isError || updateRole.isError) && hasError && (
+              <Button
+                appearance="primary"
+                onClick={handleSubmit(retryRoleClick)}
+              >
+                {!props.editItem ? "Retry" : "Retry"}
               </Button>
             )}
             {(addRole.isLoading || updateRole.isLoading) && (
