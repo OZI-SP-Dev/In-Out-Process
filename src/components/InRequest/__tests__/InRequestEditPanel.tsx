@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -90,7 +90,9 @@ const checkEnterableCombobox = async (
     });
     expect(comboboxOpt).toBeDefined();
 
-    await user.click(comboboxOpt);
+    // User fierEvent per article on userEvent not working correctly -- causes large delay
+    // https://stackoverflow.com/questions/62542988/how-to-test-fluent-ui-dropdown-with-react-testing-library
+    fireEvent.click(comboboxOpt);
 
     // Ensure value now matches what we selected
     await waitFor(() => expect(comboboxField).toHaveValue(text));
@@ -540,7 +542,8 @@ describe("Employee Name", () => {
   it.each(lengthTest)(
     "cannot exceed 100 characters - $testString.length",
     async ({ testString }) => {
-      renderEditPanelForRequest(civRequest);
+      // Clear out any defined employee -- so that the field is editable
+      renderEditPanelForRequest({...civRequest, employee: undefined});
       await checkEnterableTextbox(fieldLabels.EMPLOYEE_NAME.form, testString);
 
       const empNameFld = screen.getByRole("textbox", {
