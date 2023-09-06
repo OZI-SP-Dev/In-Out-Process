@@ -1,8 +1,8 @@
 import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
+import { IAdditionalInfo } from "api/AdditionalInfoApi";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { templates } from "api/CreateChecklistItems";
 import {
-  IInResponseItem,
   IRequestItem,
   IResponseItem,
   isInRequestItem,
@@ -404,9 +404,9 @@ export const handlers = [
       // If the filter was for My Requests
       if (myRequestFilter) {
         results = results.filter(
-          (item: IInResponseItem) =>
-            (item.supGovLead.Id.toString() === myRequestFilter[2] ||
-              item.employee?.Id.toString() === myRequestFilter[1]) &&
+          (item: IResponseItem) => 
+            (item.supGovLead.Id.toString() === myRequestFilter[1] ||
+              item.employee?.Id.toString() === myRequestFilter[2]) &&
             !item.closedOrCancelledDate
         );
       } else {
@@ -732,7 +732,6 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
           return res(
             ctx.status(200),
             ctx.delay(responsedelay),
-            ctx.json({ value: requests[index] })
           );
         } else {
           return res(
