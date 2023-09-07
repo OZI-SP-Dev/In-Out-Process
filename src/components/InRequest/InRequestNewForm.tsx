@@ -1304,9 +1304,9 @@ const InRequestNewForm = () => {
           {
             /* TODO -- Replace with some fine grain error handling, so you can retry
                 just the failed piece instead of total resubmission */
-            (!addRequest.isLoading || !addAdditionalInfo.isLoading) && (
+            (!addRequest.isLoading && !addAdditionalInfo.isLoading) && (
               <Button appearance="primary" type="submit">
-                {!addRequest.isError ? "Create In Processing Request" : "Retry"}
+                {!addRequest.isError && !addAdditionalInfo.isError  ? "Create In Processing Request" : "Retry"}
               </Button>
             )
           }
