@@ -1,9 +1,27 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { EMPTYPES } from "constants/EmpTypes";
-import { makeStyles, Label, Text } from "@fluentui/react-components";
+import {
+  makeStyles,
+  Label,
+  Text,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  Button,
+  DialogContent,
+  DialogActions,
+} from "@fluentui/react-components";
 import { IInRequest } from "api/RequestApi";
 import { MessageBar, MessageBarType } from "@fluentui/react";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
+import { RoleType } from "api/RolesApi";
+import { useAdditionalInfo } from "api/AdditionalInfoApi";
+import {
+  Dismiss24Regular,
+  Eye16Filled,
+  Eye16Regular,
+} from "@fluentui/react-icons";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -21,6 +39,7 @@ const useStyles = makeStyles({
 
 export interface IInRequestViewCompact {
   formData: IInRequest;
+  roles: RoleType[];
 }
 
 export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
@@ -28,10 +47,52 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
 ) => {
   const classes = useStyles();
   const formData = props.formData;
+  const additionalInfo = useAdditionalInfo(formData.Id);
   const codeEntry = SENSITIVITY_CODES.find(
     (code) => code.key === formData.sensitivityCode
   );
   const sensitivityCode = codeEntry ? codeEntry.text : "";
+  const isAuthSSN =
+    props.roles.includes(RoleType.ATAAPS) ||
+    props.roles.includes(RoleType.DTS) ||
+    props.roles.includes(RoleType.GTC) ||
+    props.roles.includes(RoleType.SECURITY) ||
+    props.roles.includes(RoleType.SUPERVISOR);
+  const [showSSN, setShowSSN] = useState<number>();
+  const noSSN = additionalInfo?.data?.length === 0;
+  const noSSNRef = useRef(noSSN);
+  const formattedSSN =
+    showSSN && additionalInfo.data?.[0] && !additionalInfo.isStale
+      ? `${additionalInfo.data[0]?.Title.substring(
+          0,
+          3
+        )}-${additionalInfo.data[0]?.Title.substring(
+          3,
+          5
+        )}-${additionalInfo.data[0]?.Title.substring(5, 9)}`
+      : showSSN
+      ? "Retrieving"
+      : "*************";
+
+  /** Function to hide the SSN and clear the setTimeout */
+  const hideSSN = () => {
+    clearTimeout(showSSN);
+    setShowSSN(undefined);
+  };
+
+  /** Function to hide the SSN after the setTimeout has occured
+   *  Has an exception to not close the Dialog if it is open
+   */
+  const hideSSN2 = function () {
+    if (!noSSNRef.current) {
+      setShowSSN(undefined);
+    }
+  };
+
+  useEffect(() => {
+    // Update the current value of the Ref when React-Query updates
+    noSSNRef.current = additionalInfo?.data?.length === 0;
+  }, [additionalInfo.data]);
 
   // Display the Employee Type in a shortened format
   // If it is a Civilian add New/Existing after depending on the selection
@@ -79,6 +140,32 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           <br />
           <Text id="empNameCVId">{formData.empName}</Text>
         </div>
+        {isAuthSSN &&
+          (formData.empType === EMPTYPES.Civilian ||
+            formData.empType === EMPTYPES.Military) &&
+          !formData.closedOrCancelledDate && (
+            <div>
+              <Label weight="semibold" htmlFor="ssnCVId">
+                SSN: (CUI - PRVCY)
+              </Label>
+              <br />
+              <Text style={{ width: "6em", display: "inline-block" }}>
+                {formattedSSN}
+              </Text>
+              {!showSSN ? (
+                <Eye16Regular
+                  onClick={() => {
+                    if (!additionalInfo.data || additionalInfo.isStale) {
+                      additionalInfo.refetch();
+                    }
+                    setShowSSN(window.setTimeout(hideSSN2, 10000));
+                  }}
+                />
+              ) : (
+                <Eye16Filled onClick={hideSSN} />
+              )}
+            </div>
+          )}
         <div>
           <Label weight="semibold" htmlFor="empTypeCVId">
             Employee Type
@@ -260,6 +347,46 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </div>
         )}
       </div>
+      {
+        /* Popup dialog box for when the Supervisor doesn't have access to SSN 
+           Includes check to make sure we aren't fetching to catch the case the
+           new supervisor just added an SSN, and now wants to view it */
+        noSSN && !additionalInfo.isFetching && (
+          <Dialog open={!!showSSN}>
+            <DialogSurface aria-describedby="noSSNDialog">
+              <DialogBody>
+                <DialogTitle
+                  action={
+                    <Button
+                      appearance="subtle"
+                      aria-label="close"
+                      icon={<Dismiss24Regular />}
+                      onClick={hideSSN}
+                    />
+                  }
+                >
+                  Unable to view SSN
+                </DialogTitle>
+                <DialogContent id="noSSNDialog">
+                  <div>
+                    <Text id="empName">
+                      You did not enter the original SSN, and therefore cannot
+                      view it. If it was inccorect and needs updated, you may
+                      enter the full SSN to overwrite the original by clicking
+                      the "Edit" button, and making the update
+                    </Text>
+                  </div>
+                </DialogContent>
+                <DialogActions>
+                  <Button appearance="primary" onClick={hideSSN}>
+                    OK
+                  </Button>
+                </DialogActions>
+              </DialogBody>
+            </DialogSurface>
+          </Dialog>
+        )
+      }
     </>
   );
 };

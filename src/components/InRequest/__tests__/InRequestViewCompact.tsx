@@ -1,4 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import { IInRequest } from "api/RequestApi";
+import { RoleType } from "api/RolesApi";
 
 import { InRequestViewCompact } from "components/InRequest/InRequestViewCompact";
 import {
@@ -9,6 +12,8 @@ import {
   fieldLabels,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
+
+const queryClient = new QueryClient();
 
 /** Check if there is a text element matching the desired text
  * @param text The text we are looking for
@@ -120,13 +125,22 @@ const fieldsByEmployeeType = [
   },
 ];
 
+/** Render an open InRequestEditPanel within a QueryClientProvider */
+const renderViewForRequest = (request: IInRequest, roles?: RoleType[]) => {
+  render(
+    <QueryClientProvider client={queryClient}>
+      <InRequestViewCompact formData={request} roles={roles ?? []} />
+    </QueryClientProvider>
+  );
+};
+
 describe.each(fieldsByEmployeeType)(
   "Fields available based on Employee Type - $field",
   ({ field, rules }) => {
     it.each(rules)(
       "is displayed for $request.empType - $expected",
       ({ request, expected }) => {
-        render(<InRequestViewCompact formData={request} />);
+        renderViewForRequest(request);
         expectTextToBeInTheDocument(field, expected);
       }
     );
@@ -138,7 +152,7 @@ describe("Local or Remote", () => {
   it.each(remoteLocationDataset)(
     "has value of 'local' or remote location - $request.workLocation",
     ({ request }) => {
-      render(<InRequestViewCompact formData={request} />);
+      renderViewForRequest(request);
       const textElement = screen.queryByText(fieldLabels.LOCAL_OR_REMOTE.view);
 
       const expectedValue =
@@ -156,7 +170,7 @@ describe("Local or Remote", () => {
 
 describe("Contract Number", () => {
   it("has correct value displayed for Contractors", () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
+    renderViewForRequest(ctrRequest);
     const textElement = screen.queryByText(fieldLabels.CONTRACT_NUMBER.view);
 
     expect(textElement).toHaveAccessibleDescription(ctrRequest.contractNumber);
@@ -165,7 +179,7 @@ describe("Contract Number", () => {
 
 describe("Contract End Date", () => {
   it("has correct value displayed for Contractors", () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
+    renderViewForRequest(ctrRequest);
     const textElement = screen.queryByText(fieldLabels.CONTRACT_END_DATE.view);
 
     expect(textElement).toHaveAccessibleDescription(
@@ -179,7 +193,7 @@ describe("Requires SCI", () => {
   const validSARWithout5 = validSAR.filter((code) => code !== 5);
 
   it("is displayed for Military with SAR of 5", async () => {
-    render(<InRequestViewCompact formData={milRequest} />);
+    renderViewForRequest(milRequest);
     expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, true);
   });
 
@@ -187,7 +201,7 @@ describe("Requires SCI", () => {
     "is not displayed for Military with SAR of %s",
     async (sar) => {
       const milRequestSAR = { ...milRequest, SAR: sar };
-      render(<InRequestViewCompact formData={milRequestSAR} />);
+      renderViewForRequest(milRequestSAR);
       expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
     }
   );
@@ -196,13 +210,13 @@ describe("Requires SCI", () => {
     "is not displayed for Civilian with SAR of %s",
     async (sar) => {
       const civRequestSAR = { ...civRequest, SAR: sar };
-      render(<InRequestViewCompact formData={civRequestSAR} />);
+      renderViewForRequest(civRequestSAR);
       expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
     }
   );
 
   it("is not displayed for Contractors", async () => {
-    render(<InRequestViewCompact formData={ctrRequest} />);
+    renderViewForRequest(ctrRequest);
     expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
   });
 
@@ -213,10 +227,65 @@ describe("Requires SCI", () => {
         ...milRequest,
         isSCI: isSCI as "yes" | "no" | "",
       };
-      render(<InRequestViewCompact formData={milRequestSCI} />);
+      renderViewForRequest(milRequestSCI);
       const textElement = screen.queryByText(fieldLabels.REQUIRES_SCI.view);
 
       expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
+    }
+  );
+});
+
+describe("SSN", () => {
+  // These are the only roles authorized to see SSN
+  const rolesWithSSN = [
+    RoleType.ATAAPS,
+    RoleType.DTS,
+    RoleType.GTC,
+    RoleType.SECURITY,
+    RoleType.SUPERVISOR,
+  ];
+  // All other defined roles are not authorized to see
+  const rolesWithoutSSN = Object.values(RoleType).filter(
+    (role) => !rolesWithSSN.includes(role)
+  );
+
+  it.each(rolesWithSSN.concat(rolesWithoutSSN))(
+    "is not displayed for Contractor for user in role %s ",
+    async ($role) => {
+      renderViewForRequest(ctrRequest, [$role]);
+      expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
+    }
+  );
+
+  it.each(rolesWithoutSSN)(
+    "is not displayed for Civilians for users in role %s",
+    async ($role) => {
+      renderViewForRequest(civRequest, [$role]);
+      expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
+    }
+  );
+
+  it.each(rolesWithSSN)(
+    "is displayed for Civilians for users in role %s",
+    async ($role) => {
+      renderViewForRequest(civRequest, [$role]);
+      expectTextToBeInTheDocument(fieldLabels.SSN.view, true);
+    }
+  );
+
+  it.each(rolesWithoutSSN)(
+    "is not displayed for Military for users in role %s",
+    async ($role) => {
+      renderViewForRequest(civRequest, [$role]);
+      expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
+    }
+  );
+
+  it.each(rolesWithSSN)(
+    "is displayed for Military for users in role %s",
+    async ($role) => {
+      renderViewForRequest(civRequest, [$role]);
+      expectTextToBeInTheDocument(fieldLabels.SSN.view, true);
     }
   );
 });

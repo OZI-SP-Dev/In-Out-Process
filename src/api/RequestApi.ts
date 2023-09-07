@@ -12,6 +12,7 @@ import {
   useSendRequestSubmitEmail,
 } from "api/EmailApi";
 import { ICheckListItem } from "api/CheckListItemApi";
+import { usePurgeAdditionalInfo } from "api/AdditionalInfoApi";
 
 /**  Definition for what data is needed to peform the cancellation (including to send email) */
 interface IRequestCancel {
@@ -439,6 +440,8 @@ export const useUpdateEmployeeToPerson = (Id: number) => {
 export const useCancelRequest = (Id: number) => {
   const queryClient = useQueryClient();
   const sendRequestCancelEmail = useSendRequestCancelEmail();
+  const purgeAdditionalInfo = usePurgeAdditionalInfo(Id);
+
   return useMutation(
     ["requests", Id],
     async (cancelInfo: IRequestCancel) => {
@@ -463,6 +466,9 @@ export const useCancelRequest = (Id: number) => {
           tasks: variable.tasks,
           reason: variable.reason,
         });
+
+        // Purge the Additional Information
+        purgeAdditionalInfo.mutate();
       },
     }
   );
@@ -472,6 +478,7 @@ export const useCancelRequest = (Id: number) => {
 export const useCompleteRequest = (Id: number) => {
   const queryClient = useQueryClient();
   const sendRequestCompleteEmail = useSendRequestCompleteEmail();
+  const purgeAdditionalInfo = usePurgeAdditionalInfo(Id);
 
   return useMutation(
     ["requests", Id],
@@ -491,6 +498,9 @@ export const useCompleteRequest = (Id: number) => {
 
         // Generate the email notification
         sendRequestCompleteEmail.mutate(request);
+
+        // Purge the Additional Information
+        purgeAdditionalInfo.mutate();
       },
     }
   );

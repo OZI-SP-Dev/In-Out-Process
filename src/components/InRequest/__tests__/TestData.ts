@@ -176,6 +176,11 @@ export const fieldLabels = {
     form: /will the employee require travel ability \(dts and gtc\)/i,
     view: /requires travel ability\?/i,
   },
+  SSN: {
+    form: /ssn/i,
+    formType: "CHECK_BY_LABEL",
+    view: /ssn/i,
+  },
 };
 
 /** Check if there is an input field matching the desired label
@@ -217,7 +222,12 @@ export const isNotApplicable = (
   fieldName: RegExp
 ) => {
   // Check placeholder is N/A
-  const naFld = screen.getByRole(fieldType, { name: fieldName });
+  let naFld;
+  if (fieldType === "CHECK_BY_LABEL") {
+    naFld = screen.getByLabelText(fieldName);
+  } else {
+    naFld = screen.getByRole(fieldType, { name: fieldName });
+  }
   expect(naFld).toHaveAttribute("placeholder", expect.stringMatching(/N\/A/));
 
   // Check that value is "" so it is displaying the placeholder
@@ -254,4 +264,21 @@ export const lengthTest = [
   { testString: lorem.substring(0, 99) },
   { testString: lorem.substring(0, 50) },
   { testString: lorem.substring(0, 2) },
+];
+
+/*  Values used for testing SSN */
+const shortSSN = /ssn cannot be less than 9 digits/i;
+const longSSN = /ssn cannot be more than 9 digits/i;
+
+export const ssnTestValues = [
+  { input: "123456789", value: "123456789" }, // Valid
+  { input: "111-22-3333", value: "111223333" }, // Valid
+  { input: "333 44 5555", value: "333445555" }, // Valid
+  { input: "123/12/1234", value: "123121234" }, // Valid
+  { input: "1 1 1 2 2 3 3 3 3 ", value: "111223333" },
+  { input: "123", value: "123", err: shortSSN }, // Cannot be less than 7 characters
+  { input: "1234567890", value: "1234567890", err: longSSN }, // Cannot be more than 9 digits
+  { input: "123-56-89", value: "1235689", err: shortSSN }, // Cannot be short
+  { input: "123-456-7890", value: "1234567890", err: longSSN }, // Cannot be long
+  { input: "-123-56-89", value: "1235689", err: shortSSN }, // Cannot be a short number
 ];

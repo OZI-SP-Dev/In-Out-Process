@@ -1,5 +1,5 @@
 import { DatePicker } from "@fluentui/react";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { PeoplePicker } from "components/PeoplePicker/PeoplePicker";
 import { OFFICES } from "constants/Offices";
 import { CIV_GRADES, MIL_RANKS } from "constants/GradeRanks";
@@ -32,10 +32,16 @@ import {
   ContactIcon,
   AlertSolidIcon,
 } from "@fluentui/react-icons-mdl2";
-import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
+import {
+  ToggleLeftRegular,
+  RadioButtonFilled,
+  Eye16Regular,
+  Eye16Filled,
+} from "@fluentui/react-icons";
 import { UserContext } from "providers/UserProvider";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { SAR_CODES } from "constants/SARCodes";
+import { useAddAdditionalInfo } from "api/AdditionalInfoApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -80,12 +86,15 @@ type IRHFInRequest = Omit<IInRequest, "empType" | "workLocation" | "MPCN"> & {
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
   MPCN: string;
+  SSN: string;
 };
 
 const InRequestNewForm = () => {
   const classes = useStyles();
   const currentUser = useContext(UserContext).user;
   const addRequest = useAddRequest();
+  const addAdditionalInfo = useAddAdditionalInfo();
+  const [showSSN, setShowSSN] = useState(false);
   // TODO -- Look to see if when v8 of react-hook-form released if you can properly set useForm to use the type IInRequest
   //  See -  https://github.com/react-hook-form/react-hook-form/issues/6679
   const {
@@ -131,7 +140,12 @@ const InRequestNewForm = () => {
     } else return new Date();
   }, [eta]);
 
-  if (addRequest.isSuccess) {
+  // If it isn't a CTR, then we need to ensure both mutates return successfully
+  //  Otherwise just the addRequest needs to return successful
+  if (
+    addRequest.isSuccess &&
+    (empType === EMPTYPES.Contractor ? true : addAdditionalInfo.isSuccess)
+  ) {
     return <Navigate to={"/item/" + addRequest.data.Id} />;
   }
 
@@ -150,9 +164,18 @@ const InRequestNewForm = () => {
       ...data,
       MPCN: mpcn,
       reqType: "In",
+      SSN: undefined,
     } as IInRequest;
 
-    addRequest.mutate(data2);
+    const newRequest = await addRequest.mutateAsync(data2);
+
+    if (data2.empType !== EMPTYPES.Contractor) {
+      addAdditionalInfo.mutate({
+        Id: -1,
+        RequestId: newRequest.Id,
+        Title: data.SSN,
+      });
+    }
   };
 
   return (
@@ -161,6 +184,9 @@ const InRequestNewForm = () => {
       className={classes.formContainer}
       onSubmit={handleSubmit(createNewRequest)}
     >
+      <div className={classes.fieldContainer}>
+        <Text align="center">CUI - PRVCY</Text>
+      </div>
       <div className={classes.fieldContainer}>
         <Label size="small" weight="semibold" className={classes.fieldLabel}>
           <ContactIcon className={classes.fieldIcon} />
@@ -274,6 +300,7 @@ const InRequestNewForm = () => {
                   setValue("isSupervisor", "");
                   setValue("MPCN", "");
                   setValue("SAR", undefined);
+                  setValue("SSN", "");
                 } else {
                   setValue("hasExistingCAC", "");
                   setValue("CACExpiration", undefined);
@@ -303,6 +330,88 @@ const InRequestNewForm = () => {
         {errors.empType && (
           <Text id="empTypeErr" className={classes.errorText}>
             {errors.empType.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          htmlFor="SSNId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required={
+            empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
+          }
+        >
+          <NumberFieldIcon className={classes.fieldIcon} />
+          SSN
+        </Label>
+        <Controller
+          name="SSN"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required:
+              (empType === EMPTYPES.Civilian ||
+                empType === EMPTYPES.Military) &&
+              "SSN is required",
+            minLength: {
+              value: 9,
+              message: "SSN cannot be less than 9 digits",
+            },
+            maxLength: {
+              value: 9,
+              message: "SSN cannot be more than 9 digits",
+            },
+            pattern: {
+              value:
+                /^\d+$/ /* We don't want the pattern to enforce 9 numbers so we can have a unique error for non-numeric (eg letters/symbols) */,
+              message: "SSN can only consist of numbers",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              disabled={empType === EMPTYPES.Contractor}
+              placeholder={
+                empType === EMPTYPES.Contractor
+                  ? "N/A"
+                  : empType !== ""
+                  ? ""
+                  : "Select Employee Type first"
+              }
+              contentAfter={
+                !showSSN ? (
+                  <Eye16Regular
+                    onClick={() => {
+                      setShowSSN(true);
+                    }}
+                  />
+                ) : (
+                  <Eye16Filled
+                    onClick={() => {
+                      setShowSSN(false);
+                    }}
+                  />
+                )
+              }
+              aria-describedby="SSNErr"
+              id="SSNId"
+              autoComplete="off"
+              inputMode="numeric"
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /\D+/g,
+                  ""
+                );
+              }}
+              type={!showSSN ? "password" : "text"}
+            />
+          )}
+        />
+        {errors.SSN && (
+          <Text id="SSNErr" className={classes.errorText}>
+            {errors.SSN.message}
           </Text>
         )}
       </div>
@@ -1185,7 +1294,7 @@ const InRequestNewForm = () => {
 
       <div className={classes.createButton}>
         <div>
-          {addRequest.isLoading && (
+          {(addRequest.isLoading || addAdditionalInfo.isLoading) && (
             <Spinner
               style={{ justifyContent: "flex-start" }}
               size="small"
@@ -1195,7 +1304,7 @@ const InRequestNewForm = () => {
           {
             /* TODO -- Replace with some fine grain error handling, so you can retry
                 just the failed piece instead of total resubmission */
-            !addRequest.isLoading && (
+            (!addRequest.isLoading || !addAdditionalInfo.isLoading) && (
               <Button appearance="primary" type="submit">
                 {!addRequest.isError ? "Create In Processing Request" : "Retry"}
               </Button>
@@ -1218,7 +1327,27 @@ const InRequestNewForm = () => {
               />
             </Tooltip>
           )}
+          {addAdditionalInfo.isError && (
+            <Tooltip
+              content={
+                addAdditionalInfo.error instanceof Error
+                  ? addAdditionalInfo.error.message
+                  : "An error occurred."
+              }
+              relationship="label"
+            >
+              <Badge
+                size="extra-large"
+                appearance="ghost"
+                color="danger"
+                icon={<AlertSolidIcon />}
+              />
+            </Tooltip>
+          )}
         </div>
+      </div>
+      <div className={classes.fieldContainer}>
+        <Text align="center">CUI - PRVCY</Text>
       </div>
     </form>
   );
