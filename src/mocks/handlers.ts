@@ -1,8 +1,8 @@
 import { IExampleExtendedPersonaProps, people } from "@fluentui/example-data";
+import { IAdditionalInfo } from "api/AdditionalInfoApi";
 import { ICheckListResponseItem } from "api/CheckListItemApi";
 import { templates } from "api/CreateChecklistItems";
 import {
-  IInResponseItem,
   IRequestItem,
   IResponseItem,
   isInRequestItem,
@@ -404,9 +404,9 @@ export const handlers = [
       // If the filter was for My Requests
       if (myRequestFilter) {
         results = results.filter(
-          (item: IInResponseItem) =>
-            (item.supGovLead.Id.toString() === myRequestFilter[2] ||
-              item.employee?.Id.toString() === myRequestFilter[1]) &&
+          (item: IResponseItem) => 
+            (item.supGovLead.Id.toString() === myRequestFilter[1] ||
+              item.employee?.Id.toString() === myRequestFilter[2]) &&
             !item.closedOrCancelledDate
         );
       } else {
@@ -424,6 +424,117 @@ export const handlers = [
       ctx.json({ value: results })
     );
   }),
+
+  // Create new additional info item
+  rest.post(
+    "/_api/web/lists/getByTitle\\('AdditionalInfo')/items",
+    async (req, res, ctx) => {
+      let body = (await req.json()) as IAdditionalInfo;
+      let additionlInfo: IAdditionalInfo;
+      additionlInfo = {
+        Id: nextAdditionalInfoId++,
+        Title: body.Title,
+        RequestId: body.RequestId,
+      };
+      additionallData.push(additionlInfo);
+
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({ value: additionlInfo })
+      );
+    }
+  ),
+
+  // Get Additional Info
+  rest.get(
+    "/_api/web/lists/getByTitle\\('AdditionalInfo')/items",
+    (req, res, ctx) => {
+      const filter = req.url.searchParams.get("$filter");
+      let results = structuredClone(additionallData);
+      if (filter) {
+        // Filter for RequestID Matching
+        const requestIDFilter = filter.match(/RequestId eq (-?\d+)/);
+
+        // If the filter was for RequestId
+        if (requestIDFilter) {
+          results = results.filter(
+            (item: IAdditionalInfo) =>
+              item.RequestId.toString() === requestIDFilter[1]
+          );
+        } else {
+          // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
+          return res(
+            ctx.status(500),
+            ctx.delay(responsedelay),
+            ctx.body(`No Mock created for this filter string - ${filter}`)
+          );
+        }
+      }
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({ value: results })
+      );
+    }
+  ),
+
+  /**
+   * Update/Delete AdditionalInfo
+   * We know we're updating an item because an ItemId is included
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\('AdditionalInfo')/items\\(:ItemId)",
+    async (req, res, ctx) => {
+      const { ItemId } = req.params;
+
+      let index = additionallData.findIndex(
+        (element) => element.Id === Number(ItemId)
+      );
+
+      // If it is a request to delete the item
+      if (req.headers.get("x-http-method") === "DELETE") {
+        if (index !== -1) {
+          testRoles.splice(index, 1);
+          return res(
+            ctx.status(200),
+            ctx.delay(responsedelay),
+          );
+        } else {
+          return res(
+            ctx.status(404),
+            ctx.delay(responsedelay),
+            ctx.json(notFound)
+          );
+        }
+      }     
+
+
+      // If it is not a request to DELETE, but rather to UPDATE
+      if (index !== -1) {
+
+        let body = await req.json();
+
+        // Pass along any updates contained in the body
+        const updatedItem = { ...additionallData[index], ...body };
+
+        // Update the additionalData data with our updated record
+        additionallData[index] = updatedItem;
+
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({ value: additionallData[index] })
+        );
+      } else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }
+    }
+  ),
 
   rest.get(
     "/_api/web/lists/getByTitle\\('CheckListItems')/items",
@@ -732,7 +843,6 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
           return res(
             ctx.status(200),
             ctx.delay(responsedelay),
-            ctx.json({ value: requests[index] })
           );
         } else {
           return res(
@@ -1174,6 +1284,57 @@ let requests: IResponseItem[] = [
   },
 ];
 let nextRequestId = requests.length + 1;
+
+/**
+ * additionallData array holds our sample data
+ */
+let additionallData: IAdditionalInfo[] = [
+  /* This is a sample of a record that should have an SSN but doesn't -- so we can update it */
+  /*{
+    Title: "223456789",
+    RequestId: 2,
+    Id: 2,
+  },*/
+  {
+    Title: "123456789",
+    RequestId: 1,
+    Id: 1,
+  },
+  {
+    Title: "323456789",
+    RequestId: 3,
+    Id: 3,
+  },
+  {
+    Title: "723456789",
+    RequestId: 7,
+    Id: 8,
+  },
+  {
+    Title: "823456789",
+    RequestId: 8,
+    Id: 10,
+  },
+  {
+    Title: "923456789",
+    RequestId: 9,
+    Id: 11,
+  },
+  {
+    Title: "103456789",
+    RequestId: 10,
+    Id: 12,
+  },
+  {
+    Title: "113456789",
+    RequestId: 11,
+    Id: 11,
+  },
+];
+
+let nextAdditionalInfoId = additionallData.reduce(function (prev, current) {
+  return prev.Id > current.Id ? prev : current;
+}).Id; //returns object
 
 /**
  * checklistitems array holds our sample data

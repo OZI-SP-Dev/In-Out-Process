@@ -313,7 +313,7 @@ export const InRequest: FunctionComponent<IInRequestComp> = (props) => {
           />
         </div>
       )}
-      <InRequestViewCompact formData={props.request} />
+      <InRequestViewCompact formData={props.request} roles={props.roles} />
     </>
   );
 };

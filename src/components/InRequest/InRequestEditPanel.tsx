@@ -4,7 +4,7 @@ import {
   Panel,
   PanelType,
 } from "@fluentui/react";
-import { FunctionComponent, useContext, useMemo } from "react";
+import { FunctionComponent, useContext, useMemo, useState } from "react";
 import {
   Button,
   webLightTheme,
@@ -37,9 +37,15 @@ import {
   SaveIcon,
   CancelIcon,
 } from "@fluentui/react-icons-mdl2";
-import { ToggleLeftRegular, RadioButtonFilled } from "@fluentui/react-icons";
+import {
+  ToggleLeftRegular,
+  RadioButtonFilled,
+  Eye16Regular,
+  Eye16Filled,
+} from "@fluentui/react-icons";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
 import { UserContext } from "providers/UserProvider";
+import { useAdditionalInfo, useUpdateAdditionalInfo } from "api/AdditionalInfoApi";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -94,6 +100,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   // Create a type to handle the IInRequest type within React Hook Form (RHF)
   type IRHFInRequest = Omit<IInRequest, "MPCN"> & {
     MPCN?: string;
+    SSN?: string;
   };
 
   const {
@@ -110,6 +117,9 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
     values: { ...props.data, MPCN: props.data.MPCN?.toString() },
   });
   const updateRequest = useUpdateRequest(props.data.Id);
+  const additionalInfo = useAdditionalInfo(props.data.Id);
+  const updateAdditionalInfo = useUpdateAdditionalInfo();
+  const [showSSN, setShowSSN] = useState(false);
 
   // Setup watches
   const hasExistingCAC = watch("hasExistingCAC");
@@ -157,7 +167,14 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       }
     }
 
-    const data2 = { ...data, MPCN: mpcn } as IInRequest;
+    const data2 = { ...data, MPCN: mpcn, SSN: undefined } as IInRequest;
+
+    // Is the SSN different than what came in and therefore needs pushed to the server
+    if(data.SSN !== undefined && data.SSN !== "" && data.SSN !== additionalInfo.data?.[0]?.Title)
+    {
+      updateAdditionalInfo.mutate({Id: additionalInfo.data?.[0]?.Id ?? -1, Title:data.SSN, RequestId: data.Id})
+    }
+
 
     updateRequest.mutate(data2, {
       onSuccess: () => {
@@ -206,6 +223,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
       <Panel
         isOpen={props.isEditPanelOpen}
         isBlocking={true}
+        onOpen={() => additionalInfo.refetch()}
         onDismiss={onEditCancel}
         headerText="Edit Request"
         onRenderNavigationContent={onRenderNavigationContent}
@@ -218,6 +236,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
             className={classes.formContainer}
             onSubmit={handleSubmit(updateThisRequest)}
           >
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
+              <div className={classes.fieldContainer}>
+                <Text align="center">CUI - PRVCY</Text>
+              </div>
+            )}
             <div className={classes.fieldContainer}>
               <Label
                 size="small"
@@ -333,6 +357,97 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 )}
               />
             </div>
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
+              <div className={classes.fieldContainer}>
+                <Label
+                  htmlFor="SSNId"
+                  size="small"
+                  weight="semibold"
+                  className={classes.fieldLabel}
+                  required={additionalInfo.data?.[0] ? true : false}
+                >
+                  <NumberFieldIcon className={classes.fieldIcon} />
+                  SSN
+                </Label>
+                {additionalInfo?.data ? (
+                  <Controller
+                    name="SSN"
+                    control={control}
+                    defaultValue={additionalInfo?.data?.[0]?.Title ?? ""}
+                    rules={{
+                      required: additionalInfo.data?.[0] ? "SSN is required" : "",
+                      minLength: {
+                        value: 9,
+                        message: "SSN cannot be less than 9 digits",
+                      },
+                      maxLength: {
+                        value: 9,
+                        message: "SSN cannot be more than 9 digits",
+                      },
+                      pattern: {
+                        value:
+                          /^\d+$/ /* We don't want the pattern to enforce 9 numbers so we can have a unique error for non-numeric (eg letters/symbols) */,
+                        message: "SSN can only consist of numbers",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        contentAfter={
+                          !showSSN ? (
+                            <Eye16Regular
+                              onClick={() => {
+                                setShowSSN(true);
+                              }}
+                            />
+                          ) : (
+                            <Eye16Filled
+                              onClick={() => {
+                                setShowSSN(false);
+                              }}
+                            />
+                          )
+                        }
+                        aria-describedby="SSNErr"
+                        id="SSNId"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        onInput={(e) => {
+                          e.currentTarget.value = e.currentTarget.value.replace(
+                            /\D+/g,
+                            ""
+                          );
+                        }}
+                        type={!showSSN ? "password" : "text"}
+                      />
+                    )}
+                  />
+                ) : (
+                  <Text>Retrieving</Text>
+                )}
+                {errors.SSN && (
+                  <Text id="SSNErr" className={classes.errorText}>
+                    {
+                      /* Prioritize showing the error for non-numeric */
+                      errors.SSN.types?.pattern
+                        ? errors.SSN.types?.pattern
+                        : errors.SSN.message
+                    }
+                  </Text>
+                )}
+                {additionalInfo?.data?.length === 0 && <Text
+                  weight="regular"
+                  size={200}
+                  className={classes.fieldDescription}
+                >
+                  NOTE: You did not enter the original SSN, and therefore cannot
+                  view it. If it was inccorect and needs updated, you may enter
+                  the full SSN to overwrite the original.
+                </Text>
+                }
+              </div>
+            )}
             <div className={classes.fieldContainer}>
               <Label
                 id="gradeRankId"
@@ -1155,6 +1270,12 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 Cancel
               </Button>
             </div>
+            {(props.data.empType === EMPTYPES.Civilian ||
+              props.data.empType === EMPTYPES.Military) && (
+              <div className={classes.fieldContainer}>
+                <Text align="center">CUI - PRVCY</Text>
+              </div>
+            )}
           </form>
         </FluentProvider>
       </Panel>

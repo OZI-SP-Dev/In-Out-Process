@@ -15,6 +15,7 @@ import {
   isNotApplicable,
   checkForErrorMessage,
   lengthTest,
+  ssnTestValues,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
@@ -92,6 +93,20 @@ const checkEnterableCombobox = async (
     // Ensure the combobox option list doesn't appear since it is disabled
     expect(comboboxOpt).not.toBeInTheDocument();
   }
+};
+
+/** Function to check if the SSN input is working correctly */
+const checkSSNInput = async (label: RegExp, text: string | undefined) => {
+  // Type in the input box - finding it by label -- ex password fields don't have a role
+  const textboxField = screen.getByLabelText(label);
+
+  // We have to allow the parameter to be undefined, but we need to throw error if it was
+  expect(text).not.toBeUndefined();
+
+  await user.type(textboxField, text ? text : "");
+
+  // Ensure value now matches what we typed
+  await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
 describe("ManPower Control Number (MPCN)", () => {
@@ -726,4 +741,49 @@ describe("Has DTS/GTC", () => {
     await renderThenSelectEmpType(EMPTYPES.Contractor);
     checkForInputToExist(fieldLabels.IS_TRAVELER.form, false);
   });
+});
+
+describe.only("SSN", () => {
+  it("is available for Civilian", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Civilian);
+    await checkSSNInput(fieldLabels.SSN.form, "123456789");
+  });
+
+  it("is available for Miliary", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Military);
+    await checkSSNInput(fieldLabels.SSN.form, "123456789");
+  });
+
+  it("is not selectable for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+
+    // Type in the SSN input box
+    const ssn = screen.getByLabelText(fieldLabels.SSN.form);
+    await user.type(ssn, "123456789");
+
+    // Ensure value of SSN is still ""
+    await waitFor(() => expect(ssn).toHaveValue(""));
+  });
+
+  it("displays N/A for Contractor", async () => {
+    await renderThenSelectEmpType(EMPTYPES.Contractor);
+    isNotApplicable(fieldLabels.SSN.formType, fieldLabels.SSN.form);
+  });
+
+  it.only.each(ssnTestValues)(
+    "check SSN input $input",
+    async ({ input, value, err }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Type in the SSN input box
+      const ssnFld = screen.getByLabelText(fieldLabels.SSN.form);
+      await user.type(ssnFld, input);
+
+      // Ensure value of SSN now matches what we expect
+      await waitFor(() => expect(ssnFld).toHaveValue(value));
+
+      // Check for expected error message -- if we don't expect one, check that there is none
+      checkForErrorMessage(ssnFld, err ?? /^$/, true);
+    }
+  );
 });
