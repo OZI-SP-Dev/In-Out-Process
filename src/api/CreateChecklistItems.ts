@@ -287,7 +287,7 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Lead: RoleType.SUPERVISOR,
     TemplateId: templates.TeleworkAddedToWHAT,
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
-    Prereqs: [templates.SignedTeleworkAgreement],
+    Prereqs: [templates.SignedTeleworkAgreement, templates.ObtainCACCtr],
   },
   {
     Title: "Supervisor Coordination of 2875",
