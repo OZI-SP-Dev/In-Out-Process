@@ -222,9 +222,9 @@ const transformRequestToSP = async (
  * cause update errors
  */
 export const transformRequestSummaryFromSP = (
-  request: IResponseItem
+  request: IResponseSummary
 ): IRequestSummary => {
-  if (isInResponse(request)) {
+  if (isInResponseSummary(request)) {
     return {
       reqType: "In", // Force this to be "In" to support legacy entries of "" from MVCR1
       Id: request.Id,
@@ -253,6 +253,7 @@ export const transformRequestSummaryFromSP = (
           ? "Cancelled"
           : "Closed"
         : "Active",
+      Created: new Date(request.Created as string),
     };
   } else {
     return {
@@ -281,12 +282,13 @@ export const transformRequestSummaryFromSP = (
           ? "Cancelled"
           : "Closed"
         : "Active",
+      Created: new Date(request.Created as string),
     };
   }
 };
 
 const transformRequestsSummaryFromSP = (
-  requests: IResponseItem[]
+  requests: IResponseSummary[]
 ): IRequestSummary[] => {
   return requests.map((request) => {
     return transformRequestSummaryFromSP(request);
@@ -308,8 +310,9 @@ const expandedFields = "supGovLead,employee";
 //  completionDate is used by My Checklist Items
 //  office is used by Summary View
 //  supGovLead/Id and employee/Id are used to determine what should be in My Checklist Items
+//  Created is used on the Summary View
 const requestsSummaryFields =
-  "Id,reqType,empName,eta,lastDay,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/EMail,employee/Title";
+  "Id,reqType,empName,eta,lastDay,completionDate,cancelReason,closedOrCancelledDate,supGovLead/Id,supGovLead/EMail,supGovLead/Title,office,employee/Id,employee/EMail,employee/Title,Created";
 const requestsSummaryexpandedFields = "supGovLead,employee";
 
 // Internal functions that actually do the fetching
@@ -679,7 +682,20 @@ type IInRequestSummary = Pick<
   | "supGovLead"
   | "employee"
   | "status"
->;
+> & { Created: Date };
+
+// create PnP JS response interface for the InForm Summary Items
+// This extends the IInSummaryRequest to change the types of certain objects
+export type IInResponseSummary = Omit<
+  IInRequestSummary,
+  "eta" | "completionDate" | "closedOrCancelledDate" | "status" | "Created" // Drop the status object from the type, as it is used internally and is not data from the repository
+> & {
+  // Storing the date objects in Single Line Text fields as ISOStrings
+  eta: string;
+  completionDate: string;
+  closedOrCancelledDate?: string;
+  Created: string;
+};
 
 // Pick just the fields from IOutRequest that we need
 type IOutRequestSummary = Pick<
@@ -695,10 +711,24 @@ type IOutRequestSummary = Pick<
   | "supGovLead"
   | "employee"
   | "status"
->;
+> & { Created: Date };
+
+// create PnP JS response interface for the InForm Summary Items
+// This extends the IOutSummaryRequest to change the types of certain objects
+export type IOutResponseSummary = Omit<
+  IOutRequestSummary,
+  "lastDay" | "beginDate" | "closedOrCancelledDate" | "status" | "Created" // Drop the status object from the type, as it is used internally and is not data from the repository
+> & {
+  // Storing the date objects in Single Line Text fields as ISOStrings
+  lastDay: string;
+  beginDate: string;
+  closedOrCancelledDate?: string;
+  Created: string;
+};
 
 /* Limited fields retrieved from the Request listing */
 export type IRequestSummary = IInRequestSummary | IOutRequestSummary;
+export type IResponseSummary = IInResponseSummary | IOutResponseSummary;
 
 /** Request Type -- Can be either IInRequest or IOutRequest */
 export type IRequest = IInRequest | IOutRequest;
@@ -710,9 +740,14 @@ export type IRequestItem = IInRequestItem | IOutRequestItem;
 export type IResponseItem = IInResponseItem | IOutResponseItem;
 
 // Custom Type Checking Function to determine if it is an In Processing Request, or an Out Processing Request
-export function isInRequest(
-  request: IInRequest | IOutRequest
-): request is IInRequest {
+export function isInRequest(request: IRequest): request is IInRequest {
+  return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
+}
+
+// Custom Type Checking Function to determine if it is an In Processing Request Summary, or an Out Processing Request Summary
+export function isInRequestSummary(
+  request: IRequestSummary
+): request is IInRequestSummary {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
@@ -720,6 +755,13 @@ export function isInRequest(
 export function isInResponse(
   request: IResponseItem
 ): request is IInResponseItem {
+  return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
+}
+
+// Custom Type Checking Function to determine if it is an In Processing Request Summary response, or an Out Processing Request Summary response
+export function isInResponseSummary(
+  request: IResponseSummary
+): request is IInResponseSummary {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 

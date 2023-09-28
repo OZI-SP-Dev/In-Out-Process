@@ -5,6 +5,7 @@ import { templates } from "api/CreateChecklistItems";
 import {
   IRequestItem,
   IResponseItem,
+  IResponseSummary,
   isInRequestItem,
   isInResponse,
 } from "api/RequestApi";
@@ -14,6 +15,12 @@ import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
 
 const responsedelay = 500;
+
+/** Since the local values we store are objects containing keys used by
+ *  either IResponseItem or IResponseSummary, create a type for mocking
+ *  that intersects both
+ */
+type IResponse = IResponseItem & IResponseSummary;
 
 /**
  * Users table
@@ -323,7 +330,7 @@ export const handlers = [
       let employee = testUsers.find(
         (element) => element.Id === Number(body.employeeId)
       );
-      let request: IResponseItem;
+      let request: IResponse;
       if (supervisor) {
         if (isInRequestItem(body)) {
           request = {
@@ -350,6 +357,7 @@ export const handlers = [
             isTraveler: body.isTraveler,
             isSupervisor: body.isSupervisor,
             isSCI: body.isSCI,
+            Created: new Date().toUTCString(),
           };
           if (employee) {
             request.employee = { ...employee };
@@ -376,6 +384,7 @@ export const handlers = [
             employee: employee
               ? { ...employee }
               : new Person({ Id: 0, Title: "Error", EMail: "Error" }),
+            Created: new Date().toUTCString(),
           };
         }
 
@@ -404,7 +413,7 @@ export const handlers = [
       // If the filter was for My Requests
       if (myRequestFilter) {
         results = results.filter(
-          (item: IResponseItem) => 
+          (item: IResponse) =>
             (item.supGovLead.Id.toString() === myRequestFilter[1] ||
               item.employee?.Id.toString() === myRequestFilter[2]) &&
             !item.closedOrCancelledDate
@@ -496,10 +505,7 @@ export const handlers = [
       if (req.headers.get("x-http-method") === "DELETE") {
         if (index !== -1) {
           testRoles.splice(index, 1);
-          return res(
-            ctx.status(200),
-            ctx.delay(responsedelay),
-          );
+          return res(ctx.status(200), ctx.delay(responsedelay));
         } else {
           return res(
             ctx.status(404),
@@ -507,12 +513,10 @@ export const handlers = [
             ctx.json(notFound)
           );
         }
-      }     
-
+      }
 
       // If it is not a request to DELETE, but rather to UPDATE
       if (index !== -1) {
-
         let body = await req.json();
 
         // Pass along any updates contained in the body
@@ -840,10 +844,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 
         if (index !== -1) {
           testRoles.splice(index, 1);
-          return res(
-            ctx.status(200),
-            ctx.delay(responsedelay),
-          );
+          return res(ctx.status(200), ctx.delay(responsedelay));
         } else {
           return res(
             ctx.status(404),
@@ -1032,7 +1033,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
 /**
  * requests array holds our sample data
  */
-let requests: IResponseItem[] = [
+let requests: IResponse[] = [
   {
     reqType: "In",
     Id: 2,
@@ -1058,6 +1059,7 @@ let requests: IResponseItem[] = [
     isTraveler: "no",
     isSupervisor: "no",
     isSCI: "",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1082,6 +1084,7 @@ let requests: IResponseItem[] = [
     isTraveler: "no",
     isSupervisor: "no",
     isSCI: "",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1107,6 +1110,7 @@ let requests: IResponseItem[] = [
     supGovLead: { ...testUsers[1] },
     employee: { ...testUsers[0] },
     isSCI: "",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1134,6 +1138,7 @@ let requests: IResponseItem[] = [
     isSCI: "",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
     cancelReason: "Employee proceeded with new opportunity",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1160,6 +1165,7 @@ let requests: IResponseItem[] = [
     isSupervisor: "no",
     isSCI: "",
     closedOrCancelledDate: "2022-11-30T00:00:00.000Z",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1181,6 +1187,7 @@ let requests: IResponseItem[] = [
     isTraveler: "no",
     isSupervisor: "no",
     isSCI: "",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1205,6 +1212,7 @@ let requests: IResponseItem[] = [
     isTraveler: "yes",
     isSupervisor: "yes",
     isSCI: "yes",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "In",
@@ -1229,6 +1237,7 @@ let requests: IResponseItem[] = [
     isTraveler: "yes",
     isSupervisor: "yes",
     isSCI: "no",
+    Created: "2023-12-21T00:00:00.000Z",
   },
   {
     reqType: "Out",
@@ -1246,6 +1255,7 @@ let requests: IResponseItem[] = [
     beginDate: "2023-04-10T04:00:00.000Z",
     supGovLead: { ...testUsers[0] },
     employee: { ...testUsers[1] },
+    Created: "2023-04-01T00:00:00.000Z",
   },
   {
     reqType: "Out",
@@ -1264,6 +1274,7 @@ let requests: IResponseItem[] = [
     beginDate: "2023-04-10T04:00:00.000Z",
     supGovLead: { ...testUsers[0] },
     employee: { ...testUsers[2] },
+    Created: "2023-04-01T00:00:00.000Z",
   },
   {
     reqType: "Out",
@@ -1281,6 +1292,7 @@ let requests: IResponseItem[] = [
     beginDate: "2023-04-10T04:00:00.000Z",
     supGovLead: { ...testUsers[0] },
     employee: { ...testUsers[3] },
+    Created: "2023-03-21T00:00:00.000Z",
   },
 ];
 let nextRequestId = requests.length + 1;
