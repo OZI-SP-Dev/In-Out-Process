@@ -132,6 +132,9 @@ export const fieldLabels = {
     form: /does the employee possess a sipr token\?/i,
     view: /has sipr token\?/i,
   },
+  SUP_GOV_LEAD: {
+    view: /Supervisor\/Government Lead/i,
+  },
 };
 
 /** Check if there is an input field matching the desired label

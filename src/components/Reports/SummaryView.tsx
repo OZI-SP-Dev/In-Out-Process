@@ -12,7 +12,11 @@ import {
   TableCellLayout,
   TableColumnDefinition,
 } from "@fluentui/react-components";
-import { IRequest, isInRequest, useRequests } from "api/RequestApi";
+import {
+  IRequestSummary,
+  isInRequestSummary,
+  useRequests,
+} from "api/RequestApi";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -46,8 +50,8 @@ const SummaryView = () => {
   }
 
   // Define columns for the In-processing DataGrid
-  const inReqColumns: TableColumnDefinition<IRequest>[] = [
-    createTableColumn<IRequest>({
+  const inReqColumns: TableColumnDefinition<IRequestSummary>[] = [
+    createTableColumn<IRequestSummary>({
       columnId: "reqType",
       compare: (a, b) => {
         return a.reqType.localeCompare(b.reqType);
@@ -59,7 +63,7 @@ const SummaryView = () => {
         return <TableCellLayout>{item.reqType}</TableCellLayout>;
       },
     }),
-    createTableColumn<IRequest>({
+    createTableColumn<IRequestSummary>({
       columnId: "empName",
       compare: (a, b) => {
         return a.empName.localeCompare(b.empName);
@@ -75,7 +79,7 @@ const SummaryView = () => {
         );
       },
     }),
-    createTableColumn<IRequest>({
+    createTableColumn<IRequestSummary>({
       columnId: "office",
       compare: (a, b) => {
         return a.office.localeCompare(b.office);
@@ -87,11 +91,15 @@ const SummaryView = () => {
         return <TableCellLayout>{item.office}</TableCellLayout>;
       },
     }),
-    createTableColumn<IRequest>({
+    createTableColumn<IRequestSummary>({
       columnId: "etaOrLastDay",
       compare: (a, b) => {
-        const aDate = isInRequest(a) ? a.eta?.valueOf() : a.lastDay?.valueOf();
-        const bDate = isInRequest(b) ? b.eta?.valueOf() : b.lastDay?.valueOf();
+        const aDate = isInRequestSummary(a)
+          ? a.eta?.valueOf()
+          : a.lastDay?.valueOf();
+        const bDate = isInRequestSummary(b)
+          ? b.eta?.valueOf()
+          : b.lastDay?.valueOf();
         return aDate - bDate;
       },
       renderHeaderCell: () => {
@@ -100,14 +108,14 @@ const SummaryView = () => {
       renderCell: (item) => {
         return (
           <TableCellLayout>
-            {isInRequest(item)
+            {isInRequestSummary(item)
               ? item.eta?.toLocaleDateString()
               : item.lastDay?.toLocaleDateString()}
           </TableCellLayout>
         );
       },
     }),
-    createTableColumn<IRequest>({
+    createTableColumn<IRequestSummary>({
       columnId: "status",
       compare: (a, b) => {
         return a.status.localeCompare(b.status);
@@ -117,6 +125,34 @@ const SummaryView = () => {
       },
       renderCell: (item) => {
         return <TableCellLayout>{item.status}</TableCellLayout>;
+      },
+    }),
+    createTableColumn<IRequestSummary>({
+      columnId: "supGovLead",
+      compare: (a, b) => {
+        return a.supGovLead.Title.localeCompare(b.supGovLead.Title);
+      },
+      renderHeaderCell: () => {
+        return "Supervisor/Gov Lead";
+      },
+      renderCell: (item) => {
+        return <TableCellLayout>{item.supGovLead.Title}</TableCellLayout>;
+      },
+    }),
+    createTableColumn<IRequestSummary>({
+      columnId: "createDate",
+      compare: (a, b) => {
+        const aDate = a.Created.valueOf();
+        const bDate = b.Created.valueOf();
+        return aDate - bDate;
+      },
+      renderHeaderCell: () => {
+        return "Created Date";
+      },
+      renderCell: (item) => {
+        return (
+          <TableCellLayout>{item.Created.toLocaleDateString()}</TableCellLayout>
+        );
       },
     }),
   ];
@@ -174,9 +210,9 @@ const SummaryView = () => {
               )}
             </DataGridRow>
           </DataGridHeader>
-          <DataGridBody<IRequest>>
+          <DataGridBody<IRequestSummary>>
             {({ item, rowId }) => (
-              <DataGridRow<IRequest> key={rowId}>
+              <DataGridRow<IRequestSummary> key={rowId}>
                 {({ renderCell }) => (
                   <DataGridCell>{renderCell(item)}</DataGridCell>
                 )}
