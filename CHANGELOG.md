@@ -10,7 +10,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
-## [2.0.0-alpha.1] - 2023-05-XX
+## [2.0.4] - 2023-09-28
+
+### Changed
+
+- Additional columns SupGovLead and Created added to Summary View report
+
+- Add missing SupGovLead to the Out Processing Request View
+
+### Fixed
+
+- Bug where WHAT task for CTR didn't activate due to missing prerequisite task
+
+
+## [2.0.3] - 2023-09-07
+
+### Added
+
+- New capability for required SSN input for In Processing
+
+### Fixed
+
+- vitest taking too long to run by switching to fireEvent instead of userEvent for FluentUI Combobox
+
+- bad typing in handler to use IRequest
+
+## [2.0.2] - 2023-08-17
+
+### Changed
+
+- Add backend SharePoint groups for roles that users are added/removed from besides just the Roles list
+
+### Fixed
+
+- Mock for deletion of Role entry to actually delete the Role entry
+
+## [2.0.1] - 2023-08-15
+
+### Changed
+
+- No longer require CTR to have signed telework agreement task
+
+## [2.0.0] - 2023-08-07 - MVCR Release of Out Processing
 
 ### Added
 
@@ -37,6 +78,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Updated MyRequests component on homepage to display 2 separate areas for In-processing and Out-processing, and updated what data is shown from each request
 - No longer CC supervisor when tasks become active
 - User can no longer input request for themself
+- Updated links for DD2875s and description in task
+- People Picker now extends entire width of name
 
 ### Fixed
 
