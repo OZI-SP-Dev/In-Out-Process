@@ -96,6 +96,13 @@ export const OutRequestViewCompact: FunctionComponent<
           <br />
           <Text id="officeCVId">{formData.office}</Text>
         </div>
+        <div>
+          <Label weight="semibold" htmlFor="supGovLeadCVId">
+            Supervisor/Government Lead
+          </Label>
+          <br />
+          <Text id="supGovLeadCVId">{formData.supGovLead?.text}</Text>
+        </div>
         {(formData.empType === EMPTYPES.Civilian ||
           formData.empType === EMPTYPES.Military) && (
           <div>
