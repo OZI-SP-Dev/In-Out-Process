@@ -12,6 +12,7 @@ import {
   checkForErrorMessage,
   lengthTest,
   checkForRadioGroupToBeDisabled,
+  dutyPhoneTestValues,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -652,6 +653,74 @@ describe("Has DTS/GTC", () => {
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
       checkForInputToExist(fieldLabels.IS_TRAVELER.form, available);
+    }
+  );
+});
+
+describe("Job/Duty Title", () => {
+  const employeeTypes = [
+    { request: civRequest },
+    { request: milRequest },
+    { request: ctrRequest },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)("is available for $empType", async ({ request }) => {
+    renderEditPanelForRequest(request);
+    await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+  });
+
+  // Cannot exceed 100 characters
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      renderEditPanelForRequest(civRequest);
+      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, testString);
+
+      const jobTitleFld = screen.getByRole("textbox", {
+        name: fieldLabels.JOB_TITLE.form,
+      });
+
+      checkForErrorMessage(
+        jobTitleFld,
+        fieldLabels.JOB_TITLE.lengthError,
+        testString.length > 100
+      );
+    }
+  );
+});
+
+describe("Duty Phone #", () => {
+  const employeeTypes = [
+    { request: civRequest },
+    { request: milRequest },
+    { request: ctrRequest },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)("is available for $request.empType", async ({ request }) => {
+    renderEditPanelForRequest(request);
+    await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+  });
+
+  // Must be a valid formatted phone upon entry
+  it.each(dutyPhoneTestValues)(
+    "check for valid input - $input",
+    async ({ input, value, err }) => {
+      renderEditPanelForRequest(civRequest);
+
+      // Type in the Duty Phone input box
+      const dutyPhoneFld = screen.getByLabelText(fieldLabels.DUTY_PHONE.form);
+
+      // Clear the input, then type the passed in data
+      await user.clear(dutyPhoneFld);
+      await user.type(dutyPhoneFld, input);
+
+      // Ensure value of SSN now matches what we expect
+      await waitFor(() => expect(dutyPhoneFld).toHaveValue(value));
+
+      // Check for expected error message -- if we don't expect one, check that there is none
+      checkForErrorMessage(dutyPhoneFld, err ?? /^$/, true);
     }
   );
 });

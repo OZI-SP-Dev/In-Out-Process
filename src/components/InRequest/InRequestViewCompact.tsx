@@ -346,6 +346,20 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
             </Text>
           </div>
         )}
+        <div>
+          <Label weight="semibold" htmlFor="jobTitleCVId">
+            Job/Duty Title
+          </Label>
+          <br />
+          <Text id="jobTitleCVId">{formData.jobTitle}</Text>
+        </div>
+        <div>
+          <Label weight="semibold" htmlFor="dutyPhoneCVId">
+            Duty Phone #
+          </Label>
+          <br />
+          <Text id="dutyPhoneCVId">{formData.dutyPhone}</Text>
+        </div>
       </div>
       {
         /* Popup dialog box for when the Supervisor doesn't have access to SSN 

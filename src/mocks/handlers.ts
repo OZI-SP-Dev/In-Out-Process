@@ -337,6 +337,8 @@ export const handlers = [
             reqType: body.reqType,
             Id: nextRequestId++,
             empName: body.empName,
+            jobTitle: body.jobTitle,
+            dutyPhone: body.dutyPhone,
             empType: body.empType,
             gradeRank: body.gradeRank,
             MPCN: body.MPCN,
@@ -1038,6 +1040,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 2,
     empName: testUsers[1].Title,
+    jobTitle: "Developer",
+    dutyPhone: "012-345-6789",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-11",
     MPCN: 1234567,
@@ -1065,6 +1069,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 1,
     empName: "Doe, Jane D",
+    jobTitle: "Team Lead",
+    dutyPhone: "987-654-3210",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: 7654321,
@@ -1090,6 +1096,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 3,
     empName: testUsers[0].Title,
+    jobTitle: "Analyst",
+    dutyPhone: "111-222-3333",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-12",
     MPCN: 1233217,
@@ -1116,6 +1124,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 5,
     empName: "Cancelled, Imma B",
+    jobTitle: "Scrum Master",
+    dutyPhone: "333-222-1111",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: 7654321,
@@ -1144,6 +1154,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 4,
     empName: "Closed, Aye M",
+    jobTitle: "Requirements Manager",
+    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: 7654321,
@@ -1171,6 +1183,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 6,
     empName: "Tractor, Kauhn",
+    jobTitle: "Contractor Support",
+    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Contractor,
     gradeRank: "",
     workLocation: "local",
@@ -1193,6 +1207,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 7,
     empName: "SCI Military",
+    jobTitle: "Branch Chief",
+    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Military,
     gradeRank: "O-3",
     MPCN: 1234567,
@@ -1218,6 +1234,8 @@ let requests: IResponse[] = [
     reqType: "In",
     Id: 8,
     empName: "No SCI Military",
+    jobTitle: "Branch Chief",
+    dutyPhone: "999-999-9999",
     empType: EMPTYPES.Military,
     gradeRank: "O-3",
     MPCN: 1234567,
@@ -1578,6 +1596,9 @@ const updateRequest = (id: number, item: IRequestItem) => {
   if (index !== -1) {
     if (isInResponse(reqItem) && isInRequestItem(item)) {
       // If it is an In Processing Request
+      reqItem.empName = item.empName ? item.empName : reqItem.empName;
+      reqItem.jobTitle = item.jobTitle ? item.jobTitle : reqItem.jobTitle;
+      reqItem.dutyPhone = item.dutyPhone ? item.dutyPhone : reqItem.dutyPhone;
       reqItem.empName = item.empName ? item.empName : reqItem.empName;
       reqItem.empType = item.empType ? item.empType : reqItem.empType;
       reqItem.gradeRank = item.gradeRank ? item.gradeRank : reqItem.gradeRank;

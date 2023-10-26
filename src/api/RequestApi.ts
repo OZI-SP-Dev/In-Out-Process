@@ -35,6 +35,8 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       reqType: "In", // Force this to be "In" to support legacy entries of "" from MVCR1
       Id: request.Id,
       empName: request.empName,
+      jobTitle: request.jobTitle,
+      dutyPhone: request.dutyPhone,
       empType: request.empType,
       gradeRank: request.gradeRank,
       MPCN: request.MPCN,
@@ -137,6 +139,8 @@ const transformRequestToSP = async (
       reqType: request.reqType,
       Id: request.Id,
       empName: request.empName,
+      jobTitle: request.jobTitle,
+      dutyPhone: request.dutyPhone,
       empType: request.empType,
       gradeRank: request.gradeRank,
       MPCN: request.MPCN,
@@ -517,6 +521,10 @@ export type IInRequest = {
   Id: number;
   /** Required - Contains the Employee's Name */
   empName: string;
+  /** Required - The Employee's Job/Duty Title */
+  jobTitle: string;
+  /** Required - The Employee's Duty Phone */
+  dutyPhone: string;  
   /** Required - Employee's Type valid values are:
    * 'Civilian' - for Civilian Employees
    * 'Contractor' - for Contracted Employees

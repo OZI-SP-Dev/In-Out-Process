@@ -16,6 +16,7 @@ import {
   checkForErrorMessage,
   lengthTest,
   ssnTestValues,
+  dutyPhoneTestValues,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
@@ -743,7 +744,7 @@ describe("Has DTS/GTC", () => {
   });
 });
 
-describe.only("SSN", () => {
+describe("SSN", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
     await checkSSNInput(fieldLabels.SSN.form, "123456789");
@@ -770,7 +771,7 @@ describe.only("SSN", () => {
     isNotApplicable(fieldLabels.SSN.formType, fieldLabels.SSN.form);
   });
 
-  it.only.each(ssnTestValues)(
+  it.each(ssnTestValues)(
     "check SSN input $input",
     async ({ input, value, err }) => {
       await renderThenSelectEmpType(EMPTYPES.Civilian);
@@ -784,6 +785,83 @@ describe.only("SSN", () => {
 
       // Check for expected error message -- if we don't expect one, check that there is none
       checkForErrorMessage(ssnFld, err ?? /^$/, true);
+    }
+  );
+});
+
+describe("Job/Duty Title", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian},
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableTextbox(
+        fieldLabels.JOB_TITLE.form,
+        "Developer"
+      );
+    }
+  );
+
+  // Cannot exceed 100 characters
+    it.each(lengthTest)(
+      "cannot exceed 100 characters - $testString.length",
+      async ({ testString }) => {
+        await renderThenSelectEmpType(EMPTYPES.Civilian);
+        await checkEnterableTextbox(
+          fieldLabels.JOB_TITLE.form,
+          testString
+        );
+
+        const jobTitleFld = screen.getByRole("textbox", {
+          name: fieldLabels.JOB_TITLE.form,
+        });
+        checkForErrorMessage(
+          jobTitleFld,
+          fieldLabels.JOB_TITLE.lengthError,
+          testString.length > 100
+        );
+      }
+    );
+});
+
+describe("Duty Phone #", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian },
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+    }
+  );
+
+  // Must be a valid formatted phone upon entry
+  it.each(dutyPhoneTestValues)(
+    "check for valid input - $input",
+    async ({ input, value, err }) => {
+
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Type in the Duty Phone input box
+      const dutyPhoneFld = screen.getByLabelText(fieldLabels.DUTY_PHONE.form);
+      await user.type(dutyPhoneFld, input);
+
+      // Ensure value of SSN now matches what we expect
+      await waitFor(() => expect(dutyPhoneFld).toHaveValue(value));
+
+      // Check for expected error message -- if we don't expect one, check that there is none
+      checkForErrorMessage(dutyPhoneFld, err ?? /^$/, true);
     }
   );
 });

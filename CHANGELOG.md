@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+### Changed
+
+- Removal of DD2875 process from In Processing
+- Added Job/Duty Title to In Processing
+- Added Duty Phone # to In Processing
+
 ## [2.0.4] - 2023-09-28
 
 ### Changed
