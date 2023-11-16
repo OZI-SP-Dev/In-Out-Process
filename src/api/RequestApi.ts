@@ -534,7 +534,7 @@ export type IInRequest = {
   /** Required - The Employee's Grade/Rank.  Not applicable if 'ctr' */
   gradeRank: string;
   /** Optional - The Employee's MPCN from the UMD -- Required for CIV/MIL, others will be blank */
-  MPCN?: number;
+  MPCN?: string;
   /** Optional - The Employee's SAR from the UMD -- Required for CIV/MIL, others will be blank */
   SAR?: number;
   /** Optional - The Employee's Sensitivity Code from the PD -- Required for CIV, others will be blank */

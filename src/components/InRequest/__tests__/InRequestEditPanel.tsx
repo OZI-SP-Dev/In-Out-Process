@@ -140,11 +140,14 @@ describe("ManPower Control Number (MPCN)", () => {
     isNotApplicable(fieldLabels.MPCN.formType, fieldLabels.MPCN.form);
   });
 
-  const shortMPCN = /mpcn cannot be less than 7 digits/i;
-  const longMPCN = /mpcn cannot be more than 7 digits/i;
-  const characterMPCN = /mpcn can only consist of numbers/i;
+  const shortMPCN = /mpcn must be at least 7 characters/i;
+  const nonNumericMPCN = /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'/i;
+  const paqMPCN = /mpcns starting with 'rand000-' must be followed by 6 digits/i
+  const longMPCN = /mpcn cannot be more than 7 characters, unless it starts with 'rand000-'/i;
+  const sevenCharMPCN = /mpcns that are 7 characters must either be 7 digits, or 6 digits followed by a letter/i;
 
-  const validMPCN = ["1234567", "0000000"];
+  
+  const validMPCN = ["1234567", "0000000", "RAND000-123456", "123456A"];
 
   it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
     render(
@@ -164,21 +167,36 @@ describe("ManPower Control Number (MPCN)", () => {
     });
     await user.clear(mpcnFld);
     await user.type(mpcnFld, mpcn ? mpcn : "");
-    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
+    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn.toUpperCase()));
 
     // Ensure the error messages don't display
-    const errText = screen.queryByText(shortMPCN || longMPCN || characterMPCN);
+    const errText = screen.queryByText(
+      new RegExp(
+        "(" +
+          shortMPCN.source +
+          ")|(" +
+          nonNumericMPCN.source +
+          ")|(" +
+          paqMPCN.source +
+          ")|(" +
+          longMPCN.source +
+          ")|(" +
+          sevenCharMPCN.source +
+          ")",
+        "i"
+      )
+    );
     expect(errText).not.toBeInTheDocument();
   });
 
   const invalidMPCN = [
     { mpcn: "123", err: shortMPCN }, // Cannot be less than 7 characters
     { mpcn: "12345678", err: longMPCN }, // Cannot be more than 7 characters
-    { mpcn: "1ab2345", err: characterMPCN }, // Cannot have alphanumeric
-    { mpcn: "1@#3456", err: characterMPCN }, // Cannot have symbols
-    { mpcn: "-1234567", err: characterMPCN }, // Cannot be a negative number
-    { mpcn: "1a23456789", err: characterMPCN }, // Alphanumeric error supercedes max length error
-    { mpcn: "1a2", err: characterMPCN }, // Alphanumeric error supercedes min length error
+    { mpcn: "1ab2345", err: sevenCharMPCN }, // Cannot have alpha/special unless last of 7 or RAND000-
+    { mpcn: "1@#345", err: nonNumericMPCN }, // Cannot have symbols
+    { mpcn: "RAND000-", err: paqMPCN }, // Cannot be a negative number
+    { mpcn: "1a23456789", err: longMPCN }, // Alphanumeric error supercedes max length error
+    { mpcn: "1234", err: shortMPCN }, // Alphanumeric error supercedes min length error
   ];
 
   it.each(invalidMPCN)(
@@ -201,7 +219,7 @@ describe("ManPower Control Number (MPCN)", () => {
       });
       await user.clear(mpcnFld);
       await user.type(mpcnFld, mpcn ? mpcn : "");
-      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
+      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn.toUpperCase()));
 
       // Ensure the appropriate error displays
       const errText = screen.queryByText(err);
