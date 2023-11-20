@@ -123,6 +123,26 @@ const fieldsByEmployeeType = [
       { request: milRequest, expected: true },
     ],
   },
+  {
+    field: fieldLabels.JOB_TITLE.view,
+    rules:
+      // All Employee Types
+      [
+        { request: civRequest, expected: true },
+        { request: ctrRequest, expected: true },
+        { request: milRequest, expected: true },
+      ],
+  },
+  {
+    field: fieldLabels.DUTY_PHONE.view,
+    rules:
+      // All Employee Types
+      [
+        { request: civRequest, expected: true },
+        { request: ctrRequest, expected: true },
+        { request: milRequest, expected: true },
+      ],
+  },
 ];
 
 /** Render an open InRequestEditPanel within a QueryClientProvider */

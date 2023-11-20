@@ -25,9 +25,11 @@ export const milRequest: IInRequest = {
   reqType: "In",
   Id: 1,
   empName: testUsers[1].Title,
+  jobTitle: "Commander",
+  dutyPhone: "111-222-3333",
   empType: EMPTYPES.Military,
   gradeRank: "E-2",
-  MPCN: 7654321,
+  MPCN: "7654321",
   SAR: 5,
   workLocation: "local",
   office: "OZIC",
@@ -51,9 +53,11 @@ export const civRequest: IInRequest = {
   reqType: "In",
   Id: 2,
   empName: testUsers[1].Title,
+  jobTitle: "Analyst",
+  dutyPhone: "9876-543-210",
   empType: EMPTYPES.Civilian,
   gradeRank: "GS-12",
-  MPCN: 1234567,
+  MPCN: "123456A",
   SAR: 5,
   sensitivityCode: 4,
   workLocation: "remote",
@@ -77,6 +81,8 @@ export const ctrRequest: IInRequest = {
   reqType: "In",
   Id: 3,
   empName: testUsers[1].Title,
+  jobTitle: "Hired Help",
+  dutyPhone: "012-345-6789",
   empType: EMPTYPES.Contractor,
   gradeRank: "",
   workLocation: "local",
@@ -181,6 +187,15 @@ export const fieldLabels = {
     formType: "CHECK_BY_LABEL",
     view: /ssn/i,
   },
+  JOB_TITLE: {
+    form: /job\/duty title/i,
+    lengthError: /job\/duty title cannot be longer than 100 characters/i,
+    view: /job\/duty title/i,
+  },
+  DUTY_PHONE: {
+    form: /duty phone #/i,
+    view: /duty phone #/i,
+  },
 };
 
 /** Check if there is an input field matching the desired label
@@ -269,7 +284,7 @@ export const lengthTest = [
 /*  Values used for testing SSN */
 const shortSSN = /ssn cannot be less than 9 digits/i;
 const longSSN = /ssn cannot be more than 9 digits/i;
-
+const dutyPhoneErr = / /i
 export const ssnTestValues = [
   { input: "123456789", value: "123456789" }, // Valid
   { input: "111-22-3333", value: "111223333" }, // Valid
@@ -281,4 +296,15 @@ export const ssnTestValues = [
   { input: "123-56-89", value: "1235689", err: shortSSN }, // Cannot be short
   { input: "123-456-7890", value: "1234567890", err: longSSN }, // Cannot be long
   { input: "-123-56-89", value: "1235689", err: shortSSN }, // Cannot be a short number
+];
+
+export const dutyPhoneTestValues = [
+  { input: "123-456-7890", value: "123-456-7890" }, // Valid
+  { input: "(111) 222-3333", value: "111-222-3333" }, // Valid
+  { input: "333.444.5555", value: "333-444-5555" }, // Valid
+  { input: "(123)456-7890", value: "123-456-7890" }, // Valid
+  { input: "123", value: "123", err: dutyPhoneErr }, // Must match 10 digit format
+  { input: "123-4567", value: "123-456-7", err: dutyPhoneErr }, // Must match 10 digit format
+  { input: "123-456-78901", value: "123-456-78901", err: dutyPhoneErr }, // Must match 10 digit format
+  { input: "+1(937)123-4567", value: "193-712-34567", err: dutyPhoneErr }, // Must match 10 digit format
 ];

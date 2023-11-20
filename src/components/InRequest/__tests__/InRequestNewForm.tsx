@@ -16,6 +16,7 @@ import {
   checkForErrorMessage,
   lengthTest,
   ssnTestValues,
+  dutyPhoneTestValues,
 } from "components/InRequest/__tests__/TestData";
 import { SAR_CODES } from "constants/SARCodes";
 import { OFFICES } from "constants/Offices";
@@ -109,7 +110,7 @@ const checkSSNInput = async (label: RegExp, text: string | undefined) => {
   await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
-describe("ManPower Control Number (MPCN)", () => {
+describe.only("ManPower Control Number (MPCN)", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
     await checkEnterableTextbox(fieldLabels.MPCN.form, "1234567");
@@ -138,11 +139,17 @@ describe("ManPower Control Number (MPCN)", () => {
     isNotApplicable(fieldLabels.MPCN.formType, fieldLabels.MPCN.form);
   });
 
-  const shortMPCN = /mpcn cannot be less than 7 digits/i;
-  const longMPCN = /mpcn cannot be more than 7 digits/i;
-  const characterMPCN = /mpcn can only consist of numbers/i;
+  const shortMPCN = /mpcn must be at least 7 characters/i;
+  const nonNumericMPCN =
+    /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'/i;
+  const paqMPCN =
+    /mpcns starting with 'rand000-' must be followed by 6 digits/i;
+  const longMPCN =
+    /mpcn cannot be more than 7 characters, unless it starts with 'rand000-'/i;
+  const sevenCharMPCN =
+    /mpcns that are 7 characters must either be 7 digits, or 6 digits followed by a letter/i;
 
-  const validMPCN = ["1234567", "0000000"];
+  const validMPCN = ["1234567", "0000000", "RAND000-123456", "123456A"];
 
   it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
@@ -154,21 +161,36 @@ describe("ManPower Control Number (MPCN)", () => {
     await user.type(mpcnFld, mpcn ? mpcn : "");
 
     // Ensure value of MPCN now matches what we typed
-    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
+    await waitFor(() => expect(mpcnFld).toHaveValue(mpcn.toUpperCase()));
 
     // Ensure the element is Invalid or Valid depending on what we are expecting
-    const errText = screen.queryByText(shortMPCN || longMPCN || characterMPCN);
+    const errText = screen.queryByText(
+      new RegExp(
+        "(" +
+          shortMPCN.source +
+          ")|(" +
+          nonNumericMPCN.source +
+          ")|(" +
+          paqMPCN.source +
+          ")|(" +
+          longMPCN.source +
+          ")|(" +
+          sevenCharMPCN.source +
+          ")",
+        "i"
+      )
+    );
     expect(errText).not.toBeInTheDocument();
   });
 
   const invalidMPCN = [
     { mpcn: "123", err: shortMPCN }, // Cannot be less than 7 characters
     { mpcn: "12345678", err: longMPCN }, // Cannot be more than 7 characters
-    { mpcn: "1ab2345", err: characterMPCN }, // Cannot have alphanumeric
-    { mpcn: "1@#3456", err: characterMPCN }, // Cannot have symbols
-    { mpcn: "-1234567", err: characterMPCN }, // Cannot be a negative number
-    { mpcn: "1a23456789", err: characterMPCN }, // Alphanumeric error supercedes max length error
-    { mpcn: "1a2", err: characterMPCN }, // Alphanumeric error supercedes min length error
+    { mpcn: "1ab2345", err: sevenCharMPCN }, // Cannot have alpha/special unless last of 7 or RAND000-
+    { mpcn: "1@#345", err: nonNumericMPCN }, // Cannot have symbols
+    { mpcn: "RAND000-", err: paqMPCN }, // Cannot be a negative number
+    { mpcn: "1a23456789", err: longMPCN }, // Alphanumeric error supercedes max length error
+    { mpcn: "1234", err: shortMPCN }, // Alphanumeric error supercedes min length error
   ];
 
   it.each(invalidMPCN)(
@@ -181,7 +203,7 @@ describe("ManPower Control Number (MPCN)", () => {
         name: fieldLabels.MPCN.form,
       });
       await user.type(mpcnFld, mpcn ? mpcn : "");
-      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn));
+      await waitFor(() => expect(mpcnFld).toHaveValue(mpcn.toUpperCase()));
 
       // Ensure the correct error message is displayed
       const errText = screen.queryByText(err);
@@ -743,7 +765,7 @@ describe("Has DTS/GTC", () => {
   });
 });
 
-describe.only("SSN", () => {
+describe("SSN", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
     await checkSSNInput(fieldLabels.SSN.form, "123456789");
@@ -770,7 +792,7 @@ describe.only("SSN", () => {
     isNotApplicable(fieldLabels.SSN.formType, fieldLabels.SSN.form);
   });
 
-  it.only.each(ssnTestValues)(
+  it.each(ssnTestValues)(
     "check SSN input $input",
     async ({ input, value, err }) => {
       await renderThenSelectEmpType(EMPTYPES.Civilian);
@@ -784,6 +806,83 @@ describe.only("SSN", () => {
 
       // Check for expected error message -- if we don't expect one, check that there is none
       checkForErrorMessage(ssnFld, err ?? /^$/, true);
+    }
+  );
+});
+
+describe("Job/Duty Title", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian},
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableTextbox(
+        fieldLabels.JOB_TITLE.form,
+        "Developer"
+      );
+    }
+  );
+
+  // Cannot exceed 100 characters
+    it.each(lengthTest)(
+      "cannot exceed 100 characters - $testString.length",
+      async ({ testString }) => {
+        await renderThenSelectEmpType(EMPTYPES.Civilian);
+        await checkEnterableTextbox(
+          fieldLabels.JOB_TITLE.form,
+          testString
+        );
+
+        const jobTitleFld = screen.getByRole("textbox", {
+          name: fieldLabels.JOB_TITLE.form,
+        });
+        checkForErrorMessage(
+          jobTitleFld,
+          fieldLabels.JOB_TITLE.lengthError,
+          testString.length > 100
+        );
+      }
+    );
+});
+
+describe("Duty Phone #", () => {
+  const employeeTypes = [
+    { empType: EMPTYPES.Civilian },
+    { empType: EMPTYPES.Contractor },
+    { empType: EMPTYPES.Military },
+  ];
+
+  // Avaialable for all employee types
+  it.each(employeeTypes)(
+    "is available for $empType",
+    async ({ empType }) => {
+      await renderThenSelectEmpType(empType);
+      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+    }
+  );
+
+  // Must be a valid formatted phone upon entry
+  it.each(dutyPhoneTestValues)(
+    "check for valid input - $input",
+    async ({ input, value, err }) => {
+
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+
+      // Type in the Duty Phone input box
+      const dutyPhoneFld = screen.getByLabelText(fieldLabels.DUTY_PHONE.form);
+      await user.type(dutyPhoneFld, input);
+
+      // Ensure value of SSN now matches what we expect
+      await waitFor(() => expect(dutyPhoneFld).toHaveValue(value));
+
+      // Check for expected error message -- if we don't expect one, check that there is none
+      checkForErrorMessage(dutyPhoneFld, err ?? /^$/, true);
     }
   );
 });

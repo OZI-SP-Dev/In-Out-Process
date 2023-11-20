@@ -20,6 +20,7 @@ import {
   Combobox,
   Option,
   OptionGroup,
+  InfoLabel,
 } from "@fluentui/react-components";
 import { IInRequest, useAddRequest } from "api/RequestApi";
 import { useForm, Controller } from "react-hook-form";
@@ -81,11 +82,10 @@ const useStyles = makeStyles({
 });
 
 // Create a type to handle the IInRequest type within React Hook Form (RHF)
-type IRHFInRequest = Omit<IInRequest, "empType" | "workLocation" | "MPCN"> & {
+type IRHFInRequest = Omit<IInRequest, "empType" | "workLocation"> & {
   /* Allowthese to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
-  MPCN: string;
   SSN: string;
 };
 
@@ -117,6 +117,37 @@ const InRequestNewForm = () => {
   const employee = watch("employee");
   const workLocation = watch("workLocation");
   const SAR = watch("SAR");
+
+  const validateMPCN = (value?: string) => {
+    if (!value || value === "") {
+      return "MPCN must be at least 7 characters";
+    } else if (
+      value.length !== 0 &&
+      value.length < 7 &&
+      !"RAND000-".startsWith(value.toUpperCase()) &&
+      !value.match(/^\d{0,6}$/)
+    ) {
+      return "MPCN cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'";
+    } else if (
+      value.length !== 0 &&
+      value.length < 8 &&
+      "RAND000-".startsWith(value.toUpperCase())
+    ) {
+      return "MPCNs starting with 'RAND000-' must be followed by 6 digits";
+    } else if (value.length < 7) {
+      return "MPCN must be at least 7 characters";
+    } else if (
+      value.length > 7 &&
+      !value.toUpperCase().startsWith("RAND000-")
+    ) {
+      return "MPCN cannot be more than 7 characters, unless it starts with 'RAND000-'";
+    } else if (value.length > 7 && !value.match(/^RAND000-\d{6}$/i)) {
+      return "MPCNs starting with 'RAND000-' must be followed by 6 digits";
+    } else if (value.length === 7 && !value.match(/^\d{6}[A-Z|a-z|0-9]$/i)) {
+      return "MPCNs that are 7 characters must either be 7 digits, or 6 digits followed by a letter";
+    }
+    return;
+  };
 
   const gradeRankOptions = useMemo(() => {
     switch (empType) {
@@ -150,19 +181,8 @@ const InRequestNewForm = () => {
   }
 
   const createNewRequest = async (data: IRHFInRequest) => {
-    // Translate the string MPCN to an Integer
-    let mpcn: number | undefined;
-    if (
-      data.empType === EMPTYPES.Civilian ||
-      data.empType === EMPTYPES.Military
-    ) {
-      // Parsing the string should be fine, as we enforce pattern of numeric
-      mpcn = parseInt(data.MPCN);
-    }
-
     const data2 = {
       ...data,
-      MPCN: mpcn,
       reqType: "In",
       SSN: undefined,
     } as IInRequest;
@@ -417,6 +437,100 @@ const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
+          htmlFor="jobTitleId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <NumberFieldIcon className={classes.fieldIcon} />
+          Job/Duty Title
+        </Label>
+        <Controller
+          name="jobTitle"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Job/Duty Title is required",
+            maxLength: {
+              value: 100,
+              message: "Job/Duty Title cannot be longer than 100 characters",
+            },
+          }}
+          render={({ field }) => (
+            <Input {...field} aria-describedby="jobTitleErr" id="jobTitleId" />
+          )}
+        />
+        {errors.jobTitle && (
+          <Text id="jobTitleErr" className={classes.errorText}>
+            {errors.jobTitle.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          htmlFor="dutyPhoneId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <NumberFieldIcon className={classes.fieldIcon} />
+          Duty Phone #
+        </Label>
+        <Controller
+          name="dutyPhone"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Duty Phone # is required",
+            pattern: {
+              value: /^\d{3}-\d{3}-\d{4}$/,
+              message: "Phone number must be of the form ###-###-####",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              aria-describedby="dutyPhoneErr"
+              onInput={(e) => {
+                let endsDash = false;
+                if (e.currentTarget.value.match(/-$/)) {
+                  endsDash = true;
+                }
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /\D/g,
+                  ""
+                );
+                const size = e.currentTarget.value.length;
+                if (size > 3 || endsDash) {
+                  // If we have more than 3 numbers, or we have either ###- or ###-###-
+                  // The second condition allows them to type a dash, otherwise the code would "reject" it
+                  e.currentTarget.value =
+                    e.currentTarget.value.slice(0, 3) +
+                    "-" +
+                    e.currentTarget.value.slice(3, 11);
+                }
+                if (size > 6 || (size > 5 && endsDash)) {
+                  e.currentTarget.value =
+                    e.currentTarget.value.slice(0, 7) +
+                    "-" +
+                    e.currentTarget.value.slice(7);
+                }
+              }}
+              type="tel"
+              id="dutyPhoneId"
+            />
+          )}
+        />
+        {errors.dutyPhone && (
+          <Text id="dutyPhoneErr" className={classes.errorText}>
+            {errors.dutyPhone.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
           id="gradeRankId"
           size="small"
           weight="semibold"
@@ -483,10 +597,26 @@ const InRequestNewForm = () => {
         )}
       </div>
       <div className={classes.fieldContainer}>
-        <Label
+        <InfoLabel
           htmlFor="MPCNId"
           size="small"
           weight="semibold"
+          info={
+            <Text>
+              Acceptable formats are:
+              <ul>
+                <li>
+                  <b>Standard:</b> 7 digits
+                </li>
+                <li>
+                  <b>Over hire:</b> 6 digits + 1 letter
+                </li>
+                <li>
+                  <b>PAQ/COPPER CAP:</b> 'RAND000-' + 6 digits
+                </li>
+              </ul>
+            </Text>
+          }
           className={classes.fieldLabel}
           required={
             empType === EMPTYPES.Civilian || empType === EMPTYPES.Military
@@ -494,29 +624,13 @@ const InRequestNewForm = () => {
         >
           <NumberFieldIcon className={classes.fieldIcon} />
           MPCN
-        </Label>
+        </InfoLabel>
         <Controller
           name="MPCN"
           control={control}
           defaultValue={""}
           rules={{
-            required:
-              (empType === EMPTYPES.Civilian ||
-                empType === EMPTYPES.Military) &&
-              "MPCN is required",
-            minLength: {
-              value: 7,
-              message: "MPCN cannot be less than 7 digits",
-            },
-            maxLength: {
-              value: 7,
-              message: "MPCN cannot be more than 7 digits",
-            },
-            pattern: {
-              value:
-                /^\d+$/ /* We don't want the pattern to enforce 7 numbers so we can have a unique error for non-numeric (eg letters/symbols) */,
-              message: "MPCN can only consist of numbers",
-            },
+            validate: validateMPCN,
           }}
           render={({ field }) => (
             <Input
@@ -524,8 +638,10 @@ const InRequestNewForm = () => {
               disabled={empType === EMPTYPES.Contractor}
               aria-describedby="MPCNErr"
               id="MPCNId"
-              inputMode="numeric"
               placeholder={empType === EMPTYPES.Contractor ? "N/A" : ""}
+              onChange={(_event, data) =>
+                field.onChange(data.value.toUpperCase())
+              }
             />
           )}
         />
@@ -1304,9 +1420,11 @@ const InRequestNewForm = () => {
           {
             /* TODO -- Replace with some fine grain error handling, so you can retry
                 just the failed piece instead of total resubmission */
-            (!addRequest.isLoading && !addAdditionalInfo.isLoading) && (
+            !addRequest.isLoading && !addAdditionalInfo.isLoading && (
               <Button appearance="primary" type="submit">
-                {!addRequest.isError && !addAdditionalInfo.isError  ? "Create In Processing Request" : "Retry"}
+                {!addRequest.isError && !addAdditionalInfo.isError
+                  ? "Create In Processing Request"
+                  : "Retry"}
               </Button>
             )
           }
