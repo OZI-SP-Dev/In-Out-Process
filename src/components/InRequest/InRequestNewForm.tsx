@@ -630,7 +630,8 @@ const InRequestNewForm = () => {
           control={control}
           defaultValue={""}
           rules={{
-            validate: validateMPCN,
+            validate:
+              empType === EMPTYPES.Contractor ? undefined : validateMPCN,
           }}
           render={({ field }) => (
             <Input
