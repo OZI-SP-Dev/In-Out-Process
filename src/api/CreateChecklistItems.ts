@@ -41,8 +41,8 @@ export enum templates {
   SecurityTraining = 33,
   ConfirmSecurityTraining = 34,
   SecurityRequirements = 35,
-  InitiateTASS = 36,
-  CoordinateTASS = 37,
+  InitiateMP_ICAM = 36,
+  CoordinateMP_ICAM = 37,
   SignedNDA = 38,
   SCIBilletNomination = 39,
   CoordGTCApplUpdate = 40,
@@ -124,7 +124,7 @@ Transition Timeframe: <br/>
 customers can access Setmore/RAPIDS sites directly at the following links:<br/>
 Setmore: <a href="https://88fss.setmore.com/88fss">https://88fss.setmore.com/88fss</a><br/>
 RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mil/idco/</a><br/></p></div>`,
-    Prereqs: [templates.CoordinateTASS],
+    Prereqs: [templates.CoordinateMP_ICAM],
   },
   {
     Title: "Attend Installation In-processing",
@@ -361,25 +361,27 @@ Jerry (Joey) Theriot</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
-    Title: "Initiate Trusted Associate Sponsorship System (TASS Form 1)",
+    Title:
+      "Initiate Mission Partner Identity, Credential and Access Management (MP-ICAM) Form 1",
     Lead: RoleType.SUPERVISOR,
-    TemplateId: templates.InitiateTASS,
-    Description: `<p style="margin-top: 0px">You can obtain a blank TASS document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Blank%20TASS%20Form1.pdf">Blank TASS Form1.pdf</a></p>
-<p>For coordination with the Security office, send the TASS Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
-<p><b>TASS Form 1 coordination instructions:</b>
-<ol><li>Applicant coordinates with Government Sponsor, COR or TA for sponsorship. Applicant completes and submits the request form to the appropriate Employment Representative, Government Sponsor, or COR. To allow for maximum use of digital signatures, request should be initiated/completed using a computer that utilizes ADOBE Acrobat reader/software.</li>
+    TemplateId: templates.InitiateMP_ICAM,
+    Description: `<p style="margin-top: 0px">You can obtain a blank MP-ICAM document here:  <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Contractor%20CAC%20Issuance%20MP-ICAM%20Form%201.pdf">Contractor CAC Issuance MP-ICAM Form 1.pdf</a></p>
+<p>For coordination with the Security office, send the MP-ICAM Form 1 to <a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></p>
+<p><b>MP-ICAM Form 1 coordination instructions:</b>
+<ol><li>Applicant coordinates with Government Sponsor, COR or Mission Partner Affiliation Sponsor (MPAS) for sponsorship. Applicant completes and submits the request form to the appropriate Employment Representative, Government Sponsor, or COR. To allow for maximum use of digital signatures, request should be initiated/completed using a computer that utilizes ADOBE Acrobat reader/software.</li>
 <li>Employment Representative, Government Sponsor, COR, submits the request to the Security Manager for NACI Background check. The Security Manager digitally signs and dates the form.</li>
-<li>The Security Manager returns the form to the Employment Representative, Government Sponsor, COR for submission to the TA for TASS entry and CAC approval.</li>
-<li>TA verifies proper vetting of applicant as outlined in current DoDI 5200.46 and DoDM 1000.13. TA signs and dates the request.</li>
+<li>The Security Manager returns the form to the Employment Representative, Government Sponsor, COR for submission to the MPAS for MP-ICAM entry and CAC approval.</li>
+<li>MPAS verifies proper vetting of applicant as outlined in current DoDI 5200.46 and DoDM 1000.13. MPAS signs and dates the request.</li>
 <li>Applicant visits servicing DEERS/RAPIDs Office for CAC issuance.</li></ol></p>`,
     Prereqs: [],
   },
   {
-    Title: "Coordinate Trusted Associate Sponsorship System (TASS Form 1)",
+    Title:
+      "Coordinate Mission Partner Identity, Credential and Access Management (MP-ICAM) Form 1",
     Lead: RoleType.SECURITY,
-    TemplateId: templates.CoordinateTASS,
+    TemplateId: templates.CoordinateMP_ICAM,
     Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [templates.InitiateTASS],
+    Prereqs: [templates.InitiateMP_ICAM],
   },
   {
     Title: "Signed Non-Disclosure Agreement (SF312)",
@@ -572,10 +574,10 @@ const createInboundChecklistItems = async (request: IInRequest) => {
     addChecklistItem(templates.InstallationInProcess);
   }
 
-  // Initiate and Coordinate Trusted Associate Sponsorship System (TASS Form 1) tasks -- CTR Only
+  // Initiate and Coordinate Mission Partner Identity, Credential and Access Management (MP-ICAM) Form 1 tasks -- CTR Only
   if (request.empType === EMPTYPES.Contractor) {
-    addChecklistItem(templates.InitiateTASS);
-    addChecklistItem(templates.CoordinateTASS);
+    addChecklistItem(templates.InitiateMP_ICAM);
+    addChecklistItem(templates.CoordinateMP_ICAM);
   }
 
   // Obtain/Transfer CAC (Mil/Civ)
