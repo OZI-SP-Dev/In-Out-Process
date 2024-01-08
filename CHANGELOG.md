@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.6] - 2024-01-08
+
+### Changed
+
+- Updated TASS In processing tasks to MP-ICAM
+
 ## [2.0.5] - 2023-11-16
 
 ### Changed
@@ -18,9 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added Job/Duty Title to In Processing
 - Added Duty Phone # to In Processing
 - Update MPCN to accept the following formats
-    a) Standard - 7 digits
-    b) Over hire - 6 digits + 1 letter
-    c) PAQ/CopperCap - "RAND000-" + 6 digits
+  a) Standard - 7 digits
+  b) Over hire - 6 digits + 1 letter
+  c) PAQ/CopperCap - "RAND000-" + 6 digits
 
 ## [2.0.4] - 2023-09-28
 
@@ -33,7 +39,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Bug where WHAT task for CTR didn't activate due to missing prerequisite task
-
 
 ## [2.0.3] - 2023-09-07
 
