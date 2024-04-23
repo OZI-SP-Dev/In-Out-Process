@@ -18,6 +18,7 @@ interface IEmail {
   /** Required - Subject line of the Email */ subject: string;
   /** Required - Contents for the body of the Email */ body: string;
   /** Optional - Whom to CC on the Email */ cc?: IPerson[];
+  /** Required - The email of the supGovLead for the request - used in PowerAutomate to set the reply-to address */ supGovLead: string;
 }
 
 /**  Definition for what data is needed to identify what tasks just became Active */
@@ -87,6 +88,7 @@ const transformEmailToSP = (email: IEmail) => {
     ).substring(0, 255),
     //Adjust line breaks so they show nicely even when Outlook converts to plaintext
     Body: email.body.replace(/\n/g, "\r\n<BR />"),
+    SupGovLead: email.supGovLead,
   };
 };
 
@@ -169,6 +171,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
           .join(
             ""
           )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
+        supGovLead: request.supGovLead.EMail,
       };
 
       batch.items.add(transformEmailToSP(newEmail));
@@ -247,6 +250,7 @@ Owning organization and supervisor: ${request.office}, ${
 
 To view this request and take action follow the below link:
 ${linkURL}`,
+        supGovLead: request.supGovLead.EMail,
       };
     } else {
       // It is an Out-processing request
@@ -269,6 +273,7 @@ Owning organization and supervisor: ${request.office}, ${
 
 To view this request and take action follow the below link:
 ${linkURL}`,
+        supGovLead: request.supGovLead.EMail,
       };
     }
     return spWebContext.web.lists
@@ -342,6 +347,7 @@ export const useSendRequestCancelEmail = () => {
       } assigned to ${request.office}.
 The request has been cancelled for the following reason:
 ${reason}`,
+      supGovLead: request.supGovLead.EMail,
     };
 
     return spWebContext.web.lists
@@ -381,6 +387,7 @@ export const useSendRequestCompleteEmail = () => {
       to: toField,
       subject: `${request.reqType}-processing Request Complete:  ${request.reqType}-processing for ${request.empName} is complete`,
       body: `This email notification is to inform you that all ${request.reqType.toLowerCase()}-processing tasks have been completed and the request closed.`,
+      supGovLead: request.supGovLead.EMail,
     };
 
     return spWebContext.web.lists
@@ -439,6 +446,7 @@ export const useSendRequestVerifyCompleteEmail = (reqId: number) => {
       }'s ${request.reqType.toLowerCase()}-processing request by following the below link:
 ${linkURL}
 <b>Action 2:</b> Close the ${request.reqType.toLowerCase()}-processing request by selecting the button labeled "Complete"`,
+      supGovLead: request.supGovLead.EMail,
     };
 
     return spWebContext.web.lists
