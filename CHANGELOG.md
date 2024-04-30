@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.7] - 2024-04-22
+
+### Changed
+
+- Update the wording of the Annual Cyber Awareness Training task
+- Add SupGovLead to the Emails list, which is used in PowerAutomate to set the reply-to address, so replies don't go to the BAC Org Box
+
 ## [2.0.6] - 2024-01-08
 
 ### Changed
