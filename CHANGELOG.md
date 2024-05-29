@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.8] - 2024-05-28
+
+### Changed
+
+- Update MPCN to accept the following formats
+  a) Standard - 7 digits
+  b) Over hire - 6 digits + 1 letter OR "ACO" + 4 digits OR "MCO" + 4 digits
+  c) PAQ/CopperCap - "RAND000-" + 6 digits
+
 ## [2.0.7] - 2024-04-22
 
 ### Changed

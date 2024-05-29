@@ -124,16 +124,32 @@ const InRequestNewForm = () => {
     } else if (
       value.length !== 0 &&
       value.length < 7 &&
-      !"RAND000-".startsWith(value.toUpperCase()) &&
+      !(
+        "RAND000-".startsWith(value.toUpperCase()) ||
+        "ACO".startsWith(value.toUpperCase()) ||
+        "MCO".startsWith(value.toUpperCase()) ||
+        value.toUpperCase().startsWith("ACO") ||
+        value.toUpperCase().startsWith("MCO")
+      ) &&
       !value.match(/^\d{0,6}$/)
     ) {
-      return "MPCN cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'";
+      return "MPCN cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-', 'ACO', or 'MCO'";
     } else if (
       value.length !== 0 &&
-      value.length < 8 &&
-      "RAND000-".startsWith(value.toUpperCase())
+      ("RAND000-".startsWith(value.toUpperCase()) ||
+        (value.toUpperCase().startsWith("RAND000-") &&
+          !value.match(/^RAND000-\d{6}$/i)))
     ) {
       return "MPCNs starting with 'RAND000-' must be followed by 6 digits";
+    } else if (
+      value.length !== 0 &&
+      ("ACO".startsWith(value.toUpperCase()) ||
+        "MCO".startsWith(value.toUpperCase()) ||
+        value.toUpperCase().startsWith("ACO") ||
+        value.toUpperCase().startsWith("MCO")) &&
+      !value.match(/^(ACO|MCO)\d{4}$/)
+    ) {
+      return "MPCNs starting with 'ACO' or 'MCO' must be followed by 4 digits";
     } else if (value.length < 7) {
       return "MPCN must be at least 7 characters";
     } else if (
@@ -141,10 +157,11 @@ const InRequestNewForm = () => {
       !value.toUpperCase().startsWith("RAND000-")
     ) {
       return "MPCN cannot be more than 7 characters, unless it starts with 'RAND000-'";
-    } else if (value.length > 7 && !value.match(/^RAND000-\d{6}$/i)) {
-      return "MPCNs starting with 'RAND000-' must be followed by 6 digits";
-    } else if (value.length === 7 && !value.match(/^\d{6}[A-Z|a-z|0-9]$/i)) {
-      return "MPCNs that are 7 characters must either be 7 digits, or 6 digits followed by a letter";
+    } else if (
+      value.length === 7 &&
+      !value.match(/^(ACO|MCO)\d{4}|(\d{6}[A-Z|a-z|0-9])$/i)
+    ) {
+      return "MPCNs that are 7 characters must either be 7 digits, 6 digits followed by a letter, 'ACO' followed by 4 digits, or 'MCO' followed by 4 digits";
     }
     return;
   };

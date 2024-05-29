@@ -110,7 +110,7 @@ const checkSSNInput = async (label: RegExp, text: string | undefined) => {
   await waitFor(() => expect(textboxField).toHaveValue(text));
 };
 
-describe.only("ManPower Control Number (MPCN)", () => {
+describe("ManPower Control Number (MPCN)", () => {
   it("is available for Civilian", async () => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
     await checkEnterableTextbox(fieldLabels.MPCN.form, "1234567");
@@ -141,15 +141,24 @@ describe.only("ManPower Control Number (MPCN)", () => {
 
   const shortMPCN = /mpcn must be at least 7 characters/i;
   const nonNumericMPCN =
-    /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'/i;
+    /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-', 'ACO', or 'MCO'/i;
   const paqMPCN =
     /mpcns starting with 'rand000-' must be followed by 6 digits/i;
   const longMPCN =
     /mpcn cannot be more than 7 characters, unless it starts with 'rand000-'/i;
   const sevenCharMPCN =
-    /mpcns that are 7 characters must either be 7 digits, or 6 digits followed by a letter/i;
+    /mpcns that are 7 characters must either be 7 digits, 6 digits followed by a letter, 'ACO' followed by 4 digits, or 'MCO' followed by 4 digits/i;
+  const acoMcoMPCN =
+    /mpcns starting with 'ACO' or 'MCO' must be followed by 4 digits/i;
 
-  const validMPCN = ["1234567", "0000000", "RAND000-123456", "123456A"];
+  const validMPCN = [
+    "1234567",
+    "0000000",
+    "RAND000-123456",
+    "123456A",
+    "MCO1234",
+    "ACO9876",
+  ];
 
   it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
     await renderThenSelectEmpType(EMPTYPES.Civilian);
@@ -176,6 +185,8 @@ describe.only("ManPower Control Number (MPCN)", () => {
           longMPCN.source +
           ")|(" +
           sevenCharMPCN.source +
+          ")|(" +
+          acoMcoMPCN.source +
           ")",
         "i"
       )
@@ -191,6 +202,10 @@ describe.only("ManPower Control Number (MPCN)", () => {
     { mpcn: "RAND000-", err: paqMPCN }, // Cannot be a negative number
     { mpcn: "1a23456789", err: longMPCN }, // Alphanumeric error supercedes max length error
     { mpcn: "1234", err: shortMPCN }, // Alphanumeric error supercedes min length error
+    { mpcn: "MCO12", err: acoMcoMPCN }, // MCO error
+    { mpcn: "ACO23", err: acoMcoMPCN }, // ACO error
+    { mpcn: "MCO1#aa", err: acoMcoMPCN }, // MCO error
+    { mpcn: "ACO2#34", err: acoMcoMPCN }, // ACO error
   ];
 
   it.each(invalidMPCN)(
@@ -812,43 +827,34 @@ describe("SSN", () => {
 
 describe("Job/Duty Title", () => {
   const employeeTypes = [
-    { empType: EMPTYPES.Civilian},
+    { empType: EMPTYPES.Civilian },
     { empType: EMPTYPES.Contractor },
     { empType: EMPTYPES.Military },
   ];
 
   // Avaialable for all employee types
-  it.each(employeeTypes)(
-    "is available for $empType",
-    async ({ empType }) => {
-      await renderThenSelectEmpType(empType);
-      await checkEnterableTextbox(
-        fieldLabels.JOB_TITLE.form,
-        "Developer"
+  it.each(employeeTypes)("is available for $empType", async ({ empType }) => {
+    await renderThenSelectEmpType(empType);
+    await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+  });
+
+  // Cannot exceed 100 characters
+  it.each(lengthTest)(
+    "cannot exceed 100 characters - $testString.length",
+    async ({ testString }) => {
+      await renderThenSelectEmpType(EMPTYPES.Civilian);
+      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, testString);
+
+      const jobTitleFld = screen.getByRole("textbox", {
+        name: fieldLabels.JOB_TITLE.form,
+      });
+      checkForErrorMessage(
+        jobTitleFld,
+        fieldLabels.JOB_TITLE.lengthError,
+        testString.length > 100
       );
     }
   );
-
-  // Cannot exceed 100 characters
-    it.each(lengthTest)(
-      "cannot exceed 100 characters - $testString.length",
-      async ({ testString }) => {
-        await renderThenSelectEmpType(EMPTYPES.Civilian);
-        await checkEnterableTextbox(
-          fieldLabels.JOB_TITLE.form,
-          testString
-        );
-
-        const jobTitleFld = screen.getByRole("textbox", {
-          name: fieldLabels.JOB_TITLE.form,
-        });
-        checkForErrorMessage(
-          jobTitleFld,
-          fieldLabels.JOB_TITLE.lengthError,
-          testString.length > 100
-        );
-      }
-    );
 });
 
 describe("Duty Phone #", () => {
@@ -859,19 +865,15 @@ describe("Duty Phone #", () => {
   ];
 
   // Avaialable for all employee types
-  it.each(employeeTypes)(
-    "is available for $empType",
-    async ({ empType }) => {
-      await renderThenSelectEmpType(empType);
-      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
-    }
-  );
+  it.each(employeeTypes)("is available for $empType", async ({ empType }) => {
+    await renderThenSelectEmpType(empType);
+    await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+  });
 
   // Must be a valid formatted phone upon entry
   it.each(dutyPhoneTestValues)(
     "check for valid input - $input",
     async ({ input, value, err }) => {
-
       await renderThenSelectEmpType(EMPTYPES.Civilian);
 
       // Type in the Duty Phone input box
