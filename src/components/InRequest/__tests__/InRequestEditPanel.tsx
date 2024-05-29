@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -141,13 +147,25 @@ describe("ManPower Control Number (MPCN)", () => {
   });
 
   const shortMPCN = /mpcn must be at least 7 characters/i;
-  const nonNumericMPCN = /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-'/i;
-  const paqMPCN = /mpcns starting with 'rand000-' must be followed by 6 digits/i
-  const longMPCN = /mpcn cannot be more than 7 characters, unless it starts with 'rand000-'/i;
-  const sevenCharMPCN = /mpcns that are 7 characters must either be 7 digits, or 6 digits followed by a letter/i;
+  const nonNumericMPCN =
+    /mpcn cannot contain non-numeric characters in the first 6 positions, unless it starts with 'RAND000-', 'ACO', or 'MCO'/i;
+  const paqMPCN =
+    /mpcns starting with 'rand000-' must be followed by 6 digits/i;
+  const longMPCN =
+    /mpcn cannot be more than 7 characters, unless it starts with 'rand000-'/i;
+  const sevenCharMPCN =
+    /mpcns that are 7 characters must either be 7 digits, 6 digits followed by a letter, 'ACO' followed by 4 digits, or 'MCO' followed by 4 digits/i;
+  const acoMcoMPCN =
+    /mpcns starting with 'ACO' or 'MCO' must be followed by 4 digits/i;
 
-  
-  const validMPCN = ["1234567", "0000000", "RAND000-123456", "123456A"];
+  const validMPCN = [
+    "1234567",
+    "0000000",
+    "RAND000-123456",
+    "123456A",
+    "MCO1234",
+    "ACO9876",
+  ];
 
   it.each(validMPCN)("no error on valid values - %s", async (mpcn) => {
     render(
@@ -182,6 +200,8 @@ describe("ManPower Control Number (MPCN)", () => {
           longMPCN.source +
           ")|(" +
           sevenCharMPCN.source +
+          ")|(" +
+          acoMcoMPCN.source +
           ")",
         "i"
       )
@@ -197,6 +217,10 @@ describe("ManPower Control Number (MPCN)", () => {
     { mpcn: "RAND000-", err: paqMPCN }, // Cannot be a negative number
     { mpcn: "1a23456789", err: longMPCN }, // Alphanumeric error supercedes max length error
     { mpcn: "1234", err: shortMPCN }, // Alphanumeric error supercedes min length error
+    { mpcn: "MCO12", err: acoMcoMPCN }, // MCO error
+    { mpcn: "ACO23", err: acoMcoMPCN }, // ACO error
+    { mpcn: "MCO1#aa", err: acoMcoMPCN }, // MCO error
+    { mpcn: "ACO2#34", err: acoMcoMPCN }, // ACO error
   ];
 
   it.each(invalidMPCN)(
@@ -562,7 +586,7 @@ describe("Employee Name", () => {
     "cannot exceed 100 characters - $testString.length",
     async ({ testString }) => {
       // Clear out any defined employee -- so that the field is editable
-      renderEditPanelForRequest({...civRequest, employee: undefined});
+      renderEditPanelForRequest({ ...civRequest, employee: undefined });
       await checkEnterableTextbox(fieldLabels.EMPLOYEE_NAME.form, testString);
 
       const empNameFld = screen.getByRole("textbox", {
@@ -716,10 +740,13 @@ describe("Duty Phone #", () => {
   ];
 
   // Avaialable for all employee types
-  it.each(employeeTypes)("is available for $request.empType", async ({ request }) => {
-    renderEditPanelForRequest(request);
-    await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
-  });
+  it.each(employeeTypes)(
+    "is available for $request.empType",
+    async ({ request }) => {
+      renderEditPanelForRequest(request);
+      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
+    }
+  );
 
   // Must be a valid formatted phone upon entry
   it.each(dutyPhoneTestValues)(
