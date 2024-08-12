@@ -18,6 +18,7 @@ import { UserContext } from "providers/UserProvider";
 import { tokens } from "@fluentui/react-theme";
 import { RoleType } from "api/RolesApi";
 import { ImpersonationForm } from "components/AppHeader/ImpersonationForm";
+import { webUrl } from "providers/SPWebContext";
 
 /* FluentUI Styling */
 const useStyles = makeStyles({
@@ -54,7 +55,14 @@ const useStyles = makeStyles({
     textDecorationLine: "none",
     ":hover": { textDecorationLine: "underline" },
   },
-  navAvatar: { marginLeft: "auto", marginRight: "5px" }, // Force the Avatar icon to be positioned at the right most side
+  navHelp: {
+    marginLeft: "auto", // Force the help link and Avatar icon to be positioned at the right most side of the toolbar
+    marginRight: "1em",
+    textDecorationLine: "none",
+    ":hover": { textDecorationLine: "underline" },
+    color: tokens.colorBrandBackgroundInverted,
+  },
+  navAvatar: { marginLeft: "1em", marginRight: "5px" },
 });
 
 export const AppHeader = () => {
@@ -102,6 +110,13 @@ export const AppHeader = () => {
             </Link>
           )
         }
+        <Link
+          to={webUrl + "/SitePages/Help.aspx"}
+          className={classes.navHelp}
+          target="_blank"
+        >
+          Help
+        </Link>
         <Popover trapFocus={true} closeOnScroll={true} withArrow={true}>
           <PopoverTrigger>
             <Tooltip
