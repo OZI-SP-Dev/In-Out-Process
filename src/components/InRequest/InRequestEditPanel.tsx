@@ -125,6 +125,7 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
   const [showSSN, setShowSSN] = useState(false);
 
   // Setup watches
+  const empType = watch("empType");
   const hasExistingCAC = watch("hasExistingCAC");
   const eta = watch("eta");
   const employee = watch("employee");
@@ -695,7 +696,8 @@ export const InRequestEditPanel: FunctionComponent<IInRequestEditPanel> = (
                 name="MPCN"
                 control={control}
                 rules={{
-                  validate: validateMPCN,
+                  validate:
+                    empType === EMPTYPES.Contractor ? undefined : validateMPCN,
                 }}
                 render={({ field }) => (
                   <Input
