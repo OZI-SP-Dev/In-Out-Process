@@ -302,8 +302,9 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <p>When contacting the ETT, the technician will need to know if there are any non-standard software requirements for the new employee, as this requires additional coordination.</p>
 <p>For remote employees, the supervisor will need to coordinate with the ETT for shipping of hardware and first-time login.</p>
 <p>To schedule an appointment, please contact one of the following ETT Technicians via MS Teams:</p>
-<p>Henry Cardenas<br/>
-Arthur Goodwin<br/>
+<p>Ricardo Calzada<br/>
+Henry Cardenas<br/>
+Michael Green<br/>
 Todd Shanklin<br/>
 Jerry (Joey) Theriot</p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
