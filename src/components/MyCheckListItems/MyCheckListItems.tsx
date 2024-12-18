@@ -189,6 +189,17 @@ const MyCheckListItems = () => {
       },
     },
     {
+      key: "office",
+      name: "Office",
+      minWidth: 75,
+      maxWidth: 75,
+      onRender: (item) => {
+        if (item.request.office) {
+          return item.request.office;
+        }
+      },
+    },
+    {
       key: "onBoardDate",
       name: "Est. On-Boarding / Last Day",
       minWidth: 100,
