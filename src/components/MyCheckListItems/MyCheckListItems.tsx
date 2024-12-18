@@ -191,9 +191,8 @@ const MyCheckListItems = () => {
     {
       key: "office",
       name: "Office",
-      minWidth: 100,
-      maxWidth: 100,
-      isResizable: true,
+      minWidth: 75,
+      maxWidth: 75,
       onRender: (item) => {
         if (item.request.office) {
           return item.request.office;
