@@ -31,7 +31,6 @@ export enum templates {
   Brief971Folder = 21,
   SignedPerformContribPlan = 22,
   SignedTeleworkAgreement = 23,
-  TeleworkAddedToWHAT = 24,
   ProvisionAFNET = 27,
   EquipmentIssue = 28,
   AddSecurityGroups = 29,
@@ -46,7 +45,6 @@ export enum templates {
   SignedNDA = 38,
   SCIBilletNomination = 39,
   CoordGTCApplUpdate = 40,
-  RemovalFromWHAT = 41,
   TurnInSIPR = 42,
   SignedAF2587 = 43,
   TurnInCAC = 45,
@@ -281,13 +279,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Prereqs: [templates.ObtainCACGov],
   },
   {
-    Title: "Telework status entered in WHAT",
-    Lead: RoleType.SUPERVISOR,
-    TemplateId: templates.TeleworkAddedToWHAT,
-    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
-    Prereqs: [templates.SignedTeleworkAgreement, templates.ObtainCACCtr],
-  },
-  {
     Title: "Provision/move AFNET account",
     Lead: RoleType.IT,
     TemplateId: templates.ProvisionAFNET,
@@ -425,13 +416,7 @@ Jerry (Joey) Theriot</p>`,
 </p>`,
     Prereqs: [templates.ObtainCACGov],
   },
-  {
-    Title: "Removal from Workforce Hybrid Analysis Tool (WHAT)",
-    Lead: RoleType.SUPERVISOR,
-    TemplateId: templates.RemovalFromWHAT,
-    Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/teams/10251/WHAT">Workforce Hybrid Analysis Tool (WHAT)</a></p>`,
-    Prereqs: [],
-  },
+
   {
     Title: "Turn in SIPR token(s)",
     Lead: RoleType.EMPLOYEE,
@@ -686,9 +671,6 @@ const createInboundChecklistItems = async (request: IInRequest) => {
     addChecklistItem(templates.SignedTeleworkAgreement);
   }
 
-  // Telework status entered in WHAT
-  addChecklistItem(templates.TeleworkAddedToWHAT);
-
   // Create/Update ATAAPS account - CIV only
   if (request.empType === EMPTYPES.Civilian) {
     addChecklistItem(templates.ATAAPS);
@@ -774,11 +756,6 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
         reasonGroup.items.filter((reason) => request.outReason === reason.key)
           .length > 0
     ).length > 0;
-
-  // Add the Removal from WHAT task if the employee is a contractor
-  if (request.empType === EMPTYPES.Contractor) {
-    addChecklistItem(templates.RemovalFromWHAT);
-  }
 
   // If they have a SIPR token to turn in then add the task for it
   if (request.hasSIPR === "yes") {

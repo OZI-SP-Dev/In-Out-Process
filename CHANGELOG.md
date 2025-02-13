@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.9] - 2025-02-13
+
+### Changed
+
+- Removed WHAT related tasks
+  - Telework status entered in WHAT
+  - Removal from Workforce Hybrid Analysis Tool (WHAT)
+
 ## [2.0.8] - 2024-05-28
 
 ### Changed
