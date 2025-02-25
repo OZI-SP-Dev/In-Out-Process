@@ -10,6 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.0.10] - 2025-02-24
+
+### Added
+
+- Checklist items to add/remove to/from Recall Roster, removed as a sub-item in Unit orientation conducted
+
+### Changed
+
+- Split Account Update to be a separate item from Equipment Turn-in
+
 ## [2.0.9] - 2025-02-13
 
 ### Changed

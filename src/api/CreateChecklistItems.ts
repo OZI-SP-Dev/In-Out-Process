@@ -56,6 +56,9 @@ export enum templates {
   DetachDTS = 51,
   ScheduleETT = 52,
   EquimentTurnIn = 53,
+  AccountUpdate = 54,
+  UpdateRecallRoster = 55,
+  RemoveRecallRoster = 56,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -77,6 +80,13 @@ export const checklistTemplates: ICheckListItemTemplate[] = [
     TemplateId: templates.WelcomePackage,
     Description: `<p style="margin-top: 0px"><a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/New%20Employee%20Reference%20Guide.docx">Send Welcome Package/Reference Guide</a></p>`,
     Prereqs: [],
+  },
+  {
+    Title: "Update Recall Roster",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.UpdateRecallRoster,
+    Description: `<p style="margin-top: 0px">Obtain the information from the employee, and update the Recall Roster</p>`,
+    Prereqs: [templates.WelcomePackage],
   },
   {
     Title: "IA Training Complete",
@@ -251,7 +261,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
 <li>If new employee is a supervisor, introduce him/her to direct reports</li>
 <li>Tour of work area, restrooms, break areas, conference rooms, points of interest on base</li>
 <li>Discuss organizational chart and key personnel in the unit (e.g., Commander/Director, Unit Training Monitor, Personnel Liaison, Security Manager, DTS/GPC representative, Safety Representative, Admin POC)</li>
-<li>Obtain recall roster information</li>
 <li>Discuss welcome package / reference guide</li>
 </ul></p>`,
     Prereqs: [],
@@ -416,7 +425,6 @@ Jerry (Joey) Theriot</p>`,
 </p>`,
     Prereqs: [templates.ObtainCACGov],
   },
-
   {
     Title: "Turn in SIPR token(s)",
     Lead: RoleType.EMPLOYEE,
@@ -493,11 +501,25 @@ Jerry (Joey) Theriot</p>`,
     Prereqs: [],
   },
   {
-    Title: "Equipment turn-in & account update",
+    Title: "Equipment turn-in",
     Lead: RoleType.IT,
     TemplateId: templates.EquimentTurnIn,
-    Description: `<p style="margin-top: 0px">Out-processing employee will proceed to designated location at appointed time with all equipment listed on hand-receipt.  ETT will verify serial numbers on all equipment, remove employee from distribution groups/deprovision accounts, as required.</p>`,
+    Description: `<p style="margin-top: 0px">Out-processing employee will proceed to designated location at appointed time with all equipment listed on hand-receipt. Technician will verify serial numbers on all equipment</p>`,
     Prereqs: [templates.ScheduleETT],
+  },
+  {
+    Title: "Account Update",
+    Lead: RoleType.IT,
+    TemplateId: templates.AccountUpdate,
+    Description: `<p style="margin-top: 0px">Employee’s account will be removed from distribution/security groups and/or deprovisioned, as required.</p>`,
+    Prereqs: [templates.ScheduleETT],
+  },
+  {
+    Title: "Update Recall Roster",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.RemoveRecallRoster,
+    Description: `<p style="margin-top: 0px">Remove employee from Recall Roster</p>`,
+    Prereqs: [templates.EquimentTurnIn],
   },
 ];
 
@@ -540,6 +562,9 @@ const createInboundChecklistItems = async (request: IInRequest) => {
 
   // Welcome Package -- required for all inbounds
   addChecklistItem(templates.WelcomePackage);
+
+  // Add to Recall -- required for all inbounds
+  addChecklistItem(templates.UpdateRecallRoster);
 
   // SCI Billet Nomination - Only if CIV and SAR = 5 and sensitivityCode = 4 (Special Sensitive) OR
   //  MIL and isSCI = "yes"
@@ -796,6 +821,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
 
   // Add task for turning in equipment
   addChecklistItem(templates.EquimentTurnIn);
+
+  // Add task for updating account
+  addChecklistItem(templates.AccountUpdate);
+
+  // Add task for removing from recall roster
+  addChecklistItem(templates.RemoveRecallRoster);
 
   // If it is a Civ/Mil who is Retiring or Separating then add task for Turning in CAC.  Add for all Contractors.
   // Exemption to this is if they are staying within DoD (Move to non-AF DOD organization)
