@@ -10,6 +10,8 @@ import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
+import { templates } from "api/CreateChecklistItems";
+import ViewRequestDocuments from "components/Documents/Documents";
 
 DOMPurify.addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
@@ -89,6 +91,47 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
                 __html: DOMPurify.sanitize(props.item.Description),
               }}
             />
+            {props.item.TemplateId === templates.SupervisorCoord2875 &&
+              !props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" &&
+              props.item.Active && (
+                // Show upload on the Supervisor Coord for DD2875 if it task is Active
+                <ViewRequestDocuments
+                  forceName="DD2875"
+                  allowUpload={true}
+                  allowedExt="application/pdf"
+                />
+              )}
+            {props.item.TemplateId === templates.SupervisorCoord2875 &&
+              props.item.CompletedBy && (
+                // If it already has been completed, show that to all users
+                <Text weight="bold">
+                  DD2875 has been processed by the Supervisor for action by
+                  Security
+                </Text>
+              )}
+            {(props.item.TemplateId === templates.SecurityCoord2875 ||
+              props.item.TemplateId === templates.ProvisionAFNET) &&
+              !props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" &&
+              props.item.Active && (
+                // Show the DD2875 on the Security Coord for DD2875 and on the Provision AFNET
+                <ViewRequestDocuments />
+              )}
+            {props.item.TemplateId === templates.SecurityCoord2875 &&
+              props.item.CompletedBy && (
+                // Show that security has process to all users
+                <Text weight="bold">
+                  DD2875 has been processed by Security for action by IT
+                </Text>
+              )}
+            {props.item.TemplateId === templates.ProvisionAFNET &&
+              props.item.CompletedBy && (
+                // Show that it has been processed by IT
+                <Text weight="bold">DD2875 has been processed by IT</Text>
+              )}
           </div>
           <div className={classes.fieldContainer}>
             <Label

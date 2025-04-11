@@ -397,6 +397,13 @@ export const useAddRequest = () => {
 
         // Create the tasks using that new Request Id
         const tasks = await addTasks.mutateAsync(data);
+
+        // Create the Attachments library folder
+        const folderName = data.Id.toString();
+        await spWebContext.web.lists
+          .getByTitle("Attachments")
+          .rootFolder.folders.addUsingPath(folderName);
+
         // After the tasks have been created, generate the email notification
         sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
       },
@@ -524,7 +531,7 @@ export type IInRequest = {
   /** Required - The Employee's Job/Duty Title */
   jobTitle: string;
   /** Required - The Employee's Duty Phone */
-  dutyPhone: string;  
+  dutyPhone: string;
   /** Required - Employee's Type valid values are:
    * 'Civilian' - for Civilian Employees
    * 'Contractor' - for Contracted Employees

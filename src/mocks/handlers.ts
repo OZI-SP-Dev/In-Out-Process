@@ -135,6 +135,35 @@ function isIPerson(
   return "Title" in userObj ? true : false; // If it has a Title prop, then assume it is an IPerson (testUser)
 }
 
+const getDocuments = (itemId: string | readonly string[]) => {
+  const path = `Web/GetFileByServerRelativePath(decodedurl='/Attachments/${itemId}/DD2875.pdf')`;
+  return {
+    "odata.metadata":
+      "https://localhost:3000/_api/$metadata#SP.ApiData.Files12&$select=Name,TimeLastModified,ServerRelativeUrl,ModifiedBy,ModifiedBy/Id,ModifiedBy/EMail,ModifiedBy/Title,UniqueId,ListId",
+    value: [
+      {
+        "odata.type": "SP.File",
+        "odata.id": `https://localhost:3000/_api/${path}`,
+        "odata.editLink": path,
+        "ModifiedBy@odata.navigationLinkUrl": `${path}/ModifiedBy`,
+        ModifiedBy: {
+          "odata.type": "SP.User",
+          "odata.id": `https://localhost:3000/_api/${path}/ModifiedBy`,
+          "odata.editLink": `${path}/ModifiedBy`,
+          Id: 9509,
+          Title: "USER",
+          Email: "UserEmail",
+        },
+        ListId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        Name: "DD2875.pdf",
+        ServerRelativeUrl: `/Attachments/${itemId}/DD2875.pdf`,
+        TimeLastModified: "2025-04-03T14:31:22Z",
+        UniqueId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx1",
+      },
+    ],
+  };
+};
+
 export const handlers = [
   /**
    * Build a fake context object for PnPJS
@@ -1030,6 +1059,76 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
       }
     }
   ),
+
+  /**
+   * Create the Folder
+   */
+  rest.post(
+    "/_api/web/lists/getByTitle\\(':Library')/rootFolder/folders/addUsingPath\\(DecodedUrl=':ItemId',overwrite=false)",
+    (req, res, ctx) => {
+      const { Library, ItemId } = req.params;
+      //let result = requests.find((element) => element.Id === Number(ItemId));
+      //if (result) {
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json({
+          "odata.metadata":
+            "https://localhost:3000/_api/$metadata#SP.ApiData.Folders1/@Element",
+          "odata.type": "SP.Folder",
+          "odata.id": `https://localhost:3000/_api/Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
+          "odata.editLink": `Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
+          Exists: true,
+          ExistsAllowThrowForPolicyFailures: true,
+          ExistsWithException: true,
+          IsWOPIEnabled: false,
+          ItemCount: 0,
+          Name: `${ItemId}`,
+          ProgID: null,
+          ServerRelativeUrl: `/${Library}/${ItemId}`,
+          TimeCreated: "2025-04-11T18:37:09Z",
+          TimeLastModified: "2025-04-11T18:37:09Z",
+          UniqueId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx2", //TODO -- assign unique Id
+          WelcomePage: "",
+        })
+      );
+      /*} else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }*/
+    }
+  ),
+
+  /**
+   * Get Documents
+   */
+  rest.get(
+    "/_api/web/getFolderByServerRelativePath\\(decodedUrl='Attachments%2F:ItemId')/files",
+    (req, res, ctx) => {
+      const { ItemId } = req.params;
+      //let result = requests.find((element) => element.Id === Number(ItemId));
+      //if (result) {
+      return res(
+        ctx.status(200),
+        ctx.delay(responsedelay),
+        ctx.json(getDocuments(ItemId))
+      );
+      /*} else {
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json(notFound)
+        );
+      }*/
+    }
+  ),
+
+  /**
+   * Upload the attachments --- TODO
+   */
 ];
 
 /**
@@ -1561,6 +1660,39 @@ let checklistitems: ICheckListResponseItem[] = [
     RequestId: 1,
     TemplateId: templates.ProvisionAFNET,
     Active: true,
+  },
+  {
+    Id: 18,
+    Title: "Supervisor Coordination of 2875",
+    Description: "",
+    Lead: "Supervisor",
+    CompletedDate: "",
+    CompletedBy: undefined,
+    RequestId: 6,
+    TemplateId: templates.SupervisorCoord2875,
+    Active: true,
+  },
+  {
+    Id: 19,
+    Title: "Security Coordination of 2875",
+    Description: "",
+    Lead: "Security",
+    CompletedDate: "",
+    CompletedBy: undefined,
+    RequestId: 6,
+    TemplateId: templates.SecurityCoord2875,
+    Active: false,
+  },
+  {
+    Id: 20,
+    Title: "Provision/move AFNET account",
+    Description: "",
+    Lead: "IT",
+    CompletedDate: "",
+    CompletedBy: undefined,
+    RequestId: 6,
+    TemplateId: templates.ProvisionAFNET,
+    Active: false,
   },
 ];
 let nextChecklistitemId = checklistitems.length + 1;
