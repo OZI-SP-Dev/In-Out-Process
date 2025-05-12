@@ -13,8 +13,10 @@ import { RoleType, SPRole } from "api/RolesApi";
 import { IPerson, Person } from "api/UserApi";
 import { EMPTYPES } from "constants/EmpTypes";
 import { rest } from "msw";
+import { v4 as uuidv4 } from "uuid";
 
 const responsedelay = 500;
+const localRoot = "https://localhost:3000";
 
 /** Since the local values we store are objects containing keys used by
  *  either IResponseItem or IResponseSummary, create a type for mocking
@@ -135,33 +137,85 @@ function isIPerson(
   return "Title" in userObj ? true : false; // If it has a Title prop, then assume it is an IPerson (testUser)
 }
 
-const getDocuments = (itemId: string | readonly string[]) => {
-  const path = `Web/GetFileByServerRelativePath(decodedurl='/Attachments/${itemId}/DD2875.pdf')`;
-  return {
-    "odata.metadata":
-      "https://localhost:3000/_api/$metadata#SP.ApiData.Files12&$select=Name,TimeLastModified,ServerRelativeUrl,ModifiedBy,ModifiedBy/Id,ModifiedBy/EMail,ModifiedBy/Title,UniqueId,ListId",
-    value: [
-      {
-        "odata.type": "SP.File",
-        "odata.id": `https://localhost:3000/_api/${path}`,
-        "odata.editLink": path,
-        "ModifiedBy@odata.navigationLinkUrl": `${path}/ModifiedBy`,
-        ModifiedBy: {
-          "odata.type": "SP.User",
-          "odata.id": `https://localhost:3000/_api/${path}/ModifiedBy`,
-          "odata.editLink": `${path}/ModifiedBy`,
-          Id: 9509,
-          Title: "USER",
-          Email: "UserEmail",
-        },
-        ListId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-        Name: "DD2875.pdf",
-        ServerRelativeUrl: `/Attachments/${itemId}/DD2875.pdf`,
-        TimeLastModified: "2025-04-03T14:31:22Z",
-        UniqueId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx1",
-      },
-    ],
-  };
+type library = {
+  ListId: string;
+  Contents: Map<string, folder | file>;
+};
+
+type file = {
+  TimeCreated: string;
+  TimeLastModified: string;
+  UniqueId: string;
+};
+
+type folder = {
+  Contents: Map<string, file | folder>; // This is the element we can use to type guard file vs folder
+  TimeCreated: string;
+  TimeLastModified: string;
+  UniqueId: string;
+};
+
+/** Type guard function to distinguish folder vs file */
+function isFolder(obj?: file | folder): obj is folder {
+  return obj ? "Contents" in obj : false;
+}
+
+// This is a Map of all the SharePoint libraries
+const libraries = new Map<string, library>();
+
+// Add the Attachments library to the map
+libraries.set("Attachments", {
+  ListId: uuidv4(),
+  Contents: new Map<string, folder | file>(),
+});
+
+// A Map to hold all the unique FileIds generated for files/folders, so we can find by FileId - example for deleting/recycling
+const fileIds = new Map();
+
+/** Function used to get the list of Documents from a library */
+const getDocuments = (library: string, itemId: string) => {
+  const libraryData = libraries.get(library);
+  const libraryContents = libraryData?.Contents;
+
+  // If we successfully got Contents
+  if (libraryContents) {
+    const folder = libraryContents.get(itemId);
+    if (isFolder(folder)) {
+      const folderContents = folder.Contents;
+      let retVal = [];
+      for (const [key, value] of folderContents) {
+        if (!isFolder(value)) {
+          const path = `Web/GetFileByServerRelativePath(decodedurl='/${library}/${itemId}/${key}')`;
+          retVal.push({
+            "odata.type": "SP.File",
+            "odata.id": `${localRoot}/_api/${path}`,
+            "odata.editLink": path,
+            "ModifiedBy@odata.navigationLinkUrl": `${path}/ModifiedBy`,
+            ModifiedBy: {
+              "odata.type": "SP.User",
+              "odata.id": `${localRoot}/_api/${path}/ModifiedBy`,
+              "odata.editLink": `${path}/ModifiedBy`,
+              Id: testUsers[0].Id, // TODO - Replace these with "logged in" user
+              Title: testUsers[0].Title,
+              Email: testUsers[0].EMail,
+            },
+            ListId: libraryData.ListId,
+            Name: key,
+            ServerRelativeUrl: `/${library}/${itemId}/${key}`,
+            TimeLastModified: value.TimeLastModified,
+            UniqueId: value.UniqueId,
+          });
+        }
+      }
+
+      return {
+        "odata.metadata":
+          localRoot +
+          "/_api/$metadata#SP.ApiData.Files12&$select=Name,TimeLastModified,ServerRelativeUrl,ModifiedBy,ModifiedBy/Id,ModifiedBy/EMail,ModifiedBy/Title,UniqueId,ListId",
+        value: retVal,
+      };
+    }
+  }
 };
 
 export const handlers = [
@@ -173,8 +227,8 @@ export const handlers = [
       ctx.status(200),
       ctx.delay(responsedelay),
       ctx.json({
-        webFullUrl: "http://localhost:3000/",
-        siteFullUrl: "http://localhost:3000/",
+        webFullUrl: localRoot,
+        siteFullUrl: localRoot,
         formDigestValue: "value",
       })
     );
@@ -760,9 +814,9 @@ Content-Transfer-Encoding: binary
 HTTP/1.1 201 Created
 CONTENT-TYPE: application/json;odata=minimalmetadata;streaming=true;charset=utf-8
 ETAG: "34501734-b43e-455e-badb-142ade3ef2f1,1"
-LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15')/Items(59)
+LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15')/Items(59)
 
-{"odata.metadata":"http://localhost:3000/_api/$metadata#SP.ListData.ChecklistItemsListItems/@Element","odata.type":"SP.Data.ChecklistItemsListItem","odata.id":"d9d8aefe-6f84-4dbe-9c1c-b9cb45e58e38","odata.etag":"\\"1\\"","odata.editLink":"Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15')/Items(59)","FileSystemObjectType":0,"Id":59,"ServerRedirectedEmbedUri":null,"ServerRedirectedEmbedUrl":"","ContentTypeId":"0x0100EFABA43AC7208144A715E899CA25CAE5","Title":"Welcome Package","ComplianceAssetId":null,"Lead":"Supervisor","CompletedDate":null,"RequestId":11.0,"CompletedById":null,"CompletedByStringId":null,"Description":"<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span><span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>","TemplateId":null,"Active":true,"ID":59,"Modified":"2022-11-04T16:12:04Z","Created":"2022-11-04T16:12:04Z","AuthorId":13,"EditorId":13,"OData__UIVersionString":"1.0","Attachments":false,"GUID":"a1815a34-a494-4a6e-a4ad-a4542b94c6b4"}`;
+{"odata.metadata":"${localRoot}/_api/$metadata#SP.ListData.ChecklistItemsListItems/@Element","odata.type":"SP.Data.ChecklistItemsListItem","odata.id":"d9d8aefe-6f84-4dbe-9c1c-b9cb45e58e38","odata.etag":"\\"1\\"","odata.editLink":"Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15')/Items(59)","FileSystemObjectType":0,"Id":59,"ServerRedirectedEmbedUri":null,"ServerRedirectedEmbedUrl":"","ContentTypeId":"0x0100EFABA43AC7208144A715E899CA25CAE5","Title":"Welcome Package","ComplianceAssetId":null,"Lead":"Supervisor","CompletedDate":null,"RequestId":11.0,"CompletedById":null,"CompletedByStringId":null,"Description":"<p>This is a sample description of a task.</p><p>It <b>CAN</b> contain <span style='color:#4472C4'>fancy</span><span style='background:yellow'>formatting</span> to help deliver an <span    style='font-size:14.0pt;line-height:107%'>IMPACTFUL </span>message/</p>","TemplateId":null,"Active":true,"ID":59,"Modified":"2022-11-04T16:12:04Z","Created":"2022-11-04T16:12:04Z","AuthorId":13,"EditorId":13,"OData__UIVersionString":"1.0","Attachments":false,"GUID":"a1815a34-a494-4a6e-a4ad-a4542b94c6b4"}`;
 
     // For each POST request found, add our response
 
@@ -952,10 +1006,9 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
               ctx.status(200),
               ctx.delay(responsedelay),
               ctx.json({
-                "odata.metadata":
-                  "http://localhost:3000/_api/$metadata#SP.ApiData.Users1/@Element",
+                "odata.metadata": `${localRoot}/_api/$metadata#SP.ApiData.Users1/@Element`,
                 "odata.type": "SP.User",
-                "odata.id": `http://localhost:3000/_api/Web/GetUserById(${userRecord.Id})`,
+                "odata.id": `${localRoot}/_api/Web/GetUserById(${userRecord.Id})`,
                 "odata.editLink": `Web/GetUserById(${userRecord.Id})`,
                 Id: userRecord.Id,
                 IsHiddenInUI: false,
@@ -1037,7 +1090,7 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
             ctx.status(200),
             ctx.delay(responsedelay),
             ctx.json({
-              "odata.metadata": "http://localhost:3000/_api/$metadata#Edm.Null",
+              "odata.metadata": `${localRoot}/_api/$metadata#Edm.Null`,
               "odata.null": true,
             })
           );
@@ -1067,38 +1120,50 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
     "/_api/web/lists/getByTitle\\(':Library')/rootFolder/folders/addUsingPath\\(DecodedUrl=':ItemId',overwrite=false)",
     (req, res, ctx) => {
       const { Library, ItemId } = req.params;
-      //let result = requests.find((element) => element.Id === Number(ItemId));
-      //if (result) {
-      return res(
-        ctx.status(200),
-        ctx.delay(responsedelay),
-        ctx.json({
-          "odata.metadata":
-            "https://localhost:3000/_api/$metadata#SP.ApiData.Folders1/@Element",
-          "odata.type": "SP.Folder",
-          "odata.id": `https://localhost:3000/_api/Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
-          "odata.editLink": `Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
-          Exists: true,
-          ExistsAllowThrowForPolicyFailures: true,
-          ExistsWithException: true,
-          IsWOPIEnabled: false,
-          ItemCount: 0,
-          Name: `${ItemId}`,
-          ProgID: null,
-          ServerRelativeUrl: `/${Library}/${ItemId}`,
-          TimeCreated: "2025-04-11T18:37:09Z",
-          TimeLastModified: "2025-04-11T18:37:09Z",
-          UniqueId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx2", //TODO -- assign unique Id
-          WelcomePage: "",
-        })
-      );
-      /*} else {
+      const now = new Date().toISOString();
+      const library = libraries.get("Attachments");
+      const libContents = library?.Contents;
+      const uniqueId = uuidv4();
+
+      if (typeof ItemId === "string") {
+        const newFolder: folder = {
+          Contents: new Map<string, file | folder>(),
+          TimeCreated: now,
+          TimeLastModified: now,
+          UniqueId: uniqueId,
+        };
+        libContents?.set(ItemId, newFolder);
+
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({
+            "odata.metadata": `${localRoot}/_api/$metadata#SP.ApiData.Folders1/@Element`,
+            "odata.type": "SP.Folder",
+            "odata.id": `${localRoot}/_api/Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
+            "odata.editLink": `Web/GetFolderByServerRelativePath(decodedurl='/${Library}/${ItemId}')`,
+            Exists: true,
+            ExistsAllowThrowForPolicyFailures: true,
+            ExistsWithException: true,
+            IsWOPIEnabled: false,
+            ItemCount: 0,
+            Name: `${ItemId}`,
+            ProgID: null,
+            ServerRelativeUrl: `/${Library}/${ItemId}`,
+            TimeCreated: now,
+            TimeLastModified: now,
+            UniqueId: uniqueId,
+            WelcomePage: "",
+          })
+        );
+        /*} else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
           ctx.json(notFound)
         );
       }*/
+      }
     }
   ),
 
@@ -1106,29 +1171,111 @@ LOCATION: http://localhost:3000/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d
    * Get Documents
    */
   rest.get(
-    "/_api/web/getFolderByServerRelativePath\\(decodedUrl='Attachments%2F:ItemId')/files",
+    "/_api/web/getFolderByServerRelativePath\\(decodedUrl=':Library%2F:ItemId')/files",
     (req, res, ctx) => {
-      const { ItemId } = req.params;
-      //let result = requests.find((element) => element.Id === Number(ItemId));
-      //if (result) {
-      return res(
-        ctx.status(200),
-        ctx.delay(responsedelay),
-        ctx.json(getDocuments(ItemId))
-      );
-      /*} else {
+      const { Library, ItemId } = req.params;
+
+      if (typeof Library === "string" && typeof ItemId === "string") {
         return res(
-          ctx.status(404),
+          ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(getDocuments(Library, ItemId))
         );
-      }*/
+      } else {
+        return res(
+          ctx.status(500),
+          ctx.delay(responsedelay),
+          ctx.json("Bad request")
+        );
+      }
     }
   ),
 
   /**
-   * Upload the attachments --- TODO
+   * Upload the attachments
    */
+
+  rest.post(
+    "/_api/web/getFolderByServerRelativePath\\(decodedUrl='Attachments%2F:ItemId')/files/AddUsingPath\\(decodedurl=':FileName',Overwrite=true)",
+    async (req, res, ctx) => {
+      const { ItemId, FileName } = req.params;
+
+      const now = new Date().toISOString();
+      const library = libraries.get("Attachments");
+      if (library && typeof ItemId === "string") {
+        const folder = library.Contents.get(ItemId);
+        const uniqueId = uuidv4();
+        if (isFolder(folder) && typeof FileName === "string") {
+          folder.Contents.set(FileName, {
+            TimeCreated: now,
+            TimeLastModified: now,
+            UniqueId: uniqueId,
+          });
+
+          fileIds.set(uniqueId, folder?.Contents);
+
+          return res(
+            ctx.status(200),
+            ctx.delay(responsedelay),
+            ctx.json({ value: "" })
+          );
+        }
+      }
+    }
+  ),
+
+  /**
+   * Delete the attachments
+   */
+  rest.post(
+    "/_api/web/getFileById\\(':FileId')/recycle",
+    async (req, res, ctx) => {
+      const { FileId } = req.params;
+
+      const folderMap = fileIds.get(FileId);
+      let fileName = "";
+
+      for (const [key, value] of folderMap) {
+        if (value.UniqueId === FileId) {
+          fileName = key;
+          break;
+        }
+      }
+
+      if (fileName !== "") {
+        // Delete the entry from the Map of the folder contents
+        folderMap.delete(fileName);
+
+        // Delete the global entry from the Map of FileIds
+        fileIds.delete(FileId);
+
+        return res(
+          ctx.status(200),
+          ctx.delay(responsedelay),
+          ctx.json({
+            "odata.metadata":
+              "https://usaf.dps.mil/teams/10251/RPA-DEV/_api/$metadata#Edm.Guid",
+            value: uuidv4(), // Returns a new ID for the recycled item
+          })
+        );
+      } else {
+        // Failed to find that file, so report error
+        return res(
+          ctx.status(404),
+          ctx.delay(responsedelay),
+          ctx.json({
+            "odata.error": {
+              code: "-2147024894, System.IO.FileNotFoundException",
+              message: {
+                lang: "en-US",
+                value: "File Not Found.",
+              },
+            },
+          })
+        );
+      }
+    }
+  ),
 ];
 
 /**

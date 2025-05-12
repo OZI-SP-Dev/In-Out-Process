@@ -1,7 +1,7 @@
 import { ICheckListItem } from "api/CheckListItemApi";
 import { ActivityItem, Panel, PanelType } from "@fluentui/react";
 import { Label, Text, makeStyles } from "@fluentui/react-components";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import DOMPurify from "dompurify";
@@ -52,6 +52,22 @@ export interface ICheckList {
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
   const classes = useStyles();
 
+  // State to keep track of whether or not they have a file attached -- if we aren't at a state that requires a file, then it will be set to undefined
+  const [hasDD2875Attached, setHasDD2875Attached] = useState<
+    boolean | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (
+      // If we don't load the Documents component, then make sure we set it to undefined, so that the Button will display correctly
+      props.item.TemplateId !== templates.SupervisorCoord2875 &&
+      props.item.TemplateId !== templates.SecurityCoord2875 &&
+      props.item.TemplateId !== templates.ProvisionAFNET
+    ) {
+      setHasDD2875Attached(undefined);
+    }
+  }, [props.item.TemplateId]);
+
   return (
     <Panel
       isOpen={props.isOpen}
@@ -101,6 +117,7 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
                   forceName="DD2875"
                   allowUpload={true}
                   allowedExt="application/pdf"
+                  setHasForcedNameAttached={setHasDD2875Attached}
                 />
               )}
             {props.item.TemplateId === templates.SupervisorCoord2875 &&
@@ -118,7 +135,12 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
               props.request.status === "Active" &&
               props.item.Active && (
                 // Show the DD2875 on the Security Coord for DD2875 and on the Provision AFNET
-                <ViewRequestDocuments />
+                <ViewRequestDocuments
+                  forceName="DD2875"
+                  allowUpload={true}
+                  allowedExt="application/pdf"
+                  setHasForcedNameAttached={setHasDD2875Attached}
+                />
               )}
             {props.item.TemplateId === templates.SecurityCoord2875 &&
               props.item.CompletedBy && (
@@ -159,7 +181,11 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
             {!props.item.CompletedBy &&
               props.roles?.includes(props.item.Lead) &&
               props.request.status === "Active" && (
-                <CheckListItemButton checklistItem={props.item} />
+                <CheckListItemButton
+                  checklistItem={props.item}
+                  isPanelButton={true}
+                  hasForcedNameAttached={hasDD2875Attached}
+                />
               )}
           </div>
           {/* Only show the Prerequisite section if the Request is Active, and the Checklist Item is NOT Active */}

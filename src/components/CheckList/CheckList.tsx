@@ -19,6 +19,7 @@ import { RoleType } from "api/RolesApi";
 import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { DateTime } from "luxon";
+import { useLocation } from "react-router-dom";
 
 export interface ICheckList {
   ReqId: number;
@@ -27,7 +28,7 @@ export interface ICheckList {
 }
 
 export const CheckList: FunctionComponent<ICheckList> = (props) => {
-  const checlistItems = useChecklistItems(Number(props.ReqId));
+  const checklistItems = useChecklistItems(Number(props.ReqId));
 
   // State and functions to handle whether or not to display the CheckList Item Panel
   const [isItemPanelOpen, { setTrue: showItemPanel, setFalse: hideItemPanel }] =
@@ -36,10 +37,31 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   // State and function to handle which item is being displayed in the CheckList Item Panel
   const [currentItemId, setCurrentItemId] = useState<number>();
 
+  // React Router Hook to get the Route State
+  const location = useLocation();
+
+  if (location.state?.checklistItem && checklistItems.data) {
+    const checklistItem = location.state.checklistItem;
+    const exists = checklistItems.data.find(
+      (item) => item.Id === parseInt(checklistItem)
+    );
+    if (exists) {
+      if (!currentItemId) {
+        setCurrentItemId(exists.Id);
+      }
+      if (!isItemPanelOpen) {
+        showItemPanel();
+      }
+    }
+
+    // Clear the state without re-rendering the page
+    window.history.replaceState({}, "", location.hash);
+  }
+
   // DataGrid method for when a new row is selected
   const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
     setCurrentItemId(
-      parseInt(data.selectedItems.values().next().value.toString())
+      parseInt(data.selectedItems.values().next().value?.toString() ?? "")
     );
   };
 
@@ -143,7 +165,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
   };
 
   // The currently selected CheckList Item
-  const currentItem = checlistItems.data?.find(
+  const currentItem = checklistItems.data?.find(
     (item) => item.Id === currentItemId
   );
 
@@ -151,7 +173,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
     <>
       <br />
       <DataGrid
-        items={checlistItems.data || []}
+        items={checklistItems.data || []}
         columns={columns}
         selectionMode="single"
         getRowId={(item) => item.Id} // Make the rowId the Id of the ChecklistItem instead of index in array

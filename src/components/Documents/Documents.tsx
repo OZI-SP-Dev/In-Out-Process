@@ -4,15 +4,28 @@ import { useParams } from "react-router-dom";
 import { DocumentView } from "./DocumentView";
 import { DocumentUploader } from "./DocumentUploader";
 import { RefreshIcon } from "@fluentui/react-icons-mdl2";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 const ViewRequestDocuments = (props: {
   allowUpload?: boolean;
   forceName?: string;
   allowedExt?: string;
+  setHasForcedNameAttached?: Dispatch<SetStateAction<boolean | undefined>>;
 }) => {
   const params = useParams();
   const requestId = Number(params.itemNum);
   const documents = useDocuments(requestId);
+
+  useEffect(() => {
+    if (props.setHasForcedNameAttached && props.forceName) {
+      const forcedName = props.forceName;
+      const hasForcedNameAttached = documents?.data?.find((doc) =>
+        doc.Name.startsWith(forcedName)
+      );
+
+      props.setHasForcedNameAttached(!!hasForcedNameAttached);
+    }
+  }, [documents.data, props.setHasForcedNameAttached, props.forceName]);
 
   return (
     <>

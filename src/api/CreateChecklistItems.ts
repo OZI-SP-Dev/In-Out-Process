@@ -295,19 +295,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.SupervisorCoord2875,
     Description: `<p style="margin-top: 0px">To accomplish this checklist item, please ensure the following steps have been completed:</p>
     <ol>
-    <li>Please ensure the Consolidated Security Office (CSO) obtains the employees SSN for profile entry/confirmation within DISS. The CSO cannot process the DD Form 2875 until this action is completed.</li>	
     <li>Obtain the current prefilled DD Form 2875 located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links">DD-2875s</a>
       <b>Only	DD Form 2875's obtained from this link will be processed!</b></li>
     <li>Have employee fill out the DD Form 2875 and digitally sign the appropriate section</li>
     <li>Supervisor should confirm form is filled out correctly and contains employee signature</li>
     <li>Supervisor shall digitally sign the DD Form 2875 under the Supervisor section</li>
-    <li>Supervisor shall forward the signed DD Form 2875 to the AFLCMC Consolidated Security Office (CSO) email box with the subject "XP-OZ IN-PROCESSING"<br/><a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil?subject=XP-OZ IN-PROCESSING">AFLCMC.Cnsldtd.Security_Office@us.af.mil</a></li>
+    <li>Supervisor shall upload the DD Form 2875 in the Documents section below</li>
+    <li>Once uploaded, complete this task to move it to Security for processing</li>
     </ol>
-    <p><br/></p>
-    <p>NOTE: Once the CSO has received and approved/signed the DD Form 2875, they will in turn forward the form to the IT department for their signature enabling the employee to receive equipment issue network access.</p>
-    <p>If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly to determine if there are outstanding issues/informational needs</p>
-    <p><br/></p>
-    <p>Additional information on CSO in-processing can be found here: <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
+    <p>NOTE: If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly (<a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a>) to determine if there are outstanding issues/informational needs</p>
+      <p>Additional information on CSO in-processing can be found here: <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
@@ -316,9 +313,10 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.SecurityCoord2875,
     Description: `<p style="margin-top: 0px">To accomplish this checklist item, please ensure the following steps have been completed:</p>
 <ol>
-<li>Locate the DD Form 2875 sent to CSO workflow box by the Supervisor</li>
+<li>Click on the 'DD2875.pdf' in the below Documents</li>
 <li>Upon completion of CSO procedures, digitally sign the DD Form 2875 in the appropriate section</li>
-<li>Security shall then forward the signed DD Form 2875 to the AFLCMC/XP Enterprise Tech Team (ETT) organization email box: <a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a></li>
+<li>Once signed, ensure the modification date/user reflects your most recent update. If not, you may need to refresh until OneDrive completes the Sync.</li>
+<li>Once it reflects your update, complete this task to send it to IT for processing</li>
 </ol>`,
     Prereqs: [templates.SupervisorCoord2875],
   },
