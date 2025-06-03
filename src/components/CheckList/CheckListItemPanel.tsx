@@ -1,7 +1,7 @@
 import { ICheckListItem } from "api/CheckListItemApi";
 import { ActivityItem, Panel, PanelType } from "@fluentui/react";
 import { Label, Text, makeStyles } from "@fluentui/react-components";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { InfoIcon, TextFieldIcon } from "@fluentui/react-icons-mdl2";
 import DOMPurify from "dompurify";
@@ -10,6 +10,8 @@ import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { CheckListItemPrereq } from "components/CheckList/CheckListItemPrereq";
 import { CheckListItemReactivateButton } from "components/CheckList/CheckListItemReactivateButton";
+import { templates } from "api/CreateChecklistItems";
+import ViewRequestDocuments from "components/Documents/Documents";
 
 DOMPurify.addHook("afterSanitizeAttributes", function (node) {
   if (node.tagName === "A") {
@@ -50,6 +52,22 @@ export interface ICheckList {
 export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
   const classes = useStyles();
 
+  // State to keep track of whether or not they have a file attached -- if we aren't at a state that requires a file, then it will be set to undefined
+  const [hasDD2875Attached, setHasDD2875Attached] = useState<
+    boolean | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (
+      // If we don't load the Documents component, then make sure we set it to undefined, so that the Button will display correctly
+      props.item.TemplateId !== templates.SupervisorCoord2875 &&
+      props.item.TemplateId !== templates.SecurityCoord2875 &&
+      props.item.TemplateId !== templates.ProvisionAFNET
+    ) {
+      setHasDD2875Attached(undefined);
+    }
+  }, [props.item.TemplateId]);
+
   return (
     <Panel
       isOpen={props.isOpen}
@@ -89,6 +107,53 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
                 __html: DOMPurify.sanitize(props.item.Description),
               }}
             />
+            {props.item.TemplateId === templates.SupervisorCoord2875 &&
+              !props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" &&
+              props.item.Active && (
+                // Show upload on the Supervisor Coord for DD2875 if it task is Active
+                <ViewRequestDocuments
+                  forceName="DD2875"
+                  allowUpload={true}
+                  allowedExt="application/pdf"
+                  setHasForcedNameAttached={setHasDD2875Attached}
+                />
+              )}
+            {props.item.TemplateId === templates.SupervisorCoord2875 &&
+              props.item.CompletedBy && (
+                // If it already has been completed, show that to all users
+                <Text weight="bold">
+                  DD2875 has been processed by the Supervisor for action by
+                  Security
+                </Text>
+              )}
+            {(props.item.TemplateId === templates.SecurityCoord2875 ||
+              props.item.TemplateId === templates.ProvisionAFNET) &&
+              !props.item.CompletedBy &&
+              props.roles?.includes(props.item.Lead) &&
+              props.request.status === "Active" &&
+              props.item.Active && (
+                // Show the DD2875 on the Security Coord for DD2875 and on the Provision AFNET
+                <ViewRequestDocuments
+                  forceName="DD2875"
+                  allowUpload={true}
+                  allowedExt="application/pdf"
+                  setHasForcedNameAttached={setHasDD2875Attached}
+                />
+              )}
+            {props.item.TemplateId === templates.SecurityCoord2875 &&
+              props.item.CompletedBy && (
+                // Show that security has process to all users
+                <Text weight="bold">
+                  DD2875 has been processed by Security for action by IT
+                </Text>
+              )}
+            {props.item.TemplateId === templates.ProvisionAFNET &&
+              props.item.CompletedBy && (
+                // Show that it has been processed by IT
+                <Text weight="bold">DD2875 has been processed by IT</Text>
+              )}
           </div>
           <div className={classes.fieldContainer}>
             <Label
@@ -116,7 +181,11 @@ export const CheckListItemPanel: FunctionComponent<ICheckList> = (props) => {
             {!props.item.CompletedBy &&
               props.roles?.includes(props.item.Lead) &&
               props.request.status === "Active" && (
-                <CheckListItemButton checklistItem={props.item} />
+                <CheckListItemButton
+                  checklistItem={props.item}
+                  isPanelButton={true}
+                  hasForcedNameAttached={hasDD2875Attached}
+                />
               )}
           </div>
           {/* Only show the Prerequisite section if the Request is Active, and the Checklist Item is NOT Active */}

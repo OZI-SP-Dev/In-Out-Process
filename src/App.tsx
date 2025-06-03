@@ -8,7 +8,11 @@ import {
 import { AppHeader } from "components/AppHeader/AppHeader";
 import { Route } from "react-router-dom";
 import { ThemeProvider } from "@fluentui/react";
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import {
+  FluentProvider,
+  Toaster,
+  webLightTheme,
+} from "@fluentui/react-components";
 import { ErrorProvider } from "providers/ErrorProvider";
 import { ErrorNotification } from "components/ErrorNotification/ErrorNotification";
 import { UserProvider } from "providers/UserProvider";
@@ -58,6 +62,12 @@ function MainLayout() {
                 fallback={<div style={{ paddingLeft: ".5em" }}>Loading...</div>}
               >
                 <Outlet />
+                <Toaster
+                  toasterId={"toaster"}
+                  position="top-end"
+                  pauseOnHover
+                  pauseOnWindowBlur
+                />
               </Suspense>
             </ErrorProvider>
           </ThemeProvider>

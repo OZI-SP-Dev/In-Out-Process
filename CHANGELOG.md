@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.0] - 2025-04-XX
+
+- Added back in DD2875 process for In-Processing. Enhanced it by adding attachment capability so that it doesn't need routed outside of the tool
+
 ## [2.0.10] - 2025-02-24
 
 ### Added

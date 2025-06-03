@@ -6,6 +6,10 @@ import "@pnp/sp/site-users/web";
 import "@pnp/sp/site-groups/web"; // Used by RolesApi
 import "@pnp/sp/profiles";
 import "@pnp/sp/batching";
+import "@pnp/sp/folders";
+import "@pnp/sp/files";
+import "@pnp/sp/files/folder";
+import "@pnp/sp/files/web";
 
 declare var _spPageContextInfo: any;
 

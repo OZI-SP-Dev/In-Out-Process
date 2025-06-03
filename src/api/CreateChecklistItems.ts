@@ -31,6 +31,8 @@ export enum templates {
   Brief971Folder = 21,
   SignedPerformContribPlan = 22,
   SignedTeleworkAgreement = 23,
+  SupervisorCoord2875 = 25,
+  SecurityCoord2875 = 26,
   ProvisionAFNET = 27,
   EquipmentIssue = 28,
   AddSecurityGroups = 29,
@@ -288,11 +290,42 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Prereqs: [templates.ObtainCACGov],
   },
   {
+    Title: "Supervisor Coordination of 2875",
+    Lead: RoleType.SUPERVISOR,
+    TemplateId: templates.SupervisorCoord2875,
+    Description: `<p style="margin-top: 0px">To accomplish this checklist item, please ensure the following steps have been completed:</p>
+    <ol>
+    <li>Obtain the current prefilled DD Form 2875 located here: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links">DD-2875s</a>
+      <b>Only	DD Form 2875's obtained from this link will be processed!</b></li>
+    <li>Have employee fill out the DD Form 2875 and digitally sign the appropriate section</li>
+    <li>Supervisor should confirm form is filled out correctly and contains employee signature</li>
+    <li>Supervisor shall digitally sign the DD Form 2875 under the Supervisor section</li>
+    <li>Supervisor shall upload the DD Form 2875 in the Documents section below</li>
+    <li>Once uploaded, complete this task to move it to Security for processing</li>
+    </ol>
+    <p>NOTE: If the CSO does not complete the 2875 within 72 hours, please reach out to the CSO directly (<a href="mailto:AFLCMC.Cnsldtd.Security_Office@us.af.mil"><i>AFLCMC.Cnsldtd.Security_Office@us.af.mil</i></a>) to determine if there are outstanding issues/informational needs</p>
+      <p>Additional information on CSO in-processing can be found here: <a href="https://usaf.dps.mil/teams/AFLCMCCSO/SitePages/In-Out-Processing.aspx">In/Out Processing (dps.mil)</a></p>`,
+    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+  },
+  {
+    Title: "Security Coordination of 2875",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.SecurityCoord2875,
+    Description: `<p style="margin-top: 0px">To accomplish this checklist item, please ensure the following steps have been completed:</p>
+<ol>
+<li>Click on the 'DD2875.pdf' in the below Documents</li>
+<li>Upon completion of CSO procedures, digitally sign the DD Form 2875 in the appropriate section</li>
+<li>Once signed, ensure the modification date/user reflects your most recent update. If not, you may need to refresh until OneDrive completes the Sync.</li>
+<li>Once it reflects your update, complete this task to send it to IT for processing</li>
+</ol>`,
+    Prereqs: [templates.SupervisorCoord2875],
+  },
+  {
     Title: "Provision/move AFNET account",
     Lead: RoleType.IT,
     TemplateId: templates.ProvisionAFNET,
     Description: `<p style="margin-top: 0px">None</p>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+    Prereqs: [templates.SecurityCoord2875],
   },
   {
     Title: "Equipment Issue",
@@ -307,7 +340,7 @@ Henry Cardenas<br/>
 Michael Green<br/>
 Todd Shanklin<br/>
 Jerry (Joey) Theriot</p>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
+    Prereqs: [templates.SecurityCoord2875],
   },
   {
     Title: "Add to security groups",
@@ -606,6 +639,12 @@ const createInboundChecklistItems = async (request: IInRequest) => {
 
   // Obtain building access -- Required for all inbounds
   addChecklistItem(templates.BuildingAccess);
+
+  // Supervisor Coordination of 2875 -- Required for all inbounds
+  addChecklistItem(templates.SupervisorCoord2875);
+
+  // Security Coordination of 2875 -- Required for all inbounds
+  addChecklistItem(templates.SecurityCoord2875);
 
   // Provision/move AFNET account -- Required for all inbounds
   addChecklistItem(templates.ProvisionAFNET);
