@@ -271,21 +271,21 @@ const InRequestNewForm = () => {
           required
         >
           <ContactIcon className={classes.fieldIcon} />
-          Employee Name
+          Legal Employee Name
         </Label>
         <Controller
           name="empName"
           control={control}
           defaultValue={""}
           rules={{
-            required: "Employee Name is required",
+            required: "Legal Employee Name is required",
             maxLength: {
               value: 100,
               message: "Name cannot be longer than 100 characters",
             },
             pattern: {
               value: /\S/i,
-              message: "Employee Name is required",
+              message: "Legal Employee Name is required",
             },
           }}
           render={({ field }) => (
@@ -294,7 +294,7 @@ const InRequestNewForm = () => {
               disabled={employee?.text ? true : false}
               aria-describedby="empNameErr"
               id="empNameId"
-              placeholder="Supply a manually entered name to be used until they are in the GAL.  Example 'Last, First MI'"
+              placeholder="Supply a manually entered name to be used until they are in the GAL. Example 'Last, First MI'. Do not use nicknames."
             />
           )}
         />
