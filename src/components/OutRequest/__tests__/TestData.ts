@@ -95,10 +95,6 @@ export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
 );
 
 export const fieldLabels = {
-  EMPLOYEE_NAME: {
-    form: /employee name/i,
-    lengthError: /name cannot be longer than 100 characters/i,
-  },
   LOCAL_OR_REMOTE: {
     form: /local or remote\?/i,
     view: /local or remote\?/i,
