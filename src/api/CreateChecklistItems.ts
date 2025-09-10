@@ -61,6 +61,7 @@ export enum templates {
   UpdateRecallRoster = 55,
   RemoveRecallRoster = 56,
   DebriefSCI = 57,
+  CSOOutProcess = 58,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -504,6 +505,13 @@ Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
     Prereqs: [],
   },
   {
+    Title: "CSO Out Processing",
+    Lead: RoleType.SECURITY,
+    TemplateId: templates.CSOOutProcess,
+    Description: `<p style="margin-top: 0px">Remove classified access and DISS relationship at the correct time.</p>`,
+    Prereqs: [],
+  },
+  {
     Title: "Complete GTC transfer memo",
     Lead: RoleType.GTC,
     TemplateId: templates.GTCTransferMemo,
@@ -844,6 +852,9 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   if (request.isSCI === "yes") {
     addChecklistItem(templates.DebriefSCI);
   }
+
+  // All Out processing get CSO item
+  addChecklistItem(templates.CSOOutProcess);
 
   // If they selected the employee has DTS/GTC then add the GTC/DTS checklist items
   if (request.isTraveler === "yes") {
