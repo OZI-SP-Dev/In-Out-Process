@@ -65,7 +65,7 @@ let testUsers: IPerson[] = [
   },
   {
     Id: 8,
-    Title: "Saul Sage (Regular User)",
+    Title: "Saul Sage (ISSM)",
     EMail: "Saul Sagey@localhost",
   },
   {
@@ -98,6 +98,12 @@ let testRoles: SPRole[] = [
     Title: RoleType.SECURITY,
     Email: "OrgBox@localhost",
   }, // SECURITY for Herb Alty
+  {
+    Id: 13,
+    User: { ...testUsers[7] },
+    Title: RoleType.ISSM,
+    Email: "OrgBox@localhost",
+  }, // ISSM for Saul Sage
 ];
 
 /**
