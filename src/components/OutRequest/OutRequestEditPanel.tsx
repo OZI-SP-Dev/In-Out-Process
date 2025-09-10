@@ -678,8 +678,8 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 required
               >
                 <ToggleLeftRegular className={classes.fieldIcon} />
-                Does the employee have any special clearance accesses (i.e.,
-                SCI, SAP, etc)?
+                Does the employee have Sensitive Compartmented Information (SCI)
+                access?
               </Label>
               <Controller
                 name="isSCI"

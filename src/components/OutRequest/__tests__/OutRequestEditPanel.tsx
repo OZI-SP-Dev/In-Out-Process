@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ctrRequest,
@@ -314,7 +320,7 @@ describe("Gaining Organization", () => {
   );
 });
 
-describe("Special clearance accesses (i.e., SCI, SAP, etc)?", () => {
+describe("Sensitive Compartmented Information (SCI) access?", () => {
   // Currently field is not editable -- this may change as we explore updating tasks based on changes
   const requests = [civRequest, milRequest, ctrRequest];
   it.each(requests)(
@@ -323,7 +329,7 @@ describe("Special clearance accesses (i.e., SCI, SAP, etc)?", () => {
       renderEditPanelForRequest(request);
 
       const sci = screen.getByRole("radiogroup", {
-        name: fieldLabels.SPECIAL_ACCESS.form,
+        name: fieldLabels.SCI_ACCESS.form,
       });
 
       const yesBttn = within(sci).getByRole("radio", { name: /yes/i });

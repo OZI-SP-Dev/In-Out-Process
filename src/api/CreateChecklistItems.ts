@@ -51,7 +51,6 @@ export enum templates {
   SignedAF2587 = 43,
   TurnInCAC = 45,
   ConfirmTurnInCAC = 46,
-  RemoveSpecialAccess = 47,
   GTCTransferMemo = 48,
   GTCConfirmTransfer = 49,
   CloseATAAPS = 50,
@@ -61,6 +60,7 @@ export enum templates {
   AccountUpdate = 54,
   UpdateRecallRoster = 55,
   RemoveRecallRoster = 56,
+  DebriefSCI = 57,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -492,10 +492,15 @@ Jerry (Joey) Theriot</p>`,
     Prereqs: [templates.TurnInCAC],
   },
   {
-    Title: "Remove special access privileges",
-    Lead: RoleType.SECURITY,
-    TemplateId: templates.RemoveSpecialAccess,
-    Description: `<p style="margin-top: 0px">None</p>`,
+    Title: "Debrief SCI Access with SSO",
+    Lead: RoleType.EMPLOYEE,
+    TemplateId: templates.DebriefSCI,
+    Description: `<p style="margin-top: 0px">Notify appropriate SSO POC of out-processing status. If you require continued SCI access in your next position, you must contact your gaining unit security POC to request a Transfer in Status (TIS).</p>
+<p>WPAFB SSO: <a href="mailto:WPAFBSpecialSecurityOffice.Mailbox@us.af.mil">WPAFBSpecialSecurityOffice.Mailbox@us.af.mil</a><br/>
+Eglin SSO: <a href="mailto:SSO_Eglin@us.af.mil">SSO_Eglin@us.af.mil</a><br/>
+Tinker SSO: <a href="mailto:AFLCMC.SSO_TINKER@us.af.mil">AFLCMC.SSO_TINKER@us.af.mil</a><br/>
+Hill SSO: (801) 777-0484, Jason Blake<br/>
+Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
     Prereqs: [],
   },
   {
@@ -835,9 +840,9 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
     addChecklistItem(templates.SignedAF2587);
   }
 
-  // If they selected the employee has special access, then add the task from removing it
+  // If they selected the employee has SCI, then add the task from removing it
   if (request.isSCI === "yes") {
-    addChecklistItem(templates.RemoveSpecialAccess);
+    addChecklistItem(templates.DebriefSCI);
   }
 
   // If they selected the employee has DTS/GTC then add the GTC/DTS checklist items

@@ -155,7 +155,7 @@ export const OutRequestViewCompact: FunctionComponent<
             htmlFor="isSCICVId"
             aria-describedby="isSCICVId"
           >
-            Special clearance accesses (i.e., SCI, SAP, etc)?
+            Sensitive Compartmented Information (SCI) access?
           </Label>
           <br />
           <Text id="isSCICVId" className={classes.capitalize}>

@@ -120,9 +120,9 @@ export const fieldLabels = {
     view: /gaining organization/i,
     lengthError: /gaining organization cannot be longer than 100 characters/i,
   },
-  SPECIAL_ACCESS: {
-    form: /does the employee have any special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
-    view: /special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
+  SCI_ACCESS: {
+    form: /does the employee have sensitive compartmented information \(sci\) access\?/i,
+    view: /sensitive compartmented information \(sci\) access\?/i,
   },
   HAS_SIPR: {
     form: /does the employee possess a sipr token\?/i,
