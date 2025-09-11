@@ -164,6 +164,24 @@ describe("Requires SCI", () => {
   });
 });
 
+describe("Requires SAP", () => {
+  it("is displayed for all requests", async () => {
+    render(<OutRequestViewCompact formData={milRequest} />);
+    expectTextToBeInTheDocument(fieldLabels.SAP_ACCESS.view, true);
+  });
+
+  it.each(["yes", "no"])("has correct value displayed - %s", (isSAP) => {
+    const milRequestSAP = {
+      ...milRequest,
+      isSAP: isSAP as "yes" | "no",
+    };
+    render(<OutRequestViewCompact formData={milRequestSAP} />);
+    const textElement = screen.queryByText(fieldLabels.SAP_ACCESS.view);
+
+    expect(textElement).toHaveAccessibleDescription(new RegExp(isSAP, "i"));
+  });
+});
+
 describe("Has SIPR", () => {
   it("is displayed for all requests", async () => {
     render(<OutRequestViewCompact formData={milRequest} />);

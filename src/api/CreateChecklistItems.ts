@@ -62,6 +62,8 @@ export enum templates {
   RemoveRecallRoster = 56,
   DebriefSCI = 57,
   CSOOutProcess = 58,
+  DebriefSAP = 59,
+  RemoveSAP = 60,
 }
 
 // Active is a derived prop based on if there are Prereqs or not
@@ -505,6 +507,24 @@ Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
     Prereqs: [],
   },
   {
+    Title: "SAP Access Debrief",
+    Lead: RoleType.ISSM,
+    TemplateId: templates.DebriefSAP,
+    Description: `<p style="margin-top: 0px">Has the member been debriefed from all Special Access Programs?</p>`,
+    Prereqs: [],
+  },
+  {
+    Title: "Remove SAP Network Connectivity",
+    Lead: RoleType.ISSM,
+    TemplateId: templates.RemoveSAP,
+    Description: `<p style="margin-top: 0px">Does employee have SAP network connectivity?  Out-process the following items with employee's SAP ISSM, <a href="AFLCMC.OZJZ.Workflow@us.af.mil">AFLCMC.OZJZ.Workflow@us.af.mil</a>. 
+<ol><li>Employee’s account has been removed from distribution/security groups from all SAP related networks.</li>
+<li>Employee administrator account (if applicable) has been disabled/removed for all SAP networks, both local and enterprise.</li>
+<li>If employee utilized a group account on a local SAP network, the group account password has been changed.</li></ol>
+</p>`,
+    Prereqs: [],
+  },
+  {
     Title: "CSO Out Processing",
     Lead: RoleType.SECURITY,
     TemplateId: templates.CSOOutProcess,
@@ -851,6 +871,12 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   // If they selected the employee has SCI, then add the task from removing it
   if (request.isSCI === "yes") {
     addChecklistItem(templates.DebriefSCI);
+  }
+
+  // If they selected the employee has SAP, then add the tasks for removing it
+  if (request.isSAP === "yes") {
+    addChecklistItem(templates.DebriefSAP);
+    addChecklistItem(templates.RemoveSAP);
   }
 
   // All Out processing get CSO item

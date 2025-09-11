@@ -382,6 +382,33 @@ describe("Sensitive Compartmented Information (SCI) access?", () => {
   );
 });
 
+describe("Special Access Program (SAP) access?", () => {
+  const empTypes = [EMPTYPES.Civilian, EMPTYPES.Contractor, EMPTYPES.Military];
+  it.each(empTypes)(
+    "is selectable for all employee types - $empType",
+    async (empType) => {
+      await renderThenSelectEmpType(empType);
+
+      const sap = screen.getByRole("radiogroup", {
+        name: fieldLabels.SAP_ACCESS.form,
+      });
+
+      const yesBttn = within(sap).getByLabelText(/yes/i);
+      const noBttn = within(sap).getByLabelText(/no/i);
+
+      // Click "Yes" and ensure it reflects checked and that "No" is not
+      await user.click(yesBttn);
+      expect(yesBttn).toBeChecked();
+      expect(noBttn).not.toBeChecked();
+
+      // Click "No" and ensure it reflects checked and that "Yes" is not
+      await user.click(noBttn);
+      expect(noBttn).toBeChecked();
+      expect(yesBttn).not.toBeChecked();
+    }
+  );
+});
+
 describe("Has SIPR", () => {
   const empTypes = [EMPTYPES.Civilian, EMPTYPES.Contractor, EMPTYPES.Military];
   it.each(empTypes)(

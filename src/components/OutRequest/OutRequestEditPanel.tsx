@@ -699,6 +699,33 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
             </div>
             <div className={classes.fieldContainer}>
               <Label
+                id="isSAPId"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+                required
+              >
+                <ToggleLeftRegular className={classes.fieldIcon} />
+                Does the employee have Special Access Program (SAP) access?
+              </Label>
+              <Controller
+                name="isSAP"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    aria-describedby="isSAPErr"
+                    aria-labelledby="isSAPId"
+                    disabled={true}
+                  >
+                    <Radio key={"yes"} value={"yes"} label="Yes" />
+                    <Radio key={"no"} value={"no"} label="No" />
+                  </RadioGroup>
+                )}
+              />
+            </div>
+            <div className={classes.fieldContainer}>
+              <Label
                 htmlFor="hasSIPRId"
                 id="hasSIPRLabelId"
                 size="small"

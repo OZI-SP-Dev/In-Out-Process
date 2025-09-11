@@ -165,6 +165,19 @@ export const OutRequestViewCompact: FunctionComponent<
         <div>
           <Label
             weight="semibold"
+            htmlFor="isSAPCVId"
+            aria-describedby="isSAPCVId"
+          >
+            Special Access Program (SAP) access?
+          </Label>
+          <br />
+          <Text id="isSAPCVId" className={classes.capitalize}>
+            {formData.isSAP}
+          </Text>
+        </div>
+        <div>
+          <Label
+            weight="semibold"
             htmlFor="hasSIPRCVId"
             aria-describedby="hasSIPRCVId"
           >

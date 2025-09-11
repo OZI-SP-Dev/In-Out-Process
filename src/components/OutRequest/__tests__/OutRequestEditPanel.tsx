@@ -340,6 +340,26 @@ describe("Sensitive Compartmented Information (SCI) access?", () => {
   );
 });
 
+describe("Special Access Program (SAP) access?", () => {
+  // Currently field is not editable -- this may change as we explore updating tasks based on changes
+  const requests = [civRequest, milRequest, ctrRequest];
+  it.each(requests)(
+    "is disabled for all requests = $request.empType",
+    async (request) => {
+      renderEditPanelForRequest(request);
+
+      const sap = screen.getByRole("radiogroup", {
+        name: fieldLabels.SAP_ACCESS.form,
+      });
+
+      const yesBttn = within(sap).getByRole("radio", { name: /yes/i });
+      const noBttn = within(sap).getByRole("radio", { name: /no/i });
+      expect(yesBttn).toBeDisabled();
+      expect(noBttn).toBeDisabled();
+    }
+  );
+});
+
 describe("Has SIPR", () => {
   // Currently field is not editable -- this may change as we explore updating tasks based on changes
   const requests = [civRequest, milRequest, ctrRequest];
