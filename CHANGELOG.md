@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.1] - 2025-09-11
+
+### Changed
+
+- Removed Out-processing question about SCI and SAP, and replaced it with 2 new separate questions
+- Added SAP and SCI checklist items as well as a general CSO one
+- Removed old security item for SCI/SAP
+
 ## [2.1.0] - 2025-04-XX
 
 - Added back in DD2875 process for In-Processing. Enhanced it by adding attachment capability so that it doesn't need routed outside of the tool
