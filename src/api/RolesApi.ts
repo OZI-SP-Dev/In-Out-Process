@@ -28,6 +28,8 @@ export enum RoleType {
   GTC = "GTC",
   /** Role for granting Security capabilities */
   SECURITY = "Security",
+  /** Role for granting ISSM capabilities */
+  ISSM = "ISSM",
   /** Role for if current user is Employee on the current request */
   EMPLOYEE = "Employee",
   /** Role for if current user is Supervisor on the current request */

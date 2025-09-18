@@ -149,7 +149,7 @@ describe("Gaining Organization", () => {
 describe("Requires SCI", () => {
   it("is displayed for all requests", async () => {
     render(<OutRequestViewCompact formData={milRequest} />);
-    expectTextToBeInTheDocument(fieldLabels.SPECIAL_ACCESS.view, true);
+    expectTextToBeInTheDocument(fieldLabels.SCI_ACCESS.view, true);
   });
 
   it.each(["yes", "no"])("has correct value displayed - %s", (isSCI) => {
@@ -158,9 +158,27 @@ describe("Requires SCI", () => {
       isSCI: isSCI as "yes" | "no",
     };
     render(<OutRequestViewCompact formData={milRequestSCI} />);
-    const textElement = screen.queryByText(fieldLabels.SPECIAL_ACCESS.view);
+    const textElement = screen.queryByText(fieldLabels.SCI_ACCESS.view);
 
     expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
+  });
+});
+
+describe("Requires SAP", () => {
+  it("is displayed for all requests", async () => {
+    render(<OutRequestViewCompact formData={milRequest} />);
+    expectTextToBeInTheDocument(fieldLabels.SAP_ACCESS.view, true);
+  });
+
+  it.each(["yes", "no"])("has correct value displayed - %s", (isSAP) => {
+    const milRequestSAP = {
+      ...milRequest,
+      isSAP: isSAP as "yes" | "no",
+    };
+    render(<OutRequestViewCompact formData={milRequestSAP} />);
+    const textElement = screen.queryByText(fieldLabels.SAP_ACCESS.view);
+
+    expect(textElement).toHaveAccessibleDescription(new RegExp(isSAP, "i"));
   });
 });
 

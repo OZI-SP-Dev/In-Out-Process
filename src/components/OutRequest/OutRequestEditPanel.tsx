@@ -678,8 +678,8 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                 required
               >
                 <ToggleLeftRegular className={classes.fieldIcon} />
-                Does the employee have any special clearance accesses (i.e.,
-                SCI, SAP, etc)?
+                Does the employee have Sensitive Compartmented Information (SCI)
+                access?
               </Label>
               <Controller
                 name="isSCI"
@@ -689,6 +689,33 @@ export const OutRequestEditPanel: FunctionComponent<IOutRequestEditPanel> = (
                     {...field}
                     aria-describedby="isSCIErr"
                     aria-labelledby="isSCIId"
+                    disabled={true}
+                  >
+                    <Radio key={"yes"} value={"yes"} label="Yes" />
+                    <Radio key={"no"} value={"no"} label="No" />
+                  </RadioGroup>
+                )}
+              />
+            </div>
+            <div className={classes.fieldContainer}>
+              <Label
+                id="isSAPId"
+                size="small"
+                weight="semibold"
+                className={classes.fieldLabel}
+                required
+              >
+                <ToggleLeftRegular className={classes.fieldIcon} />
+                Does the employee have Special Access Program (SAP) access?
+              </Label>
+              <Controller
+                name="isSAP"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    aria-describedby="isSAPErr"
+                    aria-labelledby="isSAPId"
                     disabled={true}
                   >
                     <Radio key={"yes"} value={"yes"} label="Yes" />

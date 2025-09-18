@@ -20,7 +20,7 @@ export const testUsers = [
 
 /* Incoming military example */
 /* With Local/Remote = local */
-/* With isSCI = "yes" */
+/* With isSCI = "yes" and isSAP = "yes" */
 export const milRequest: IOutRequest = {
   reqType: "Out",
   Id: 1,
@@ -33,6 +33,7 @@ export const milRequest: IOutRequest = {
   outReason: "OTHER",
   gainingOrg: "",
   isSCI: "yes",
+  isSAP: "yes",
   hasSIPR: "yes",
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
   supGovLead: { ...testUsers[0] },
@@ -55,6 +56,7 @@ export const civRequest: IOutRequest = {
   outReason: "Move within AFLCMC organization",
   gainingOrg: "AFLCMC/WA",
   isSCI: "no",
+  isSAP: "no",
   hasSIPR: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
@@ -75,6 +77,7 @@ export const ctrRequest: IOutRequest = {
   outReason: "Move within AFMC organization",
   gainingOrg: "AFRL/RY",
   isSCI: "no",
+  isSAP: "no",
   hasSIPR: "no",
   lastDay: new Date("2023-03-13T04:00:00.000Z"),
   beginDate: new Date("2023-04-10T04:00:00.000Z"),
@@ -120,9 +123,13 @@ export const fieldLabels = {
     view: /gaining organization/i,
     lengthError: /gaining organization cannot be longer than 100 characters/i,
   },
-  SPECIAL_ACCESS: {
-    form: /does the employee have any special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
-    view: /special clearance accesses \(i\.e\., sci, SAP, etc\)\?/i,
+  SCI_ACCESS: {
+    form: /does the employee have sensitive compartmented information \(sci\) access\?/i,
+    view: /sensitive compartmented information \(sci\) access\?/i,
+  },
+  SAP_ACCESS: {
+    form: /does the employee have special access program \(sap\) access\?/i,
+    view: /special access program \(sap\) access\?/i,
   },
   HAS_SIPR: {
     form: /does the employee possess a sipr token\?/i,

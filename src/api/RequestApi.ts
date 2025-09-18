@@ -95,6 +95,7 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
       isSCI: request.isSCI,
+      isSAP: request.isSAP,
       hasSIPR: request.hasSIPR,
       lastDay: new Date(request.lastDay),
       beginDate: new Date(request.beginDate),
@@ -200,6 +201,7 @@ const transformRequestToSP = async (
       outReason: request.outReason,
       gainingOrg: request.gainingOrg,
       isSCI: request.isSCI,
+      isSAP: request.isSAP,
       hasSIPR: request.hasSIPR,
       lastDay: request.lastDay.toISOString(),
       beginDate: request.beginDate.toISOString(),
@@ -643,6 +645,8 @@ export type IOutRequest = {
   gainingOrg: string;
   /** Required - Can only be 'yes' | 'no' */
   isSCI: "yes" | "no";
+  /** Required - Can only be 'yes' | 'no' */
+  isSAP: "yes" | "no";
   /** Required - Can only be 'yes' | 'no' */
   hasSIPR: "yes" | "no";
   /** Required - The user's last day */

@@ -65,7 +65,7 @@ let testUsers: IPerson[] = [
   },
   {
     Id: 8,
-    Title: "Saul Sage (Regular User)",
+    Title: "Saul Sage (ISSM)",
     EMail: "Saul Sagey@localhost",
   },
   {
@@ -98,6 +98,12 @@ let testRoles: SPRole[] = [
     Title: RoleType.SECURITY,
     Email: "OrgBox@localhost",
   }, // SECURITY for Herb Alty
+  {
+    Id: 13,
+    User: { ...testUsers[7] },
+    Title: RoleType.ISSM,
+    Email: "OrgBox@localhost",
+  }, // ISSM for Saul Sage
 ];
 
 /**
@@ -462,6 +468,7 @@ export const handlers = [
             outReason: body.outReason,
             gainingOrg: body.gainingOrg,
             isSCI: body.isSCI,
+            isSAP: body.isSAP,
             hasSIPR: body.hasSIPR,
             lastDay: body.lastDay,
             beginDate: body.beginDate,
@@ -1515,6 +1522,7 @@ let requests: IResponse[] = [
     outReason: "OTHER",
     gainingOrg: "",
     isSCI: "yes",
+    isSAP: "yes",
     hasSIPR: "yes",
     beginDate: "2023-04-10T04:00:00.000Z",
     supGovLead: { ...testUsers[0] },
@@ -1533,6 +1541,7 @@ let requests: IResponse[] = [
     outReason: "Move within AFLCMC organization",
     gainingOrg: "AFLCMC/WA",
     isSCI: "no",
+    isSAP: "no",
     hasSIPR: "no",
     lastDay: "2023-03-13T04:00:00.000Z",
     beginDate: "2023-04-10T04:00:00.000Z",
@@ -1551,6 +1560,7 @@ let requests: IResponse[] = [
     outReason: "Move within AFMC organization",
     gainingOrg: "AFRL/RY",
     isSCI: "no",
+    isSAP: "no",
     hasSIPR: "no",
     lastDay: "2023-03-13T04:00:00.000Z",
     beginDate: "2023-04-10T04:00:00.000Z",

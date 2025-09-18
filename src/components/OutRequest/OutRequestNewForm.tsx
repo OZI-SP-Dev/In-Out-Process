@@ -74,12 +74,13 @@ const useStyles = makeStyles({
 // Create a type to handle the IOutRequest type within React Hook Form (RHF)
 type IRHFOutRequest = Omit<
   IOutRequest,
-  "empType" | "workLocation" | "isSCI" | "hasSIPR"
+  "empType" | "workLocation" | "isSCI" | "isSAP" | "hasSIPR"
 > & {
   /* Allow these to be "" so that RHF can set as Controlled rather than Uncontrolled that becomes Controlled */
   empType: EMPTYPES | "";
   workLocation: worklocation | "";
   isSCI: "yes" | "no" | "";
+  isSAP: "yes" | "no" | "";
   hasSIPR: "yes" | "no" | "";
 };
 
@@ -638,8 +639,8 @@ const OutRequestNewForm = () => {
           required
         >
           <ToggleLeftRegular className={classes.fieldIcon} />
-          Does the employee have any special clearance accesses (i.e., SCI, SAP,
-          etc)?
+          Does the employee have Sensitive Compartmented Information (SCI)
+          access?
         </Label>
         <Controller
           name="isSCI"
@@ -663,6 +664,42 @@ const OutRequestNewForm = () => {
         {errors.isSCI && (
           <Text id="isSCIErr" className={classes.errorText}>
             {errors.isSCI.message}
+          </Text>
+        )}
+      </div>
+      <div className={classes.fieldContainer}>
+        <Label
+          id="isSAPId"
+          size="small"
+          weight="semibold"
+          className={classes.fieldLabel}
+          required
+        >
+          <ToggleLeftRegular className={classes.fieldIcon} />
+          Does the employee have Special Access Program (SAP) access?
+        </Label>
+        <Controller
+          name="isSAP"
+          control={control}
+          defaultValue={""}
+          rules={{
+            required: "Selection is required",
+          }}
+          render={({ field }) => (
+            <RadioGroup
+              {...field}
+              aria-labelledby="isSAPId"
+              aria-describedby="isSAPErr"
+              id="isSAPId"
+            >
+              <Radio key={"yes"} value={"yes"} label="Yes" />
+              <Radio key={"no"} value={"no"} label="No" />
+            </RadioGroup>
+          )}
+        />
+        {errors.isSAP && (
+          <Text id="isSAPErr" className={classes.errorText}>
+            {errors.isSAP.message}
           </Text>
         )}
       </div>
