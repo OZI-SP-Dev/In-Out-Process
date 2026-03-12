@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.2] - 2026-03-12
+
+### Changed
+
+- Removed PhoneSetup from in-processing checklist
+
 ## [2.1.1] - 2025-09-11
 
 ### Changed
