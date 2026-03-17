@@ -19,7 +19,6 @@ export enum templates {
   VerifyMyLearn = 9,
   VerifyMyETMS = 10,
   MandatoryTraining = 11,
-  PhoneSetup = 12,
   OrientationVideos = 13,
   Bookmarks = 14,
   NewcomerBrief = 15,
@@ -188,14 +187,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.MandatoryTraining,
     Description: `<p style="margin-top: 0px">For a list of mandatory training requirements, please find the document titled "Mandatory Training" at the following link: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Mandatory%20Training.docx">Mandatory Training.docx</a></p>`,
     Prereqs: [templates.VerifyMyETMS, templates.VerifyMyLearn],
-  },
-  {
-    Title: "Set up phone system",
-    Lead: RoleType.EMPLOYEE,
-
-    TemplateId: templates.PhoneSetup,
-    Description: `<p style="margin-top: 0px">See the following link for phone set up instructions: <a href="https://www.tsf.wpafb.af.mil/Doc/Getting%20Started%20with%20the%20UC%20Client.pdf">Getting started with the UC Client</a></p>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
     Title: "View orientation videos",
@@ -602,7 +593,7 @@ const createInboundChecklistItems = async (request: IInRequest) => {
    */
   const addChecklistItem = (templateId: templates) => {
     const itemTemplate = checklistTemplates.find(
-      (checklistTemplate) => checklistTemplate.TemplateId === templateId
+      (checklistTemplate) => checklistTemplate.TemplateId === templateId,
     );
     if (itemTemplate) {
       checklistItems.items
@@ -621,7 +612,7 @@ const createInboundChecklistItems = async (request: IInRequest) => {
         } as ICheckListItem)
         .then(
           // Add the response to the array of responses
-          (r) => res.push(r)
+          (r) => res.push(r),
         );
     }
   };
@@ -735,9 +726,6 @@ const createInboundChecklistItems = async (request: IInRequest) => {
     addChecklistItem(templates.SupervisorTraining);
   }
 
-  // Set up phone system (all Employees) -- requires user to have CAC first
-  addChecklistItem(templates.PhoneSetup);
-
   // Watch Orientation Videos (all Employees) -- requires user to have CAC first
   addChecklistItem(templates.OrientationVideos);
 
@@ -817,7 +805,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
    */
   const addChecklistItem = (templateId: templates) => {
     const itemTemplate = checklistTemplates.find(
-      (checklistTemplate) => checklistTemplate.TemplateId === templateId
+      (checklistTemplate) => checklistTemplate.TemplateId === templateId,
     );
     if (itemTemplate) {
       checklistItems.items
@@ -831,7 +819,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
         } as ICheckListItem)
         .then(
           // Add the response to the array of responses
-          (r) => res.push(r)
+          (r) => res.push(r),
         );
     }
   };
@@ -842,7 +830,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
       (reasonGroup) =>
         reasonGroup.key === "Separating" &&
         reasonGroup.items.filter((reason) => request.outReason === reason.key)
-          .length > 0
+          .length > 0,
     ).length > 0;
 
   /* Determine if the out-processing reason is a Retiring reason */
@@ -851,7 +839,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
       (reasonGroup) =>
         reasonGroup.key === "Retiring" &&
         reasonGroup.items.filter((reason) => request.outReason === reason.key)
-          .length > 0
+          .length > 0,
     ).length > 0;
 
   // If they have a SIPR token to turn in then add the task for it
@@ -948,6 +936,6 @@ export const useAddTasks = () => {
       onSuccess: () => {
         queryClient.invalidateQueries(["checklist"]);
       },
-    }
+    },
   );
 };

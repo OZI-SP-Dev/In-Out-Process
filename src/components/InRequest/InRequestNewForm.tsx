@@ -414,8 +414,8 @@ const InRequestNewForm = () => {
                 empType === EMPTYPES.Contractor
                   ? "N/A"
                   : empType !== ""
-                  ? ""
-                  : "Select Employee Type first"
+                    ? ""
+                    : "Select Employee Type first"
               }
               contentAfter={
                 !showSSN ? (
@@ -439,7 +439,7 @@ const InRequestNewForm = () => {
               onInput={(e) => {
                 e.currentTarget.value = e.currentTarget.value.replace(
                   /\D+/g,
-                  ""
+                  "",
                 );
               }}
               type={!showSSN ? "password" : "text"}
@@ -517,7 +517,7 @@ const InRequestNewForm = () => {
                 }
                 e.currentTarget.value = e.currentTarget.value.replace(
                   /\D/g,
-                  ""
+                  "",
                 );
                 const size = e.currentTarget.value.length;
                 if (size > 3 || endsDash) {
@@ -585,8 +585,8 @@ const InRequestNewForm = () => {
                 empType === EMPTYPES.Contractor
                   ? "N/A"
                   : empType !== ""
-                  ? ""
-                  : "Select Employee Type first"
+                    ? ""
+                    : "Select Employee Type first"
               }
             >
               {gradeRankOptions.map((gradeRankGroup) => (
@@ -776,8 +776,8 @@ const InRequestNewForm = () => {
                 empType === EMPTYPES.Contractor || empType === EMPTYPES.Military
                   ? "N/A"
                   : empType !== ""
-                  ? ""
-                  : "Select Employee Type first"
+                    ? ""
+                    : "Select Employee Type first"
               }
             >
               {SENSITIVITY_CODES.map(({ key, text }) => (
