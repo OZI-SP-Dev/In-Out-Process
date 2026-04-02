@@ -325,15 +325,16 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Equipment Issue",
     Lead: RoleType.IT,
     TemplateId: templates.EquipmentIssue,
-    Description: `<p style="margin-top: 0px; text-align: center;">Enterprise Technical Team (ETT) In-Processing</p><p>To ensure expedient equipment issue for new employees, please have the new employee or supervisor of the new employee contact the ETT to schedule an appointment.  Be advised that ETT technicians will be in the building on Tuesday and Friday mornings, BY APPOINTMENT ONLY.</p>
+    Description: `<p style="margin-top: 0px; text-align: center;">Enterprise Technical Team (ETT) In-Processing</p>
+<p>*** Completing this task will constitute issuance of IT equipment to the customer or an email from the supervisor/support staff stating equipment is NOT required, to the ETT Mailbox (<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>).*** </p>
+<p>To ensure expedient equipment issue for new employees, please have the new employee or supervisor of the new employee contact the ETT to schedule an appointment.</p>
 <p>When contacting the ETT, the technician will need to know if there are any non-standard software requirements for the new employee, as this requires additional coordination.</p>
 <p>For remote employees, the supervisor will need to coordinate with the ETT for shipping of hardware and first-time login.</p>
 <p>To schedule an appointment, please contact one of the following ETT Technicians via MS Teams:</p>
-<p>Ricardo Calzada<br/>
-Henry Cardenas<br/>
-Michael Green<br/>
-Todd Shanklin<br/>
-Jerry (Joey) Theriot</p>`,
+<p><a href="https://dod.teams.microsoft.us/l/chat/0/0?users=henry.cardenas@us.af.mil">Henry Cardenas</a><br/>
+<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=rashid.malcolm-tilmon.2@us.af.mil">Rashid Malcolm-Tilmon</a><br/>
+<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=todd.shanklin.2@us.af.mil">Todd Shanklin</a><br/>
+<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=jerry.theriot.5@us.af.mil">Jerry (Joey) Theriot</a></p>`,
     Prereqs: [templates.SecurityCoord2875],
   },
   {
