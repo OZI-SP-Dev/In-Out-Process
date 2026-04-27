@@ -19,7 +19,7 @@ import { RoleType } from "api/RolesApi";
 import { IRequest } from "api/RequestApi";
 import { CheckListItemButton } from "components/CheckList/CheckListItemButton";
 import { DateTime } from "luxon";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export interface ICheckList {
   ReqId: number;
@@ -39,11 +39,14 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
 
   // React Router Hook to get the Route State
   const location = useLocation();
+  const navigate = useNavigate();
 
   if (location.state?.checklistItem && checklistItems.data) {
-    const checklistItem = location.state.checklistItem;
+    // Extract checklistItem and create a copy of the state without the property
+    const { checklistItem, ...newState } = location.state || {};
+
     const exists = checklistItems.data.find(
-      (item) => item.Id === parseInt(checklistItem)
+      (item) => item.Id === parseInt(checklistItem),
     );
     if (exists) {
       if (!currentItemId) {
@@ -54,14 +57,17 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
       }
     }
 
-    // Clear the state without re-rendering the page
-    window.history.replaceState({}, "", location.hash);
+    // Navigate to the same URL, replacing the state - preventing clicks of "Dismiss" to keep opening the panel
+    navigate(location.pathname, {
+      replace: true,
+      state: newState,
+    });
   }
 
   // DataGrid method for when a new row is selected
   const onSelectionChange: DataGridProps["onSelectionChange"] = (_e, data) => {
     setCurrentItemId(
-      parseInt(data.selectedItems.values().next().value?.toString() ?? "")
+      parseInt(data.selectedItems.values().next().value?.toString() ?? ""),
     );
   };
 
@@ -166,7 +172,7 @@ export const CheckList: FunctionComponent<ICheckList> = (props) => {
 
   // The currently selected CheckList Item
   const currentItem = checklistItems.data?.find(
-    (item) => item.Id === currentItemId
+    (item) => item.Id === currentItemId,
   );
 
   return (

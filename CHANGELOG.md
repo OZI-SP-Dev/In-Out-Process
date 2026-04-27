@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.4] - 2026-04-27
+
+### Fixed
+
+- Dismiss on Panel didn't work if you navigated to a checklist item via "My Checklist Items", where it auto-opened the Checklist item
+
 ## [2.1.3] - 2026-03-12
 
 ### Changed
