@@ -57,7 +57,7 @@ interface ISendRequestCancelEmail {
 const getEmailAddresses = (people: IPerson[]) => {
   let emailArray = people.map((p) => p.EMail);
   const emailArrayNoDupes = emailArray.filter(
-    (n, i) => emailArray.indexOf(n) === i
+    (n, i) => emailArray.indexOf(n) === i,
   );
 
   return emailArrayNoDupes.join(";");
@@ -83,9 +83,7 @@ const transformEmailToSP = (email: IEmail) => {
     To: toAddresses,
     CC: email.cc ? getEmailAddresses(email.cc) : undefined,
     // Truncate the subject if it is going to exceed 255 characters so it doesn't error writing to field
-    Subject: (
-      (import.meta.env.MODE === "testing" ? "TEST - " : "") + email.subject
-    ).substring(0, 255),
+    Subject: email.subject.substring(0, 255),
     //Adjust line breaks so they show nicely even when Outlook converts to plaintext
     Body: email.body.replace(/\n/g, "\r\n<BR />"),
     SupGovLead: email.supGovLead,
@@ -121,7 +119,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
 
     // Get the request details for use in the email
     const request = transformRequestFromSP(
-      await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId))
+      await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId)),
     );
 
     // Loop through the Map of checklist items that just became active, which are grouped by lead
@@ -133,7 +131,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
           item.Id !== completedChecklistItemId && // Don't include the item just completed
           item.Lead === lead && // Items for this Lead/POC
           item.Active && // which are Active
-          !item.CompletedDate // and not yet completed
+          !item.CompletedDate, // and not yet completed
       );
 
       if (oustandingItems.length > 0) {
@@ -169,7 +167,7 @@ export const useSendActivationEmails = (completedChecklistItemId: number) => {
         body: `The following checklist item(s) are now available to be completed:<ul>${items
           .map((item) => `<li>${item.Title}</li>`)
           .join(
-            ""
+            "",
           )}</ul>${outstandingMessage}<br/>To view this request and take action follow the below link:<br/><a href="${linkURL}">${linkURL}</a>`,
         supGovLead: request.supGovLead.EMail,
       };
@@ -215,7 +213,7 @@ export const useSendRequestSubmitEmail = () => {
 
     // Remove any duplicates from the array so we can loop through and process each lead only once
     const leads = leadsWithDupes.filter(
-      (n, i) => leadsWithDupes.indexOf(n) === i
+      (n, i) => leadsWithDupes.indexOf(n) === i,
     );
 
     let leadUsers: IPerson[] = [];
@@ -323,7 +321,7 @@ export const useSendRequestCancelEmail = () => {
 
     // Remove any duplicates from the array so we can loop through and process each lead only once
     const leads = leadsWithDupes.filter(
-      (n, i) => leadsWithDupes.indexOf(n) === i
+      (n, i) => leadsWithDupes.indexOf(n) === i,
     );
 
     let leadUsers: IPerson[] = [];
@@ -425,7 +423,7 @@ export const useSendRequestVerifyCompleteEmail = (reqId: number) => {
   const sendInRequestVerifyCompleteEmail = async () => {
     // Get the request details for use in the email
     const request = transformRequestFromSP(
-      await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId))
+      await queryClient.fetchQuery(["request", reqId], () => getRequest(reqId)),
     );
 
     const linkURL = `<a href="${webUrl}/app/index.aspx#/item/${request.Id}">${webUrl}/app/index.aspx#/item/${request.Id}</a>`;
