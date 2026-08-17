@@ -17,7 +17,6 @@ export enum templates {
   DTS = 7,
   ATAAPS = 8,
   VerifyMyLearn = 9,
-  VerifyMyETMS = 10,
   MandatoryTraining = 11,
   OrientationVideos = 13,
   Bookmarks = 14,
@@ -25,7 +24,6 @@ export enum templates {
   SupervisorTraining = 16,
   ConfirmMandatoryTraining = 17,
   ConfirmMyLearn = 18,
-  ConfirmMyETMS = 19,
   UnitOrientation = 20,
   Brief971Folder = 21,
   SignedPerformContribPlan = 22,
@@ -175,18 +173,11 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
   },
   {
-    Title: "Verify AFMC myETMS account",
-    Lead: RoleType.EMPLOYEE,
-    TemplateId: templates.VerifyMyETMS,
-    Description: `<div><p style="margin-top: 0px">Click here for link to myETMS: <a href="https://myetms.wpafb.af.mil/myetmsasp/main.asp">Air Force Materiel Command's myEducation and Training Management System</a></p></div>`,
-    Prereqs: [templates.ObtainCACCtr, templates.ObtainCACGov],
-  },
-  {
     Title: "Complete mandatory training",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.MandatoryTraining,
     Description: `<p style="margin-top: 0px">For a list of mandatory training requirements, please find the document titled "Mandatory Training" at the following link: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/Mandatory%20Training.docx">Mandatory Training.docx</a></p>`,
-    Prereqs: [templates.VerifyMyETMS, templates.VerifyMyLearn],
+    Prereqs: [templates.VerifyMyLearn],
   },
   {
     Title: "View orientation videos",
@@ -229,16 +220,6 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     TemplateId: templates.ConfirmMyLearn,
     Description: `<div><p style="margin-top: 0px">Click here for link to Air Force myLearning account: <a href="https://lms-jets.cce.af.mil/moodle/">Air Force MyLearning</a></p></div>`,
     Prereqs: [templates.VerifyMyLearn],
-  },
-  {
-    Title: "Confirm AFMC myETMS account",
-    Lead: RoleType.SUPERVISOR,
-    TemplateId: templates.ConfirmMyETMS,
-    Description: `<div><p style="margin-top: 0px">To confirm employee myETMS account, supervisors can access the ETMS WEB application which is for Supervisors, Training Managers, and Education Development Specialists at the following URL: <a href="https://etmsweb.wpafb.af.mil/">https://etmsweb.wpafb.af.mil/</a><p>
-<p>Once logged into ETMS WEB, select the "View All Employees" under "Quick Searches" on the left to see all your assigned employees who have registered myETMS accounts.</p> 
-<br/>
-<p>NOTE: It is also possible to access the ETMS WEB application through your standard myETMS account by looking for the ETMS WEB icon/link.</p></div>`,
-    Prereqs: [templates.VerifyMyETMS],
   },
   {
     Title: "Unit orientation conducted",
@@ -699,22 +680,6 @@ const createInboundChecklistItems = async (request: IInRequest) => {
 
   // Confirm Air Force myLearning account
   addChecklistItem(templates.ConfirmMyLearn);
-
-  // Verify AFMC myETMS account - CIV/MIL only
-  if (
-    request.empType === EMPTYPES.Civilian ||
-    request.empType === EMPTYPES.Military
-  ) {
-    addChecklistItem(templates.VerifyMyETMS);
-  }
-
-  // Confirm AFMC myETMS account - CIV/MIL Only
-  if (
-    request.empType === EMPTYPES.Civilian ||
-    request.empType === EMPTYPES.Military
-  ) {
-    addChecklistItem(templates.ConfirmMyETMS);
-  }
 
   // Mandatory training (all employees)
   addChecklistItem(templates.MandatoryTraining);
