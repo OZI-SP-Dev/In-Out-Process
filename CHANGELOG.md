@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.5] - 2026-08-17
+
+### Changed
+
+- No longer append "TEST - " to subject line of emails, as the Power Automate handles doing this if it is in the Sandbox
+- Remove the myETMS related tasks, as that training system was decomissioned
+
 ## [2.1.4] - 2026-04-27
 
 ### Fixed
