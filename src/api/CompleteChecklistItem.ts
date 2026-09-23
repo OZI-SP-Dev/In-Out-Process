@@ -43,7 +43,9 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
       } else {
         activatedTasksByRole.set(item.Lead, [item]);
       }
-      batch.items.getById(item.Id).update({ Active: true });
+      batch.items
+        .getById(item.Id)
+        .update({ Active: true, ActivatedDate: DateTime.now().toISODate() });
     };
 
     // Always add the current update to the batch
@@ -54,7 +56,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
 
     // Locate those items that have this item as a prereq
     const preqs = checklistTemplates.filter((templ) =>
-      templ.Prereqs.includes(item.TemplateId)
+      templ.Prereqs.includes(item.TemplateId),
     );
 
     // If we found some, examine each to see if we met all the prereqs for that item
@@ -63,13 +65,13 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
         (checklistItem) =>
           item.TemplateId !== checklistItem.TemplateId && // Ensure we aren't looking at the item we just completed
           rule.Prereqs.includes(checklistItem.TemplateId) && // Is this item part of the prereqs for this particular item to become active
-          !checklistItem.CompletedBy // If it is, and it isn't completed, then flag we have an item that still needs completed for this item
+          !checklistItem.CompletedBy, // If it is, and it isn't completed, then flag we have an item that still needs completed for this item
       );
 
       // If this item has no more more prereqs, then add it to the list to become activated
       if (needCompleting.length === 0) {
         const item = checklistItems.find(
-          (item) => rule.TemplateId === item.TemplateId
+          (item) => rule.TemplateId === item.TemplateId,
         );
         if (item) {
           addChecklistItemActivated(item);
@@ -88,7 +90,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
       const needCompleted = checklistItems.filter(
         (checklistItem) =>
           item.TemplateId !== checklistItem.TemplateId && // Ensure we aren't looking at the item we just completed
-          !checklistItem.CompletedBy // If it isn't completed, then flag we have an item that still needs completed for this request
+          !checklistItem.CompletedBy, // If it isn't completed, then flag we have an item that still needs completed for this request
       );
 
       // If there are not any checklist items remaining, then send the notification
@@ -103,7 +105,7 @@ export const useCompleteChecklistItem = (item: ICheckListItem) => {
     onMutate: async () => {
       const checklistItemsTemp = await queryClient.fetchQuery(
         ["checklist", item.RequestId],
-        () => getCheckListItemsByRequestId(item.RequestId)
+        () => getCheckListItemsByRequestId(item.RequestId),
       );
       checklistItems = transformCheckListItemsFromSP(checklistItemsTemp);
     },

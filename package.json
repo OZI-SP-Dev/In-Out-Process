@@ -1,6 +1,6 @@
 {
   "name": "in-out-process",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "private": true,
   "homepage": ".",
   "type": "module",
@@ -69,5 +69,10 @@
   },
   "msw": {
     "workerDirectory": "public"
+  },
+  "allowScripts": {
+    "esbuild@0.17.16": true,
+    "msw@1.0.0": true,
+    "@pnp/sp@3.11.0": true
   }
 }
