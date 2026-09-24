@@ -7,6 +7,7 @@ export const OFFICES = [
   { key: "OZIC", text: "OZIC" },
   { key: "OZIF", text: "OZIF" },
   { key: "OZIP", text: "OZIP" },
+  { key: "OZJ", text: "OZJ" },
   { key: "OZX", text: "OZX" },
   { key: "OZZ", text: "OZZ" },
 ];
