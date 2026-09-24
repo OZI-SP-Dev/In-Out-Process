@@ -6,6 +6,7 @@ import { RoleType } from "api/RolesApi";
 import { ICheckListItem } from "api/CheckListItemApi";
 import { IItemAddResult } from "@pnp/sp/items";
 import { OUT_PROCESS_REASONS } from "constants/OutProcessReasons";
+import { DateTime } from "luxon";
 
 export enum templates {
   WelcomePackage = 1,
@@ -578,18 +579,19 @@ const createInboundChecklistItems = async (request: IInRequest) => {
       (checklistTemplate) => checklistTemplate.TemplateId === templateId,
     );
     if (itemTemplate) {
+      const active =
+        itemTemplate.TemplateId === templates.ObtainCACGov &&
+        request.isNewCivMil === "no"
+          ? true
+          : itemTemplate.Prereqs.length === 0;
       checklistItems.items
         .add({
           Title: itemTemplate.Title,
           Lead: itemTemplate.Lead,
           RequestId: request.Id,
           TemplateId: itemTemplate.TemplateId,
-          Active:
-            // Special case for ObtainCacGov where we set to true if they are not a new Civ/Mil as then there is no prereq
-            itemTemplate.TemplateId === templates.ObtainCACGov &&
-            request.isNewCivMil === "no"
-              ? true
-              : itemTemplate.Prereqs.length === 0,
+          Active: active,
+          ActivatedDate: active ? DateTime.now().toISODate() : undefined,
           Description: itemTemplate.Description,
         } as ICheckListItem)
         .then(
@@ -781,6 +783,10 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
           RequestId: request.Id,
           TemplateId: itemTemplate.TemplateId,
           Active: itemTemplate.Prereqs.length === 0,
+          ActivatedDate:
+            itemTemplate.Prereqs.length === 0
+              ? DateTime.now().toISODate()
+              : undefined,
           Description: itemTemplate.Description,
         } as ICheckListItem)
         .then(

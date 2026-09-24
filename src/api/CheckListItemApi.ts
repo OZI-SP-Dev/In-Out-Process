@@ -14,6 +14,7 @@ export interface ICheckListItem {
   RequestId: number;
   TemplateId: number;
   Active: boolean;
+  ActivatedDate?: DateTime;
 }
 
 // create PnP JS response interface for the CheckListItems
@@ -40,7 +41,7 @@ const expandedFields = "CompletedBy";
  * cause update errors
  */
 const transformCheckListItemFromSP = (
-  request: ICheckListResponseItem
+  request: ICheckListResponseItem,
 ): ICheckListItem => {
   let lead: RoleType;
   if (Object.values(RoleType).includes(request.Lead as RoleType)) {
@@ -72,7 +73,7 @@ const transformCheckListItemFromSP = (
 };
 
 export const transformCheckListItemsFromSP = (
-  checklistItems: ICheckListResponseItem[]
+  checklistItems: ICheckListResponseItem[],
 ): ICheckListItem[] => {
   return checklistItems.map((item) => {
     return transformCheckListItemFromSP(item);
@@ -99,7 +100,7 @@ export const getCheckListItemsByRequestId = async (RequestId: number) => {
  */
 const getMyCheckListItems = async (
   roles: RoleType[] | undefined,
-  fetchCompleted: boolean
+  fetchCompleted: boolean,
 ) => {
   let filter = "";
   if (!fetchCompleted) {
@@ -143,7 +144,7 @@ export const useChecklistItems = (RequestId: number) => {
  */
 export const useMyChecklistItems = (
   roles: RoleType[] | undefined,
-  fetchCompleted: boolean
+  fetchCompleted: boolean,
 ) => {
   return useQuery({
     queryKey: ["myChecklist", roles, fetchCompleted],
