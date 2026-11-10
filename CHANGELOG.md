@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+### Removed
+
+- Removed the Duty Phone, as this is no longer needed to process an incoming employee
+
 ## [2.1.5] - 2026-09-23
 
 ### Added

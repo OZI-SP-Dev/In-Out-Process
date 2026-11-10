@@ -18,7 +18,6 @@ import {
   checkForErrorMessage,
   lengthTest,
   checkForRadioGroupToBeDisabled,
-  dutyPhoneTestValues,
 } from "components/InRequest/__tests__/TestData";
 import { InRequestEditPanel } from "components/InRequest/InRequestEditPanel";
 import { SENSITIVITY_CODES } from "constants/SensitivityCodes";
@@ -41,14 +40,14 @@ const renderEditPanelForRequest = (request: IInRequest) => {
         onEditSave={() => {}}
         data={request}
       />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 };
 
 /** Check for working input */
 const checkEnterableTextbox = async (
   fieldName: RegExp,
-  text?: string | undefined
+  text?: string | undefined,
 ) => {
   // Type in the input box
   const textboxField = screen.getByRole("textbox", {
@@ -78,7 +77,7 @@ const checkEnterableTextbox = async (
 const checkEnterableCombobox = async (
   fieldName: RegExp,
   text: string | undefined,
-  available: boolean
+  available: boolean,
 ) => {
   // Type in the input box
   const comboboxField = screen.getByRole("combobox", {
@@ -117,7 +116,7 @@ describe("ManPower Control Number (MPCN)", () => {
     renderEditPanelForRequest(civRequest);
     await checkEnterableTextbox(
       fieldLabels.MPCN.form,
-      civRequest.MPCN?.toString()
+      civRequest.MPCN?.toString(),
     );
   });
 
@@ -125,7 +124,7 @@ describe("ManPower Control Number (MPCN)", () => {
     renderEditPanelForRequest(milRequest);
     await checkEnterableTextbox(
       fieldLabels.MPCN.form,
-      milRequest.MPCN?.toString()
+      milRequest.MPCN?.toString(),
     );
   });
 
@@ -176,7 +175,7 @@ describe("ManPower Control Number (MPCN)", () => {
           onEditSave={() => {}}
           data={milRequest}
         />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     // Clear the input, then type the passed in data
@@ -203,8 +202,8 @@ describe("ManPower Control Number (MPCN)", () => {
           ")|(" +
           acoMcoMPCN.source +
           ")",
-        "i"
-      )
+        "i",
+      ),
     );
     expect(errText).not.toBeInTheDocument();
   });
@@ -234,7 +233,7 @@ describe("ManPower Control Number (MPCN)", () => {
             onEditSave={() => {}}
             data={milRequest}
           />
-        </QueryClientProvider>
+        </QueryClientProvider>,
       );
 
       // Clear the input, then type the passed in data
@@ -248,7 +247,7 @@ describe("ManPower Control Number (MPCN)", () => {
       // Ensure the appropriate error displays
       const errText = screen.queryByText(err);
       expect(errText).toBeInTheDocument();
-    }
+    },
   );
 });
 
@@ -267,9 +266,9 @@ describe("SAR", () => {
       await checkEnterableCombobox(
         fieldLabels.SAR.form,
         SAR_CODES[0].text,
-        available
+        available,
       );
-    }
+    },
   );
 
   it("displays N/A for Contractor", async () => {
@@ -292,16 +291,16 @@ describe("Position Sensitivity Code", () => {
       await checkEnterableCombobox(
         fieldLabels.POSITION_SENSITIVITY_CODE.form,
         SENSITIVITY_CODES[0].text,
-        false
+        false,
       );
-    }
+    },
   );
 
   it("displays N/A for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
     isNotApplicable(
       fieldLabels.POSITION_SENSITIVITY_CODE.formType,
-      fieldLabels.POSITION_SENSITIVITY_CODE.form
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
     );
   });
 
@@ -309,7 +308,7 @@ describe("Position Sensitivity Code", () => {
     renderEditPanelForRequest(milRequest);
     isNotApplicable(
       fieldLabels.POSITION_SENSITIVITY_CODE.formType,
-      fieldLabels.POSITION_SENSITIVITY_CODE.form
+      fieldLabels.POSITION_SENSITIVITY_CODE.form,
     );
   });
 });
@@ -377,7 +376,7 @@ describe("Local Or Remote", () => {
       await user.click(remoteBttn);
       expect(remoteBttn).toBeChecked();
       expect(localBttn).not.toBeChecked();
-    }
+    },
   );
 
   it.each(employeeTypes)(
@@ -391,9 +390,9 @@ describe("Local Or Remote", () => {
       });
 
       expect(localOrRemote).toHaveAccessibleDescription(
-        /greater than 50 miles qualifies as remote/i
+        /greater than 50 miles qualifies as remote/i,
       );
-    }
+    },
   );
 });
 
@@ -420,7 +419,7 @@ describe("Remote Location", () => {
       } else {
         checkForInputToExist(fieldLabels.REMOTE_LOCATION.form, true);
       }
-    }
+    },
   );
 
   it.each(remoteLocationOnlyDataset)(
@@ -441,9 +440,9 @@ describe("Remote Location", () => {
       await user.click(localOrRemoteBttn);
       await checkEnterableTextbox(
         fieldLabels.REMOTE_LOCATION.form,
-        request.workLocationDetail
+        request.workLocationDetail,
       );
-    }
+    },
   );
 
   it.each(lengthTest)(
@@ -460,9 +459,9 @@ describe("Remote Location", () => {
       checkForErrorMessage(
         remLocFld,
         fieldLabels.REMOTE_LOCATION.lengthError,
-        testString.length > 100
+        testString.length > 100,
       );
-    }
+    },
   );
 });
 
@@ -479,14 +478,14 @@ describe("Contract Number", () => {
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
       checkForInputToExist(fieldLabels.CONTRACT_NUMBER.form, available);
-    }
+    },
   );
 
   it("is editable when Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
     await checkEnterableTextbox(
       fieldLabels.CONTRACT_NUMBER.form,
-      ctrRequest.contractNumber
+      ctrRequest.contractNumber,
     );
   });
 
@@ -502,9 +501,9 @@ describe("Contract Number", () => {
       checkForErrorMessage(
         ctrNumberFld,
         fieldLabels.CONTRACT_NUMBER.lengthError,
-        testString.length > 100
+        testString.length > 100,
       );
-    }
+    },
   );
 });
 
@@ -521,7 +520,7 @@ describe("Contract End Date", () => {
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
       checkForInputToExist(fieldLabels.CONTRACT_END_DATE.form, available);
-    }
+    },
   );
   // TODO: Build out testing for Date Picker selection
 });
@@ -555,7 +554,7 @@ describe("Requires SCI", () => {
         name: fieldLabels.REQUIRES_SCI.form,
       });
       expect(sci).not.toBeInTheDocument();
-    }
+    },
   );
 
   it("is unavailable for Contractor", async () => {
@@ -577,7 +576,7 @@ describe("Requires SCI", () => {
         name: fieldLabels.REQUIRES_SCI.form,
       });
       expect(sci).not.toBeInTheDocument();
-    }
+    },
   );
 });
 
@@ -595,9 +594,9 @@ describe("Employee Name", () => {
       checkForErrorMessage(
         empNameFld,
         fieldLabels.EMPLOYEE_NAME.lengthError,
-        testString.length > 100
+        testString.length > 100,
       );
-    }
+    },
   );
 });
 
@@ -615,9 +614,9 @@ describe("Previous Org", () => {
       checkForErrorMessage(
         prevOrgFld,
         fieldLabels.PREVIOUS_ORG.lengthError,
-        testString.length > 100
+        testString.length > 100,
       );
-    }
+    },
   );
 });
 
@@ -635,17 +634,17 @@ describe("Grade/Rank", () => {
       await checkEnterableCombobox(
         fieldLabels.GRADE_RANK.form,
         request.empType === EMPTYPES.Civilian ? "GS-12" : "O-4",
-        available
+        available,
       );
     },
-    20000
+    20000,
   );
 
   it("displays N/A for Contractor", async () => {
     renderEditPanelForRequest(ctrRequest);
     isNotApplicable(
       fieldLabels.GRADE_RANK.formType,
-      fieldLabels.GRADE_RANK.form
+      fieldLabels.GRADE_RANK.form,
     );
   }, 20000);
 });
@@ -664,10 +663,10 @@ describe("Office", () => {
       await checkEnterableCombobox(
         fieldLabels.OFFICE.form,
         OFFICES[0].text,
-        available
+        available,
       );
     },
-    20000
+    20000,
   );
 });
 
@@ -687,7 +686,7 @@ describe("Has DTS/GTC", () => {
     async ({ request }) => {
       renderEditPanelForRequest(request);
       checkForRadioGroupToBeDisabled(fieldLabels.IS_TRAVELER.form, true);
-    }
+    },
   );
 
   it.each(employeeTypes)(
@@ -695,7 +694,7 @@ describe("Has DTS/GTC", () => {
     async ({ request, available }) => {
       renderEditPanelForRequest(request);
       checkForInputToExist(fieldLabels.IS_TRAVELER.form, available);
-    }
+    },
   );
 });
 
@@ -726,46 +725,8 @@ describe("Job/Duty Title", () => {
       checkForErrorMessage(
         jobTitleFld,
         fieldLabels.JOB_TITLE.lengthError,
-        testString.length > 100
+        testString.length > 100,
       );
-    }
-  );
-});
-
-describe("Duty Phone #", () => {
-  const employeeTypes = [
-    { request: civRequest },
-    { request: milRequest },
-    { request: ctrRequest },
-  ];
-
-  // Avaialable for all employee types
-  it.each(employeeTypes)(
-    "is available for $request.empType",
-    async ({ request }) => {
-      renderEditPanelForRequest(request);
-      await checkEnterableTextbox(fieldLabels.JOB_TITLE.form, "Developer");
-    }
-  );
-
-  // Must be a valid formatted phone upon entry
-  it.each(dutyPhoneTestValues)(
-    "check for valid input - $input",
-    async ({ input, value, err }) => {
-      renderEditPanelForRequest(civRequest);
-
-      // Type in the Duty Phone input box
-      const dutyPhoneFld = screen.getByLabelText(fieldLabels.DUTY_PHONE.form);
-
-      // Clear the input, then type the passed in data
-      await user.clear(dutyPhoneFld);
-      await user.type(dutyPhoneFld, input);
-
-      // Ensure value of SSN now matches what we expect
-      await waitFor(() => expect(dutyPhoneFld).toHaveValue(value));
-
-      // Check for expected error message -- if we don't expect one, check that there is none
-      checkForErrorMessage(dutyPhoneFld, err ?? /^$/, true);
-    }
+    },
   );
 });
