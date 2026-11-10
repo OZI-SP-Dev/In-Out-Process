@@ -133,16 +133,6 @@ const fieldsByEmployeeType = [
         { request: milRequest, expected: true },
       ],
   },
-  {
-    field: fieldLabels.DUTY_PHONE.view,
-    rules:
-      // All Employee Types
-      [
-        { request: civRequest, expected: true },
-        { request: ctrRequest, expected: true },
-        { request: milRequest, expected: true },
-      ],
-  },
 ];
 
 /** Render an open InRequestEditPanel within a QueryClientProvider */
@@ -150,7 +140,7 @@ const renderViewForRequest = (request: IInRequest, roles?: RoleType[]) => {
   render(
     <QueryClientProvider client={queryClient}>
       <InRequestViewCompact formData={request} roles={roles ?? []} />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 };
 
@@ -162,9 +152,9 @@ describe.each(fieldsByEmployeeType)(
       ({ request, expected }) => {
         renderViewForRequest(request);
         expectTextToBeInTheDocument(field, expected);
-      }
+      },
     );
-  }
+  },
 );
 
 // Remote location is displayed under the 'Local or Remote' header
@@ -179,12 +169,12 @@ describe("Local or Remote", () => {
         request.workLocation === "local"
           ? "local"
           : request.workLocationDetail
-          ? request.workLocationDetail
-          : "";
+            ? request.workLocationDetail
+            : "";
       expect(textElement).toHaveAccessibleDescription(
-        new RegExp(expectedValue, "i")
+        new RegExp(expectedValue, "i"),
       );
-    }
+    },
   );
 });
 
@@ -203,7 +193,7 @@ describe("Contract End Date", () => {
     const textElement = screen.queryByText(fieldLabels.CONTRACT_END_DATE.view);
 
     expect(textElement).toHaveAccessibleDescription(
-      ctrRequest.contractEndDate?.toLocaleDateString()
+      ctrRequest.contractEndDate?.toLocaleDateString(),
     );
   });
 });
@@ -223,7 +213,7 @@ describe("Requires SCI", () => {
       const milRequestSAR = { ...milRequest, SAR: sar };
       renderViewForRequest(milRequestSAR);
       expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
-    }
+    },
   );
 
   it.each(validSAR)(
@@ -232,7 +222,7 @@ describe("Requires SCI", () => {
       const civRequestSAR = { ...civRequest, SAR: sar };
       renderViewForRequest(civRequestSAR);
       expectTextToBeInTheDocument(fieldLabels.REQUIRES_SCI.view, false);
-    }
+    },
   );
 
   it("is not displayed for Contractors", async () => {
@@ -251,7 +241,7 @@ describe("Requires SCI", () => {
       const textElement = screen.queryByText(fieldLabels.REQUIRES_SCI.view);
 
       expect(textElement).toHaveAccessibleDescription(new RegExp(isSCI, "i"));
-    }
+    },
   );
 });
 
@@ -266,7 +256,7 @@ describe("SSN", () => {
   ];
   // All other defined roles are not authorized to see
   const rolesWithoutSSN = Object.values(RoleType).filter(
-    (role) => !rolesWithSSN.includes(role)
+    (role) => !rolesWithSSN.includes(role),
   );
 
   it.each(rolesWithSSN.concat(rolesWithoutSSN))(
@@ -274,7 +264,7 @@ describe("SSN", () => {
     async ($role) => {
       renderViewForRequest(ctrRequest, [$role]);
       expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
-    }
+    },
   );
 
   it.each(rolesWithoutSSN)(
@@ -282,7 +272,7 @@ describe("SSN", () => {
     async ($role) => {
       renderViewForRequest(civRequest, [$role]);
       expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
-    }
+    },
   );
 
   it.each(rolesWithSSN)(
@@ -290,7 +280,7 @@ describe("SSN", () => {
     async ($role) => {
       renderViewForRequest(civRequest, [$role]);
       expectTextToBeInTheDocument(fieldLabels.SSN.view, true);
-    }
+    },
   );
 
   it.each(rolesWithoutSSN)(
@@ -298,7 +288,7 @@ describe("SSN", () => {
     async ($role) => {
       renderViewForRequest(civRequest, [$role]);
       expectTextToBeInTheDocument(fieldLabels.SSN.view, false);
-    }
+    },
   );
 
   it.each(rolesWithSSN)(
@@ -306,6 +296,6 @@ describe("SSN", () => {
     async ($role) => {
       renderViewForRequest(civRequest, [$role]);
       expectTextToBeInTheDocument(fieldLabels.SSN.view, true);
-    }
+    },
   );
 });

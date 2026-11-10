@@ -36,7 +36,6 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
       Id: request.Id,
       empName: request.empName,
       jobTitle: request.jobTitle,
-      dutyPhone: request.dutyPhone,
       empType: request.empType,
       gradeRank: request.gradeRank,
       MPCN: request.MPCN,
@@ -132,7 +131,7 @@ export const transformRequestFromSP = (request: IResponseItem): IRequest => {
  */
 
 const transformRequestToSP = async (
-  request: IRequest
+  request: IRequest,
 ): Promise<IRequestItem> => {
   if (isInRequest(request)) {
     // Transform for In Processing Request
@@ -141,7 +140,6 @@ const transformRequestToSP = async (
       Id: request.Id,
       empName: request.empName,
       jobTitle: request.jobTitle,
-      dutyPhone: request.dutyPhone,
       empType: request.empType,
       gradeRank: request.gradeRank,
       MPCN: request.MPCN,
@@ -228,7 +226,7 @@ const transformRequestToSP = async (
  * cause update errors
  */
 export const transformRequestSummaryFromSP = (
-  request: IResponseSummary
+  request: IResponseSummary,
 ): IRequestSummary => {
   if (isInResponseSummary(request)) {
     return {
@@ -294,7 +292,7 @@ export const transformRequestSummaryFromSP = (
 };
 
 const transformRequestsSummaryFromSP = (
-  requests: IResponseSummary[]
+  requests: IResponseSummary[],
 ): IRequestSummary[] => {
   return requests.map((request) => {
     return transformRequestSummaryFromSP(request);
@@ -326,7 +324,7 @@ const getMyRequests = async (userId: number) => {
   return spWebContext.web.lists
     .getByTitle("Items")
     .items.filter(
-      `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`
+      `(supGovLead/Id eq '${userId}' or employee/Id eq '${userId}') and closedOrCancelledDate eq null`,
     )
     .select(requestsSummaryFields)
     .expand(requestsSummaryexpandedFields)();
@@ -409,7 +407,7 @@ export const useAddRequest = () => {
         // After the tasks have been created, generate the email notification
         sendRequestSubmitEmail.mutate({ request: data, tasks: tasks });
       },
-    }
+    },
   );
 };
 
@@ -427,7 +425,7 @@ export const useUpdateRequest = (Id: number) => {
       onSuccess: () => {
         queryClient.invalidateQueries(["requests", Id]);
       },
-    }
+    },
   );
 };
 
@@ -449,7 +447,7 @@ export const useUpdateEmployeeToPerson = (Id: number) => {
       onSuccess: () => {
         queryClient.invalidateQueries(["requests", Id]);
       },
-    }
+    },
   );
 };
 
@@ -486,7 +484,7 @@ export const useCancelRequest = (Id: number) => {
         // Purge the Additional Information
         purgeAdditionalInfo.mutate();
       },
-    }
+    },
   );
 };
 
@@ -518,7 +516,7 @@ export const useCompleteRequest = (Id: number) => {
         // Purge the Additional Information
         purgeAdditionalInfo.mutate();
       },
-    }
+    },
   );
 };
 
@@ -532,8 +530,6 @@ export type IInRequest = {
   empName: string;
   /** Required - The Employee's Job/Duty Title */
   jobTitle: string;
-  /** Required - The Employee's Duty Phone */
-  dutyPhone: string;
   /** Required - Employee's Type valid values are:
    * 'Civilian' - for Civilian Employees
    * 'Contractor' - for Contracted Employees
@@ -765,28 +761,28 @@ export function isInRequest(request: IRequest): request is IInRequest {
 
 // Custom Type Checking Function to determine if it is an In Processing Request Summary, or an Out Processing Request Summary
 export function isInRequestSummary(
-  request: IRequestSummary
+  request: IRequestSummary,
 ): request is IInRequestSummary {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInResponse(
-  request: IResponseItem
+  request: IResponseItem,
 ): request is IInResponseItem {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request Summary response, or an Out Processing Request Summary response
 export function isInResponseSummary(
-  request: IResponseSummary
+  request: IResponseSummary,
 ): request is IInResponseSummary {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
 
 // Custom Type Checking Function to determine if it is an In Processing Request response, or an Out Processing Request response
 export function isInRequestItem(
-  request: IRequestItem
+  request: IRequestItem,
 ): request is IInRequestItem {
   return request.reqType !== "Out"; // If it isn't an Out processing, then it must be In processing -- supports legacy records where "In" was not set
 }
