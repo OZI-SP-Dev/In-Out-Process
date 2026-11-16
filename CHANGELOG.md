@@ -10,11 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (Keep your changes here until you have a release version)
 
+## [2.1.7] - 2026-11-16
+
+### Changed
+
+- Updated Enterprise Tech Team (ETT) to IT Services Management (ITSM) team
+
 ### Removed
 
 - Removed the Duty Phone, as this is no longer needed to process an incoming employee
 
-## [2.1.5] - 2026-09-23
+## [2.1.6] - 2026-09-23
 
 ### Added
 
