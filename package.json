@@ -25,7 +25,7 @@
   "scripts": {
     "build:test": "tsc --noEmit && vite build --mode testing && npm run postbuildclean",
     "build:prod": "tsc --noEmit && vite build && npm run postbuildclean",
-    "postbuildclean": "cat dist/index.aspx dist/index.html > dist/index.aspx && rm dist/index.html && rm dist/mockServiceWorker.js",
+    "postbuildclean": "node scripts/merge-files.js",
     "dev": "vite --open",
     "test": "vitest run",
     "test:InRequestEditPanel": "vitest --test-timeout=20000 related src/components/InRequest/__tests__/InRequestEditPanel.tsx"
