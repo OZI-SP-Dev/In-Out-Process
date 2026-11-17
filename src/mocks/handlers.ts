@@ -138,7 +138,7 @@ testRoles.forEach((role) => {
  * @returns A boolean on whether this is an IPerson object type
  */
 function isIPerson(
-  userObj: IPerson | (IExampleExtendedPersonaProps & { key: string | number })
+  userObj: IPerson | (IExampleExtendedPersonaProps & { key: string | number }),
 ): userObj is IPerson {
   return "Title" in userObj ? true : false; // If it has a Title prop, then assume it is an IPerson (testUser)
 }
@@ -236,7 +236,7 @@ export const handlers = [
         webFullUrl: localRoot,
         siteFullUrl: localRoot,
         formDigestValue: "value",
-      })
+      }),
     );
   }),
 
@@ -267,7 +267,7 @@ export const handlers = [
         Id: user.Id,
         Title: user.Title,
         Email: user.EMail,
-      })
+      }),
     );
   }),
 
@@ -287,19 +287,19 @@ export const handlers = [
       const peopleUsers = people.filter(
         (person) =>
           person.text?.toLowerCase().includes(queryString.toLowerCase()) &&
-          !testUsers.find((testUser) => testUser.Title === person.text) // Exclude any that are also defined in testUsers
+          !testUsers.find((testUser) => testUser.Title === person.text), // Exclude any that are also defined in testUsers
       );
 
       // Find matches from the predefined (and added on the fly) testUsers
       const users = testUsers
         .filter((person) =>
-          person.Title.toLowerCase().includes(queryString.toLowerCase())
+          person.Title.toLowerCase().includes(queryString.toLowerCase()),
         )
         .sort(
           (
             a,
-            b // Sort our testUsers alphabetially
-          ) => a.Title.localeCompare(b.Title)
+            b, // Sort our testUsers alphabetially
+          ) => a.Title.localeCompare(b.Title),
         );
 
       // Add any users from our testUsers data to the top, and the FluentUI data to the bottom of the results
@@ -312,8 +312,8 @@ export const handlers = [
         const title = isIPerson(user)
           ? user.Title
           : user.text
-          ? user.text
-          : "DEFAULT";
+            ? user.text
+            : "DEFAULT";
         return {
           Key: `i:0#.f|membership|${email}`,
           DisplayText: title,
@@ -340,9 +340,9 @@ export const handlers = [
         ctx.delay(responsedelay),
         ctx.json({
           value: JSON.stringify(retValue),
-        })
+        }),
       );
-    }
+    },
   ),
 
   /**
@@ -352,7 +352,7 @@ export const handlers = [
     "/_api/web/lists/getByTitle\\('Emails')/items",
     (_req, res, ctx) => {
       return res(ctx.status(200), ctx.delay(responsedelay));
-    }
+    },
   ),
 
   /**
@@ -367,16 +367,16 @@ export const handlers = [
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: result })
+          ctx.json({ value: result }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   /**
@@ -388,7 +388,7 @@ export const handlers = [
     async (req, res, ctx) => {
       const { ItemId } = req.params;
       let index = requests.findIndex(
-        (element) => element.Id === Number(ItemId)
+        (element) => element.Id === Number(ItemId),
       );
       if (index !== -1) {
         let body = await req.json();
@@ -396,16 +396,16 @@ export const handlers = [
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: requests[index] })
+          ctx.json({ value: requests[index] }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   // Create new Request
@@ -414,10 +414,10 @@ export const handlers = [
     async (req, res, ctx) => {
       let body = (await req.json()) as IRequestItem;
       let supervisor = testUsers.find(
-        (element) => element.Id === Number(body.supGovLeadId)
+        (element) => element.Id === Number(body.supGovLeadId),
       );
       let employee = testUsers.find(
-        (element) => element.Id === Number(body.employeeId)
+        (element) => element.Id === Number(body.employeeId),
       );
       let request: IResponse;
       if (supervisor) {
@@ -427,7 +427,6 @@ export const handlers = [
             Id: nextRequestId++,
             empName: body.empName,
             jobTitle: body.jobTitle,
-            dutyPhone: body.dutyPhone,
             empType: body.empType,
             gradeRank: body.gradeRank,
             MPCN: body.MPCN,
@@ -485,11 +484,11 @@ export const handlers = [
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: request })
+          ctx.json({ value: request }),
         );
       }
       return res(ctx.status(400), ctx.delay(responsedelay));
-    }
+    },
   ),
 
   // Get all Request Items
@@ -499,7 +498,7 @@ export const handlers = [
     if (filter) {
       // Filter for My Requests
       const myRequestFilter = filter.match(
-        /\(supGovLead\/Id eq '(-?\d+)' or employee\/Id eq '(-?\d+)'\) and closedOrCancelledDate eq null/
+        /\(supGovLead\/Id eq '(-?\d+)' or employee\/Id eq '(-?\d+)'\) and closedOrCancelledDate eq null/,
       );
 
       // If the filter was for My Requests
@@ -508,21 +507,21 @@ export const handlers = [
           (item: IResponse) =>
             (item.supGovLead.Id.toString() === myRequestFilter[1] ||
               item.employee?.Id.toString() === myRequestFilter[2]) &&
-            !item.closedOrCancelledDate
+            !item.closedOrCancelledDate,
         );
       } else {
         // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
         return res(
           ctx.status(500),
           ctx.delay(responsedelay),
-          ctx.body(`No Mock created for this filter string - ${filter}`)
+          ctx.body(`No Mock created for this filter string - ${filter}`),
         );
       }
     }
     return res(
       ctx.status(200),
       ctx.delay(responsedelay),
-      ctx.json({ value: results })
+      ctx.json({ value: results }),
     );
   }),
 
@@ -542,9 +541,9 @@ export const handlers = [
       return res(
         ctx.status(200),
         ctx.delay(responsedelay),
-        ctx.json({ value: additionlInfo })
+        ctx.json({ value: additionlInfo }),
       );
-    }
+    },
   ),
 
   // Get Additional Info
@@ -561,23 +560,23 @@ export const handlers = [
         if (requestIDFilter) {
           results = results.filter(
             (item: IAdditionalInfo) =>
-              item.RequestId.toString() === requestIDFilter[1]
+              item.RequestId.toString() === requestIDFilter[1],
           );
         } else {
           // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
           return res(
             ctx.status(500),
             ctx.delay(responsedelay),
-            ctx.body(`No Mock created for this filter string - ${filter}`)
+            ctx.body(`No Mock created for this filter string - ${filter}`),
           );
         }
       }
       return res(
         ctx.status(200),
         ctx.delay(responsedelay),
-        ctx.json({ value: results })
+        ctx.json({ value: results }),
       );
-    }
+    },
   ),
 
   /**
@@ -590,7 +589,7 @@ export const handlers = [
       const { ItemId } = req.params;
 
       let index = additionallData.findIndex(
-        (element) => element.Id === Number(ItemId)
+        (element) => element.Id === Number(ItemId),
       );
 
       // If it is a request to delete the item
@@ -602,7 +601,7 @@ export const handlers = [
           return res(
             ctx.status(404),
             ctx.delay(responsedelay),
-            ctx.json(notFound)
+            ctx.json(notFound),
           );
         }
       }
@@ -620,16 +619,16 @@ export const handlers = [
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: additionallData[index] })
+          ctx.json({ value: additionallData[index] }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   rest.get(
@@ -650,36 +649,36 @@ export const handlers = [
         if (RequestId) {
           results = results.filter(
             (item: ICheckListResponseItem) =>
-              item.RequestId === Number(RequestId[1])
+              item.RequestId === Number(RequestId[1]),
           );
         } else if (CompletedDate) {
           results = results.filter(
-            (item: ICheckListResponseItem) => !item.CompletedDate
+            (item: ICheckListResponseItem) => !item.CompletedDate,
           );
           if (filterRoles) {
             results = results.filter((item: ICheckListResponseItem) =>
-              roles.includes(item.Lead)
+              roles.includes(item.Lead),
             );
           }
         } else if (filterRoles) {
           results = results.filter((item: ICheckListResponseItem) =>
-            roles.includes(item.Lead)
+            roles.includes(item.Lead),
           );
         } else {
           // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
           return res(
             ctx.status(500),
             ctx.delay(responsedelay),
-            ctx.body(`No Mock created for this filter string - ${filter}`)
+            ctx.body(`No Mock created for this filter string - ${filter}`),
           );
         }
       }
       return res(
         ctx.status(200),
         ctx.delay(responsedelay),
-        ctx.json({ value: results })
+        ctx.json({ value: results }),
       );
-    }
+    },
   ),
 
   /**
@@ -692,7 +691,7 @@ export const handlers = [
     async (req, res, ctx) => {
       const { ItemId } = req.params;
       let index = checklistitems.findIndex(
-        (element) => element.Id === Number(ItemId)
+        (element) => element.Id === Number(ItemId),
       );
       if (index !== -1) {
         let body = await req.json();
@@ -717,16 +716,16 @@ export const handlers = [
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: checklistitems[index] })
+          ctx.json({ value: checklistitems[index] }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   // Handle $batch requests
@@ -743,7 +742,7 @@ export const handlers = [
      * Matching group 3 finds the object
      */
     const regex = RegExp(
-      /(?:[POST|MERGE] http:\/\/localhost:3000)([A-Za-z0-9'/_:.\-()]+)(?:\sHTTP\/1\.1\saccept: application\/json\s+content-type: application\/json;charset=utf-8\s(?:if-match: \*)?\s+)({.+?})/g
+      /(?:[POST|MERGE] http:\/\/localhost:3000)([A-Za-z0-9'/_:.\-()]+)(?:\sHTTP\/1\.1\saccept: application\/json\s+content-type: application\/json;charset=utf-8\s(?:if-match: \*)?\s+)({.+?})/g,
     );
 
     const posts = Array.from(body.matchAll(regex), (m) => {
@@ -777,13 +776,13 @@ export const handlers = [
         //add a batchresponse
       } else {
         let checklistitemId = post[0].match(
-          /_api\/web\/lists\/getByTitle\('CheckListItems'\)\/items\((.+?)\)/
+          /_api\/web\/lists\/getByTitle\('CheckListItems'\)\/items\((.+?)\)/,
         );
         if (checklistitemId) {
           const thisId = checklistitemId[1];
 
           let index = checklistitems.findIndex(
-            (element) => element.Id === Number(thisId)
+            (element) => element.Id === Number(thisId),
           );
 
           if (index !== -1) {
@@ -796,10 +795,10 @@ export const handlers = [
                 CompletedBy: {
                   Id: item.CompletedById,
                   Title: testUsers.find(
-                    (user) => user.Id === item.CompletedById
+                    (user) => user.Id === item.CompletedById,
                   )?.Title,
                   EMail: testUsers.find(
-                    (user) => user.Id === item.CompletedById
+                    (user) => user.Id === item.CompletedById,
                   )?.EMail,
                 },
               }),
@@ -838,10 +837,10 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
       ctx.text(batchresponse),
       ctx.set(
         "Content-Type",
-        "multipart/mixed; boundary=batchresponse_88fbf8e7-8616-4c32-96c8-cedd3323460b"
+        "multipart/mixed; boundary=batchresponse_88fbf8e7-8616-4c32-96c8-cedd3323460b",
       ),
       ctx.set("SPRequestGuid", "6b5975a0-40d3-0000-1598-09882fca4612"),
-      ctx.set("request-id", "6b5975a0-40d3-0000-1598-09882fca4612")
+      ctx.set("request-id", "6b5975a0-40d3-0000-1598-09882fca4612"),
     );
   }),
 
@@ -855,21 +854,21 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
       const UserId = filter.match(/User\/Id eq '(.+?)'/);
       if (UserId) {
         results = results.filter(
-          (item: SPRole) => item.User.Id === Number(UserId[1])
+          (item: SPRole) => item.User.Id === Number(UserId[1]),
         );
       } else {
         // If a filter was passed, but we didn't have a match for how to process it, return an error so mock can be adjusted
         return res(
           ctx.status(500),
           ctx.delay(responsedelay),
-          ctx.body(`No Mock created for this filter string - ${filter}`)
+          ctx.body(`No Mock created for this filter string - ${filter}`),
         );
       }
     }
     return res(
       ctx.status(200),
       ctx.delay(responsedelay),
-      ctx.json({ value: results })
+      ctx.json({ value: results }),
     );
   }),
 
@@ -885,16 +884,16 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: result })
+          ctx.json({ value: result }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   /**
@@ -917,7 +916,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         return res(ctx.status(200), ctx.delay(responsedelay), ctx.json(role));
       }
       return res(ctx.status(400), ctx.delay(responsedelay));
-    }
+    },
   ),
 
   /**
@@ -931,7 +930,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
       if (req.headers.get("x-http-method") === "DELETE") {
         const { ItemId } = req.params;
         let index = testRoles.findIndex(
-          (element) => element.Id === Number(ItemId)
+          (element) => element.Id === Number(ItemId),
         );
 
         if (index !== -1) {
@@ -941,7 +940,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
           return res(
             ctx.status(404),
             ctx.delay(responsedelay),
-            ctx.json(notFound)
+            ctx.json(notFound),
           );
         }
       }
@@ -950,11 +949,11 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
       const { ItemId } = req.params;
       let body = await req.json();
       let index = testRoles.findIndex(
-        (element) => element.Id === Number(ItemId)
+        (element) => element.Id === Number(ItemId),
       );
       let roleItem = testRoles[index];
       let user = testUsers.find(
-        (element) => element.Id === Number(body.UserId)
+        (element) => element.Id === Number(body.UserId),
       );
 
       if (index !== -1 && user) {
@@ -964,16 +963,16 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json({ value: testRoles[index] })
+          ctx.json({ value: testRoles[index] }),
         );
       } else {
         return res(
           ctx.status(404),
           ctx.delay(responsedelay),
-          ctx.json(notFound)
+          ctx.json(notFound),
         );
       }
-    }
+    },
   ),
 
   /**
@@ -997,7 +996,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
                 code: "-2146232832, Microsoft.SharePoint.SPException",
                 message: { lang: "en-US", value: "Group cannot be found." },
               },
-            })
+            }),
           );
         }
 
@@ -1032,7 +1031,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
                   NameIdIssuer: "urn:federation:microsoftonline",
                 },
                 UserPrincipalName: email,
-              })
+              }),
             );
           } else {
             return res(
@@ -1046,7 +1045,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
                     value: "The user does not exist or is not unique.",
                   },
                 },
-              })
+              }),
             );
           }
         }
@@ -1054,10 +1053,10 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         return res(
           ctx.status(500),
           ctx.delay(responsedelay),
-          ctx.body("GroupName passed in was not of type 'string'")
+          ctx.body("GroupName passed in was not of type 'string'"),
         );
       }
-    }
+    },
   ),
 
   /**
@@ -1076,7 +1075,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
               code: "-2146232832, Microsoft.SharePoint.SPException",
               message: { lang: "en-US", value: "Group cannot be found." },
             },
-          })
+          }),
         );
       }
 
@@ -1099,7 +1098,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
             ctx.json({
               "odata.metadata": `${localRoot}/_api/$metadata#Edm.Null`,
               "odata.null": true,
-            })
+            }),
           );
         } else {
           return res(
@@ -1113,11 +1112,11 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
                   value: "The user does not exist or is not unique.",
                 },
               },
-            })
+            }),
           );
         }
       }
-    }
+    },
   ),
 
   /**
@@ -1161,7 +1160,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
             TimeLastModified: now,
             UniqueId: uniqueId,
             WelcomePage: "",
-          })
+          }),
         );
         /*} else {
         return res(
@@ -1171,7 +1170,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         );
       }*/
       }
-    }
+    },
   ),
 
   /**
@@ -1186,16 +1185,16 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
         return res(
           ctx.status(200),
           ctx.delay(responsedelay),
-          ctx.json(getDocuments(Library, ItemId))
+          ctx.json(getDocuments(Library, ItemId)),
         );
       } else {
         return res(
           ctx.status(500),
           ctx.delay(responsedelay),
-          ctx.json("Bad request")
+          ctx.json("Bad request"),
         );
       }
-    }
+    },
   ),
 
   /**
@@ -1224,11 +1223,11 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
           return res(
             ctx.status(200),
             ctx.delay(responsedelay),
-            ctx.json({ value: "" })
+            ctx.json({ value: "" }),
           );
         }
       }
-    }
+    },
   ),
 
   /**
@@ -1263,7 +1262,7 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
             "odata.metadata":
               "https://usaf.dps.mil/teams/10251/RPA-DEV/_api/$metadata#Edm.Guid",
             value: uuidv4(), // Returns a new ID for the recycled item
-          })
+          }),
         );
       } else {
         // Failed to find that file, so report error
@@ -1278,10 +1277,10 @@ LOCATION: ${localRoot}/_api/Web/Lists(guid'5325476d-8a45-4e66-bdd9-d55d72d51d15'
                 value: "File Not Found.",
               },
             },
-          })
+          }),
         );
       }
-    }
+    },
   ),
 ];
 
@@ -1294,7 +1293,6 @@ let requests: IResponse[] = [
     Id: 2,
     empName: testUsers[1].Title,
     jobTitle: "Developer",
-    dutyPhone: "012-345-6789",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-11",
     MPCN: "1234567",
@@ -1323,7 +1321,6 @@ let requests: IResponse[] = [
     Id: 1,
     empName: "Doe, Jane D",
     jobTitle: "Team Lead",
-    dutyPhone: "987-654-3210",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: "7654321",
@@ -1350,7 +1347,6 @@ let requests: IResponse[] = [
     Id: 3,
     empName: testUsers[0].Title,
     jobTitle: "Analyst",
-    dutyPhone: "111-222-3333",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-12",
     MPCN: "123321A",
@@ -1378,7 +1374,6 @@ let requests: IResponse[] = [
     Id: 5,
     empName: "Cancelled, Imma B",
     jobTitle: "Scrum Master",
-    dutyPhone: "333-222-1111",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: "RAND000-111222",
@@ -1408,7 +1403,6 @@ let requests: IResponse[] = [
     Id: 4,
     empName: "Closed, Aye M",
     jobTitle: "Requirements Manager",
-    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Civilian,
     gradeRank: "GS-13",
     MPCN: "RAND-123456",
@@ -1437,7 +1431,6 @@ let requests: IResponse[] = [
     Id: 6,
     empName: "Tractor, Kauhn",
     jobTitle: "Contractor Support",
-    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Contractor,
     gradeRank: "",
     workLocation: "local",
@@ -1461,7 +1454,6 @@ let requests: IResponse[] = [
     Id: 7,
     empName: "SCI Military",
     jobTitle: "Branch Chief",
-    dutyPhone: "111-222-1234",
     empType: EMPTYPES.Military,
     gradeRank: "O-3",
     MPCN: "0123456",
@@ -1488,7 +1480,6 @@ let requests: IResponse[] = [
     Id: 8,
     empName: "No SCI Military",
     jobTitle: "Branch Chief",
-    dutyPhone: "999-999-9999",
     empType: EMPTYPES.Military,
     gradeRank: "O-3",
     MPCN: "6543210",
@@ -1876,10 +1867,10 @@ const updateRequest = (id: number, item: IRequestItem) => {
   let index = requests.findIndex((element) => element.Id === id);
   let reqItem = requests[index];
   let supervisor = testUsers.find(
-    (element) => element.Id === Number(item.supGovLeadId)
+    (element) => element.Id === Number(item.supGovLeadId),
   );
   let employee = testUsers.find(
-    (element) => element.Id === Number(item.employeeId)
+    (element) => element.Id === Number(item.employeeId),
   );
 
   if (index !== -1) {
@@ -1887,7 +1878,6 @@ const updateRequest = (id: number, item: IRequestItem) => {
       // If it is an In Processing Request
       reqItem.empName = item.empName ? item.empName : reqItem.empName;
       reqItem.jobTitle = item.jobTitle ? item.jobTitle : reqItem.jobTitle;
-      reqItem.dutyPhone = item.dutyPhone ? item.dutyPhone : reqItem.dutyPhone;
       reqItem.empName = item.empName ? item.empName : reqItem.empName;
       reqItem.empType = item.empType ? item.empType : reqItem.empType;
       reqItem.gradeRank = item.gradeRank ? item.gradeRank : reqItem.gradeRank;

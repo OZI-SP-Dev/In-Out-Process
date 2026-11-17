@@ -486,68 +486,6 @@ const InRequestNewForm = () => {
       </div>
       <div className={classes.fieldContainer}>
         <Label
-          htmlFor="dutyPhoneId"
-          size="small"
-          weight="semibold"
-          className={classes.fieldLabel}
-          required
-        >
-          <NumberFieldIcon className={classes.fieldIcon} />
-          Duty Phone #
-        </Label>
-        <Controller
-          name="dutyPhone"
-          control={control}
-          defaultValue={""}
-          rules={{
-            required: "Duty Phone # is required",
-            pattern: {
-              value: /^\d{3}-\d{3}-\d{4}$/,
-              message: "Phone number must be of the form ###-###-####",
-            },
-          }}
-          render={({ field }) => (
-            <Input
-              {...field}
-              aria-describedby="dutyPhoneErr"
-              onInput={(e) => {
-                let endsDash = false;
-                if (e.currentTarget.value.match(/-$/)) {
-                  endsDash = true;
-                }
-                e.currentTarget.value = e.currentTarget.value.replace(
-                  /\D/g,
-                  "",
-                );
-                const size = e.currentTarget.value.length;
-                if (size > 3 || endsDash) {
-                  // If we have more than 3 numbers, or we have either ###- or ###-###-
-                  // The second condition allows them to type a dash, otherwise the code would "reject" it
-                  e.currentTarget.value =
-                    e.currentTarget.value.slice(0, 3) +
-                    "-" +
-                    e.currentTarget.value.slice(3, 11);
-                }
-                if (size > 6 || (size > 5 && endsDash)) {
-                  e.currentTarget.value =
-                    e.currentTarget.value.slice(0, 7) +
-                    "-" +
-                    e.currentTarget.value.slice(7);
-                }
-              }}
-              type="tel"
-              id="dutyPhoneId"
-            />
-          )}
-        />
-        {errors.dutyPhone && (
-          <Text id="dutyPhoneErr" className={classes.errorText}>
-            {errors.dutyPhone.message}
-          </Text>
-        )}
-      </div>
-      <div className={classes.fieldContainer}>
-        <Label
           id="gradeRankId"
           size="small"
           weight="semibold"

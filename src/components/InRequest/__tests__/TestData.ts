@@ -26,7 +26,6 @@ export const milRequest: IInRequest = {
   Id: 1,
   empName: testUsers[1].Title,
   jobTitle: "Commander",
-  dutyPhone: "111-222-3333",
   empType: EMPTYPES.Military,
   gradeRank: "E-2",
   MPCN: "7654321",
@@ -54,7 +53,6 @@ export const civRequest: IInRequest = {
   Id: 2,
   empName: testUsers[1].Title,
   jobTitle: "Analyst",
-  dutyPhone: "9876-543-210",
   empType: EMPTYPES.Civilian,
   gradeRank: "GS-12",
   MPCN: "123456A",
@@ -82,7 +80,6 @@ export const ctrRequest: IInRequest = {
   Id: 3,
   empName: testUsers[1].Title,
   jobTitle: "Hired Help",
-  dutyPhone: "012-345-6789",
   empType: EMPTYPES.Contractor,
   gradeRank: "",
   workLocation: "local",
@@ -111,7 +108,7 @@ export const remoteLocationDataset = [
 
 /** Test data used by Remote Location - Filter remoteLocationDataset to only include those with "remote" */
 export const remoteLocationOnlyDataset = remoteLocationDataset.filter(
-  (item) => item.request.workLocation === "remote"
+  (item) => item.request.workLocation === "remote",
 );
 
 export const fieldLabels = {
@@ -192,10 +189,6 @@ export const fieldLabels = {
     lengthError: /job\/duty title cannot be longer than 100 characters/i,
     view: /job\/duty title/i,
   },
-  DUTY_PHONE: {
-    form: /duty phone #/i,
-    view: /duty phone #/i,
-  },
 };
 
 /** Check if there is an input field matching the desired label
@@ -218,7 +211,7 @@ export const checkForInputToExist = (labelText: RegExp, expected: boolean) => {
  */
 export const checkForRadioGroupToBeDisabled = (
   labelText: RegExp,
-  expected: boolean
+  expected: boolean,
 ) => {
   const radioGroup = screen.getByRole("radiogroup", { name: labelText });
   const opts = within(radioGroup).getAllByRole("radio");
@@ -234,7 +227,7 @@ export const checkForRadioGroupToBeDisabled = (
 /** Check that ensures N/A is displayed properly */
 export const isNotApplicable = (
   fieldType: ByRoleMatcher,
-  fieldName: RegExp
+  fieldName: RegExp,
 ) => {
   // Check placeholder is N/A
   let naFld;
@@ -257,7 +250,7 @@ export const isNotApplicable = (
 export const checkForErrorMessage = (
   field: HTMLElement,
   errMessage: RegExp,
-  expected: boolean
+  expected: boolean,
 ) => {
   if (expected) {
     expect(field).toHaveAccessibleDescription(errMessage);
@@ -284,7 +277,6 @@ export const lengthTest = [
 /*  Values used for testing SSN */
 const shortSSN = /ssn cannot be less than 9 digits/i;
 const longSSN = /ssn cannot be more than 9 digits/i;
-const dutyPhoneErr = / /i
 export const ssnTestValues = [
   { input: "123456789", value: "123456789" }, // Valid
   { input: "111-22-3333", value: "111223333" }, // Valid
@@ -296,15 +288,4 @@ export const ssnTestValues = [
   { input: "123-56-89", value: "1235689", err: shortSSN }, // Cannot be short
   { input: "123-456-7890", value: "1234567890", err: longSSN }, // Cannot be long
   { input: "-123-56-89", value: "1235689", err: shortSSN }, // Cannot be a short number
-];
-
-export const dutyPhoneTestValues = [
-  { input: "123-456-7890", value: "123-456-7890" }, // Valid
-  { input: "(111) 222-3333", value: "111-222-3333" }, // Valid
-  { input: "333.444.5555", value: "333-444-5555" }, // Valid
-  { input: "(123)456-7890", value: "123-456-7890" }, // Valid
-  { input: "123", value: "123", err: dutyPhoneErr }, // Must match 10 digit format
-  { input: "123-4567", value: "123-456-7", err: dutyPhoneErr }, // Must match 10 digit format
-  { input: "123-456-78901", value: "123-456-78901", err: dutyPhoneErr }, // Must match 10 digit format
-  { input: "+1(937)123-4567", value: "193-712-34567", err: dutyPhoneErr }, // Must match 10 digit format
 ];

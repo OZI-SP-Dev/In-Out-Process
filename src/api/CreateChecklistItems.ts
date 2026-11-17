@@ -53,7 +53,7 @@ export enum templates {
   GTCConfirmTransfer = 49,
   CloseATAAPS = 50,
   DetachDTS = 51,
-  ScheduleETT = 52,
+  ScheduleITSMTeam = 52,
   EquimentTurnIn = 53,
   AccountUpdate = 54,
   UpdateRecallRoster = 55,
@@ -96,7 +96,7 @@ export const checklistTemplates: ICheckListItemTemplate[] = [
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.IA_Training,
     Description: `<div><p style="margin-top: 0px">Information Assurance (IA) Training is an annual requirement. It is accomplished by completing the Anual Cyber Awareness Training. It is mandatory that each employee be current in this training. Below are links to both a public (non-CAC) method for obtaining IA Training as well as myLearning for those with CACs. <b>Supervisors should provide non-CAC new employees with appropriate public website (item #1 below) so employee may complete training prior to installation in-processing.</b> If you have previously taken IA Training as a government employee and would like to check your training currency, go to Air Force myLearning below and view your training transcript.</p> 
-<p>1) No CAC - <a href="https://public.cyber.mil/training/cyber-awareness-challenge/">https://public.cyber.mil/training/cyber-awareness-challenge/</a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Upon completing the Cyber Awareness Challenge, download the completion certificate as a PDF, and send it to your supervisor and to the AFLCMC/OZI Enterprise Tech Team &lt;<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>&gt;</p> 
+<p>1) No CAC - <a href="https://public.cyber.mil/training/cyber-awareness-challenge/">https://public.cyber.mil/training/cyber-awareness-challenge/</a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Upon completing the Cyber Awareness Challenge, download the completion certificate as a PDF, and send it to your supervisor and to the AFLCMC/OZI IT Services Management team &lt;<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>&gt;</p> 
 <p>2) CAC - Air Force myLearning (<a href="https://lms-jets.cce.af.mil/moodle/">https://lms-jets.cce.af.mil/moodle/</a>)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a) Once within the website, click on the Total Force Awareness Training Button, then scroll down to the Annual Cyber Awareness Training and select the training.</p>
 </div>`,
     Prereqs: [],
@@ -307,16 +307,8 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Equipment Issue",
     Lead: RoleType.IT,
     TemplateId: templates.EquipmentIssue,
-    Description: `<p style="margin-top: 0px; text-align: center;">Enterprise Technical Team (ETT) In-Processing</p>
-<p>*** Completing this task will constitute issuance of IT equipment to the customer or an email from the supervisor/support staff stating equipment is NOT required, to the ETT Mailbox (<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>).*** </p>
-<p>To ensure expedient equipment issue for new employees, please have the new employee or supervisor of the new employee contact the ETT to schedule an appointment.</p>
-<p>When contacting the ETT, the technician will need to know if there are any non-standard software requirements for the new employee, as this requires additional coordination.</p>
-<p>For remote employees, the supervisor will need to coordinate with the ETT for shipping of hardware and first-time login.</p>
-<p>To schedule an appointment, please contact one of the following ETT Technicians via MS Teams:</p>
-<p><a href="https://dod.teams.microsoft.us/l/chat/0/0?users=henry.cardenas@us.af.mil">Henry Cardenas</a><br/>
-<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=rashid.malcolm-tilmon.2@us.af.mil">Rashid Malcolm-Tilmon</a><br/>
-<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=todd.shanklin.2@us.af.mil">Todd Shanklin</a><br/>
-<a href="https://dod.teams.microsoft.us/l/chat/0/0?users=jerry.theriot.5@us.af.mil">Jerry (Joey) Theriot</a></p>`,
+    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment issue appointment with the IT Services Management (ITSM) Team: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/ITSM%20Equipment%20Process.pdf">ITSM Equipment Process.pdf</a></p>
+<p>If equipment is not required, please review the information in the document above so that the ITSM Team may process the checklist item so that dependent checklist items can be completed.</p>`,
     Prereqs: [templates.SecurityCoord2875],
   },
   {
@@ -536,8 +528,9 @@ Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
   {
     Title: "Schedule equipment turn-in appointment",
     Lead: RoleType.EMPLOYEE,
-    TemplateId: templates.ScheduleETT,
-    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment turn-in appointment with the Enterprise Technical Team (ETT): <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/Forms/AllItems.aspx?viewpath=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FForms%2FAllItems%2Easpx&id=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links%2FETT%20OP%2Epdf&viewid=8b5449d7%2D6c5b%2D49fb%2Dbd3c%2D7f97cda4d428&parent=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links">ETT OP.pdf</a></p>`,
+    TemplateId: templates.ScheduleITSMTeam,
+    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment turn-in appointment with the IT Services Management (ITSM) team: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/ITSM%20Equipment%20Process.pdf">ITSM Equipment Process.pdf</a></p>
+<p>If equipment was not issued, please review the information in the document above on required actions so that the ITSM Team may process the checklist item so that dependent checklist items can be completed</p>`,
     Prereqs: [],
   },
   {
@@ -545,14 +538,14 @@ Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
     Lead: RoleType.IT,
     TemplateId: templates.EquimentTurnIn,
     Description: `<p style="margin-top: 0px">Out-processing employee will proceed to designated location at appointed time with all equipment listed on hand-receipt. Technician will verify serial numbers on all equipment</p>`,
-    Prereqs: [templates.ScheduleETT],
+    Prereqs: [templates.ScheduleITSMTeam],
   },
   {
     Title: "Account Update",
     Lead: RoleType.IT,
     TemplateId: templates.AccountUpdate,
     Description: `<p style="margin-top: 0px">Employee’s account will be removed from distribution/security groups and/or deprovisioned, as required.</p>`,
-    Prereqs: [templates.ScheduleETT],
+    Prereqs: [templates.ScheduleITSMTeam],
   },
   {
     Title: "Update Recall Roster",
@@ -858,7 +851,7 @@ const createOutboundChecklistItems = async (request: IOutRequest) => {
   }
 
   // Add task for scheduling equipment turn in
-  addChecklistItem(templates.ScheduleETT);
+  addChecklistItem(templates.ScheduleITSMTeam);
 
   // Add task for turning in equipment
   addChecklistItem(templates.EquimentTurnIn);

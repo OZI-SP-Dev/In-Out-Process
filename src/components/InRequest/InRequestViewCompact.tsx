@@ -43,13 +43,13 @@ export interface IInRequestViewCompact {
 }
 
 export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
-  props
+  props,
 ) => {
   const classes = useStyles();
   const formData = props.formData;
   const additionalInfo = useAdditionalInfo(formData.Id);
   const codeEntry = SENSITIVITY_CODES.find(
-    (code) => code.key === formData.sensitivityCode
+    (code) => code.key === formData.sensitivityCode,
   );
   const sensitivityCode = codeEntry ? codeEntry.text : "";
   const isAuthSSN =
@@ -65,14 +65,14 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
     showSSN && additionalInfo.data?.[0] && !additionalInfo.isStale
       ? `${additionalInfo.data[0]?.Title.substring(
           0,
-          3
+          3,
         )}-${additionalInfo.data[0]?.Title.substring(
           3,
-          5
+          5,
         )}-${additionalInfo.data[0]?.Title.substring(5, 9)}`
       : showSSN
-      ? "Retrieving"
-      : "*************";
+        ? "Retrieving"
+        : "*************";
 
   /** Function to hide the SSN and clear the setTimeout */
   const hideSSN = () => {
@@ -352,13 +352,6 @@ export const InRequestViewCompact: FunctionComponent<IInRequestViewCompact> = (
           </Label>
           <br />
           <Text id="jobTitleCVId">{formData.jobTitle}</Text>
-        </div>
-        <div>
-          <Label weight="semibold" htmlFor="dutyPhoneCVId">
-            Duty Phone #
-          </Label>
-          <br />
-          <Text id="dutyPhoneCVId">{formData.dutyPhone}</Text>
         </div>
       </div>
       {
