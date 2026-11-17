@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Updated Enterprise Tech Team (ETT) to IT Services Management (ITSM) team
+- Updated Equipment Issue and Schedule equipment turn-in tasks to leverage the same document
 
 ### Removed
 

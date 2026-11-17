@@ -307,12 +307,8 @@ RAPIDS website: <a href="https://idco.dmdc.os.mil/idco/">https://idco.dmdc.os.mi
     Title: "Equipment Issue",
     Lead: RoleType.IT,
     TemplateId: templates.EquipmentIssue,
-    Description: `<p style="margin-top: 0px; text-align: center;">IT Services Management (ITSM) team In-Processing</p>
-<p>*** Completing this task will constitute issuance of IT equipment to the customer or an email from the supervisor/support staff stating equipment is NOT required, to the ITSM Team Mailbox (<a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a>).*** </p>
-<p>To ensure expedient equipment issue for new employees, please have the new employee or supervisor of the new employee contact the ITSM team to schedule an appointment.</p>
-<p>When contacting the ITSM team, the technician will need to know if there are any non-standard software requirements for the new employee, as this requires additional coordination.</p>
-<p>For remote employees, the supervisor will need to coordinate with the ITSM team for shipping of hardware and first-time login.</p>
-<p>To schedule an appointment, please contact the ITSM team via email: <a href="mailto:AFLCMC.OZI.EnterpriseTechTeam@us.af.mil">AFLCMC.OZI.EnterpriseTechTeam@us.af.mil</a></p>`,
+    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment issue appointment with the IT Services Management (ITSM) Team: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/ITSM%20Equipment%20Process.pdf">ITSM Equipment Process.pdf</a></p>
+<p>If equipment is not required, please review the information in the document above so that the ITSM Team may process the checklist item so that dependent checklist items can be completed.</p>`,
     Prereqs: [templates.SecurityCoord2875],
   },
   {
@@ -533,7 +529,8 @@ Hanscom SSO: (781) 225-7151, Matthew Post</p>`,
     Title: "Schedule equipment turn-in appointment",
     Lead: RoleType.EMPLOYEE,
     TemplateId: templates.ScheduleITSMTeam,
-    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment turn-in appointment with the IT Services Management (ITSM) team: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/Forms/AllItems.aspx?viewpath=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FForms%2FAllItems%2Easpx&id=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links%2FITSM%20Team%20OP%2Epdf&viewid=8b5449d7%2D6c5b%2D49fb%2Dbd3c%2D7f97cda4d428&parent=%2Fsites%2F22539%2FDocs%20Shared%20to%20All%2FXP%20InOut%20Processing%20Automation%20Links">ITSM OP.pdf</a></p>`,
+    Description: `<p style="margin-top: 0px">See the following link for information on scheduling your equipment turn-in appointment with the IT Services Management (ITSM) team: <a href="https://usaf.dps.mil/sites/22539/Docs%20Shared%20to%20All/XP%20InOut%20Processing%20Automation%20Links/ITSM%20Equipment%20Process.pdf">ITSM Equipment Process.pdf</a></p>
+<p>If equipment was not issued, please review the information in the document above on required actions so that the ITSM Team may process the checklist item so that dependent checklist items can be completed</p>`,
     Prereqs: [],
   },
   {
